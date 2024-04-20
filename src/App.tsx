@@ -12,10 +12,15 @@ import {
 } from 'material-react-table';
 import Container from '@mui/material/Container';
 
+import {QueryClient,
+  QueryClientProvider} from '@tanstack/react-query'
+
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from '@mui/material/CssBaseline';
 
 const API_ENDPOINT = "https://powercalc.lauwbier.nl/api/library"
+
+const queryClient = new QueryClient();
 
 const theme = createTheme({
   palette: {
@@ -47,7 +52,7 @@ const App: React.FC = () => {
                     aliases: model.aliases?.join('|') || '-',
                     deviceType: model.device_type,
                     colorModes: model.color_modes || [],
-                    updateTimestamp: model.update_timestamp
+                    updatedAt: model.updated_at
                 });
             });
         });
@@ -120,13 +125,15 @@ const App: React.FC = () => {
   });
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container>
-        <Header total={data.length} />
-        <MaterialReactTable table={table} />
-      </Container>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Container>
+          <Header total={data.length} />
+          <MaterialReactTable table={table} />
+        </Container>
+      </ThemeProvider>
+    </QueryClientProvider>
   )
 }
 

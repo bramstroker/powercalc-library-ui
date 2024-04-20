@@ -8,5 +8,5 @@ export type PowerProfile = {
     aliases: string // Cannot use string[] yet as global search won't work
     deviceType: DeviceType
     colorModes: ColorMode[],
-    updateTimestamp: number
+    updatedAt: number
   }
