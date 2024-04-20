@@ -114,8 +114,6 @@ const App: React.FC = () => {
     muiSearchTextFieldProps: {
       size: 'small',
       variant: 'outlined',
-      label: 'Search',
-      placeholder: 'Search 100 rows',
     },
     layoutMode: 'grid',
     renderDetailPanel: ({ row }) => <DetailPanel profile={row.original} />
