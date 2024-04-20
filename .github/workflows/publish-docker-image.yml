@@ -1,4 +1,4 @@
-name: Publish Measure Docker Image
+name: Build & Publish Docker Image
 
 on:
   workflow_dispatch:
@@ -18,12 +18,10 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          # list of Docker images to use as base name for tags
           images: |
-            bramgerritsen/powercalc-library-viewer
+            bramgerritsen/powercalc-library-ui
           flavor: |
             latest=auto
-          # generate Docker tags based on the following events/attributes
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
