@@ -1,22 +1,20 @@
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import {PowerProfile} from '../types/PowerProfile'
-import { Alert, CircularProgress, Stack } from '@mui/material';
+import { Alert, CircularProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query'; 
-import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
-import ImageIcon from '@mui/icons-material/Image';
-import WorkIcon from '@mui/icons-material/Work';
 import FactoryIcon from '@mui/icons-material/Factory';
 import HistoryIcon from '@mui/icons-material/History';
 import PaletteIcon from '@mui/icons-material/Palette';
 import ElectricMeterIcon from '@mui/icons-material/ElectricMeter';
 import BoltIcon from '@mui/icons-material/Bolt';
-import BeachAccessIcon from '@mui/icons-material/BeachAccess';
+import TypeSpecimenIcon from '@mui/icons-material/TypeSpecimen';
+import MoreIcon from '@mui/icons-material/More';
+import PermDeviceInformationIcon from '@mui/icons-material/PermDeviceInformation';
+import MediationIcon from '@mui/icons-material/Mediation';
 
 interface DetailPanelProps {
     profile: PowerProfile
@@ -47,13 +45,13 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({ profile }) => {
 
   const properties = [
       { "label": "Manufacturer", "value": profile.manufacturer, "icon": FactoryIcon },
-      { "label": "Model ID", "value": profile.modelId, "icon": WorkIcon },
-      { "label": "Device type", "value": profile.deviceType, "icon": WorkIcon },
-      { "label": "Name", "value": profile.name, "icon": WorkIcon },
+      { "label": "Model ID", "value": profile.modelId, "icon": PermDeviceInformationIcon },
+      { "label": "Device type", "value": profile.deviceType, "icon": TypeSpecimenIcon },
+      { "label": "Name", "value": profile.name, "icon": MoreIcon },
       { "label": "Created", "value": fullProfile?.createdAt, "icon": HistoryIcon },
       { "label": "Updated", "value": profile.updatedAt, "icon": HistoryIcon },
       { "label": "Color modes", "value": profile.colorModes.join(', '), "icon": PaletteIcon },
-      { "label": "Aliases", "value": profile.aliases, "icon": WorkIcon },
+      { "label": "Aliases", "value": profile.aliases, "icon": MediationIcon },
       { "label": "Measure device", "value": fullProfile?.measureDevice, "icon": ElectricMeterIcon },
       { "label": "Measure method", "value": fullProfile?.measureMethod, "icon": ElectricMeterIcon },
       { "label": "Measure description", "value": fullProfile?.measureDescription, "icon": ElectricMeterIcon },
