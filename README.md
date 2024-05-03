@@ -25,3 +25,9 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+## Docker build / push
+
+- docker build -t library_ui .
+- docker image tag downloader bramgerritsen/powercalc-download-proxy:latest
+- docker push bramgerritsen/powercalc-download-proxy:latest
