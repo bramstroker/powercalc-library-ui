@@ -28,15 +28,6 @@ const theme = createTheme({
       default: cyan[50],
     }
   },
-  components: {
-    MuiCollapse: {
-      styleOverrides: {
-        root: {
-          width: '100%',
-        },
-      },
-    },
-  },
 });
 
 const App: React.FC = () => {
