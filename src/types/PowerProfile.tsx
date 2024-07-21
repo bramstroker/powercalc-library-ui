@@ -5,7 +5,6 @@ export type PowerProfile = {
     manufacturer: string
     modelId: string
     name: string
-    author?: string
     aliases: string // Cannot use string[] yet as global search won't work
     deviceType: DeviceType
     colorModes: ColorMode[],

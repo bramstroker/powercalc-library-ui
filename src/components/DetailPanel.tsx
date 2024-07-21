@@ -10,6 +10,7 @@ import Avatar from '@mui/material/Avatar';
 import FactoryIcon from '@mui/icons-material/Factory';
 import HistoryIcon from '@mui/icons-material/History';
 import PaletteIcon from '@mui/icons-material/Palette';
+import PersonIcon from '@mui/icons-material/Person';
 import ElectricMeterIcon from '@mui/icons-material/ElectricMeter';
 import BoltIcon from '@mui/icons-material/Bolt';
 import TypeSpecimenIcon from '@mui/icons-material/TypeSpecimen';
@@ -32,6 +33,7 @@ type FullPowerProfile = PowerProfile & {
     measureDescription: string;
     calculationStrategy: string;
     standbyPower: number;
+    author?: string;
     plots: PlotLink[];
 };
 
@@ -59,7 +61,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({profile}) => {
         {"label": "Name", "value": profile.name, "icon": MoreIcon},
         {"label": "Created", "value": fullProfile?.createdAt, "icon": HistoryIcon},
         {"label": "Updated", "value": profile.updatedAt, "icon": HistoryIcon},
-        {"label": "Author", "value": profile.author, "icon": HistoryIcon},
+        {"label": "Author", "value": fullProfile?.author, "icon": PersonIcon},
         {"label": "Color modes", "value": profile.colorModes.join(', '), "icon": PaletteIcon},
         {"label": "Aliases", "value": profile.aliases, "icon": MediationIcon},
         {"label": "Measure device", "value": fullProfile?.measureDevice, "icon": ElectricMeterIcon},
@@ -134,6 +136,7 @@ const useFetchPowerProfile = (
                 measureDescription: model_json['measure_description'],
                 calculationStrategy: model_json['calculation_strategy'],
                 standbyPower: model_json['standby_power'],
+                author: model_json["author"],
                 plots: plots,
             } as FullPowerProfile
         },

@@ -51,7 +51,7 @@ const App: React.FC = () => {
                         manufacturer: manufacturer.name,
                         modelId: model.id,
                         name: model.name,
-                        aliases: model.aliases?.join('|') || '-',
+                        aliases: model.aliases?.join('|'),
                         deviceType: model.device_type,
                         colorModes: model.color_modes || [],
                         updatedAt: model.updated_at
