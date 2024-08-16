@@ -28,11 +28,8 @@ export function Header({total, table}: HeaderProps) {
           <Typography
             variant="h6"
             noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
             sx={{
               mr: 2,
-              //display: { xs: 'none', md: 'flex' },
               fontFamily: 'monospace',
               fontWeight: 700,
               letterSpacing: '.3rem',
@@ -47,8 +44,8 @@ export function Header({total, table}: HeaderProps) {
 
           <Typography>{total} profiles</Typography>
           <IconButton sx={{ ml: 1 }} onClick={() => {
-        setMode(mode === 'light' ? 'dark' : 'light');
-      }}
+            setMode(mode === 'light' ? 'dark' : 'light');
+          }}
     color="inherit">
       {mode === 'light' ? <Brightness7Icon /> : <Brightness4Icon />}
       </IconButton>
