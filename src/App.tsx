@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import Header from './components/Header'
+import {Header} from './components/Header'
 import DetailPanel from './components/DetailPanel'
-import {cyan} from '@mui/material/colors';
 import {PowerProfile} from './types/PowerProfile'
 import {DeviceType} from './types/DeviceType'
 
@@ -10,27 +9,15 @@ import {
     useMaterialReactTable,
     type MRT_ColumnDef,
 } from 'material-react-table';
-import Container from '@mui/material/Container';
 
 import {
     QueryClient,
     QueryClientProvider
 } from '@tanstack/react-query'
 
-import {ThemeProvider, createTheme} from "@mui/material/styles";
-import CssBaseline from '@mui/material/CssBaseline';
-
 const API_ENDPOINT = "https://powercalc.lauwbier.nl/api/library"
 
 const queryClient = new QueryClient();
-
-const theme = createTheme({
-    palette: {
-        background: {
-            default: cyan[50],
-        }
-    },
-});
 
 const App: React.FC = () => {
     const [data, setData] = useState<PowerProfile[]>([])
@@ -113,13 +100,15 @@ const App: React.FC = () => {
         enableFacetedValues: true,
         enableRowActions: false,
         enableRowSelection: false,
+        enableTopToolbar: false,
+        enableTableHead: true,
         initialState: {
             showColumnFilters: true,
             showGlobalFilter: true,
-            columnVisibility: {aliases: false},
+            pagination: { pageSize: 15, pageIndex: 0 },
         },
         muiSearchTextFieldProps: {
-            size: 'small',
+            placeholder: 'Search all profiles',
             variant: 'outlined',
         },
         layoutMode: 'grid',
@@ -128,13 +117,8 @@ const App: React.FC = () => {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <ThemeProvider theme={theme}>
-                <CssBaseline/>
-                <Container>
-                    <Header total={data.length}/>
-                    <MaterialReactTable table={table}/>
-                </Container>
-            </ThemeProvider>
+            <Header total={data.length} table={table} />
+            <MaterialReactTable table={table}/>
         </QueryClientProvider>
     )
 }
