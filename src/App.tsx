@@ -15,7 +15,7 @@ import {
     QueryClientProvider
 } from '@tanstack/react-query'
 
-const API_ENDPOINT = "https://powercalc.lauwbier.nl/api/library"
+const API_ENDPOINT = "https://api.powercalc.nl/library"
 
 const queryClient = new QueryClient();
 

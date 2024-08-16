@@ -23,8 +23,8 @@ interface DetailPanelProps {
     profile: PowerProfile
 }
 
-const API_ENDPOINT_PROFILE = "https://powercalc.lauwbier.nl/api/profile"
-const API_ENDPOINT_DOWNLOAD = "https://powercalc.lauwbier.nl/api/download"
+const API_ENDPOINT_PROFILE = "https://api.powercalc.nl/profile"
+const API_ENDPOINT_DOWNLOAD = "https://api.powercalc.nl/download"
 
 type FullPowerProfile = PowerProfile & {
     createdAt: string;
