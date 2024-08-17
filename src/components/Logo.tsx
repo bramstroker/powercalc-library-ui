@@ -1,7 +1,7 @@
 export interface LogoProps {
-  className?: string
-  width?: number
-  height?: number
+  className?: string;
+  width?: number;
+  height?: number;
 }
 
 const Logo = (props: LogoProps) => (
@@ -20,5 +20,5 @@ const Logo = (props: LogoProps) => (
       }}
     />
   </svg>
-)
-export default Logo
+);
+export default Logo;
