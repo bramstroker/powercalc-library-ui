@@ -28,6 +28,6 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## Docker build / push
 
-- docker build --platform=linux/amd64 -t library_ui .
-- docker image tag library_ui bramgerritsen/powercalc-library-ui:latest
+- docker build --platform=linux/amd64 -tpowercalc-library-ui .
+- docker image tag powercalc-library-ui bramgerritsen/powercalc-library-ui:latest
 - docker push bramgerritsen/powercalc-library-ui:latest

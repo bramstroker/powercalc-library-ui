@@ -1,0 +1,6 @@
+services:
+  library_ui:
+    image: powercalc-library-ui:latest
+    restart: unless-stopped
+    ports:
+      - "3001:80"
