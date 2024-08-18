@@ -2,6 +2,8 @@ name: Deploy
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ master ]
   release:
     types: [ published ]
 
@@ -41,3 +43,11 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }} << 'ENDSSH'
           docker compose -f ${{ secrets.REMOTE_SERVER_PATH }}/docker-compose.yml up -d
           ENDSSH
+
+      - name: Purge cloudflare cache
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_KEY: ${{ secrets.CLOUDFLARE_KEY }}
+          PURGE_URLS: '["https://library.powercalc.nl"]'
