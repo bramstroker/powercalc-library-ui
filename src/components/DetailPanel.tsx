@@ -28,6 +28,7 @@ const API_ENDPOINT_DOWNLOAD = "https://api.powercalc.nl/download";
 
 type FullPowerProfile = PowerProfile & {
   createdAt: string;
+  description: string;
   measureDevice: string;
   measureMethod: string;
   measureDescription: string;
@@ -61,6 +62,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({ profile }) => {
     },
     { label: "Device type", value: profile.deviceType, icon: TypeSpecimenIcon },
     { label: "Name", value: profile.name, icon: MoreIcon },
+    { label: "Description", value: fullProfile?.description, icon: MoreIcon },
     { label: "Created", value: fullProfile?.createdAt, icon: HistoryIcon },
     { label: "Updated", value: profile.updatedAt, icon: HistoryIcon },
     { label: "Author", value: fullProfile?.author, icon: PersonIcon },
@@ -156,6 +158,7 @@ const useFetchPowerProfile = (profile: PowerProfile) => {
         );
       return {
         createdAt: model_json["created_at"],
+        description: model_json["description"],
         measureDevice: model_json["measure_device"],
         measureMethod: model_json["measure_method"],
         measureDescription: model_json["measure_description"],
