@@ -134,10 +134,10 @@ const App: React.FC = () => {
   });
 
   return (
-      <QueryClientProvider client={queryClient}>
-        <Header total={data.length} table={table} />
-        <MaterialReactTable table={table} />
-      </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <Header total={data.length} table={table} />
+      <MaterialReactTable table={table} />
+    </QueryClientProvider>
   );
 };
 
