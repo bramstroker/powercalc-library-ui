@@ -3,6 +3,7 @@ import { Header } from "./components/Header";
 import DetailPanel from "./components/DetailPanel";
 import { PowerProfile } from "./types/PowerProfile";
 import { DeviceType } from "./types/DeviceType";
+import { useLocation } from 'react-router-dom';
 
 import {
   MaterialReactTable,
@@ -15,6 +16,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const API_ENDPOINT = "https://api.powercalc.nl/library";
 
 const queryClient = new QueryClient();
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 const App: React.FC = () => {
   const [data, setData] = useState<PowerProfile[]>([]);
@@ -49,6 +54,17 @@ const App: React.FC = () => {
 
     fetchData().catch(console.error);
   }, []);
+
+  const query = useQuery();
+  const initialFilterValue = query.get('manufacturer');
+  const [columnFilters, setColumnFilters] = useState<{ id: string; value: string }[]>([]);
+
+
+  useEffect(() => {
+    if (initialFilterValue) {
+      setColumnFilters([{ id: 'manufacturer', value: initialFilterValue }]);
+    }
+  }, [initialFilterValue]);
 
   const columns: MRT_ColumnDef<PowerProfile>[] = [
     {
@@ -104,10 +120,14 @@ const App: React.FC = () => {
       showColumnFilters: true,
       showGlobalFilter: true,
       pagination: { pageSize: 15, pageIndex: 0 },
+      columnFilters: columnFilters
     },
     muiSearchTextFieldProps: {
       placeholder: "Search all profiles",
       variant: "outlined",
+    },
+    state: {
+      columnFilters: columnFilters
     },
     layoutMode: "grid",
     renderDetailPanel: ({ row }) => <DetailPanel profile={row.original} />,
