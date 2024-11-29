@@ -126,9 +126,6 @@ const App: React.FC = () => {
       placeholder: "Search all profiles",
       variant: "outlined",
     },
-    state: {
-      columnFilters: columnFilters
-    },
     layoutMode: "grid",
     renderDetailPanel: ({ row }) => <DetailPanel profile={row.original} />,
   });
