@@ -1,7 +1,7 @@
-import Grid from "@mui/material/Grid";
+import Grid2 from "@mui/material/Grid2";
 import { PowerProfile } from "../types/PowerProfile";
 import { ColorMode } from "../types/ColorMode";
-import { Alert, CircularProgress } from "@mui/material";
+import {Alert, CircularProgress, Paper} from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -18,6 +18,7 @@ import MoreIcon from "@mui/icons-material/More";
 import PermDeviceInformationIcon from "@mui/icons-material/PermDeviceInformation";
 import MediationIcon from "@mui/icons-material/Mediation";
 import Plot from "./Plot";
+import Typography from "@mui/material/Typography";
 
 interface DetailPanelProps {
   profile: PowerProfile;
@@ -27,6 +28,7 @@ const API_ENDPOINT_PROFILE = "https://api.powercalc.nl/profile";
 const API_ENDPOINT_DOWNLOAD = "https://api.powercalc.nl/download";
 
 type FullPowerProfile = PowerProfile & {
+  rawJson: any,
   createdAt: string;
   description: string;
   measureDevice: string;
@@ -104,32 +106,44 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({ profile }) => {
 
   return (
     <>
-      <Grid container spacing={1} sx={{ width: "100%" }}>
-        {chunkedProperties.map((chunk, columnIndex) => (
-          <Grid item xs={12} sm={6} md={4} key={columnIndex}>
-            {chunk.map((property, index) => (
-              <ListItem key={index}>
-                <ListItemAvatar>
-                  <Avatar>
-                    <property.icon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={property.label}
-                  secondary={property.value}
-                />
-              </ListItem>
+      <Grid2 container spacing={1}>
+        <Grid2 size={{ xs: 12, md: 6 }}>
+          <Grid2 container spacing={1}>
+            {chunkedProperties.map((chunk, columnIndex) => (
+              <Grid2 size={{ xs: 12, sm: 6, md: 4 }} key={columnIndex}>
+                {chunk.map((property, index) => (
+                  <ListItem key={index}>
+                    <ListItemAvatar>
+                      <Avatar>
+                        <property.icon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={property.label}
+                      secondary={property.value}
+                    />
+                  </ListItem>
+                ))}
+              </Grid2>
             ))}
-          </Grid>
-        ))}
-      </Grid>
-      <Grid container spacing={1} sx={{ width: "100%" }}>
+          </Grid2>
+        </Grid2>
+        <Grid2 size={{ xs: 12, md: 6 }}>
+          <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
+            <Paper style={{padding: 16}}>
+              <Typography>JSON Data:</Typography>
+              <pre>{JSON.stringify(fullProfile?.rawJson, null, 2)}</pre>
+            </Paper>
+          </Grid2>
+        </Grid2>
+      </Grid2>
+      <Grid2 container spacing={1} sx={{ width: "100%" }}>
         {fullProfile?.plots.map((plot, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
+          <Grid2 size={{ xs: 12, sm: 6, md: 4 }} key={index}>
             <Plot link={plot}></Plot>
-          </Grid>
+          </Grid2>
         ))}
-      </Grid>
+      </Grid2>
     </>
   );
 };
@@ -157,6 +171,7 @@ const useFetchPowerProfile = (profile: PowerProfile) => {
           }),
         );
       return {
+        rawJson: model_json,
         createdAt: model_json["created_at"],
         description: model_json["description"],
         measureDevice: model_json["measure_device"],

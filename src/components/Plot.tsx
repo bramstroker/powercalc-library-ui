@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogContentText,
   Typography,
-  CardContent,
 } from "@mui/material";
 import { PlotLink } from "./DetailPanel";
 
@@ -46,7 +45,7 @@ export const Plot = ({ link }: { link: PlotLink }) => {
       <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
         <DialogContent>
           <DialogContentText>
-            <img src={link.url} alt="Full Image" style={{ maxWidth: "100%" }} />
+            <img src={link.url} alt="Plot {link.colorMode}" style={{ maxWidth: "100%" }} />
           </DialogContentText>
         </DialogContent>
       </Dialog>
