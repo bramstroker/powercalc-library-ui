@@ -11,7 +11,7 @@ import LibraryGrid from "./components/LibraryGrid";
 import {createTheme} from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
 
-const theme2 = createTheme({
+const theme = createTheme({
   colorSchemes: {
     dark: {
       palette: {
@@ -43,7 +43,7 @@ const root = ReactDOM.createRoot(
     document.getElementById("root") as HTMLElement,
 );
 root.render(
-    <ThemeProvider theme={theme2} defaultMode="dark">
+    <ThemeProvider theme={theme} defaultMode="dark">
       <CssBaseline/>
       <RouterProvider router={router}/>
     </ThemeProvider>
