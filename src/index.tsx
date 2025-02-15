@@ -10,17 +10,9 @@ import {powerProfileLoader} from "./loaders/powerProfileLoader";
 import LibraryGrid from "./components/LibraryGrid";
 import {createTheme} from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
-import {indigo, teal} from "@mui/material/colors";
 
 const theme2 = createTheme({
   colorSchemes: {
-    light: {
-      palette: {
-        primary: {
-          main: teal[500],
-        },
-      },
-    },
     dark: {
       palette: {
         primary: {

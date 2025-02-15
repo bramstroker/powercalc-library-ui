@@ -5,14 +5,10 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Logo from "./Logo";
 import {
-  MRT_GlobalFilterTextField,
+  MRT_GlobalFilterTextField, MRT_ShowHideColumnsButton,
   MRT_TableInstance,
 } from "material-react-table";
 import { PowerProfile } from "../types/PowerProfile";
-import { useColorScheme } from "@mui/material/styles";
-import { IconButton } from "@mui/material";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useTheme } from "@mui/material";
 import {indigo} from "@mui/material/colors";
 
@@ -23,7 +19,6 @@ type HeaderProps = {
 
 export function Header({ total, table }: HeaderProps) {
   const theme = useTheme();
-  const { mode, setMode } = useColorScheme();
 
   return (
     <AppBar
@@ -75,22 +70,11 @@ export function Header({ total, table }: HeaderProps) {
 
           { table && <MRT_GlobalFilterTextField table={table} sx={{ mr: 2 }} /> }
 
+          { table && <MRT_ShowHideColumnsButton table={table} /> }
+
           { table && <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
             <Typography noWrap>{total} profiles</Typography>
           </Box> }
-
-          <IconButton
-            sx={{
-              ml: 1,
-              display: { xs: "none", sm: "flex" },
-            }}
-            onClick={() => {
-              setMode(mode === "light" ? "dark" : "light");
-            }}
-            color="inherit"
-          >
-            {mode === "light" ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
         </Toolbar>
       </Container>
     </AppBar>
