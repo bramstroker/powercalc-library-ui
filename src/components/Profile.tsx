@@ -20,7 +20,7 @@ import ListItemText from "@mui/material/ListItemText";
 import {Button, Paper, Tab, Tabs} from "@mui/material";
 import Plot from "./Plot";
 import {Header} from "./Header";
-import React from "react";
+import React, {Suspense} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
@@ -53,7 +53,7 @@ function a11yProps(index: number) {
   };
 }
 
-export const Profile: React.FC = () => {
+export const ProfileContent: React.FC = () => {
   const profile = useLoaderData() as FullPowerProfile;
 
   const properties = [
@@ -120,6 +120,8 @@ export const Profile: React.FC = () => {
 
   const hasPlots = profile.plots.length > 0;
 
+
+
   return (
       <>
         <Header/>
@@ -183,6 +185,14 @@ export const Profile: React.FC = () => {
           </CustomTabPanel> }
         </Box>
       </>
+  );
+};
+
+const Profile = () => {
+  return (
+      <Suspense fallback={<div>Loading profile...</div>}>
+        <ProfileContent />
+      </Suspense>
   );
 };
 

@@ -40,9 +40,18 @@ const LibraryGrid: React.FC = () => {
               modelId: model.id,
               name: model.name,
               aliases: model.aliases?.join("|"),
+              author: model.author,
               deviceType: model.device_type,
               colorModes: model.color_modes || [],
               updatedAt: model.updated_at,
+              createdAt: model.created_at,
+              description: model.description,
+              measureDevice: model.measure_device,
+              measureMethod: model.measure_method,
+              measureDescription: model.measure_description,
+              calculationStrategy: model.calculation_strategy,
+              standbyPower: model.standby_power,
+              standbyPowerOn: model.standby_power_on,
             });
           });
         },
@@ -89,6 +98,36 @@ const LibraryGrid: React.FC = () => {
       accessorKey: "aliases",
       header: "Aliases",
     },
+    {
+      accessorKey: "author",
+      header: "Author",
+    },
+    {
+      accessorKey: "measureMethod",
+      header: "Measure method",
+    },
+    {
+      accessorKey: "measureDevice",
+      header: "Measure device",
+      filterVariant: "select",
+      muiFilterTextFieldProps: { placeholder: "Filter" },
+    },
+    {
+      accessorKey: "standbyPower",
+      header: "Standby power",
+    },
+    {
+      accessorKey: "standbyPowerOn",
+      header: "Standby power on",
+    },
+    {
+      accessorKey: "updatedAt",
+      header: "Updated",
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Created",
+    },
   ];
   
   const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
@@ -114,7 +153,16 @@ const LibraryGrid: React.FC = () => {
     initialState: {
       showColumnFilters: true,
       showGlobalFilter: true,
-      pagination: { pageSize: 15, pageIndex: 0 }
+      pagination: { pageSize: 15, pageIndex: 0 },
+      columnVisibility: {
+        author: false,
+        createdAt: false,
+        measureDevice: false,
+        measureMethod: false,
+        updatedAt: false,
+        standbyPower: false,
+        standbyPowerOn: false,
+      },
     },
     muiSearchTextFieldProps: {
       placeholder: "Search all profiles",

@@ -9,10 +9,6 @@ export type PowerProfile = {
   deviceType: DeviceType;
   colorModes: ColorMode[];
   updatedAt: number;
-};
-
-export type FullPowerProfile = PowerProfile & {
-  rawJson: any,
   createdAt: string;
   description: string;
   measureDevice: string;
@@ -22,6 +18,10 @@ export type FullPowerProfile = PowerProfile & {
   standbyPower: number;
   standbyPowerOn?: number;
   author?: string;
+};
+
+export type FullPowerProfile = PowerProfile & {
+  rawJson: any,
   plots: PlotLink[];
 };
 
