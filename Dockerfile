@@ -13,6 +13,6 @@ RUN npm run build
 # production environment
 FROM nginx:stable-perl
 COPY --from=build /app/build /usr/share/nginx/html
-COPY etc/nginx.conf /etc/nginx/nginx.conf
+COPY etc/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
