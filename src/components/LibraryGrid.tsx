@@ -1,32 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Header } from "./components/Header";
-import DetailPanel from "./components/DetailPanel";
-import { PowerProfile } from "./types/PowerProfile";
-import { DeviceType } from "./types/DeviceType";
-import { useLocation } from 'react-router-dom';
+import { Header } from "./Header";
+import { PowerProfile } from "../types/PowerProfile";
+import { DeviceType } from "../types/DeviceType";
+import NextIcon from "@mui/icons-material/NavigateNext";
+import { API_ENDPOINTS } from "../config/api";
+import { useNavigate} from 'react-router-dom';
 
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  type MRT_ColumnDef,
+  type MRT_ColumnDef, MRT_Row,
 } from "material-react-table";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-const API_ENDPOINT = "https://api.powercalc.nl/library";
+import Box from "@mui/material/Box";
+import {IconButton} from "@mui/material";
 
 const queryClient = new QueryClient();
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
-
-const App: React.FC = () => {
+const LibraryGrid: React.FC = () => {
   const [data, setData] = useState<PowerProfile[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(API_ENDPOINT);
+      const response = await fetch(API_ENDPOINTS.LIBRARY);
       if (response.status !== 200) {
         throw new Error("Unexpected status code from library API");
       }
@@ -54,17 +52,6 @@ const App: React.FC = () => {
 
     fetchData().catch(console.error);
   }, []);
-
-  const query = useQuery();
-  const initialFilterValue = query.get('manufacturer');
-  const [columnFilters, setColumnFilters] = useState<{ id: string; value: string }[]>([]);
-
-
-  useEffect(() => {
-    if (initialFilterValue) {
-      setColumnFilters([{ id: 'manufacturer', value: initialFilterValue }]);
-    }
-  }, [initialFilterValue]);
 
   const columns: MRT_ColumnDef<PowerProfile>[] = [
     {
@@ -103,6 +90,12 @@ const App: React.FC = () => {
       header: "Aliases",
     },
   ];
+  
+  const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
+    const manufacturer = row.original.manufacturer;
+    const model = row.original.modelId;
+    navigate(`/profiles/${manufacturer}/${model}`)
+  }
 
   const table = useMaterialReactTable({
     columns,
@@ -112,22 +105,45 @@ const App: React.FC = () => {
     enableDensityToggle: false,
     enableColumnPinning: false,
     enableFacetedValues: true,
-    enableRowActions: false,
+    enableRowActions: true,
     enableRowSelection: false,
     enableTopToolbar: false,
     enableTableHead: true,
+    enableStickyHeader: true,
+    enableStickyFooter: true,
     initialState: {
       showColumnFilters: true,
       showGlobalFilter: true,
-      pagination: { pageSize: 15, pageIndex: 0 },
-      columnFilters: columnFilters
+      pagination: { pageSize: 15, pageIndex: 0 }
     },
     muiSearchTextFieldProps: {
       placeholder: "Search all profiles",
       variant: "outlined",
     },
+    displayColumnDefOptions: {
+      'mrt-row-actions': {
+        header: '',
+        size: 10,
+      },
+    },
+    renderRowActions: ({ row }) => (
+        <Box>
+          <IconButton onClick={() => {
+            navigateToProfile(row);
+          }}>
+            <NextIcon />
+          </IconButton>
+        </Box>
+    ),
+    muiTableBodyRowProps: ({ row }) => ({
+      onClick: (event) => {
+        navigateToProfile(row);
+      },
+      sx: {
+        cursor: 'pointer',
+      },
+    }),
     layoutMode: "grid",
-    renderDetailPanel: ({ row }) => <DetailPanel profile={row.original} />,
   });
 
   return (
@@ -138,4 +154,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default LibraryGrid;

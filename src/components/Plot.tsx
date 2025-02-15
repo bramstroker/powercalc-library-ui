@@ -8,7 +8,7 @@ import {
   DialogContentText,
   Typography,
 } from "@mui/material";
-import { PlotLink } from "./DetailPanel";
+import {PlotLink} from "../types/PowerProfile";
 
 export const Plot = ({ link }: { link: PlotLink }) => {
   const [open, setOpen] = useState(false);
@@ -35,7 +35,7 @@ export const Plot = ({ link }: { link: PlotLink }) => {
           </Typography>
           <CardMedia
             component="img"
-            height="200"
+            height="300"
             image={link.url}
             alt={link.colorMode}
           />
