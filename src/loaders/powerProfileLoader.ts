@@ -68,6 +68,7 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     measureDescription: modelJson['measure_description'],
     calculationStrategy: modelJson['calculation_strategy'],
     standbyPower: modelJson['standby_power'],
+    standbyPowerOn: modelJson['standby_power_on'],
     author: modelJson['author'],
     plots,
   };

@@ -9,6 +9,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import PaletteIcon from "@mui/icons-material/Palette";
 import MediationIcon from "@mui/icons-material/Mediation";
 import ElectricMeterIcon from "@mui/icons-material/ElectricMeter";
+import CalculateIcon from "@mui/icons-material/Calculate";
 import BoltIcon from "@mui/icons-material/Bolt";
 import HomeIcon from "@mui/icons-material/Home";
 import Grid2 from "@mui/material/Grid2";
@@ -68,6 +69,7 @@ export const Profile: React.FC = () => {
     {label: "Created", value: profile.createdAt, icon: HistoryIcon},
     {label: "Updated", value: profile.updatedAt, icon: HistoryIcon},
     {label: "Author", value: profile.author, icon: PersonIcon},
+    {label: "Calculation strategy", value: profile.calculationStrategy, icon: CalculateIcon},
     {
       label: "Color modes",
       value: profile.colorModes?.join(", "),
@@ -94,6 +96,11 @@ export const Profile: React.FC = () => {
       value: profile.standbyPower,
       icon: BoltIcon,
     },
+    {
+      label: "Standby power on",
+      value: profile.standbyPowerOn,
+      icon: BoltIcon,
+    },
   ];
 
   const filteredProperties = properties.filter(
@@ -110,6 +117,8 @@ export const Profile: React.FC = () => {
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
+
+  const hasPlots = profile.plots.length > 0;
 
   return (
       <>
@@ -133,8 +142,8 @@ export const Profile: React.FC = () => {
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example"
                   indicatorColor="secondary">
               <Tab label="Attributes" {...a11yProps(0)} />
-              <Tab label="Graphs" {...a11yProps(1)} />
-              <Tab label="JSON" {...a11yProps(2)} />
+              <Tab label="JSON" {...a11yProps(1)} />
+              { hasPlots && <Tab label="Graphs" {...a11yProps(2)} /> }
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
@@ -161,17 +170,17 @@ export const Profile: React.FC = () => {
             </Grid2>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
+            <Paper style={{padding: 16}}>
+              <pre>{JSON.stringify(profile?.rawJson, null, 2)}</pre>
+            </Paper>
+          </CustomTabPanel>
+          { hasPlots && <CustomTabPanel value={value} index={2}>
             <Grid2 container spacing={1} sx={{width: "100%"}}>
               {profile?.plots.map((plot, index) => (
                   <Plot link={plot}></Plot>
               ))}
             </Grid2>
-          </CustomTabPanel>
-          <CustomTabPanel value={value} index={2}>
-            <Paper style={{padding: 16}}>
-              <pre>{JSON.stringify(profile?.rawJson, null, 2)}</pre>
-            </Paper>
-          </CustomTabPanel>
+          </CustomTabPanel> }
         </Box>
       </>
   );

@@ -20,6 +20,7 @@ export type FullPowerProfile = PowerProfile & {
   measureDescription: string;
   calculationStrategy: string;
   standbyPower: number;
+  standbyPowerOn?: number;
   author?: string;
   plots: PlotLink[];
 };
