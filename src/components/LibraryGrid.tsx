@@ -2,16 +2,19 @@ import React, { useState, useEffect } from "react";
 import { Header } from "./Header";
 import { PowerProfile } from "../types/PowerProfile";
 import { DeviceType } from "../types/DeviceType";
+import NextIcon from "@mui/icons-material/NavigateNext";
 import { API_ENDPOINTS } from "../config/api";
-import {Link, useNavigate} from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  type MRT_ColumnDef,
+  type MRT_ColumnDef, MRT_Row,
 } from "material-react-table";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Box from "@mui/material/Box";
+import {IconButton} from "@mui/material";
 
 const queryClient = new QueryClient();
 
@@ -52,24 +55,6 @@ const LibraryGrid: React.FC = () => {
 
   const columns: MRT_ColumnDef<PowerProfile>[] = [
     {
-      header: 'Profile Link',
-      size: 50,
-      enableColumnActions: false,
-      enableSorting: false,
-      enableColumnDragging: false,
-      enableColumnFilter: false,
-      accessorFn: (row) => {
-        const manufacturer = row.manufacturer;
-        const model = row.modelId;
-        const profileUrl = `/profiles/${manufacturer}/${model}`;
-        return (
-            <Link to={profileUrl} style={{ color: '#1976d2', textDecoration: 'none' }}>
-              View Profile
-            </Link>
-        );
-      },
-    },
-    {
       accessorKey: "deviceType",
       header: "Device type",
       enableGlobalFilter: false,
@@ -105,6 +90,12 @@ const LibraryGrid: React.FC = () => {
       header: "Aliases",
     },
   ];
+  
+  const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
+    const manufacturer = row.original.manufacturer;
+    const model = row.original.modelId;
+    navigate(`/profiles/${manufacturer}/${model}`)
+  }
 
   const table = useMaterialReactTable({
     columns,
@@ -114,7 +105,7 @@ const LibraryGrid: React.FC = () => {
     enableDensityToggle: false,
     enableColumnPinning: false,
     enableFacetedValues: true,
-    enableRowActions: false,
+    enableRowActions: true,
     enableRowSelection: false,
     enableTopToolbar: false,
     enableTableHead: true,
@@ -129,11 +120,24 @@ const LibraryGrid: React.FC = () => {
       placeholder: "Search all profiles",
       variant: "outlined",
     },
+    displayColumnDefOptions: {
+      'mrt-row-actions': {
+        header: '',
+        size: 10,
+      },
+    },
+    renderRowActions: ({ row }) => (
+        <Box>
+          <IconButton onClick={() => {
+            navigateToProfile(row);
+          }}>
+            <NextIcon />
+          </IconButton>
+        </Box>
+    ),
     muiTableBodyRowProps: ({ row }) => ({
       onClick: (event) => {
-        const manufacturer = row.original.manufacturer;
-        const model = row.original.modelId;
-        navigate(`/profiles/${manufacturer}/${model}`)
+        navigateToProfile(row);
       },
       sx: {
         cursor: 'pointer',

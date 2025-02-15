@@ -1,8 +1,6 @@
 import ReactDOM from "react-dom/client";
 import CssBaseline from "@mui/material/CssBaseline";
 
-import theme from "./theme";
-import {Experimental_CssVarsProvider as CssVarsProvider} from "@mui/material/styles";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -11,12 +9,28 @@ import Profile from "./components/Profile";
 import {powerProfileLoader} from "./loaders/powerProfileLoader";
 import LibraryGrid from "./components/LibraryGrid";
 import {createTheme} from "@mui/material";
-import {ThemeProvider} from "@mui/styles";
+import {ThemeProvider} from "@mui/material/styles";
+import {indigo, teal} from "@mui/material/colors";
 
 const theme2 = createTheme({
   colorSchemes: {
-    //light: true,
-    dark: true
+    light: {
+      palette: {
+        primary: {
+          main: teal[500],
+        },
+      },
+    },
+    dark: {
+      palette: {
+        primary: {
+          main: '#7986cb',
+        },
+        secondary: {
+          main: '#f50057',
+        },
+      },
+    },
   },
   cssVariables: true,
 });
@@ -37,7 +51,7 @@ const root = ReactDOM.createRoot(
     document.getElementById("root") as HTMLElement,
 );
 root.render(
-    <ThemeProvider theme={theme2}>
+    <ThemeProvider theme={theme2} defaultMode="dark">
       <CssBaseline/>
       <RouterProvider router={router}/>
     </ThemeProvider>

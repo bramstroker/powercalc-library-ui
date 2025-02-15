@@ -14,7 +14,7 @@ import { IconButton } from "@mui/material";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useTheme } from "@mui/material";
-import {useNavigate} from "react-router-dom";
+import {indigo} from "@mui/material/colors";
 
 type HeaderProps = {
   total?: number;
@@ -24,13 +24,12 @@ type HeaderProps = {
 export function Header({ total, table }: HeaderProps) {
   const theme = useTheme();
   const { mode, setMode } = useColorScheme();
-  const navigate = useNavigate();
 
   return (
     <AppBar
       position="static"
       enableColorOnDark
-      sx={{ justifyContent: "center" }}
+      sx={{ justifyContent: "center", backgroundColor: indigo[700] }}
     >
       <Container maxWidth="xl">
         <Toolbar

@@ -1,5 +1,5 @@
 import {FullPowerProfile} from "../types/PowerProfile";
-import {useLoaderData} from "react-router-dom";
+import {useLoaderData, useNavigate} from "react-router-dom";
 import FactoryIcon from "@mui/icons-material/Factory";
 import PermDeviceInformationIcon from "@mui/icons-material/PermDeviceInformation";
 import TypeSpecimenIcon from "@mui/icons-material/TypeSpecimen";
@@ -10,16 +10,18 @@ import PaletteIcon from "@mui/icons-material/Palette";
 import MediationIcon from "@mui/icons-material/Mediation";
 import ElectricMeterIcon from "@mui/icons-material/ElectricMeter";
 import BoltIcon from "@mui/icons-material/Bolt";
+import HomeIcon from "@mui/icons-material/Home";
 import Grid2 from "@mui/material/Grid2";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import ListItemText from "@mui/material/ListItemText";
-import {Paper, Tab, Tabs} from "@mui/material";
+import {Button, Paper, Tab, Tabs} from "@mui/material";
 import Plot from "./Plot";
 import {Header} from "./Header";
 import React from "react";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -28,7 +30,7 @@ interface TabPanelProps {
 }
 
 function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+  const {children, value, index, ...other} = props;
 
   return (
       <div
@@ -38,7 +40,7 @@ function CustomTabPanel(props: TabPanelProps) {
           aria-labelledby={`simple-tab-${index}`}
           {...other}
       >
-        {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+        {value === index && <Box sx={{p: 3}}>{children}</Box>}
       </div>
   );
 }
@@ -103,6 +105,7 @@ export const Profile: React.FC = () => {
   }
 
   const [value, setValue] = React.useState(0);
+  const navigate = useNavigate();
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -111,49 +114,65 @@ export const Profile: React.FC = () => {
   return (
       <>
         <Header/>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <h1>{profile.manufacturer} {profile.modelId}</h1>
-          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-            <Tab label="Attributes" {...a11yProps(0)} />
-            <Tab label="Plots" {...a11yProps(1)} />
-            <Tab label="JSON" {...a11yProps(2)} />
-          </Tabs>
-        </Box>
-        <CustomTabPanel value={value} index={0}>
-          <Grid2 size={{xs: 12, md: 6}}>
-            <Grid2 container spacing={1}>
-              {chunkedProperties.map((chunk, columnIndex) => (
-                  <Grid2 size={{xs: 12, sm: 6, md: 4}} key={columnIndex}>
-                    {chunk.map((property, index) => (
-                        <ListItem key={index}>
-                          <ListItemAvatar>
-                            <Avatar>
-                              <property.icon/>
-                            </Avatar>
-                          </ListItemAvatar>
-                          <ListItemText
-                              primary={property.label}
-                              secondary={property.value}
-                          />
-                        </ListItem>
-                    ))}
-                  </Grid2>
+        <Box sx={{p: 3}}>
+          <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => navigate("/")}
+              style={{marginBottom: "20px"}}
+              startIcon={<HomeIcon/>}
+          >
+            Back to library
+          </Button>
+
+          <Typography variant="h4" component="h1">
+            {profile.manufacturer} {profile.modelId}
+          </Typography>
+
+          <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example"
+                  indicatorColor="secondary">
+              <Tab label="Attributes" {...a11yProps(0)} />
+              <Tab label="Graphs" {...a11yProps(1)} />
+              <Tab label="JSON" {...a11yProps(2)} />
+            </Tabs>
+          </Box>
+          <CustomTabPanel value={value} index={0}>
+            <Grid2 size={{xs: 12, md: 6}}>
+              <Grid2 container spacing={1}>
+                {chunkedProperties.map((chunk, columnIndex) => (
+                    <Grid2 size={{xs: 12, sm: 6, md: 4}} key={columnIndex}>
+                      {chunk.map((property, index) => (
+                          <ListItem key={index}>
+                            <ListItemAvatar>
+                              <Avatar>
+                                <property.icon/>
+                              </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                                primary={property.label}
+                                secondary={property.value}
+                            />
+                          </ListItem>
+                      ))}
+                    </Grid2>
+                ))}
+              </Grid2>
+            </Grid2>
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={1}>
+            <Grid2 container spacing={1} sx={{width: "100%"}}>
+              {profile?.plots.map((plot, index) => (
+                  <Plot link={plot}></Plot>
               ))}
             </Grid2>
-          </Grid2>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <Grid2 container spacing={1} sx={{width: "100%"}}>
-            {profile?.plots.map((plot, index) => (
-                <Plot link={plot}></Plot>
-            ))}
-          </Grid2>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}>
-          <Paper style={{padding: 16}}>
-            <pre>{JSON.stringify(profile?.rawJson, null, 2)}</pre>
-          </Paper>
-        </CustomTabPanel>
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={2}>
+            <Paper style={{padding: 16}}>
+              <pre>{JSON.stringify(profile?.rawJson, null, 2)}</pre>
+            </Paper>
+          </CustomTabPanel>
+        </Box>
       </>
   );
 };
