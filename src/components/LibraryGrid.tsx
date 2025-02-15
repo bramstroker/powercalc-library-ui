@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Header } from "./components/Header";
-import DetailPanel from "./components/DetailPanel";
-import { PowerProfile } from "./types/PowerProfile";
-import { DeviceType } from "./types/DeviceType";
-import { useLocation } from 'react-router-dom';
+import { Header } from "./Header";
+import { PowerProfile } from "../types/PowerProfile";
+import { DeviceType } from "../types/DeviceType";
+import { API_ENDPOINTS } from "../config/api";
+import {Link, useNavigate} from 'react-router-dom';
 
 import {
   MaterialReactTable,
@@ -13,20 +13,15 @@ import {
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-const API_ENDPOINT = "https://api.powercalc.nl/library";
-
 const queryClient = new QueryClient();
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
-
-const App: React.FC = () => {
+const LibraryGrid: React.FC = () => {
   const [data, setData] = useState<PowerProfile[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(API_ENDPOINT);
+      const response = await fetch(API_ENDPOINTS.LIBRARY);
       if (response.status !== 200) {
         throw new Error("Unexpected status code from library API");
       }
@@ -55,18 +50,25 @@ const App: React.FC = () => {
     fetchData().catch(console.error);
   }, []);
 
-  const query = useQuery();
-  const initialFilterValue = query.get('manufacturer');
-  const [columnFilters, setColumnFilters] = useState<{ id: string; value: string }[]>([]);
-
-
-  useEffect(() => {
-    if (initialFilterValue) {
-      setColumnFilters([{ id: 'manufacturer', value: initialFilterValue }]);
-    }
-  }, [initialFilterValue]);
-
   const columns: MRT_ColumnDef<PowerProfile>[] = [
+    {
+      header: 'Profile Link',
+      size: 50,
+      enableColumnActions: false,
+      enableSorting: false,
+      enableColumnDragging: false,
+      enableColumnFilter: false,
+      accessorFn: (row) => {
+        const manufacturer = row.manufacturer;
+        const model = row.modelId;
+        const profileUrl = `/profiles/${manufacturer}/${model}`;
+        return (
+            <Link to={profileUrl} style={{ color: '#1976d2', textDecoration: 'none' }}>
+              View Profile
+            </Link>
+        );
+      },
+    },
     {
       accessorKey: "deviceType",
       header: "Device type",
@@ -116,18 +118,28 @@ const App: React.FC = () => {
     enableRowSelection: false,
     enableTopToolbar: false,
     enableTableHead: true,
+    enableStickyHeader: true,
+    enableStickyFooter: true,
     initialState: {
       showColumnFilters: true,
       showGlobalFilter: true,
-      pagination: { pageSize: 15, pageIndex: 0 },
-      columnFilters: columnFilters
+      pagination: { pageSize: 15, pageIndex: 0 }
     },
     muiSearchTextFieldProps: {
       placeholder: "Search all profiles",
       variant: "outlined",
     },
+    muiTableBodyRowProps: ({ row }) => ({
+      onClick: (event) => {
+        const manufacturer = row.original.manufacturer;
+        const model = row.original.modelId;
+        navigate(`/profiles/${manufacturer}/${model}`)
+      },
+      sx: {
+        cursor: 'pointer',
+      },
+    }),
     layoutMode: "grid",
-    renderDetailPanel: ({ row }) => <DetailPanel profile={row.original} />,
   });
 
   return (
@@ -138,4 +150,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default LibraryGrid;

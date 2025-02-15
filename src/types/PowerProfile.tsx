@@ -10,3 +10,21 @@ export type PowerProfile = {
   colorModes: ColorMode[];
   updatedAt: number;
 };
+
+export type FullPowerProfile = PowerProfile & {
+  rawJson: any,
+  createdAt: string;
+  description: string;
+  measureDevice: string;
+  measureMethod: string;
+  measureDescription: string;
+  calculationStrategy: string;
+  standbyPower: number;
+  author?: string;
+  plots: PlotLink[];
+};
+
+export interface PlotLink {
+  url: string;
+  colorMode: ColorMode;
+}

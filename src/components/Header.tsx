@@ -14,15 +14,17 @@ import { IconButton } from "@mui/material";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useTheme } from "@mui/material";
+import {useNavigate} from "react-router-dom";
 
 type HeaderProps = {
-  total: number;
-  table: MRT_TableInstance<PowerProfile>;
+  total?: number;
+  table?: MRT_TableInstance<PowerProfile>;
 };
 
 export function Header({ total, table }: HeaderProps) {
   const theme = useTheme();
   const { mode, setMode } = useColorScheme();
+  const navigate = useNavigate();
 
   return (
     <AppBar
@@ -72,11 +74,11 @@ export function Header({ total, table }: HeaderProps) {
             </Typography>
           </Box>
 
-          <MRT_GlobalFilterTextField table={table} sx={{ mr: 2 }} />
+          { table && <MRT_GlobalFilterTextField table={table} sx={{ mr: 2 }} /> }
 
-          <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
+          { table && <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
             <Typography noWrap>{total} profiles</Typography>
-          </Box>
+          </Box> }
 
           <IconButton
             sx={{
