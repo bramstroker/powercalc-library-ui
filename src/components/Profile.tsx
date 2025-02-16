@@ -12,6 +12,7 @@ import ElectricMeterIcon from "@mui/icons-material/ElectricMeter";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import BoltIcon from "@mui/icons-material/Bolt";
 import HomeIcon from "@mui/icons-material/Home";
+import GithubIcon from "@mui/icons-material/GitHub";
 import Grid2 from "@mui/material/Grid2";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
@@ -56,8 +57,10 @@ function a11yProps(index: number) {
 export const ProfileContent: React.FC = () => {
   const profile = useLoaderData() as FullPowerProfile;
 
+  const capitalizedManufacturer = profile.manufacturer.charAt(0).toUpperCase() + profile.manufacturer.slice(1)
+
   const properties = [
-    {label: "Manufacturer", value: profile.manufacturer, icon: FactoryIcon},
+    {label: "Manufacturer", value: capitalizedManufacturer, icon: FactoryIcon},
     {
       label: "Model ID",
       value: profile.modelId,
@@ -120,24 +123,32 @@ export const ProfileContent: React.FC = () => {
 
   const hasPlots = profile.plots.length > 0;
 
-
-
   return (
       <>
         <Header/>
         <Box sx={{p: 3}}>
-          <Button
-              variant="outlined"
-              color="primary"
-              onClick={() => navigate("/")}
-              style={{marginBottom: "20px"}}
-              startIcon={<HomeIcon/>}
-          >
-            Back to library
-          </Button>
+          <Box sx={{display: "flex", marginBottom: 2, gap: 2}}>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate("/")}
+                startIcon={<HomeIcon/>}
+            >
+              Back to library
+            </Button>
+            <Button
+                variant="outlined"
+                color="primary"
+                href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${profile.manufacturer}/${profile.modelId}`}
+                startIcon={<GithubIcon/>}
+                target={"_blank"}
+            >
+                Github
+            </Button>
+          </Box>
 
           <Typography variant="h4" component="h1">
-            {profile.manufacturer} {profile.modelId}
+            {capitalizedManufacturer} {profile.modelId}
           </Typography>
 
           <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
