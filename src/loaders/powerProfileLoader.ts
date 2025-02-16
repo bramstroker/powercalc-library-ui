@@ -51,7 +51,7 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
         url: link.url,
         colorMode: mapFileNameToColorMode(link.path),
       }));
-
+  
   return {
     rawJson: modelJson,
     manufacturer: manufacturer,
