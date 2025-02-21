@@ -24,7 +24,7 @@ const theme = createTheme({
       },
     },
   },
-  cssVariables: true,
+  cssVariables: false,
 });
 
 const router = createBrowserRouter([
