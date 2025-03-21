@@ -57,10 +57,8 @@ function a11yProps(index: number) {
 export const ProfileContent: React.FC = () => {
   const profile = useLoaderData() as FullPowerProfile;
 
-  const capitalizedManufacturer = profile.manufacturer.charAt(0).toUpperCase() + profile.manufacturer.slice(1)
-
   const properties = [
-    {label: "Manufacturer", value: capitalizedManufacturer, icon: FactoryIcon},
+    {label: "Manufacturer", value: profile.manufacturer.fullName, icon: FactoryIcon},
     {
       label: "Model ID",
       value: profile.modelId,
@@ -139,7 +137,7 @@ export const ProfileContent: React.FC = () => {
             <Button
                 variant="outlined"
                 color="primary"
-                href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${profile.manufacturer}/${profile.modelId}`}
+                href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${profile.manufacturer.dirName}/${profile.modelId}`}
                 startIcon={<GithubIcon/>}
                 target={"_blank"}
             >
@@ -148,7 +146,7 @@ export const ProfileContent: React.FC = () => {
           </Box>
 
           <Typography variant="h4" component="h1">
-            {capitalizedManufacturer} {profile.modelId}
+            {profile.manufacturer.fullName} {profile.modelId}
           </Typography>
 
           <Box sx={{borderBottom: 1, borderColor: 'divider'}}>

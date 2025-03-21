@@ -33,10 +33,13 @@ const LibraryGrid: React.FC = () => {
       const powerProfiles: PowerProfile[] = [];
 
       json.manufacturers.forEach(
-        (manufacturer: { models: any[]; name: string }) => {
+        (manufacturer: { models: any[]; full_name: string, dir_name: string }) => {
           manufacturer.models.forEach((model) => {
             powerProfiles.push({
-              manufacturer: manufacturer.name,
+              manufacturer: {
+                fullName: manufacturer.full_name,
+                dirName: manufacturer.dir_name
+              },
               modelId: model.id,
               name: model.name,
               aliases: model.aliases?.join("|"),
@@ -77,7 +80,7 @@ const LibraryGrid: React.FC = () => {
       muiFilterTextFieldProps: { placeholder: "Filter" },
     },
     {
-      accessorKey: "manufacturer",
+      accessorKey: "manufacturer.fullName",
       header: "Manufacturer",
       filterVariant: "select",
       grow: false,
@@ -131,7 +134,7 @@ const LibraryGrid: React.FC = () => {
   ];
   
   const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
-    const manufacturer = row.original.manufacturer;
+    const manufacturer = row.original.manufacturer.dirName;
     const model = row.original.modelId;
     navigate(`/profiles/${manufacturer}/${model}`)
   }
