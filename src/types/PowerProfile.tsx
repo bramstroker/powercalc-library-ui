@@ -2,7 +2,7 @@ import { DeviceType } from "./DeviceType";
 import { ColorMode } from "./ColorMode";
 
 export type PowerProfile = {
-  manufacturer: string;
+  manufacturer: Manufacturer;
   modelId: string;
   name: string;
   aliases: string; // Cannot use string[] yet as global search won't work
@@ -19,6 +19,11 @@ export type PowerProfile = {
   standbyPowerOn?: number;
   author?: string;
 };
+
+export interface Manufacturer {
+  dirName: string;
+  fullName: string;
+}
 
 export type FullPowerProfile = PowerProfile & {
   rawJson: any,

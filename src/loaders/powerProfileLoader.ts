@@ -26,23 +26,28 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     throw new Error('Missing manufacturer or modelId in URL parameters.');
   }
 
-  const profileUrl = `${API_ENDPOINTS.PROFILE}/${manufacturer}/${model}`;
-  console.log(profileUrl)
-  const profileResponse = await fetch(profileUrl);
+  // Fetch manufacturer data
+  const manufacturerUrl = `${API_ENDPOINTS.MANUFACTURER}/${manufacturer}`;
+  const manufacturerResponse = await fetch(manufacturerUrl);
+  if (!manufacturerResponse.ok) {
+    throw new Error(`Failed to fetch manufacturer data for ${manufacturer}`);
+  }
+  const manufacturerJson = await manufacturerResponse.json();
 
+  // Fetch model data
+  const profileUrl = `${API_ENDPOINTS.PROFILE}/${manufacturer}/${model}`;
+  const profileResponse = await fetch(profileUrl);
   if (!profileResponse.ok) {
     throw new Error(`Failed to fetch profile data for ${manufacturer}/${model}`);
   }
-
   const modelJson = await profileResponse.json();
 
+  // Fetch download links
   const downloadUrl = `${API_ENDPOINTS.DOWNLOAD}/${manufacturer}/${model}?includePlots=1`;
   const downloadResponse = await fetch(downloadUrl);
-
   if (!downloadResponse.ok) {
     throw new Error(`Failed to fetch download links for ${manufacturer}/${model}`);
   }
-
   const downloadLinks = await downloadResponse.json();
 
   const plots: PlotLink[] = downloadLinks
@@ -54,7 +59,10 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
   
   return {
     rawJson: modelJson,
-    manufacturer: manufacturer,
+    manufacturer: {
+      dirName: manufacturer,
+      fullName: manufacturerJson['name'],
+    },
     modelId: model,
     name: modelJson['name'],
     aliases: modelJson['aliases'],
