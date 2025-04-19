@@ -1,6 +1,7 @@
 export enum DeviceType {
   CAMERA = "camera",
   COVER = "cover",
+  FAN = "fan",
   GENERIC_IOT = "generic_iot",
   LIGHT = "light",
   POWER_METER = "power_meter",
