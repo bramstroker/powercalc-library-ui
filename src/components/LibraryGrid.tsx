@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Header } from "./Header";
 import { PowerProfile } from "../types/PowerProfile";
 import { DeviceType } from "../types/DeviceType";
 import NextIcon from "@mui/icons-material/NavigateNext";
-import { API_ENDPOINTS } from "../config/api";
 import { useNavigate} from 'react-router-dom';
+import { useLibrary } from "../context/LibraryContext";
 
 import {
   MaterialReactTable,
@@ -19,51 +19,8 @@ import {IconButton} from "@mui/material";
 const queryClient = new QueryClient();
 
 const LibraryGrid: React.FC = () => {
-  const [data, setData] = useState<PowerProfile[]>([]);
+  const { powerProfiles: data, loading, error, total } = useLibrary();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch(API_ENDPOINTS.LIBRARY);
-      if (response.status !== 200) {
-        throw new Error("Unexpected status code from library API");
-      }
-      const json = await response.json();
-
-      const powerProfiles: PowerProfile[] = [];
-
-      json.manufacturers.forEach(
-        (manufacturer: { models: any[]; full_name: string, dir_name: string }) => {
-          manufacturer.models.forEach((model) => {
-            powerProfiles.push({
-              manufacturer: {
-                fullName: manufacturer.full_name,
-                dirName: manufacturer.dir_name
-              },
-              modelId: model.id,
-              name: model.name,
-              aliases: model.aliases?.join("|"),
-              author: model.author,
-              deviceType: model.device_type,
-              colorModes: model.color_modes || [],
-              updatedAt: model.updated_at,
-              createdAt: model.created_at,
-              description: model.description,
-              measureDevice: model.measure_device,
-              measureMethod: model.measure_method,
-              measureDescription: model.measure_description,
-              calculationStrategy: model.calculation_strategy,
-              standbyPower: model.standby_power,
-              standbyPowerOn: model.standby_power_on,
-            });
-          });
-        },
-      );
-      setData(powerProfiles);
-    };
-
-    fetchData().catch(console.error);
-  }, []);
 
   const columns: MRT_ColumnDef<PowerProfile>[] = [
     {
@@ -132,7 +89,7 @@ const LibraryGrid: React.FC = () => {
       header: "Created",
     },
   ];
-  
+
   const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
     const manufacturer = row.original.manufacturer.dirName;
     const model = row.original.modelId;
@@ -197,9 +154,31 @@ const LibraryGrid: React.FC = () => {
     layoutMode: "grid",
   });
 
+  if (loading) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <Header />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+          Loading library data...
+        </div>
+      </QueryClientProvider>
+    );
+  }
+
+  if (error) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <Header />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem', color: 'red' }}>
+          {error}
+        </div>
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
-      <Header total={data.length} table={table} />
+      <Header total={total} table={table} />
       <MaterialReactTable table={table} />
     </QueryClientProvider>
   );
