@@ -1,0 +1,80 @@
+import React, { useState, useEffect } from "react";
+import { PowerProfile } from "../../types/PowerProfile";
+import { useLibrary } from "../../context/LibraryContext";
+import StatisticsDisplay from "./StatisticsDisplay";
+
+type StatItem = {
+  name: string;
+  count: number;
+};
+
+type StatisticsAggregatorProps = {
+  title: string;
+  nameColumnLabel: string;
+  propertyPath: string | string[];
+  numberOfTopItems?: number; // Optional, default to 10
+  valueExtractor?: (profile: PowerProfile) => string | undefined;
+};
+
+const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
+  title,
+  nameColumnLabel,
+  propertyPath,
+  numberOfTopItems = 10,
+  valueExtractor
+}) => {
+  const [items, setItems] = useState<StatItem[]>([]);
+  const { powerProfiles, loading, error, total: totalProfiles } = useLibrary();
+
+  useEffect(() => {
+    if (!loading && !error && powerProfiles.length > 0) {
+      // Count items based on the property path
+      const counts: Record<string, number> = {};
+      
+      powerProfiles.forEach(profile => {
+        let value: string | undefined;
+        
+        if (valueExtractor) {
+          value = valueExtractor(profile);
+        } else if (typeof propertyPath === 'string') {
+          value = profile[propertyPath as keyof PowerProfile] as string | undefined;
+        } else if (Array.isArray(propertyPath)) {
+          let current: any = profile;
+          for (const path of propertyPath) {
+            if (current && current[path]) {
+              current = current[path];
+            } else {
+              current = undefined;
+              break;
+            }
+          }
+          value = current;
+        }
+        
+        if (value) {
+          counts[value] = (counts[value] || 0) + 1;
+        }
+      });
+
+      const sortedItems = Object.entries(counts)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, numberOfTopItems);
+
+      setItems(sortedItems);
+    }
+  }, [powerProfiles, loading, error, propertyPath, valueExtractor]);
+
+  return (
+    <StatisticsDisplay
+      title={title}
+      items={items}
+      totalItems={totalProfiles}
+      loading={loading}
+      error={error}
+      nameColumnLabel={nameColumnLabel}
+    />
+  );
+};
+
+export default StatisticsAggregator;

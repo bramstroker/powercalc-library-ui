@@ -8,8 +8,13 @@ import {
 import Profile from "./components/Profile";
 import {powerProfileLoader} from "./loaders/powerProfileLoader";
 import LibraryGrid from "./components/LibraryGrid";
+import TopMeasureDevices from "./components/statistics/TopMeasureDevices";
+import TopAuthors from "./components/statistics/TopAuthors";
+import TopManufacturers from "./components/statistics/TopManufacturers";
+import TopDeviceTypes from "./components/statistics/TopDeviceTypes";
 import {createTheme} from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
+import { LibraryProvider } from "./context/LibraryContext";
 
 const theme = createTheme({
   colorSchemes: {
@@ -37,6 +42,22 @@ const router = createBrowserRouter([
     element: <Profile />,
     loader: powerProfileLoader
   },
+  {
+    path: "/statistics/top-measure-devices",
+    element: <TopMeasureDevices />,
+  },
+  {
+    path: "/statistics/top-authors",
+    element: <TopAuthors />,
+  },
+  {
+    path: "/statistics/top-manufacturers",
+    element: <TopManufacturers />,
+  },
+  {
+    path: "/statistics/top-device-types",
+    element: <TopDeviceTypes />,
+  },
 ]);
 
 const root = ReactDOM.createRoot(
@@ -45,6 +66,8 @@ const root = ReactDOM.createRoot(
 root.render(
     <ThemeProvider theme={theme} defaultMode="dark">
       <CssBaseline/>
-      <RouterProvider router={router}/>
+      <LibraryProvider>
+        <RouterProvider router={router}/>
+      </LibraryProvider>
     </ThemeProvider>
 );
