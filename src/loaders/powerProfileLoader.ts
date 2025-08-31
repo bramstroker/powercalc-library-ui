@@ -3,21 +3,6 @@ import {LoaderFunctionArgs} from "react-router-dom";
 import {FullPowerProfile, PlotLink} from "../types/PowerProfile";
 import {API_ENDPOINTS} from "../config/api";
 
-const mapFileNameToColorMode = (fileName: string): ColorMode => {
-  const baseName = fileName.split(".")[0];
-
-  switch (baseName) {
-    case ColorMode.HS:
-      return ColorMode.HS;
-    case ColorMode.COLOR_TEMP:
-      return ColorMode.COLOR_TEMP;
-    case ColorMode.BRIGHTNESS:
-      return ColorMode.BRIGHTNESS;
-    default:
-      throw new Error(`Unknown color mode: ${baseName}`);
-  }
-};
-
 // Loader function
 export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<FullPowerProfile> => {
   const {manufacturer, model} = params;
@@ -54,7 +39,7 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
       .filter((link: any) => link.url.endsWith('.png'))
       .map((link: any) => ({
         url: link.url,
-        colorMode: mapFileNameToColorMode(link.path),
+        colorMode: link.path.split(".")[0],
       }));
   
   return {

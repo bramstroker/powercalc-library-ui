@@ -32,5 +32,5 @@ export type FullPowerProfile = PowerProfile & {
 
 export interface PlotLink {
   url: string;
-  colorMode: ColorMode;
+  label: string;
 }

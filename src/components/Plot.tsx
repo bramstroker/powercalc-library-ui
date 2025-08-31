@@ -31,13 +31,13 @@ export const Plot = ({ link }: { link: PlotLink }) => {
             variant="subtitle1"
             component="div"
           >
-            {link.colorMode}
+            {link.label}
           </Typography>
           <CardMedia
             component="img"
             height="300"
             image={link.url}
-            alt={link.colorMode}
+            alt={link.label}
           />
         </CardActionArea>
       </Card>
