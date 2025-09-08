@@ -9,7 +9,8 @@ import {
   Paper, 
   Typography, 
   Container, 
-  Box 
+  Box,
+  Link
 } from "@mui/material";
 import { Header } from "../Header";
 
@@ -25,6 +26,7 @@ type StatisticsDisplayProps = {
   loading: boolean;
   error: string | null;
   nameColumnLabel: string;
+  filterQueryParam: string;
 };
 
 const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
@@ -33,7 +35,8 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
   totalItems,
   loading,
   error,
-  nameColumnLabel
+  nameColumnLabel,
+  filterQueryParam
 }) => {
   return (
     <>
@@ -62,7 +65,11 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
                 {items.map((item, index) => (
                   <TableRow key={item.name}>
                     <TableCell>{index + 1}</TableCell>
-                    <TableCell>{item.name}</TableCell>
+                    <TableCell>
+                      <Link href={`/?${encodeURIComponent(filterQueryParam)}=${encodeURIComponent(item.name)}`}>
+                        {item.name}
+                      </Link>
+                    </TableCell>
                     <TableCell align="right">{item.count}</TableCell>
                     <TableCell align="right">
                       {totalItems > 0 ? `${((item.count / totalItems) * 100).toFixed(1)}%` : '0%'}

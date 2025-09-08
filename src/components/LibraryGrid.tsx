@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Header } from "./Header";
 import { PowerProfile } from "../types/PowerProfile";
 import { DeviceType } from "../types/DeviceType";
 import NextIcon from "@mui/icons-material/NavigateNext";
-import { useNavigate} from 'react-router-dom';
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLibrary } from "../context/LibraryContext";
 
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  type MRT_ColumnDef, MRT_Row,
+  type MRT_ColumnDef, MRT_Row, MRT_ColumnFiltersState,
 } from "material-react-table";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -21,6 +21,64 @@ const queryClient = new QueryClient();
 const LibraryGrid: React.FC = () => {
   const { powerProfiles: data, loading, error, total } = useLibrary();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filterParamMap: Record<string, string> = useMemo(
+      () => ({
+        manufacturer: "manufacturer.fullName",
+        deviceType: "deviceType",
+        author: "author",
+        measureDevice: "measureDevice",
+      }),
+      []
+  );
+
+  const initialColumnFilters: MRT_ColumnFiltersState = useMemo(() => {
+    const filters: MRT_ColumnFiltersState = [];
+    for (const [param, colId] of Object.entries(filterParamMap)) {
+      const val = searchParams.get(param);
+      if (!val) {
+        continue;
+      }
+      filters.push({ id: colId, value: val });
+    }
+    return filters;
+  }, [searchParams, filterParamMap]);
+
+  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(initialColumnFilters);
+
+  // Keep state in sync if user navigates with back/forward (URL changes)
+  useEffect(() => {
+    setColumnFilters(initialColumnFilters);
+  }, [initialColumnFilters]);
+
+  // Push current filters back to URL whenever they change
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+
+    Object.keys(filterParamMap).forEach((p) => next.delete(p));
+
+    for (const f of columnFilters) {
+      const param = Object.entries(filterParamMap).find(
+          ([, colId]) => colId === f.id
+      )?.[0];
+      if (!param) continue;
+
+      const value =
+          typeof f.value === 'string'
+              ? f.value
+              : Array.isArray(f.value)
+                  ? f.value.join(',')
+                  : f.value?.toString();
+
+      if (value) next.set(param, value);
+    }
+
+    // Only update if something actually changed, to avoid loops
+    const prev = searchParams.toString();
+    const curr = next.toString();
+    if (prev !== curr) setSearchParams(next, { replace: true });
+  }, [columnFilters, setSearchParams, searchParams, filterParamMap]);
 
   const columns: MRT_ColumnDef<PowerProfile>[] = [
     {
@@ -110,6 +168,10 @@ const LibraryGrid: React.FC = () => {
     enableTableHead: true,
     enableStickyHeader: true,
     enableStickyFooter: true,
+    state: {
+      columnFilters,
+    },
+    onColumnFiltersChange: setColumnFilters,
     initialState: {
       showColumnFilters: true,
       showGlobalFilter: true,

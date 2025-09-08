@@ -12,6 +12,7 @@ type StatisticsAggregatorProps = {
   title: string;
   nameColumnLabel: string;
   propertyPath: string | string[];
+  filterQueryParam?: string;
   numberOfTopItems?: number; // Optional, default to 10
   valueExtractor?: (profile: PowerProfile) => string | undefined;
 };
@@ -20,6 +21,7 @@ const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
   title,
   nameColumnLabel,
   propertyPath,
+  filterQueryParam,
   numberOfTopItems = 10,
   valueExtractor
 }) => {
@@ -73,6 +75,7 @@ const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
       loading={loading}
       error={error}
       nameColumnLabel={nameColumnLabel}
+      filterQueryParam={filterQueryParam ?? propertyPath as string}
     />
   );
 };
