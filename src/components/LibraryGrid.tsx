@@ -82,7 +82,6 @@ const LibraryGrid: React.FC = () => {
   );
 
   useEffect(() => {
-    debugger;
     const next = buildFilterStateFromSearchParams(searchParams, filterParamMap);
     const currentNormalized = columnFilters
         .map(f => ({ id: f.id, value: normalizeFilterVal(f.value) }))
