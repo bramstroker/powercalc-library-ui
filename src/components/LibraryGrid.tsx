@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Header } from "./Header";
 import { PowerProfile } from "../types/PowerProfile";
-import { DeviceType } from "../types/DeviceType";
 import NextIcon from "@mui/icons-material/NavigateNext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLibrary } from "../context/LibraryContext";
+import isEqual from "fast-deep-equal";
 
 import {
   MaterialReactTable,
@@ -17,6 +17,50 @@ import Box from "@mui/material/Box";
 import {IconButton} from "@mui/material";
 
 const queryClient = new QueryClient();
+
+const normalizeFilterVal = (v: unknown) => {
+  if (Array.isArray(v)) {
+    return v.map(String).sort().join(',');
+  }
+  if (v == null) {
+    return '';
+  }
+  return String(v);
+};
+
+const buildFilterStateFromSearchParams = (
+    searchParams: URLSearchParams,
+    map: Record<string, string>
+): MRT_ColumnFiltersState => {
+  const result: MRT_ColumnFiltersState = [];
+  for (const [param, colId] of Object.entries(map)) {
+    const val = searchParams.get(param);
+    if (val) {
+      result.push({ id: colId, value: val });
+    }
+  }
+  return result;
+};
+
+const buildSearchParamsFromFilterState = (
+    filters: MRT_ColumnFiltersState,
+    map: Record<string, string>
+) => {
+  const searchParams = new URLSearchParams();
+  const byParam: Array<[string, string]> = [];
+  for (const f of filters) {
+    const param = Object.entries(map).find(([, colId]) => colId === f.id)?.[0];
+    if (!param) {
+      continue;
+    }
+    const value = normalizeFilterVal(f.value);
+    if (value) {
+      byParam.push([param, value]);
+    }
+  }
+  byParam.sort(([a], [b]) => a.localeCompare(b)).forEach(([k, v]) => searchParams.set(k, v));
+  return searchParams.toString();
+};
 
 const LibraryGrid: React.FC = () => {
   const { powerProfiles: data, loading, error, total } = useLibrary();
@@ -33,52 +77,24 @@ const LibraryGrid: React.FC = () => {
       []
   );
 
-  const initialColumnFilters: MRT_ColumnFiltersState = useMemo(() => {
-    const filters: MRT_ColumnFiltersState = [];
-    for (const [param, colId] of Object.entries(filterParamMap)) {
-      const val = searchParams.get(param);
-      if (!val) {
-        continue;
-      }
-      filters.push({ id: colId, value: val });
-    }
-    return filters;
-  }, [searchParams, filterParamMap]);
+  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+      () => buildFilterStateFromSearchParams(searchParams, filterParamMap)
+  );
 
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(initialColumnFilters);
-
-  // Keep state in sync if user navigates with back/forward (URL changes)
   useEffect(() => {
-    setColumnFilters(initialColumnFilters);
-  }, [initialColumnFilters]);
+    debugger;
+    const next = buildFilterStateFromSearchParams(searchParams, filterParamMap);
+    const currentNormalized = columnFilters
+        .map(f => ({ id: f.id, value: normalizeFilterVal(f.value) }))
+        .sort((a,b) => a.id.localeCompare(b.id));
+    const nextNormalized = next
+        .map(f => ({ id: f.id, value: normalizeFilterVal(f.value) }))
+        .sort((a,b) => a.id.localeCompare(b.id));
 
-  // Push current filters back to URL whenever they change
-  useEffect(() => {
-    const next = new URLSearchParams(searchParams);
-
-    Object.keys(filterParamMap).forEach((p) => next.delete(p));
-
-    for (const f of columnFilters) {
-      const param = Object.entries(filterParamMap).find(
-          ([, colId]) => colId === f.id
-      )?.[0];
-      if (!param) continue;
-
-      const value =
-          typeof f.value === 'string'
-              ? f.value
-              : Array.isArray(f.value)
-                  ? f.value.join(',')
-                  : f.value?.toString();
-
-      if (value) next.set(param, value);
+    if (!isEqual(currentNormalized, nextNormalized)) {
+      setColumnFilters(next);
     }
-
-    // Only update if something actually changed, to avoid loops
-    const prev = searchParams.toString();
-    const curr = next.toString();
-    if (prev !== curr) setSearchParams(next, { replace: true });
-  }, [columnFilters, setSearchParams, searchParams, filterParamMap]);
+  }, [searchParams, filterParamMap]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const columns: MRT_ColumnDef<PowerProfile>[] = [
     {
@@ -86,7 +102,6 @@ const LibraryGrid: React.FC = () => {
       header: "Device type",
       enableGlobalFilter: false,
       filterVariant: "select",
-      filterSelectOptions: Object.values(DeviceType),
       grow: false,
       size: 150,
       enableColumnActions: false,
@@ -171,7 +186,20 @@ const LibraryGrid: React.FC = () => {
     state: {
       columnFilters,
     },
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: (updater) => {
+      setColumnFilters((prev) => {
+        const next =
+            typeof updater === 'function' ? (updater as any)(prev) : updater;
+
+        // push to URL only for UI-originated changes
+        const target = buildSearchParamsFromFilterState(next, filterParamMap);
+        const curr = searchParams.toString();
+        if (curr !== target) {
+          setSearchParams(new URLSearchParams(target), { replace: true });
+        }
+        return next;
+      });
+    },
     initialState: {
       showColumnFilters: true,
       showGlobalFilter: true,
