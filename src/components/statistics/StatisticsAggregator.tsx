@@ -13,7 +13,6 @@ type StatisticsAggregatorProps = {
   nameColumnLabel: string;
   propertyPath: string | string[];
   filterQueryParam?: string;
-  numberOfTopItems?: number; // Optional, default to 10
   valueExtractor?: (profile: PowerProfile) => string | undefined;
 };
 
@@ -22,20 +21,20 @@ const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
   nameColumnLabel,
   propertyPath,
   filterQueryParam,
-  numberOfTopItems = 10,
   valueExtractor
 }) => {
   const [items, setItems] = useState<StatItem[]>([]);
+  const [resultsCount, setResultsCount] = useState<number>(10);
   const { powerProfiles, loading, error, total: totalProfiles } = useLibrary();
 
   useEffect(() => {
     if (!loading && !error && powerProfiles.length > 0) {
       // Count items based on the property path
       const counts: Record<string, number> = {};
-      
+
       powerProfiles.forEach(profile => {
         let value: string | undefined;
-        
+
         if (valueExtractor) {
           value = valueExtractor(profile);
         } else if (typeof propertyPath === 'string') {
@@ -52,7 +51,7 @@ const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
           }
           value = current;
         }
-        
+
         if (value) {
           counts[value] = (counts[value] || 0) + 1;
         }
@@ -60,22 +59,24 @@ const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
 
       const sortedItems = Object.entries(counts)
         .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, numberOfTopItems);
+        .sort((a, b) => b.count - a.count);
 
       setItems(sortedItems);
     }
-  }, [powerProfiles, loading, error, propertyPath, valueExtractor]);
+  }, [powerProfiles, loading, error, propertyPath, valueExtractor, resultsCount]);
 
   return (
     <StatisticsDisplay
-      title={title}
-      items={items}
+      title={title.replace(/Top \d+/, `Top ${resultsCount}`)}
+      items={items.slice(0, resultsCount)}
       totalItems={totalProfiles}
       loading={loading}
       error={error}
       nameColumnLabel={nameColumnLabel}
       filterQueryParam={filterQueryParam ?? propertyPath as string}
+      resultsCount={resultsCount}
+      aggregationsCount={items.length}
+      onResultsCountChange={setResultsCount}
     />
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { 
   Table, 
   TableBody, 
@@ -10,7 +10,12 @@ import {
   Typography, 
   Container, 
   Box,
-  Link
+  Link,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent
 } from "@mui/material";
 import { Header } from "../Header";
 
@@ -27,6 +32,9 @@ type StatisticsDisplayProps = {
   error: string | null;
   nameColumnLabel: string;
   filterQueryParam: string;
+  onResultsCountChange?: (count: number) => void;
+  aggregationsCount: number;
+  resultsCount: number;
 };
 
 const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
@@ -36,15 +44,51 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
   loading,
   error,
   nameColumnLabel,
-  filterQueryParam
+  filterQueryParam,
+  onResultsCountChange,
+  aggregationsCount,
+  resultsCount
 }) => {
+  const [count, setCount] = useState<number>(resultsCount);
+
+  const handleCountChange = (event: SelectChangeEvent<number>) => {
+    const newCount = event.target.value as number;
+    setCount(newCount);
+    if (onResultsCountChange) {
+      onResultsCountChange(newCount);
+    }
+  };
+
+  debugger;
+  const selectOptions = [];
+  for (let i = 10; i <= 100; i+=10) {
+    if ((i - 10) <= aggregationsCount) {
+      selectOptions.push(i);
+    }
+  }
+
   return (
     <>
       <Header total={totalItems} />
       <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          {title}
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            {title}
+          </Typography>
+          <FormControl sx={{ minWidth: 120 }}>
+            <InputLabel id="results-count-label">Show</InputLabel>
+            <Select
+              labelId="results-count-label"
+              value={count}
+              label="Show"
+              onChange={handleCountChange}
+            >
+              {selectOptions.map((value) => (
+                <MenuItem key={value} value={value}>{value} results</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
 
         {loading && <Typography>Loading...</Typography>}
 
