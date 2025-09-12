@@ -58,8 +58,7 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
       onResultsCountChange(newCount);
     }
   };
-
-  debugger;
+  
   const selectOptions = [];
   for (let i = 10; i <= 100; i+=10) {
     if ((i - 10) <= aggregationsCount) {
