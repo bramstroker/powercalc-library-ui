@@ -58,13 +58,6 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
       onResultsCountChange(newCount);
     }
   };
-  
-  const selectOptions = [];
-  for (let i = 10; i <= 100; i+=10) {
-    if ((i - 10) <= aggregationsCount) {
-      selectOptions.push(i);
-    }
-  }
 
   return (
     <>
@@ -82,7 +75,9 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
               label="Show"
               onChange={handleCountChange}
             >
-              {selectOptions.map((value) => (
+              {Array.from({ length: 10 }, (_, i) => (i + 1) * 10)
+                  .filter((value) => value <= aggregationsCount + 10)
+                  .map((value) => (
                 <MenuItem key={value} value={value}>{value} results</MenuItem>
               ))}
             </Select>
