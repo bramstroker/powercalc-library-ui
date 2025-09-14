@@ -17,6 +17,7 @@ export type PowerProfile = {
   calculationStrategy: string;
   standbyPower: number;
   standbyPowerOn?: number;
+  maxPower?: number;
   author?: string;
 };
 

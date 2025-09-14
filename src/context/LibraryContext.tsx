@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
 import { PowerProfile } from '../types/PowerProfile';
-import { API_ENDPOINTS } from '../config/api';
+import { useQuery } from "@tanstack/react-query";
+import { fetchLibrary } from "../api/library.api";
 
 interface LibraryContextType {
   powerProfiles: PowerProfile[];
@@ -16,31 +17,16 @@ interface LibraryProviderProps {
 }
 
 export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) => {
-  const [powerProfiles, setPowerProfiles] = useState<PowerProfile[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["library"],
+    queryFn: fetchLibrary,
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        console.log('Fetching library data - this should only happen once');
-        setLoading(true);
-        const response = await fetch(API_ENDPOINTS.LIBRARY);
-        if (response.status !== 200) {
-          throw new Error("Unexpected status code from library API");
-        }
-        const json = await response.json();
-
-        const profiles: PowerProfile[] = [];
-
-        json.manufacturers.forEach(
-          (manufacturer: { models: any[]; full_name: string, dir_name: string }) => {
-            manufacturer.models.forEach((model) => {
-              profiles.push({
-                manufacturer: {
-                  fullName: manufacturer.full_name,
-                  dirName: manufacturer.dir_name
-                },
+  const profiles: PowerProfile[] =
+      (data?.manufacturers ?? []).flatMap(
+          (manufacturer: { models: any[]; full_name: string; dir_name: string }) =>
+              manufacturer.models.map((model) => ({
+                manufacturer: { fullName: manufacturer.full_name, dirName: manufacturer.dir_name },
                 modelId: model.id,
                 name: model.name,
                 aliases: model.aliases?.join("|"),
@@ -54,34 +40,23 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
                 measureMethod: model.measure_method,
                 measureDescription: model.measure_description,
                 calculationStrategy: model.calculation_strategy,
+                maxPower: model.max_power,
                 standbyPower: model.standby_power,
                 standbyPowerOn: model.standby_power_on,
-              });
-            });
-          },
-        );
-
-        setPowerProfiles(profiles);
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch library data");
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+              }))
+      );
 
   return (
-    <LibraryContext.Provider value={{ 
-      powerProfiles, 
-      loading, 
-      error, 
-      total: powerProfiles.length 
-    }}>
-      {children}
-    </LibraryContext.Provider>
+      <LibraryContext.Provider
+          value={{
+            powerProfiles: profiles,
+            loading: isLoading,
+            error: error ? "Failed to fetch library data" : null,
+            total: profiles.length,
+          }}
+      >
+        {children}
+      </LibraryContext.Provider>
   );
 };
 

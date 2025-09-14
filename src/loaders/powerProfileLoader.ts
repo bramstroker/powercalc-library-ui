@@ -1,5 +1,6 @@
-import {ColorMode} from "../types/ColorMode";
 import {LoaderFunctionArgs} from "react-router-dom";
+import { queryClient } from "../queryClient";
+import { fetchLibrary } from "../api/library.api";
 import {FullPowerProfile, PlotLink} from "../types/PowerProfile";
 import {API_ENDPOINTS} from "../config/api";
 
@@ -27,6 +28,15 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
   }
   const modelJson = await profileResponse.json();
 
+  // Fetch library data to get color_modes and max_power
+  // Ensure the big library is in cache (fetches once per app lifecycle)
+  const library = await queryClient.ensureQueryData({
+    queryKey: ["library"],
+    queryFn: fetchLibrary,
+  });
+  const mfr = library.manufacturers.find((m) => m.dir_name === manufacturer);
+  const libraryModel = mfr?.models?.find((mdl: any) => mdl.id === model);
+
   // Fetch download links
   const downloadUrl = `${API_ENDPOINTS.DOWNLOAD}/${manufacturer}/${model}?includePlots=1`;
   const downloadResponse = await fetch(downloadUrl);
@@ -39,9 +49,9 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
       .filter((link: any) => link.url.endsWith('.png'))
       .map((link: any) => ({
         url: link.url,
-        colorMode: link.path.split(".")[0],
+        label: link.path.split(".")[0],
       }));
-  
+
   return {
     rawJson: modelJson,
     manufacturer: {
@@ -52,7 +62,7 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     name: modelJson['name'],
     aliases: modelJson['aliases'],
     deviceType: modelJson['device_type'],
-    colorModes: modelJson['color_modes'],
+    colorModes: libraryModel?.color_modes,
     updatedAt: modelJson['updated_at'],
     createdAt: modelJson['created_at'],
     description: modelJson['description'],
@@ -60,6 +70,7 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     measureMethod: modelJson['measure_method'],
     measureDescription: modelJson['measure_description'],
     calculationStrategy: modelJson['calculation_strategy'],
+    maxPower: libraryModel?.max_power,
     standbyPower: modelJson['standby_power'],
     standbyPowerOn: modelJson['standby_power_on'],
     author: modelJson['author'],

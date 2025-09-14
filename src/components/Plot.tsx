@@ -45,7 +45,7 @@ export const Plot = ({ link }: { link: PlotLink }) => {
       <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
         <DialogContent>
           <DialogContentText>
-            <img src={link.url} alt="Plot {link.colorMode}" style={{ maxWidth: "100%" }} />
+            <img src={link.url} alt={`Plot ${link.label}`} style={{ maxWidth: "100%" }} />
           </DialogContentText>
         </DialogContent>
       </Dialog>

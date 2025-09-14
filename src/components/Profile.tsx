@@ -93,6 +93,11 @@ export const ProfileContent: React.FC = () => {
       icon: ElectricMeterIcon,
     },
     {
+      label: "Max power",
+      value: profile.maxPower,
+      icon: BoltIcon,
+    },
+    {
       label: "Standby power",
       value: profile.standbyPower,
       icon: BoltIcon,

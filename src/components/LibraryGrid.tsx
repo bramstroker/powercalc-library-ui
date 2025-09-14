@@ -153,6 +153,10 @@ const LibraryGrid: React.FC = () => {
       header: "Standby power on",
     },
     {
+      accessorKey: "maxPower",
+      header: "Max power",
+    },
+    {
       accessorKey: "updatedAt",
       header: "Updated",
     },
@@ -209,6 +213,7 @@ const LibraryGrid: React.FC = () => {
         measureDevice: false,
         measureMethod: false,
         updatedAt: false,
+        maxPower: false,
         standbyPower: false,
         standbyPowerOn: false,
       },
