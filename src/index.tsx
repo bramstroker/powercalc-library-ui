@@ -15,6 +15,8 @@ import TopDeviceTypes from "./components/statistics/TopDeviceTypes";
 import {createTheme} from "@mui/material";
 import {ThemeProvider} from "@mui/material/styles";
 import { LibraryProvider } from "./context/LibraryContext";
+import {QueryClientProvider} from "@tanstack/react-query";
+import {queryClient} from "./queryClient";
 
 const theme = createTheme({
   colorSchemes: {
@@ -66,8 +68,10 @@ const root = ReactDOM.createRoot(
 root.render(
     <ThemeProvider theme={theme} defaultMode="dark">
       <CssBaseline/>
-      <LibraryProvider>
-        <RouterProvider router={router}/>
-      </LibraryProvider>
+      <QueryClientProvider client={queryClient}>
+        <LibraryProvider>
+          <RouterProvider router={router} />
+        </LibraryProvider>
+      </QueryClientProvider>
     </ThemeProvider>
 );
