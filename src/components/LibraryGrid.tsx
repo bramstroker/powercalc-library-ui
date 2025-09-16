@@ -1,20 +1,20 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Header } from "./Header";
-import { PowerProfile } from "../types/PowerProfile";
 import NextIcon from "@mui/icons-material/NavigateNext";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useLibrary } from "../context/LibraryContext";
 import isEqual from "fast-deep-equal";
-
 import {
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef, MRT_Row, MRT_ColumnFiltersState,
 } from "material-react-table";
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
 import {IconButton} from "@mui/material";
+
+import { useLibrary } from "../context/LibraryContext";
+import { PowerProfile } from "../types/PowerProfile";
+
+import { Header } from "./Header";
 
 const queryClient = new QueryClient();
 
@@ -197,7 +197,7 @@ const LibraryGrid: React.FC = () => {
     onColumnFiltersChange: (updater) => {
       setColumnFilters((prev) => {
         const next =
-            typeof updater === 'function' ? (updater as any)(prev) : updater;
+            typeof updater === 'function' ? (updater as (prevState: MRT_ColumnFiltersState) => MRT_ColumnFiltersState)(prev) : updater;
 
         // push to URL only for UI-originated changes
         const target = buildSearchParamsFromFilterState(next, filterParamMap);
@@ -244,7 +244,7 @@ const LibraryGrid: React.FC = () => {
         </Box>
     ),
     muiTableBodyRowProps: ({ row }) => ({
-      onClick: (event) => {
+      onClick: (_event) => {
         navigateToProfile(row);
       },
       sx: {

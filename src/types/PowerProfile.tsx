@@ -27,7 +27,7 @@ export interface Manufacturer {
 }
 
 export type FullPowerProfile = PowerProfile & {
-  rawJson: any,
+  rawJson: Record<string, unknown>,
   plots: PlotLink[];
 };
 

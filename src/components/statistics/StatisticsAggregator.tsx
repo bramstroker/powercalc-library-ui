@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+
 import { PowerProfile } from "../../types/PowerProfile";
 import { useLibrary } from "../../context/LibraryContext";
+
 import StatisticsDisplay from "./StatisticsDisplay";
 
 type StatItem = {
@@ -40,16 +42,16 @@ const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
         } else if (typeof propertyPath === 'string') {
           value = profile[propertyPath as keyof PowerProfile] as string | undefined;
         } else if (Array.isArray(propertyPath)) {
-          let current: any = profile;
+          let current: unknown = profile;
           for (const path of propertyPath) {
-            if (current && current[path]) {
-              current = current[path];
+            if (current && typeof current === 'object' && path in current) {
+              current = (current as Record<string, unknown>)[path];
             } else {
               current = undefined;
               break;
             }
           }
-          value = current;
+          value = current as string | undefined;
         }
 
         if (value) {

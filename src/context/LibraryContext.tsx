@@ -1,7 +1,10 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { PowerProfile } from '../types/PowerProfile';
 import { useQuery } from "@tanstack/react-query";
-import { fetchLibrary } from "../api/library.api";
+
+import { PowerProfile } from '../types/PowerProfile';
+import { DeviceType } from '../types/DeviceType';
+import { ColorMode } from '../types/ColorMode';
+import { fetchLibrary, LibraryModel } from "../api/library.api";
 
 interface LibraryContextType {
   powerProfiles: PowerProfile[];
@@ -24,15 +27,15 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
 
   const profiles: PowerProfile[] =
       (data?.manufacturers ?? []).flatMap(
-          (manufacturer: { models: any[]; full_name: string; dir_name: string }) =>
+          (manufacturer: { models: LibraryModel[]; full_name: string; dir_name: string }) =>
               manufacturer.models.map((model) => ({
                 manufacturer: { fullName: manufacturer.full_name, dirName: manufacturer.dir_name },
                 modelId: model.id,
                 name: model.name,
-                aliases: model.aliases?.join("|"),
+                aliases: model.aliases?.join("|") || "",
                 author: model.author,
-                deviceType: model.device_type,
-                colorModes: model.color_modes || [],
+                deviceType: model.device_type as DeviceType,
+                colorModes: (model.color_modes || []) as ColorMode[],
                 updatedAt: model.updated_at,
                 createdAt: model.created_at,
                 description: model.description,

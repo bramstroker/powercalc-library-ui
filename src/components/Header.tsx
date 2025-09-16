@@ -9,15 +9,17 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import Logo from "./Logo";
 import {
   MRT_GlobalFilterTextField, MRT_ShowHideColumnsButton,
   MRT_TableInstance,
 } from "material-react-table";
-import { PowerProfile } from "../types/PowerProfile";
 import { useTheme } from "@mui/material";
 import {indigo} from "@mui/material/colors";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+
+import { PowerProfile } from "../types/PowerProfile";
+
+import Logo from "./Logo";
 
 type HeaderProps = {
   total?: number;

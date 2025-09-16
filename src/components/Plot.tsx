@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Card,
   CardActionArea,
@@ -8,6 +8,7 @@ import {
   DialogContentText,
   Typography,
 } from "@mui/material";
+
 import {PlotLink} from "../types/PowerProfile";
 
 export const Plot = ({ link }: { link: PlotLink }) => {

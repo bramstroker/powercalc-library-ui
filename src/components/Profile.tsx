@@ -1,4 +1,3 @@
-import {FullPowerProfile} from "../types/PowerProfile";
 import {useLoaderData, useNavigate} from "react-router-dom";
 import FactoryIcon from "@mui/icons-material/Factory";
 import PermDeviceInformationIcon from "@mui/icons-material/PermDeviceInformation";
@@ -19,11 +18,14 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import ListItemText from "@mui/material/ListItemText";
 import {Button, Paper, Tab, Tabs} from "@mui/material";
-import Plot from "./Plot";
-import {Header} from "./Header";
 import React, {Suspense} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+
+import {FullPowerProfile} from "../types/PowerProfile";
+
+import {Header} from "./Header";
+import { Plot } from "./Plot";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -148,7 +150,7 @@ export const ProfileContent: React.FC = () => {
   const [value, setValue] = React.useState(0);
   const navigate = useNavigate();
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
@@ -224,8 +226,8 @@ export const ProfileContent: React.FC = () => {
           </CustomTabPanel>
           { hasPlots && <CustomTabPanel value={value} index={2}>
             <Grid2 container spacing={1} sx={{width: "100%"}}>
-              {profile?.plots.map((plot, index) => (
-                  <Plot link={plot}></Plot>
+              {profile?.plots.map((plot, _index) => (
+                  <Plot key={plot.url} link={plot}></Plot>
               ))}
             </Grid2>
           </CustomTabPanel> }

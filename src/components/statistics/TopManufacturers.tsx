@@ -1,4 +1,5 @@
 import React from "react";
+
 import StatisticsAggregator from "./StatisticsAggregator";
 
 const TopManufacturers: React.FC = () => {
