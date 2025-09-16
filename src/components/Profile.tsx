@@ -25,7 +25,7 @@ import Typography from "@mui/material/Typography";
 import {FullPowerProfile} from "../types/PowerProfile";
 
 import {Header} from "./Header";
-import Plot from "./Plot";
+import { Plot } from "./Plot";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -226,8 +226,8 @@ export const ProfileContent: React.FC = () => {
           </CustomTabPanel>
           { hasPlots && <CustomTabPanel value={value} index={2}>
             <Grid2 container spacing={1} sx={{width: "100%"}}>
-              {profile?.plots.map((plot, index) => (
-                  <Plot link={plot}></Plot>
+              {profile?.plots.map((plot, _index) => (
+                  <Plot key={plot.url} link={plot}></Plot>
               ))}
             </Grid2>
           </CustomTabPanel> }

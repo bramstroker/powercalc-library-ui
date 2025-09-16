@@ -1,9 +1,14 @@
 import {LoaderFunctionArgs} from "react-router-dom";
 
 import { queryClient } from "../queryClient";
-import { fetchLibrary } from "../api/library.api";
+import { fetchLibrary ,LibraryModel} from "../api/library.api";
 import {FullPowerProfile, PlotLink} from "../types/PowerProfile";
 import {API_ENDPOINTS} from "../config/api";
+
+interface DownloadLink {
+  url: string;
+  path: string;
+}
 
 // Loader function
 export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<FullPowerProfile> => {
@@ -36,7 +41,7 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     queryFn: fetchLibrary,
   });
   const mfr = library.manufacturers.find((m) => m.dir_name === manufacturer);
-  const libraryModel = mfr?.models?.find((mdl: any) => mdl.id === model);
+  const libraryModel = mfr?.models?.find((mdl: LibraryModel) => mdl.id === model);
 
   // Fetch download links
   const downloadUrl = `${API_ENDPOINTS.DOWNLOAD}/${manufacturer}/${model}?includePlots=1`;
@@ -47,8 +52,8 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
   const downloadLinks = await downloadResponse.json();
 
   const plots: PlotLink[] = downloadLinks
-      .filter((link: any) => link.url.endsWith('.png'))
-      .map((link: any) => ({
+      .filter((link: DownloadLink) => link.url.endsWith('.png'))
+      .map((link: DownloadLink) => ({
         url: link.url,
         label: link.path.split(".")[0],
       }));

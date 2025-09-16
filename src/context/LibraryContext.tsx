@@ -2,7 +2,7 @@ import React, { createContext, useContext, ReactNode } from 'react';
 import { useQuery } from "@tanstack/react-query";
 
 import { PowerProfile } from '../types/PowerProfile';
-import { fetchLibrary } from "../api/library.api";
+import { fetchLibrary, LibraryModel } from "../api/library.api";
 
 interface LibraryContextType {
   powerProfiles: PowerProfile[];
@@ -25,7 +25,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
 
   const profiles: PowerProfile[] =
       (data?.manufacturers ?? []).flatMap(
-          (manufacturer: { models: any[]; full_name: string; dir_name: string }) =>
+          (manufacturer: { models: LibraryModel[]; full_name: string; dir_name: string }) =>
               manufacturer.models.map((model) => ({
                 manufacturer: { fullName: manufacturer.full_name, dirName: manufacturer.dir_name },
                 modelId: model.id,

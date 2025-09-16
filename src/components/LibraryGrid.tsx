@@ -5,7 +5,7 @@ import isEqual from "fast-deep-equal";
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  type MRT_ColumnDef, MRT_Row, MRT_ColumnFiltersState,
+  type MRT_ColumnDef, MRT_Row, MRT_ColumnFiltersState, MRT_ColumnFiltersStateSetter,
 } from "material-react-table";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
@@ -197,7 +197,7 @@ const LibraryGrid: React.FC = () => {
     onColumnFiltersChange: (updater) => {
       setColumnFilters((prev) => {
         const next =
-            typeof updater === 'function' ? (updater as any)(prev) : updater;
+            typeof updater === 'function' ? (updater as MRT_ColumnFiltersStateSetter)(prev) : updater;
 
         // push to URL only for UI-originated changes
         const target = buildSearchParamsFromFilterState(next, filterParamMap);
@@ -244,7 +244,7 @@ const LibraryGrid: React.FC = () => {
         </Box>
     ),
     muiTableBodyRowProps: ({ row }) => ({
-      onClick: (event) => {
+      onClick: (_event) => {
         navigateToProfile(row);
       },
       sx: {
