@@ -1,6 +1,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { PowerProfile } from '../types/PowerProfile';
 import { useQuery } from "@tanstack/react-query";
+
+import { PowerProfile } from '../types/PowerProfile';
 import { fetchLibrary } from "../api/library.api";
 
 interface LibraryContextType {

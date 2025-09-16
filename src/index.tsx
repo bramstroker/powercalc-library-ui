@@ -1,10 +1,13 @@
 import ReactDOM from "react-dom/client";
 import CssBaseline from "@mui/material/CssBaseline";
-
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
+import {createTheme} from "@mui/material";
+import {ThemeProvider} from "@mui/material/styles";
+import {QueryClientProvider} from "@tanstack/react-query";
+
 import Profile from "./components/Profile";
 import {powerProfileLoader} from "./loaders/powerProfileLoader";
 import LibraryGrid from "./components/LibraryGrid";
@@ -12,10 +15,7 @@ import TopMeasureDevices from "./components/statistics/TopMeasureDevices";
 import TopAuthors from "./components/statistics/TopAuthors";
 import TopManufacturers from "./components/statistics/TopManufacturers";
 import TopDeviceTypes from "./components/statistics/TopDeviceTypes";
-import {createTheme} from "@mui/material";
-import {ThemeProvider} from "@mui/material/styles";
 import { LibraryProvider } from "./context/LibraryContext";
-import {QueryClientProvider} from "@tanstack/react-query";
 import {queryClient} from "./queryClient";
 
 const theme = createTheme({

@@ -1,4 +1,3 @@
-import {FullPowerProfile} from "../types/PowerProfile";
 import {useLoaderData, useNavigate} from "react-router-dom";
 import FactoryIcon from "@mui/icons-material/Factory";
 import PermDeviceInformationIcon from "@mui/icons-material/PermDeviceInformation";
@@ -19,11 +18,14 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import ListItemText from "@mui/material/ListItemText";
 import {Button, Paper, Tab, Tabs} from "@mui/material";
-import Plot from "./Plot";
-import {Header} from "./Header";
 import React, {Suspense} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+
+import {FullPowerProfile} from "../types/PowerProfile";
+
+import {Header} from "./Header";
+import Plot from "./Plot";
 
 interface TabPanelProps {
   children?: React.ReactNode;

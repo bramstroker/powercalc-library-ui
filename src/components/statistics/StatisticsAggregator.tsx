@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+
 import { PowerProfile } from "../../types/PowerProfile";
 import { useLibrary } from "../../context/LibraryContext";
+
 import StatisticsDisplay from "./StatisticsDisplay";
 
 type StatItem = {
