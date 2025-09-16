@@ -23,13 +23,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "preview": "vite preview",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx src/",
+    "lint:fix": "eslint --ext .js,.jsx,.ts,.tsx src/ --fix",
+    "type-check": "tsc --noEmit"
   },
   "browserslist": {
     "production": [
@@ -47,6 +44,12 @@
     "@types/node": "^22.0",
     "@types/react": "^19.0",
     "@types/react-dom": "^19.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-import": "^2.29.1",
     "prettier": "^3.5"
   }
 }
