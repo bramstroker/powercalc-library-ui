@@ -30,7 +30,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
                 manufacturer: { fullName: manufacturer.full_name, dirName: manufacturer.dir_name },
                 modelId: model.id,
                 name: model.name,
-                aliases: model.aliases?.join("|"),
+                aliases: model.aliases?.join("|") || "",
                 author: model.author,
                 deviceType: model.device_type,
                 colorModes: model.color_modes || [],

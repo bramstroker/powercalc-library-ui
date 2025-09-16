@@ -5,7 +5,7 @@ import isEqual from "fast-deep-equal";
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  type MRT_ColumnDef, MRT_Row, MRT_ColumnFiltersState, MRT_ColumnFiltersStateSetter,
+  type MRT_ColumnDef, MRT_Row, MRT_ColumnFiltersState,
 } from "material-react-table";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
