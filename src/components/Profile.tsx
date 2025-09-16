@@ -54,23 +54,50 @@ function a11yProps(index: number) {
   };
 }
 
+interface PropertyItem {
+  label: string;
+  value: string | number | undefined;
+  icon: React.ElementType;
+  link?: string;
+}
+
 export const ProfileContent: React.FC = () => {
   const profile = useLoaderData() as FullPowerProfile;
 
-  const properties = [
-    {label: "Manufacturer", value: profile.manufacturer.fullName, icon: FactoryIcon},
+  const properties: PropertyItem[] = [
+    {
+      label: "Manufacturer", 
+      value: profile.manufacturer.fullName, 
+      icon: FactoryIcon,
+      link: `/?manufacturer=${encodeURIComponent(profile.manufacturer.fullName)}`
+    },
     {
       label: "Model ID",
       value: profile.modelId,
       icon: PermDeviceInformationIcon,
     },
-    {label: "Device type", value: profile.deviceType, icon: TypeSpecimenIcon},
+    {
+      label: "Device type", 
+      value: profile.deviceType, 
+      icon: TypeSpecimenIcon,
+      link: `/?deviceType=${encodeURIComponent(profile.deviceType)}`
+    },
     {label: "Name", value: profile.name, icon: MoreIcon},
     {label: "Description", value: profile.description, icon: MoreIcon},
     {label: "Created", value: profile.createdAt, icon: HistoryIcon},
     {label: "Updated", value: profile.updatedAt, icon: HistoryIcon},
-    {label: "Author", value: profile.author, icon: PersonIcon},
-    {label: "Calculation strategy", value: profile.calculationStrategy, icon: CalculateIcon},
+    {
+      label: "Author", 
+      value: profile.author, 
+      icon: PersonIcon,
+      link: profile.author ? `/?author=${encodeURIComponent(profile.author)}` : undefined
+    },
+    {
+      label: "Calculation strategy",
+      value: profile.calculationStrategy,
+      icon: CalculateIcon,
+      link: `/?calculationStrategy=${encodeURIComponent(profile.calculationStrategy)}`
+    },
     {
       label: "Color modes",
       value: profile.colorModes?.join(", "),
@@ -81,6 +108,7 @@ export const ProfileContent: React.FC = () => {
       label: "Measure device",
       value: profile.measureDevice,
       icon: ElectricMeterIcon,
+      link: `/?measureDevice=${encodeURIComponent(profile.measureDevice)}`
     },
     {
       label: "Measure method",
@@ -176,7 +204,11 @@ export const ProfileContent: React.FC = () => {
                             </ListItemAvatar>
                             <ListItemText
                                 primary={property.label}
-                                secondary={property.value}
+                                secondary={property.link ? (
+                                  <a href={property.link} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    {property.value}
+                                  </a>
+                                ) : property.value}
                             />
                           </ListItem>
                       ))}

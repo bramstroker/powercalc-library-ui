@@ -73,6 +73,7 @@ const LibraryGrid: React.FC = () => {
         deviceType: "deviceType",
         author: "author",
         measureDevice: "measureDevice",
+        calculationStrategy: "calculationStrategy",
       }),
       []
   );
@@ -164,6 +165,10 @@ const LibraryGrid: React.FC = () => {
       accessorKey: "createdAt",
       header: "Created",
     },
+    {
+      "accessorKey": "calculationStrategy",
+      "header": "Calculation strategy",
+    }
   ];
 
   const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
@@ -216,6 +221,7 @@ const LibraryGrid: React.FC = () => {
         maxPower: false,
         standbyPower: false,
         standbyPowerOn: false,
+        calculationStrategy: false,
       },
     },
     muiSearchTextFieldProps: {
