@@ -12,7 +12,7 @@ import CalculateIcon from "@mui/icons-material/Calculate";
 import BoltIcon from "@mui/icons-material/Bolt";
 import HomeIcon from "@mui/icons-material/Home";
 import GithubIcon from "@mui/icons-material/GitHub";
-import Grid2 from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
@@ -193,10 +193,10 @@ export const ProfileContent: React.FC = () => {
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
-            <Grid2 size={{xs: 12, md: 6}}>
-              <Grid2 container spacing={1}>
+            <Grid size={{xs: 12, md: 6}}>
+              <Grid container spacing={1}>
                 {chunkedProperties.map((chunk, columnIndex) => (
-                    <Grid2 size={{xs: 12, sm: 6, md: 4}} key={columnIndex}>
+                    <Grid size={{xs: 12, sm: 6, md: 4}} key={columnIndex}>
                       {chunk.map((property, index) => (
                           <ListItem key={index}>
                             <ListItemAvatar>
@@ -214,10 +214,10 @@ export const ProfileContent: React.FC = () => {
                             />
                           </ListItem>
                       ))}
-                    </Grid2>
+                    </Grid>
                 ))}
-              </Grid2>
-            </Grid2>
+              </Grid>
+            </Grid>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <Paper style={{padding: 16}}>
@@ -225,11 +225,11 @@ export const ProfileContent: React.FC = () => {
             </Paper>
           </CustomTabPanel>
           { hasPlots && <CustomTabPanel value={value} index={2}>
-            <Grid2 container spacing={1} sx={{width: "100%"}}>
+            <Grid container spacing={1} sx={{width: "100%"}}>
               {profile?.plots.map((plot, _index) => (
                   <Plot key={plot.url} link={plot}></Plot>
               ))}
-            </Grid2>
+            </Grid>
           </CustomTabPanel> }
         </Box>
       </>
