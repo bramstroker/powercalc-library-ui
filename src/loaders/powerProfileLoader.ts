@@ -3,6 +3,8 @@ import {LoaderFunctionArgs} from "react-router-dom";
 import { queryClient } from "../queryClient";
 import { fetchLibrary ,LibraryModel} from "../api/library.api";
 import {FullPowerProfile, PlotLink} from "../types/PowerProfile";
+import {ColorMode} from "../types/ColorMode";
+import {DeviceType} from "../types/DeviceType";
 import {API_ENDPOINTS} from "../config/api";
 
 interface DownloadLink {
@@ -67,8 +69,8 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     modelId: model,
     name: modelJson['name'],
     aliases: Array.isArray(modelJson['aliases']) ? modelJson['aliases'].join("|") : (modelJson['aliases'] || ""),
-    deviceType: modelJson['device_type'],
-    colorModes: libraryModel?.color_modes || [],
+    deviceType: modelJson['device_type'] as DeviceType,
+    colorModes: (libraryModel?.color_modes || []) as ColorMode[],
     updatedAt: modelJson['updated_at'],
     createdAt: modelJson['created_at'],
     description: modelJson['description'],

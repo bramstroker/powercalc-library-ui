@@ -2,6 +2,8 @@ import React, { createContext, useContext, ReactNode } from 'react';
 import { useQuery } from "@tanstack/react-query";
 
 import { PowerProfile } from '../types/PowerProfile';
+import { DeviceType } from '../types/DeviceType';
+import { ColorMode } from '../types/ColorMode';
 import { fetchLibrary, LibraryModel } from "../api/library.api";
 
 interface LibraryContextType {
@@ -32,8 +34,8 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
                 name: model.name,
                 aliases: model.aliases?.join("|") || "",
                 author: model.author,
-                deviceType: model.device_type,
-                colorModes: model.color_modes || [],
+                deviceType: model.device_type as DeviceType,
+                colorModes: (model.color_modes || []) as ColorMode[],
                 updatedAt: model.updated_at,
                 createdAt: model.created_at,
                 description: model.description,

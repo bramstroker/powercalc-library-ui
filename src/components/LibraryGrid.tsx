@@ -197,7 +197,7 @@ const LibraryGrid: React.FC = () => {
     onColumnFiltersChange: (updater) => {
       setColumnFilters((prev) => {
         const next =
-            typeof updater === 'function' ? (updater as MRT_ColumnFiltersStateSetter)(prev) : updater;
+            typeof updater === 'function' ? (updater as (prevState: MRT_ColumnFiltersState) => MRT_ColumnFiltersState)(prev) : updater;
 
         // push to URL only for UI-originated changes
         const target = buildSearchParamsFromFilterState(next, filterParamMap);
