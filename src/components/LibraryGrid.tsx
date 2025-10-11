@@ -9,7 +9,7 @@ import {
 } from "material-react-table";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
-import {IconButton} from "@mui/material";
+import {IconButton, Backdrop, CircularProgress} from "@mui/material";
 
 import { useLibrary } from "../context/LibraryContext";
 import { PowerProfile } from "../types/PowerProfile";
@@ -66,6 +66,7 @@ const LibraryGrid: React.FC = () => {
   const { powerProfiles: data, loading, error, total } = useLibrary();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const filterParamMap: Record<string, string> = useMemo(
       () => ({
@@ -174,7 +175,8 @@ const LibraryGrid: React.FC = () => {
   const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
     const manufacturer = row.original.manufacturer.dirName;
     const model = row.original.modelId;
-    navigate(`/profiles/${manufacturer}/${model}`)
+    setProfileLoading(true);
+    navigate(`/profiles/${manufacturer}/${model}`);
   }
 
   const table = useMaterialReactTable({
@@ -280,6 +282,12 @@ const LibraryGrid: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <Header total={total} table={table} />
       <MaterialReactTable table={table} />
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={profileLoading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </QueryClientProvider>
   );
 };
