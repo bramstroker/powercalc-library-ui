@@ -8,26 +8,27 @@ interface AliasChipsProps {
 }
 
 const AliasChips: React.FC<AliasChipsProps> = ({ 
-  aliases,
+  aliases, 
   maxVisible = 3,
   marginTop = 0
 }) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+
   if (!aliases) {
     return null;
   }
 
   const aliasArray = aliases.split("|");
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  
-  const open = Boolean(anchorEl);
 
   // Show only first N chips, with a "+N more" chip if there are more
   const visibleAliases = aliasArray.slice(0, maxVisible);
