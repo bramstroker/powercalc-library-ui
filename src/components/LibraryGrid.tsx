@@ -11,6 +11,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
 import {IconButton, Backdrop, CircularProgress} from "@mui/material";
 
+import AliasChips from "./AliasChips";
+
 import { useLibrary } from "../context/LibraryContext";
 import { PowerProfile } from "../types/PowerProfile";
 
@@ -131,6 +133,10 @@ const LibraryGrid: React.FC = () => {
     {
       accessorKey: "aliases",
       header: "Aliases",
+      Cell: ({ cell }) => {
+        const aliases = cell.getValue<string>();
+        return <AliasChips aliases={aliases} />;
+      },
     },
     {
       accessorKey: "author",

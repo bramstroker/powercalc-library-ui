@@ -18,6 +18,8 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import ListItemText from "@mui/material/ListItemText";
 import {Button, Paper, Tab, Tabs} from "@mui/material";
+
+import AliasChips from "./AliasChips";
 import React, {Suspense} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -206,11 +208,15 @@ export const ProfileContent: React.FC = () => {
                             </ListItemAvatar>
                             <ListItemText
                                 primary={property.label}
-                                secondary={property.link ? (
-                                  <a href={property.link} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                    {property.value}
-                                  </a>
-                                ) : property.value}
+                                secondary={
+                                  property.label === "Aliases" && property.value ? (
+                                    <AliasChips aliases={property.value as string} marginTop={1} />
+                                  ) : property.link ? (
+                                    <a href={property.link} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                      {property.value}
+                                    </a>
+                                  ) : property.value
+                                }
                             />
                           </ListItem>
                       ))}
