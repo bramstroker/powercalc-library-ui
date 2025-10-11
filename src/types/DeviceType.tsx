@@ -10,5 +10,6 @@ export enum DeviceType {
   SMART_DIMMER = "smart_dimmer",
   SMART_SPEAKER = "smart_speaker",
   SMART_SWITCH = "smart_switch",
+  TELEVISION = "television",
   VACUUM_ROBOT = "vacuum_robot",
 }
