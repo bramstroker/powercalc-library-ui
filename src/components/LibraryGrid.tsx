@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import NextIcon from "@mui/icons-material/NavigateNext";
+import BrightnessIcon from "@mui/icons-material/Brightness6";
+import ThermostatIcon from "@mui/icons-material/Thermostat";
+import PaletteIcon from "@mui/icons-material/Palette";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import isEqual from "fast-deep-equal";
 import {
@@ -9,16 +12,44 @@ import {
 } from "material-react-table";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
-import {IconButton, Backdrop, CircularProgress} from "@mui/material";
+import {IconButton, Backdrop, CircularProgress, Tooltip, Stack} from "@mui/material";
 
 import AliasChips from "./AliasChips";
 
 import { useLibrary } from "../context/LibraryContext";
 import { PowerProfile } from "../types/PowerProfile";
+import { ColorMode } from "../types/ColorMode";
 
 import { Header } from "./Header";
 
 const queryClient = new QueryClient();
+
+// Component to render color mode icons
+const ColorModeIcons: React.FC<{ colorModes: ColorMode[] }> = ({ colorModes }) => {
+  if (!colorModes || colorModes.length === 0) {
+    return null;
+  }
+
+  return (
+    <Stack direction="row" spacing={1}>
+      {colorModes.includes(ColorMode.BRIGHTNESS) && (
+        <Tooltip title="Brightness">
+          <BrightnessIcon fontSize="small" />
+        </Tooltip>
+      )}
+      {colorModes.includes(ColorMode.COLOR_TEMP) && (
+        <Tooltip title="Color Temperature">
+          <ThermostatIcon fontSize="small" />
+        </Tooltip>
+      )}
+      {colorModes.includes(ColorMode.HS) && (
+        <Tooltip title="Hue/Saturation">
+          <PaletteIcon fontSize="small" />
+        </Tooltip>
+      )}
+    </Stack>
+  );
+};
 
 const normalizeFilterVal = (v: unknown) => {
   if (Array.isArray(v)) {
@@ -73,6 +104,7 @@ const LibraryGrid: React.FC = () => {
   const filterParamMap: Record<string, string> = useMemo(
       () => ({
         manufacturer: "manufacturer.fullName",
+        colorModes: "colorModes",
         deviceType: "deviceType",
         author: "author",
         measureDevice: "measureDevice",
@@ -136,6 +168,30 @@ const LibraryGrid: React.FC = () => {
       Cell: ({ cell }) => {
         const aliases = cell.getValue<string>();
         return <AliasChips aliases={aliases} />;
+      },
+    },
+    {
+      accessorKey: "colorModes",
+      header: "Color Modes",
+      enableGlobalFilter: false,
+      filterVariant: "select",
+      filterSelectOptions: Object.values(ColorMode),
+      filterFn: (row, columnId, filterValue) => {
+        const cellValue = row.getValue<string[]>(columnId);
+
+        if (!Array.isArray(cellValue)) return false;
+        if (!filterValue) return true;
+
+        return cellValue.some((val) =>
+            String(val).toLowerCase().includes(String(filterValue).toLowerCase()),
+        );
+      },
+      grow: false,
+      size: 200,
+      enableColumnActions: false,
+      Cell: ({ cell }) => {
+        const colorModes = cell.getValue<ColorMode[]>();
+        return <ColorModeIcons colorModes={colorModes} />;
       },
     },
     {
@@ -222,6 +278,7 @@ const LibraryGrid: React.FC = () => {
       pagination: { pageSize: 15, pageIndex: 0 },
       columnVisibility: {
         author: false,
+        colorModes: false,
         createdAt: false,
         measureDevice: false,
         measureMethod: false,
@@ -232,6 +289,7 @@ const LibraryGrid: React.FC = () => {
         calculationStrategy: false,
       },
     },
+    //columnFilterDisplayMode: 'popover',
     muiSearchTextFieldProps: {
       placeholder: "Search all profiles",
       variant: "outlined",
