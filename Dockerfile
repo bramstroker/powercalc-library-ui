@@ -1,5 +1,5 @@
 # Dockerfile
-FROM node:22-alpine as build
+FROM node:24-alpine as build
 
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
