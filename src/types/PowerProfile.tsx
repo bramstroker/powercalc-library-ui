@@ -26,8 +26,14 @@ export interface Manufacturer {
   fullName: string;
 }
 
+export type SubProfile = {
+  name: string;
+  rawJson: Record<string, unknown>
+}
+
 export type FullPowerProfile = PowerProfile & {
   rawJson: Record<string, unknown>,
+  subProfiles: SubProfile[];
   plots: PlotLink[];
 };
 

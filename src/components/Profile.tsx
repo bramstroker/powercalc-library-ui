@@ -17,14 +17,16 @@ import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import ListItemText from "@mui/material/ListItemText";
-import {Button, Paper, Tab, Tabs} from "@mui/material";
+import {Button, Paper, Tab, Tabs, List, ListItemButton, Collapse, IconButton} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 import AliasChips from "./AliasChips";
-import React, {Suspense} from "react";
+import React, {Suspense, useState} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
-import {FullPowerProfile} from "../types/PowerProfile";
+import {FullPowerProfile, SubProfile} from "../types/PowerProfile";
 
 import {Header} from "./Header";
 import { Plot } from "./Plot";
@@ -67,6 +69,14 @@ interface PropertyItem {
 
 export const ProfileContent: React.FC = () => {
   const profile = useLoaderData() as FullPowerProfile;
+  const [expandedSubProfiles, setExpandedSubProfiles] = useState<Record<string, boolean>>({});
+
+  const toggleSubProfile = (name: string) => {
+    setExpandedSubProfiles(prev => ({
+      ...prev,
+      [name]: !prev[name]
+    }));
+  };
 
   const properties: PropertyItem[] = [
     {
@@ -191,7 +201,8 @@ export const ProfileContent: React.FC = () => {
                   indicatorColor="secondary">
               <Tab label="Attributes" {...a11yProps(0)} />
               <Tab label="JSON" {...a11yProps(1)} />
-              { hasPlots && <Tab label="Graphs" {...a11yProps(2)} /> }
+              { profile.subProfiles.length > 0 && <Tab label="Sub Profiles" {...a11yProps(2)} /> }
+              { hasPlots && <Tab label="Graphs" {...a11yProps(profile.subProfiles.length > 0 ? 3 : 2)} /> }
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
@@ -230,7 +241,28 @@ export const ProfileContent: React.FC = () => {
               <pre>{JSON.stringify(profile?.rawJson, null, 2)}</pre>
             </Paper>
           </CustomTabPanel>
-          { hasPlots && <CustomTabPanel value={value} index={2}>
+          { profile.subProfiles.length > 0 && 
+            <CustomTabPanel value={value} index={2}>
+              <List component="nav" aria-label="sub profiles">
+                {profile.subProfiles.map((subProfile, index) => (
+                  <React.Fragment key={index}>
+                    <ListItemButton onClick={() => toggleSubProfile(subProfile.name)}>
+                      <ListItemText primary={subProfile.name} />
+                      <IconButton edge="end" aria-label="expand">
+                        {expandedSubProfiles[subProfile.name] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                      </IconButton>
+                    </ListItemButton>
+                    <Collapse in={expandedSubProfiles[subProfile.name]} timeout="auto" unmountOnExit>
+                      <Paper style={{padding: 16, margin: 16}}>
+                        <pre>{JSON.stringify(subProfile.rawJson, null, 2)}</pre>
+                      </Paper>
+                    </Collapse>
+                  </React.Fragment>
+                ))}
+              </List>
+            </CustomTabPanel>
+          }
+          { hasPlots && <CustomTabPanel value={value} index={profile.subProfiles.length > 0 ? 3 : 2}>
             <Grid container spacing={1} sx={{width: "100%"}}>
               {profile?.plots.map((plot, _index) => (
                   <Plot key={plot.url} link={plot}></Plot>

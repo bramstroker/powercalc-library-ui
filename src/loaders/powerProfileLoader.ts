@@ -2,7 +2,7 @@ import {LoaderFunctionArgs} from "react-router-dom";
 
 import { queryClient } from "../queryClient";
 import { fetchLibrary ,LibraryModel} from "../api/library.api";
-import {FullPowerProfile, PlotLink} from "../types/PowerProfile";
+import {FullPowerProfile, PlotLink, SubProfile} from "../types/PowerProfile";
 import {ColorMode} from "../types/ColorMode";
 import {DeviceType} from "../types/DeviceType";
 import {API_ENDPOINTS} from "../config/api";
@@ -60,6 +60,25 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
         label: link.path.split(".")[0],
       }));
 
+  // Filter and fetch subProfiles (all model.json files except the root one)
+  const subProfileLinks = downloadLinks
+      .filter((link: DownloadLink) => link.url.endsWith('model.json') && link.path !== "model.json");
+
+  const subProfiles: SubProfile[] = await Promise.all(
+    subProfileLinks.map(async (link: DownloadLink) => {
+      const response = await fetch(link.url);
+      if (!response.ok) {
+        console.error(`Failed to fetch subProfile at ${link.url}`);
+        return { name: link.path.split('/')[0], rawJson: {} };
+      }
+      const json = await response.json();
+      return {
+        name: link.path.split('/')[0], // Use the directory name as the subProfile name
+        rawJson: json
+      };
+    })
+  );
+
   return {
     rawJson: modelJson,
     manufacturer: {
@@ -82,6 +101,7 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     standbyPower: modelJson['standby_power'],
     standbyPowerOn: modelJson['standby_power_on'],
     author: modelJson['author'],
-    plots,
+    plots: plots,
+    subProfiles: subProfiles,
   };
 };
