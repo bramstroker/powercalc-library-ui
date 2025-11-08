@@ -98,8 +98,8 @@ export const ProfileContent: React.FC = () => {
     },
     {label: "Name", value: profile.name, icon: MoreIcon},
     {label: "Description", value: profile.description, icon: MoreIcon},
-    {label: "Created", value: profile.createdAt, icon: HistoryIcon},
-    {label: "Updated", value: profile.updatedAt, icon: HistoryIcon},
+    {label: "Created", value: profile.createdAt.toLocaleString(), icon: HistoryIcon},
+    {label: "Updated", value: profile.updatedAt?.toLocaleString(), icon: HistoryIcon},
     {
       label: "Author", 
       value: profile.author, 
