@@ -26,7 +26,7 @@ import React, {Suspense, useState} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
-import {FullPowerProfile, SubProfile} from "../types/PowerProfile";
+import {FullPowerProfile} from "../types/PowerProfile";
 
 import {Header} from "./Header";
 import { Plot } from "./Plot";
