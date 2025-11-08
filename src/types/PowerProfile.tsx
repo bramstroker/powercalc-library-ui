@@ -8,8 +8,8 @@ export type PowerProfile = {
   aliases: string; // Cannot use string[] yet as global search won't work
   deviceType: DeviceType;
   colorModes: ColorMode[];
-  updatedAt: number;
-  createdAt: string;
+  updatedAt?: Date | null;
+  createdAt: Date;
   description: string;
   measureDevice: string;
   measureMethod: string;
@@ -19,6 +19,7 @@ export type PowerProfile = {
   standbyPowerOn?: number;
   maxPower?: number;
   author?: string;
+  subProfileCount: number;
 };
 
 export interface Manufacturer {

@@ -90,8 +90,8 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     aliases: Array.isArray(modelJson['aliases']) ? modelJson['aliases'].join("|") : (modelJson['aliases'] || ""),
     deviceType: modelJson['device_type'] as DeviceType,
     colorModes: (libraryModel?.color_modes || []) as ColorMode[],
-    updatedAt: modelJson['updated_at'],
-    createdAt: modelJson['created_at'],
+    updatedAt: libraryModel ? new Date(libraryModel.updated_at) : null,
+    createdAt: new Date(modelJson['created_at']),
     description: modelJson['description'],
     measureDevice: modelJson['measure_device'],
     measureMethod: modelJson['measure_method'],
@@ -103,5 +103,6 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     author: modelJson['author'],
     plots: plots,
     subProfiles: subProfiles,
+    subProfileCount: libraryModel?.sub_profile_count || 0
   };
 };

@@ -36,8 +36,8 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
                 author: model.author,
                 deviceType: model.device_type as DeviceType,
                 colorModes: (model.color_modes || []) as ColorMode[],
-                updatedAt: model.updated_at,
-                createdAt: model.created_at,
+                updatedAt: new Date(model.updated_at),
+                createdAt: new Date(model.created_at),
                 description: model.description,
                 measureDevice: model.measure_device,
                 measureMethod: model.measure_method,
@@ -46,6 +46,7 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
                 maxPower: model.max_power,
                 standbyPower: model.standby_power,
                 standbyPowerOn: model.standby_power_on,
+                subProfileCount: model.sub_profile_count,
               }))
       );
 

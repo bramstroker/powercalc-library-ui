@@ -223,15 +223,29 @@ const LibraryGrid: React.FC = () => {
     {
       accessorKey: "updatedAt",
       header: "Updated",
+      Cell: ({ cell }) => {
+        const date = cell.getValue<Date>();
+        return date ? date.toLocaleString() : '';
+      },
+      sortingFn: 'datetime',
     },
     {
       accessorKey: "createdAt",
       header: "Created",
+      Cell: ({ cell }) => {
+        const date = cell.getValue<Date>();
+        return date ? date.toLocaleString() : '';
+      },
+      sortingFn: 'datetime',
     },
     {
       "accessorKey": "calculationStrategy",
       "header": "Calculation strategy",
-    }
+    },
+    {
+      accessorKey: "subProfileCount",
+      header: "Sub profile count",
+    },
   ];
 
   const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
@@ -279,14 +293,13 @@ const LibraryGrid: React.FC = () => {
       columnVisibility: {
         author: false,
         colorModes: false,
-        createdAt: false,
         measureDevice: false,
         measureMethod: false,
-        updatedAt: false,
         maxPower: false,
         standbyPower: false,
         standbyPowerOn: false,
         calculationStrategy: false,
+        subProfileCount: false,
       },
     },
     //columnFilterDisplayMode: 'popover',

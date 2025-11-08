@@ -7,7 +7,7 @@ export interface LibraryModel {
   color_modes?: string[];
   aliases?: string[];
   author?: string;
-  updated_at: number;
+  updated_at: string;
   created_at: string;
   description: string;
   measure_device: string;
@@ -17,6 +17,7 @@ export interface LibraryModel {
   max_power?: number;
   standby_power: number;
   standby_power_on?: number;
+  sub_profile_count: number;
 }
 
 export type LibraryJson = {
