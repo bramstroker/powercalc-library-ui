@@ -300,6 +300,8 @@ const LibraryGrid: React.FC = () => {
         standbyPowerOn: false,
         calculationStrategy: false,
         subProfileCount: false,
+        updatedAt: false,
+        createdAt: false,
       },
     },
     //columnFilterDisplayMode: 'popover',
