@@ -3,6 +3,7 @@ import NextIcon from "@mui/icons-material/NavigateNext";
 import BrightnessIcon from "@mui/icons-material/Brightness6";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
 import PaletteIcon from "@mui/icons-material/Palette";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import isEqual from "fast-deep-equal";
 import {
@@ -45,6 +46,11 @@ const ColorModeIcons: React.FC<{ colorModes: ColorMode[] }> = ({ colorModes }) =
       {colorModes.includes(ColorMode.HS) && (
         <Tooltip title="Hue/Saturation">
           <PaletteIcon fontSize="small" />
+        </Tooltip>
+      )}
+      {colorModes.includes(ColorMode.EFFECT) && (
+        <Tooltip title="Effect">
+          <AutoFixHighIcon fontSize="small" />
         </Tooltip>
       )}
     </Stack>
@@ -104,11 +110,12 @@ const LibraryGrid: React.FC = () => {
   const filterParamMap: Record<string, string> = useMemo(
       () => ({
         manufacturer: "manufacturer.fullName",
-        colorModes: "colorModes",
+        colorMode: "colorModes",
         deviceType: "deviceType",
         author: "author",
         measureDevice: "measureDevice",
         calculationStrategy: "calculationStrategy",
+        measureMethod: "measureMethod",
       }),
       []
   );
