@@ -14,6 +14,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import GithubIcon from "@mui/icons-material/GitHub";
 import Grid from "@mui/material/Grid";
 import ListItem from "@mui/material/ListItem";
+import Link from "@mui/material/Link";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import ListItemText from "@mui/material/ListItemText";
@@ -29,7 +30,7 @@ import Typography from "@mui/material/Typography";
 import {FullPowerProfile} from "../types/PowerProfile";
 
 import {Header} from "./Header";
-import { Plot } from "./Plot";
+import {Plot} from "./Plot";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -60,11 +61,17 @@ function a11yProps(index: number) {
   };
 }
 
+function distributeIntoColumns<T>(items: T[], columns: number): T[][] {
+  const result: T[][] = Array.from({ length: columns }, () => []);
+  items.forEach((item, i) => result[i % columns].push(item));
+  return result;
+}
+
 interface PropertyItem {
   label: string;
-  value: string | number | undefined;
+  value: string | number | undefined | string[];
   icon: React.ElementType;
-  link?: string;
+  filterKey?: string;
 }
 
 export const ProfileContent: React.FC = () => {
@@ -78,86 +85,149 @@ export const ProfileContent: React.FC = () => {
     }));
   };
 
+  type FilterLinkProps = {
+    filterKey: string;
+    value: string;
+    children: React.ReactNode;
+  };
+  const FilterLink = ({filterKey, value, children}: FilterLinkProps) => {
+    return (
+        <Link
+            href={`/?${filterKey}=${encodeURIComponent(value)}`}
+            underline="hover"
+            color="inherit"
+            sx={{cursor: "pointer"}}
+        >
+          {children}
+        </Link>
+    );
+  }
+
+  const PropertyValue = ({property}: { property: PropertyItem }) => {
+    if (property.label === "Aliases" && property.value) {
+      return <AliasChips aliases={property.value as string} marginTop={1}/>;
+    }
+
+    if (Array.isArray(property.value)) {
+      const values = property.value.map(String);
+      return (
+          <>
+            {values.map((v: string, i: number) => (
+                <React.Fragment key={`${property.filterKey ?? "v"}-${v}`}>
+                  {property.filterKey ? (
+                      <FilterLink filterKey={property.filterKey} value={v}>{v}</FilterLink>
+                  ) : (
+                      v
+                  )}
+                  {i < values.length - 1 && ", "}
+                </React.Fragment>
+            ))}
+          </>
+      );
+    }
+
+    if (property.filterKey && property.value != null) {
+      return (
+          <FilterLink filterKey={property.filterKey} value={String(property.value)}>
+            {String(property.value)}
+          </FilterLink>
+      );
+    }
+
+    return property.value ?? null;
+  };
+
+  type AttributesTabProps = { chunkedProperties: PropertyItem[][] };
+  const AttributesTab = ({chunkedProperties}: AttributesTabProps) => (
+      <Grid size={{xs: 12, md: 6}}>
+        <Grid container spacing={1}>
+          {chunkedProperties.map((chunk, columnIndex) => (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={columnIndex}>
+                {chunk.map((property) => (
+                    <ListItem
+                        key={`${property.label}-${property.filterKey ?? ""}-${String(property.value)}`}
+                    >
+                      <ListItemAvatar>
+                        <Avatar>
+                          <property.icon/>
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText primary={property.label} secondary={<PropertyValue property={property}/>}/>
+                    </ListItem>
+                ))}
+              </Grid>
+          ))}
+        </Grid>
+      </Grid>
+  );
+
+  type JsonTabProps = { profile: FullPowerProfile };
+  const JsonTab = ({profile}: JsonTabProps) => (
+      <Paper sx={{p: 2}}>
+        <Box component="pre" sx={{m: 0, overflow: "auto"}}>
+          {JSON.stringify(profile.rawJson, null, 2)}
+        </Box>
+      </Paper>
+  );
+
+  type SubProfilesTabProps = {
+    profile: FullPowerProfile;
+  };
+  const SubProfilesTab = ({profile}: SubProfilesTabProps) => (
+      <List component="nav" aria-label="sub profiles">
+        {profile.subProfiles.map((subProfile) => (
+            <React.Fragment key={subProfile.name}>
+              <ListItemButton onClick={() => toggleSubProfile(subProfile.name)}>
+                <ListItemText primary={subProfile.name}/>
+                <IconButton edge="end" aria-label="expand">
+                  {expandedSubProfiles[subProfile.name] ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+                </IconButton>
+              </ListItemButton>
+              <Collapse in={expandedSubProfiles[subProfile.name]} timeout="auto" unmountOnExit>
+                <Paper sx={{p: 2, m: 2}}>
+                  <Box component="pre" sx={{m: 0, overflow: "auto"}}>
+                    {JSON.stringify(subProfile.rawJson, null, 2)}
+                  </Box>
+                </Paper>
+              </Collapse>
+            </React.Fragment>
+        ))}
+      </List>
+  );
+
+  type PlotsTabProps = { profile: FullPowerProfile };
+  const PlotsTab = ({profile}: PlotsTabProps) => (
+      <Grid container spacing={1} sx={{width: "100%"}}>
+        {profile.plots.map((plot) => (
+            <Plot key={plot.url} link={plot}/>
+        ))}
+      </Grid>
+  );
+
   const properties: PropertyItem[] = [
-    {
-      label: "Manufacturer", 
-      value: profile.manufacturer.fullName, 
-      icon: FactoryIcon,
-      link: `/?manufacturer=${encodeURIComponent(profile.manufacturer.fullName)}`
-    },
-    {
-      label: "Model ID",
-      value: profile.modelId,
-      icon: PermDeviceInformationIcon,
-    },
-    {
-      label: "Device type", 
-      value: profile.deviceType, 
-      icon: TypeSpecimenIcon,
-      link: `/?deviceType=${encodeURIComponent(profile.deviceType)}`
-    },
+    {label: "Manufacturer", value: profile.manufacturer.fullName, icon: FactoryIcon, filterKey: "manufacturer"},
+    {label: "Model ID", value: profile.modelId, icon: PermDeviceInformationIcon},
+    {label: "Device type", value: profile.deviceType, icon: TypeSpecimenIcon, filterKey: "deviceType"},
     {label: "Name", value: profile.name, icon: MoreIcon},
     {label: "Description", value: profile.description, icon: MoreIcon},
     {label: "Created", value: profile.createdAt.toLocaleString(), icon: HistoryIcon},
     {label: "Updated", value: profile.updatedAt?.toLocaleString(), icon: HistoryIcon},
-    {
-      label: "Author", 
-      value: profile.author, 
-      icon: PersonIcon,
-      link: profile.author ? `/?author=${encodeURIComponent(profile.author)}` : undefined
-    },
-    {
-      label: "Calculation strategy",
-      value: profile.calculationStrategy,
-      icon: CalculateIcon,
-      link: `/?calculationStrategy=${encodeURIComponent(profile.calculationStrategy)}`
-    },
-    {
-      label: "Color modes",
-      value: profile.colorModes?.join(", "),
-      icon: PaletteIcon,
-    },
+    {label: "Author", value: profile.author, icon: PersonIcon, filterKey: "author"},
+    {label: "Calculation strategy", value: profile.calculationStrategy, icon: CalculateIcon, filterKey: "calculationStrategy"},
+    {label: "Color modes", value: profile.colorModes, icon: PaletteIcon, filterKey: "colorMode"},
     {label: "Aliases", value: profile.aliases, icon: MediationIcon},
-    {
-      label: "Measure device",
-      value: profile.measureDevice,
-      icon: ElectricMeterIcon,
-      link: `/?measureDevice=${encodeURIComponent(profile.measureDevice)}`
-    },
-    {
-      label: "Measure method",
-      value: profile.measureMethod,
-      icon: ElectricMeterIcon,
-    },
-    {
-      label: "Measure description",
-      value: profile.measureDescription,
-      icon: ElectricMeterIcon,
-    },
-    {
-      label: "Max power",
-      value: profile.maxPower,
-      icon: BoltIcon,
-    },
-    {
-      label: "Standby power",
-      value: profile.standbyPower,
-      icon: BoltIcon,
-    },
-    {
-      label: "Standby power on",
-      value: profile.standbyPowerOn,
-      icon: BoltIcon,
-    },
+    {label: "Measure device", value: profile.measureDevice, icon: ElectricMeterIcon, filterKey: "measureDevice"},
+    {label: "Measure method", value: profile.measureMethod, icon: ElectricMeterIcon, filterKey: "measureMethod"},
+    {label: "Measure description", value: profile.measureDescription, icon: ElectricMeterIcon},
+    {label: "Max power", value: profile.maxPower, icon: BoltIcon},
+    {label: "Standby power", value: profile.standbyPower, icon: BoltIcon},
+    {label: "Standby power on", value: profile.standbyPowerOn, icon: BoltIcon},
   ];
 
   const filteredProperties = properties.filter(
       (property) => property.value != null && property.value !== "",
   );
-  const chunkedProperties = [];
-  for (let i = 0; i < filteredProperties.length; i += 4) {
-    chunkedProperties.push(filteredProperties.slice(i, i + 4));
-  }
+  const chunkedProperties  =distributeIntoColumns(filteredProperties, 4)
 
   const [value, setValue] = React.useState(0);
   const navigate = useNavigate();
@@ -166,7 +236,12 @@ export const ProfileContent: React.FC = () => {
     setValue(newValue);
   };
 
-  const hasPlots = profile.plots.length > 0;
+  const tabs = [
+    {label: "Attributes", render: <AttributesTab chunkedProperties={chunkedProperties}/>},
+    {label: "JSON", render: <JsonTab profile={profile}/>},
+    ...(profile.subProfiles.length > 0 ? [{label: "Sub Profiles", render: <SubProfilesTab profile={profile}/>}] : []),
+    ...(profile.plots.length > 0 ? [{label: "Graphs", render: <PlotsTab profile={profile}/>}] : []),
+  ];
 
   return (
       <>
@@ -187,8 +262,9 @@ export const ProfileContent: React.FC = () => {
                 href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${profile.manufacturer.dirName}/${profile.modelId}`}
                 startIcon={<GithubIcon/>}
                 target={"_blank"}
+                rel="noopener noreferrer"
             >
-                Github
+              Github
             </Button>
           </Box>
 
@@ -197,78 +273,18 @@ export const ProfileContent: React.FC = () => {
           </Typography>
 
           <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example"
-                  indicatorColor="secondary">
-              <Tab label="Attributes" {...a11yProps(0)} />
-              <Tab label="JSON" {...a11yProps(1)} />
-              { profile.subProfiles.length > 0 && <Tab label="Sub Profiles" {...a11yProps(2)} /> }
-              { hasPlots && <Tab label="Graphs" {...a11yProps(profile.subProfiles.length > 0 ? 3 : 2)} /> }
+            <Tabs value={value} onChange={handleChange} indicatorColor="secondary">
+              {tabs.map((t, i) => (
+                  <Tab key={t.label} label={t.label} {...a11yProps(i)} />
+              ))}
             </Tabs>
           </Box>
-          <CustomTabPanel value={value} index={0}>
-            <Grid size={{xs: 12, md: 6}}>
-              <Grid container spacing={1}>
-                {chunkedProperties.map((chunk, columnIndex) => (
-                    <Grid size={{xs: 12, sm: 6, md: 4}} key={columnIndex}>
-                      {chunk.map((property, index) => (
-                          <ListItem key={index}>
-                            <ListItemAvatar>
-                              <Avatar>
-                                <property.icon/>
-                              </Avatar>
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary={property.label}
-                                secondary={
-                                  property.label === "Aliases" && property.value ? (
-                                    <AliasChips aliases={property.value as string} marginTop={1} />
-                                  ) : property.link ? (
-                                    <a href={property.link} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                      {property.value}
-                                    </a>
-                                  ) : property.value
-                                }
-                            />
-                          </ListItem>
-                      ))}
-                    </Grid>
-                ))}
-              </Grid>
-            </Grid>
-          </CustomTabPanel>
-          <CustomTabPanel value={value} index={1}>
-            <Paper style={{padding: 16}}>
-              <pre>{JSON.stringify(profile?.rawJson, null, 2)}</pre>
-            </Paper>
-          </CustomTabPanel>
-          { profile.subProfiles.length > 0 && 
-            <CustomTabPanel value={value} index={2}>
-              <List component="nav" aria-label="sub profiles">
-                {profile.subProfiles.map((subProfile, index) => (
-                  <React.Fragment key={index}>
-                    <ListItemButton onClick={() => toggleSubProfile(subProfile.name)}>
-                      <ListItemText primary={subProfile.name} />
-                      <IconButton edge="end" aria-label="expand">
-                        {expandedSubProfiles[subProfile.name] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                      </IconButton>
-                    </ListItemButton>
-                    <Collapse in={expandedSubProfiles[subProfile.name]} timeout="auto" unmountOnExit>
-                      <Paper style={{padding: 16, margin: 16}}>
-                        <pre>{JSON.stringify(subProfile.rawJson, null, 2)}</pre>
-                      </Paper>
-                    </Collapse>
-                  </React.Fragment>
-                ))}
-              </List>
-            </CustomTabPanel>
-          }
-          { hasPlots && <CustomTabPanel value={value} index={profile.subProfiles.length > 0 ? 3 : 2}>
-            <Grid container spacing={1} sx={{width: "100%"}}>
-              {profile?.plots.map((plot, _index) => (
-                  <Plot key={plot.url} link={plot}></Plot>
-              ))}
-            </Grid>
-          </CustomTabPanel> }
+
+          {tabs.map((t, i) => (
+              <CustomTabPanel key={t.label} value={value} index={i}>
+                {t.render}
+              </CustomTabPanel>
+          ))}
         </Box>
       </>
   );
@@ -277,7 +293,7 @@ export const ProfileContent: React.FC = () => {
 const Profile = () => {
   return (
       <Suspense fallback={<div>Loading profile...</div>}>
-        <ProfileContent />
+        <ProfileContent/>
       </Suspense>
   );
 };
