@@ -30,7 +30,7 @@ const ColorModeIcons: React.FC<{ colorModes: ColorMode[] }> = ({ colorModes }) =
   if (!colorModes || colorModes.length === 0) {
     return null;
   }
-  console.log(colorModes);
+
   return (
     <Stack direction="row" spacing={1}>
       {colorModes.includes(ColorMode.BRIGHTNESS) && (
