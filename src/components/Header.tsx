@@ -123,6 +123,9 @@ export function Header({ total, table }: HeaderProps) {
               <MenuItem onClick={() => handleMenuItemClick('/statistics/top-device-types')}>
                 Top Device Types
               </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('/statistics/profiles-over-time')}>
+                Profiles Over Time
+              </MenuItem>
             </Menu>
           </Box>
 

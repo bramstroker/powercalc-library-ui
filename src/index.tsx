@@ -15,6 +15,7 @@ import TopMeasureDevices from "./components/statistics/TopMeasureDevices";
 import TopAuthors from "./components/statistics/TopAuthors";
 import TopManufacturers from "./components/statistics/TopManufacturers";
 import TopDeviceTypes from "./components/statistics/TopDeviceTypes";
+import ProfilesOverTime from "./components/statistics/ProfilesOverTime";
 import { LibraryProvider } from "./context/LibraryContext";
 import {queryClient} from "./queryClient";
 
@@ -59,6 +60,10 @@ const router = createBrowserRouter([
   {
     path: "/statistics/top-device-types",
     element: <TopDeviceTypes />,
+  },
+  {
+    path: "/statistics/profiles-over-time",
+    element: <ProfilesOverTime />,
   },
 ]);
 
