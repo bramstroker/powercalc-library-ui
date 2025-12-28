@@ -11,12 +11,15 @@ import {
   Select,
   MenuItem,
   SelectChangeEvent,
+  Button,
 } from "@mui/material";
 import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { useQuery } from "@tanstack/react-query";
+import BarChartIcon from "@mui/icons-material/BarChart";
 
 import { fetchDimensionCounts, DimensionCount } from "../../api/library.api";
 import { Header } from "../Header";
+import DimensionDetailView from "./DimensionDetailView";
 
 type MetricKey = "installation_count" | "count";
 
@@ -35,6 +38,7 @@ function getErrorMessage(err: unknown): string {
 
 const DimensionCounts: React.FC = () => {
   const [selectedMetric, setSelectedMetric] = useState<MetricKey>("installation_count");
+  const [selectedDimension, setSelectedDimension] = useState<string | null>(null);
 
   const { data = [], isLoading, error } = useQuery<DimensionCount[], unknown>({
     queryKey: ["dimensionCounts"],
@@ -43,6 +47,14 @@ const DimensionCounts: React.FC = () => {
 
   const handleMetricChange = (event: SelectChangeEvent<MetricKey>) => {
     setSelectedMetric(event.target.value as MetricKey);
+  };
+
+  const handleShowDetails = (dimension: string) => {
+    setSelectedDimension(dimension);
+  };
+
+  const handleBackToOverview = () => {
+    setSelectedDimension(null);
   };
 
   const { groupedData, dimensions } = useMemo(() => {
@@ -77,6 +89,19 @@ const DimensionCounts: React.FC = () => {
     );
   }
 
+  // If a dimension is selected, show the detailed view
+  if (selectedDimension && groupedData[selectedDimension]) {
+    return (
+      <DimensionDetailView
+        dimension={selectedDimension}
+        data={groupedData[selectedDimension]}
+        metric={selectedMetric}
+        onBack={handleBackToOverview}
+      />
+    );
+  }
+
+  // Otherwise show the overview with pie charts
   return (
       <>
         <Header />
@@ -142,9 +167,19 @@ const DimensionCounts: React.FC = () => {
               return (
                   <Grid size={{ xs: 12, md: 6 }}>
                     <Paper sx={{ p: 3, height: "100%" }}>
-                      <Typography variant="h6" gutterBottom>
-                        {title}
-                      </Typography>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                        <Typography variant="h6">
+                          {title}
+                        </Typography>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<BarChartIcon />}
+                          onClick={() => handleShowDetails(dimension)}
+                        >
+                          Details
+                        </Button>
+                      </Box>
 
                       <Box sx={{ position: "relative" }}>
                         {chartData.length === 0 ? (
@@ -156,12 +191,10 @@ const DimensionCounts: React.FC = () => {
                                 series={[
                                   {
                                     data: chartData,
-                                    // highlightScope: { faded: "global", highlighted: "item" },
                                     highlightScope: { fade: 'global', highlight: 'item' },
                                     faded: {
                                       innerRadius: 30,
                                       additionalRadius: -30,
-                                      // keeping your styling; optional
                                       color: "gray",
                                     },
                                     arcLabel: (item) => `${item.label ?? ""} (${item.value})`,
