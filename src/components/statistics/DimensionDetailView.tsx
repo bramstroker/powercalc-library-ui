@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { DimensionCount } from "../../api/library.api";
+import { DimensionCount } from "../../api/analytics.api";
 import { Header } from "../Header";
 
 interface DimensionDetailViewProps {
