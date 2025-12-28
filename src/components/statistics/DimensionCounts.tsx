@@ -17,7 +17,7 @@ import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { useQuery } from "@tanstack/react-query";
 import BarChartIcon from "@mui/icons-material/BarChart";
 
-import { fetchDimensionCounts, DimensionCount } from "../../api/library.api";
+import {fetchDimensionCounts, DimensionCount, fetchSummary} from "../../api/analytics.api";
 import { Header } from "../Header";
 import DimensionDetailView from "./DimensionDetailView";
 
@@ -40,10 +40,19 @@ const DimensionCounts: React.FC = () => {
   const [selectedMetric, setSelectedMetric] = useState<MetricKey>("installation_count");
   const [selectedDimension, setSelectedDimension] = useState<string | null>(null);
 
-  const { data = [], isLoading, error } = useQuery<DimensionCount[], unknown>({
-    queryKey: ["dimensionCounts"],
-    queryFn: fetchDimensionCounts,
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["dimensionData"],
+    queryFn: async () => {
+      const [dimensionCounts, stats] = await Promise.all([
+        fetchDimensionCounts(),
+        fetchSummary(),
+      ]);
+
+      return { dimensionCounts, stats };
+    },
   });
+
+  const sampledInstallations = data?.stats.sampled_installations ?? 0;
 
   const handleMetricChange = (event: SelectChangeEvent<MetricKey>) => {
     setSelectedMetric(event.target.value as MetricKey);
@@ -57,11 +66,20 @@ const DimensionCounts: React.FC = () => {
     setSelectedDimension(null);
   };
 
-  const { groupedData, dimensions } = useMemo(() => {
-    const grouped = groupByDimension(data);
-    const dims = Object.keys(grouped).sort();
-    return { groupedData: grouped, dimensions: dims };
-  }, [data]);
+  // Keep a stable empty array reference so useMemo can actually memoize
+  const EMPTY_DIMENSION_COUNTS: DimensionCount[] = [];
+
+  const dimensionCounts = data?.dimensionCounts ?? EMPTY_DIMENSION_COUNTS;
+
+  const groupedData = useMemo(
+      () => groupByDimension(dimensionCounts),
+      [dimensionCounts]
+  );
+
+  const dimensions = useMemo(
+      () => Object.keys(groupedData).sort(),
+      [groupedData]
+  );
 
   if (isLoading) {
     return (
@@ -108,25 +126,35 @@ const DimensionCounts: React.FC = () => {
         <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
             <Box>
-              <Typography variant="h4" component="h1">
+              <Typography variant="h4" component="h1" gutterBottom>
                 PowerCalc Statistics
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 1 }}>
-                This page shows statistics about PowerCalc components across different dimensions.
+
+              <Typography variant="body2" color="text.secondary">
+                Overview of PowerCalc usage across different dimensions.
               </Typography>
 
-              <Box component="ul" sx={{ pl: 2, m: 0, color: "text.secondary" }}>
+              <Box
+                  component="ul"
+                  sx={{
+                    pl: 2,
+                    mt: 1,
+                    mb: 1,
+                    color: "text.secondary",
+                    "& li": { mb: 0.5 },
+                  }}
+              >
                 <li>
-                  <Typography variant="body2">
-                    <strong>Installation count</strong> – number of unique Home Assistant installations
-                  </Typography>
+                  <strong>Installation count</strong> – unique Home Assistant installations
                 </li>
                 <li>
-                  <Typography variant="body2">
-                    <strong>Count</strong> – total number of PowerCalc sensor instances
-                  </Typography>
+                  <strong>Count</strong> – total PowerCalc sensor instances
                 </li>
               </Box>
+
+              <Typography variant="caption" color="text.secondary">
+                Based on {sampledInstallations} active installations that opted in to analytics.
+              </Typography>
             </Box>
 
             <FormControl sx={{ minWidth: 200 }}>
