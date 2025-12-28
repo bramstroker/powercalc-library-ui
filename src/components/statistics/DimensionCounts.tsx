@@ -16,6 +16,7 @@ import {
 import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { useQuery } from "@tanstack/react-query";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {fetchDimensionCounts, DimensionCount, fetchSummary} from "../../api/analytics.api";
 import { Header } from "../Header";
@@ -38,7 +39,8 @@ function getErrorMessage(err: unknown): string {
 
 const DimensionCounts: React.FC = () => {
   const [selectedMetric, setSelectedMetric] = useState<MetricKey>("installation_count");
-  const [selectedDimension, setSelectedDimension] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { dimension: urlDimension } = useParams<{ dimension: string }>();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["dimensionData"],
@@ -59,11 +61,11 @@ const DimensionCounts: React.FC = () => {
   };
 
   const handleShowDetails = (dimension: string) => {
-    setSelectedDimension(dimension);
+    navigate(`/statistics/dimension-counts/${dimension}`);
   };
 
   const handleBackToOverview = () => {
-    setSelectedDimension(null);
+    navigate('/statistics/dimension-counts');
   };
 
   // Keep a stable empty array reference so useMemo can actually memoize
@@ -107,12 +109,12 @@ const DimensionCounts: React.FC = () => {
     );
   }
 
-  // If a dimension is selected, show the detailed view
-  if (selectedDimension && groupedData[selectedDimension]) {
+  // If a dimension is specified in the URL, show the detailed view
+  if (urlDimension && groupedData[urlDimension]) {
     return (
       <DimensionDetailView
-        dimension={selectedDimension}
-        data={groupedData[selectedDimension]}
+        dimension={urlDimension}
+        data={groupedData[urlDimension]}
         metric={selectedMetric}
         onBack={handleBackToOverview}
       />

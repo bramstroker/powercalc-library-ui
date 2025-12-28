@@ -65,6 +65,10 @@ const router = createBrowserRouter([
     path: "/statistics/dimension-counts",
     element: <DimensionCounts />,
   },
+  {
+    path: "/statistics/dimension-counts/:dimension",
+    element: <DimensionCounts />,
+  },
 ]);
 
 const root = ReactDOM.createRoot(
