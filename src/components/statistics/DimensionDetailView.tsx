@@ -11,6 +11,7 @@ import { BarChart } from "@mui/x-charts/BarChart";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { DimensionCount } from "../../api/analytics.api";
 import { Header } from "../Header";
+import {bluePalette} from "@mui/x-charts";
 
 interface DimensionDetailViewProps {
   dimension: string;
@@ -75,6 +76,7 @@ const DimensionDetailView: React.FC<DimensionDetailViewProps> = ({
                   xAxis={[{ dataKey: 'value' }]}
                   series={[{ dataKey: 'value' }]}
                   layout="horizontal"
+                  colors={bluePalette}
               />
             )}
           </Box>
