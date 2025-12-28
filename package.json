@@ -7,6 +7,7 @@
     "@emotion/styled": "^11.14",
     "@mui/icons-material": "^7.0.0",
     "@mui/material": "^7.0.0",
+    "@mui/x-charts": "^8.23.0",
     "@mui/x-date-pickers": "^8.0.0",
     "@tanstack/react-query": "^5.29",
     "@tanstack/react-table": "^8.16",

@@ -1,5 +1,12 @@
 import { API_ENDPOINTS } from "../config/api";
 
+export interface DimensionCount {
+  dimension: string;
+  key_name: string;
+  count: number;
+  installation_count: number;
+}
+
 export interface LibraryModel {
   id: string;
   name: string;
@@ -31,5 +38,11 @@ export type LibraryJson = {
 export const fetchLibrary = async (): Promise<LibraryJson> => {
   const res = await fetch(API_ENDPOINTS.LIBRARY);
   if (!res.ok) throw new Error("Failed to fetch library");
+  return res.json();
+};
+
+export const fetchDimensionCounts = async (): Promise<DimensionCount[]> => {
+  const res = await fetch(API_ENDPOINTS.DIMENSION_COUNTS);
+  if (!res.ok) throw new Error("Failed to fetch dimension counts");
   return res.json();
 };

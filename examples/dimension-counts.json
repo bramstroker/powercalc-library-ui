@@ -1,0 +1,260 @@
+[
+  {
+    "dimension": "by_config_type",
+    "key_name": "gui",
+    "count": 4023,
+    "installation_count": 159
+  },
+  {
+    "dimension": "by_config_type",
+    "key_name": "yaml",
+    "count": 246,
+    "installation_count": 119
+  },
+  {
+    "dimension": "by_device_type",
+    "key_name": "light",
+    "count": 1921,
+    "installation_count": 109
+  },
+  {
+    "dimension": "by_device_type",
+    "key_name": "smart_switch",
+    "count": 811,
+    "installation_count": 99
+  },
+  {
+    "dimension": "by_device_type",
+    "key_name": "smart_speaker",
+    "count": 318,
+    "installation_count": 84
+  },
+  {
+    "dimension": "by_device_type",
+    "key_name": "power_meter",
+    "count": 13,
+    "installation_count": 8
+  },
+  {
+    "dimension": "by_device_type",
+    "key_name": "network",
+    "count": 5,
+    "installation_count": 3
+  },
+  {
+    "dimension": "by_device_type",
+    "key_name": "smart_dimmer",
+    "count": 4,
+    "installation_count": 3
+  },
+  {
+    "dimension": "by_device_type",
+    "key_name": "generic_iot",
+    "count": 3,
+    "installation_count": 3
+  },
+  {
+    "dimension": "by_device_type",
+    "key_name": "fan",
+    "count": 2,
+    "installation_count": 1
+  },
+  {
+    "dimension": "by_device_type",
+    "key_name": "lawn_mower_robot",
+    "count": 1,
+    "installation_count": 1
+  },
+  {
+    "dimension": "by_device_type",
+    "key_name": "vacuum_robot",
+    "count": 1,
+    "installation_count": 1
+  },
+  {
+    "dimension": "by_group_type",
+    "key_name": "custom",
+    "count": 328,
+    "installation_count": 46
+  },
+  {
+    "dimension": "by_group_type",
+    "key_name": "standby",
+    "count": 117,
+    "installation_count": 117
+  },
+  {
+    "dimension": "by_group_type",
+    "key_name": "domain",
+    "count": 17,
+    "installation_count": 11
+  },
+  {
+    "dimension": "by_group_type",
+    "key_name": "subtract",
+    "count": 3,
+    "installation_count": 2
+  },
+  {
+    "dimension": "by_group_type",
+    "key_name": "tracked_untracked",
+    "count": 3,
+    "installation_count": 3
+  },
+  {
+    "dimension": "by_sensor_type",
+    "key_name": "virtual_power",
+    "count": 3677,
+    "installation_count": 157
+  },
+  {
+    "dimension": "by_sensor_type",
+    "key_name": "group",
+    "count": 446,
+    "installation_count": 128
+  },
+  {
+    "dimension": "by_sensor_type",
+    "key_name": "real_power",
+    "count": 101,
+    "installation_count": 26
+  },
+  {
+    "dimension": "by_sensor_type",
+    "key_name": "daily_energy",
+    "count": 45,
+    "installation_count": 16
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "light",
+    "count": 2248,
+    "installation_count": 118
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "switch",
+    "count": 736,
+    "installation_count": 103
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "sensor",
+    "count": 361,
+    "installation_count": 64
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "media_player",
+    "count": 344,
+    "installation_count": 91
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "binary_sensor",
+    "count": 23,
+    "installation_count": 11
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "fan",
+    "count": 21,
+    "installation_count": 7
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "climate",
+    "count": 13,
+    "installation_count": 5
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "camera",
+    "count": 10,
+    "installation_count": 3
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "device_tracker",
+    "count": 7,
+    "installation_count": 2
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "input_boolean",
+    "count": 5,
+    "installation_count": 3
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "update",
+    "count": 4,
+    "installation_count": 2
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "humidifier",
+    "count": 3,
+    "installation_count": 2
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "lawn_mower",
+    "count": 1,
+    "installation_count": 1
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "schedule",
+    "count": 1,
+    "installation_count": 1
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "script",
+    "count": 1,
+    "installation_count": 1
+  },
+  {
+    "dimension": "by_source_domain",
+    "key_name": "input_text",
+    "count": 1,
+    "installation_count": 1
+  },
+  {
+    "dimension": "by_strategy",
+    "key_name": "lut",
+    "count": 1953,
+    "installation_count": 112
+  },
+  {
+    "dimension": "by_strategy",
+    "key_name": "fixed",
+    "count": 1182,
+    "installation_count": 119
+  },
+  {
+    "dimension": "by_strategy",
+    "key_name": "linear",
+    "count": 416,
+    "installation_count": 101
+  },
+  {
+    "dimension": "by_strategy",
+    "key_name": "multi_switch",
+    "count": 106,
+    "installation_count": 16
+  },
+  {
+    "dimension": "by_strategy",
+    "key_name": "wled",
+    "count": 57,
+    "installation_count": 17
+  },
+  {
+    "dimension": "by_strategy",
+    "key_name": "composite",
+    "count": 1,
+    "installation_count": 1
+  }
+]

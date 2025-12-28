@@ -5,4 +5,5 @@ export const API_ENDPOINTS = {
   PROFILE: `${API_BASE_URL}/profile`,
   MANUFACTURER: `${API_BASE_URL}/manufacturer`,
   DOWNLOAD: `${API_BASE_URL}/download`,
+  DIMENSION_COUNTS: `${API_BASE_URL}/analytics/dimension-counts`,
 };
