@@ -21,6 +21,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {fetchDimensionCounts, DimensionCount, fetchSummary} from "../../api/analytics.api";
 import { Header } from "../Header";
 import DimensionDetailView from "./DimensionDetailView";
+import {mangoFusionPalette} from "@mui/x-charts";
 
 type MetricKey = "installation_count" | "count";
 
@@ -239,6 +240,7 @@ const DimensionCounts: React.FC = () => {
                                 }}
                                 height={300}
                                 margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
+                                colors={mangoFusionPalette}
                             />
                         )}
                       </Box>
