@@ -18,7 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchDimensionCounts, DimensionCount } from "../../api/library.api";
 import { Header } from "../Header";
 
-type MetricKey = "count" | "installation_count";
+type MetricKey = "installation_count" | "count";
 
 function groupByDimension(data: DimensionCount[]): Record<string, DimensionCount[]> {
   return data.reduce<Record<string, DimensionCount[]>>((acc, item) => {
@@ -34,7 +34,7 @@ function getErrorMessage(err: unknown): string {
 }
 
 const DimensionCounts: React.FC = () => {
-  const [selectedMetric, setSelectedMetric] = useState<MetricKey>("count");
+  const [selectedMetric, setSelectedMetric] = useState<MetricKey>("installation_count");
 
   const { data = [], isLoading, error } = useQuery<DimensionCount[], unknown>({
     queryKey: ["dimensionCounts"],
@@ -82,9 +82,27 @@ const DimensionCounts: React.FC = () => {
         <Header />
         <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
-            <Typography variant="h4" component="h1">
-              PowerCalc Statistics
-            </Typography>
+            <Box>
+              <Typography variant="h4" component="h1">
+                PowerCalc Statistics
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 1 }}>
+                This page shows statistics about PowerCalc components across different dimensions.
+              </Typography>
+
+              <Box component="ul" sx={{ pl: 2, m: 0, color: "text.secondary" }}>
+                <li>
+                  <Typography variant="body2">
+                    <strong>Installation count</strong> – number of unique Home Assistant installations
+                  </Typography>
+                </li>
+                <li>
+                  <Typography variant="body2">
+                    <strong>Count</strong> – total number of PowerCalc sensor instances
+                  </Typography>
+                </li>
+              </Box>
+            </Box>
 
             <FormControl sx={{ minWidth: 200 }}>
               <InputLabel id="metric-select-label">Metric</InputLabel>
