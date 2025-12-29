@@ -2,9 +2,10 @@ import React from "react";
 import {
   Typography,
   Box,
-  Paper,
+  Card,
+  CardContent,
 } from "@mui/material";
-import { BarChart } from "@mui/x-charts/BarChart";
+import {BarChart} from "@mui/x-charts/BarChart";
 import {VersionInfo} from "../../../api/analytics.api";
 
 interface VersionChartProps {
@@ -15,43 +16,47 @@ interface VersionChartProps {
 }
 
 const VersionChart: React.FC<VersionChartProps> = ({
-  title,
-  data,
-  color,
-  marginBottom = 0,
-}) => {
+                                                     title,
+                                                     data,
+                                                     color,
+                                                   }) => {
   const series = data.map((item) => item.installation_count);
   const labels = data.map((item) => item.version);
 
   return (
-    <Paper sx={{ p: 3, mb: marginBottom }}>
-      <Typography variant="h6" gutterBottom>
-        {title}
-      </Typography>
-      <Box sx={{ height: 400 }}>
-        <BarChart
-          layout="horizontal"
-          xAxis={[{
-            label: 'Installation Count',
-          }]}
-          series={[
-            {
-              data: series,
-              label: 'Installation Count',
-              color: color,
-            },
-          ]}
-          yAxis={[{
-            scaleType: 'band',
-            data: labels,
-            label: 'Version',
-            width: 140
-          }]}
-          height={350}
-          margin={{ top: 20, right: 20, bottom: 70, left: 70 }}
-        />
-      </Box>
-    </Paper>
+      <Card
+          variant="elevation"
+          sx={{display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1}}
+      >
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            {title}
+          </Typography>
+          <Box sx={{height: 400}}>
+            <BarChart
+                layout="horizontal"
+                xAxis={[{
+                  label: 'Installation Count',
+                }]}
+                series={[
+                  {
+                    data: series,
+                    label: 'Installation Count',
+                    color: color,
+                  },
+                ]}
+                yAxis={[{
+                  scaleType: 'band',
+                  data: labels,
+                  label: 'Version',
+                  width: 140
+                }]}
+                height={350}
+                margin={{top: 20, right: 20, bottom: 70, left: 70}}
+            />
+          </Box>
+        </CardContent>
+      </Card>
   );
 };
 

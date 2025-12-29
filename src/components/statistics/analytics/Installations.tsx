@@ -3,7 +3,7 @@ import {
   Container,
   Typography,
   Box,
-  CircularProgress,
+  CircularProgress, Stack,
 } from "@mui/material";
 import {useQuery} from "@tanstack/react-query";
 
@@ -75,19 +75,19 @@ const Installations: React.FC = () => {
 
           <Grid container spacing={4}>
             <Grid size={{xs: 12, md: 8}}>
-              <VersionChart
-                  title="Home Assistant Versions"
-                  data={haVersions}
-                  color="#7986cb"
-                  marginBottom={4}
-              />
+              <Stack sx={{gap: 4}}>
+                <VersionChart
+                    title="Home Assistant Versions"
+                    data={haVersions}
+                    color="#7986cb"
+                />
 
-              <VersionChart
-                  title="PowerCalc Versions"
-                  data={pcVersions}
-                  color="#f50057"
-                  marginBottom={4}
-              />
+                <VersionChart
+                    title="PowerCalc Versions"
+                    data={pcVersions}
+                    color="#f50057"
+                />
+              </Stack>
             </Grid>
 
             <Grid size={{xs: 12, md: 4}}>
