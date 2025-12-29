@@ -21,6 +21,14 @@ export interface ProfileMetrics {
   percentage: number;
 }
 
+export interface ProfileRow {
+  manufacturer: string;
+  model: string;
+  count: number;
+  installation_count: number;
+  percentage: number;
+}
+
 export interface VersionInfo {
   version: string;
   installation_count: number;
@@ -50,6 +58,13 @@ export const fetchProfileMetrics = async (manufacturer: string, model: string): 
   if (!res.ok) throw new Error("Failed to fetch profile metrics");
   return res.json();
 };
+
+export const fetchProfiles = async(): Promise<ProfileRow[]> => {
+  const url = `${API_ENDPOINTS.ANALYTICS_PROFILES}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch profile metrics");
+  return res.json();
+}
 
 export const fetchVersionsData = async (): Promise<VersionsData> => {
   const res = await fetch(API_ENDPOINTS.ANALYTICS_VERSIONS);

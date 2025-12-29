@@ -126,6 +126,9 @@ export function Header({ total, table }: HeaderProps) {
               <MenuItem onClick={() => handleMenuItemClick('/analytics/installations')}>
                 Installation statistics
               </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('/analytics/profiles')}>
+                Profile usage
+              </MenuItem>
             </Menu>
           </Box>
 

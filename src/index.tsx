@@ -17,6 +17,7 @@ import TopManufacturers from "./components/statistics/TopManufacturers";
 import TopDeviceTypes from "./components/statistics/TopDeviceTypes";
 import SensorDimensions from "./components/statistics/analytics/SensorDimensions";
 import Installations from "./components/statistics/analytics/Installations";
+import Profiles from "./components/statistics/analytics/Profiles";
 import { LibraryProvider } from "./context/LibraryContext";
 import {queryClient} from "./queryClient";
 
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
   {
     path: "/analytics/installations",
     element: <Installations />,
+  },
+  {
+    path: "/analytics/profiles",
+    element: <Profiles />,
   },
 ]);
 
