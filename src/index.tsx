@@ -61,25 +61,18 @@ const root = ReactDOM.createRoot(
 
 
 const theme = createTheme({
-  cssVariables: {
-    colorSchemeSelector: 'data',
-    defaultColorScheme: 'dark', // This sets the default
-  },
-  colorSchemes: {
-    dark: {
-      palette: {
-        primary: {
-          main: '#7986cb',
-        },
-        secondary: {
-          main: '#f50057',
-        },
-      },
+  cssVariables: true,
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#7986cb',
     },
-  },
+    secondary: {
+      main: '#f50057',
+    },
+  }
 });
 
-// In your render, remove defaultMode and set it via CssBaseline
 root.render(
     <ThemeProvider theme={theme}>
       <CssBaseline enableColorScheme />

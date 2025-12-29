@@ -48,7 +48,6 @@ export function Header({ total, table }: HeaderProps) {
   return (
     <AppBar
       position="static"
-      enableColorOnDark
       sx={{ justifyContent: "center", backgroundColor: indigo[700] }}
     >
       <Container maxWidth="xl">
