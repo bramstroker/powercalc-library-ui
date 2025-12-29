@@ -107,9 +107,7 @@ export function Header({ total, table }: HeaderProps) {
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
-              MenuListProps={{
-                'aria-labelledby': 'statistics-button',
-              }}
+              slotProps={{ list: { 'aria-labelledby': 'statistics-button' } }}
             >
               <MenuItem onClick={() => handleMenuItemClick('/statistics/top-measure-devices')}>
                 Top Measure Devices
@@ -123,8 +121,8 @@ export function Header({ total, table }: HeaderProps) {
               <MenuItem onClick={() => handleMenuItemClick('/statistics/top-device-types')}>
                 Top Device Types
               </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/statistics/dimension-counts')}>
-                Dimension Statistics
+              <MenuItem onClick={() => handleMenuItemClick('/analytics/sensor-dimensions')}>
+                Sensor usage
               </MenuItem>
             </Menu>
           </Box>

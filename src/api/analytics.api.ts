@@ -5,6 +5,7 @@ export interface DimensionCount {
   key_name: string;
   count: number;
   installation_count: number;
+  percentage: number;
 }
 
 export interface Summary {
@@ -14,8 +15,8 @@ export interface Summary {
   github_stars: number;
 }
 
-export const fetchDimensionCounts = async (): Promise<DimensionCount[]> => {
-  const res = await fetch(API_ENDPOINTS.ANALYTICS_DIMENSION_COUNTS);
+export const fetchSensorDimensions = async (): Promise<DimensionCount[]> => {
+  const res = await fetch(API_ENDPOINTS.ANALYTICS_SENSOR_DIMENSIONS);
   if (!res.ok) throw new Error("Failed to fetch dimension counts");
   return res.json();
 };

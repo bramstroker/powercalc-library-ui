@@ -18,9 +18,9 @@ import { useQuery } from "@tanstack/react-query";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { useNavigate, useParams } from "react-router-dom";
 
-import {fetchDimensionCounts, DimensionCount, fetchSummary} from "../../api/analytics.api";
-import { Header } from "../Header";
-import DimensionDetailView from "./DimensionDetailView";
+import {fetchSensorDimensions, DimensionCount, fetchSummary} from "../../../api/analytics.api";
+import { Header } from "../../Header";
+import SensorDimensionDetailView from "./SensorDimensionDetailView";
 import {mangoFusionPalette} from "@mui/x-charts";
 
 type MetricKey = "installation_count" | "count";
@@ -38,7 +38,7 @@ function getErrorMessage(err: unknown): string {
   return "Unknown error";
 }
 
-const DimensionCounts: React.FC = () => {
+const SensorDimensions: React.FC = () => {
   const [selectedMetric, setSelectedMetric] = useState<MetricKey>("installation_count");
   const navigate = useNavigate();
   const { dimension: urlDimension } = useParams<{ dimension: string }>();
@@ -47,7 +47,7 @@ const DimensionCounts: React.FC = () => {
     queryKey: ["dimensionData"],
     queryFn: async () => {
       const [dimensionCounts, stats] = await Promise.all([
-        fetchDimensionCounts(),
+        fetchSensorDimensions(),
         fetchSummary(),
       ]);
 
@@ -62,11 +62,11 @@ const DimensionCounts: React.FC = () => {
   };
 
   const handleShowDetails = (dimension: string) => {
-    navigate(`/statistics/dimension-counts/${dimension}`);
+    navigate(`/analytics/sensor-dimensions/${dimension}`);
   };
 
   const handleBackToOverview = () => {
-    navigate('/statistics/dimension-counts');
+    navigate('/analytics/sensor-dimensions');
   };
 
   // Keep a stable empty array reference so useMemo can actually memoize
@@ -113,7 +113,7 @@ const DimensionCounts: React.FC = () => {
   // If a dimension is specified in the URL, show the detailed view
   if (urlDimension && groupedData[urlDimension]) {
     return (
-      <DimensionDetailView
+      <SensorDimensionDetailView
         dimension={urlDimension}
         data={groupedData[urlDimension]}
         metric={selectedMetric}
@@ -148,10 +148,10 @@ const DimensionCounts: React.FC = () => {
                   }}
               >
                 <li>
-                  <strong>Installation count</strong> – unique Home Assistant installations
+                  <strong>Installation Count</strong> – unique Home Assistant installations
                 </li>
                 <li>
-                  <strong>Count</strong> – total PowerCalc sensor instances
+                  <strong>Total Count</strong> – total PowerCalc sensor instances
                 </li>
               </Box>
 
@@ -254,4 +254,4 @@ const DimensionCounts: React.FC = () => {
   );
 };
 
-export default DimensionCounts;
+export default SensorDimensions;

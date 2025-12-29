@@ -15,7 +15,7 @@ import TopMeasureDevices from "./components/statistics/TopMeasureDevices";
 import TopAuthors from "./components/statistics/TopAuthors";
 import TopManufacturers from "./components/statistics/TopManufacturers";
 import TopDeviceTypes from "./components/statistics/TopDeviceTypes";
-import DimensionCounts from "./components/statistics/DimensionCounts";
+import SensorDimensions from "./components/statistics/analytics/SensorDimensions";
 import { LibraryProvider } from "./context/LibraryContext";
 import {queryClient} from "./queryClient";
 
@@ -62,12 +62,12 @@ const router = createBrowserRouter([
     element: <TopDeviceTypes />,
   },
   {
-    path: "/statistics/dimension-counts",
-    element: <DimensionCounts />,
+    path: "/analytics/sensor-dimensions",
+    element: <SensorDimensions />,
   },
   {
-    path: "/statistics/dimension-counts/:dimension",
-    element: <DimensionCounts />,
+    path: "/analytics/sensor-dimensions/:dimension",
+    element: <SensorDimensions />,
   },
 ]);
 
