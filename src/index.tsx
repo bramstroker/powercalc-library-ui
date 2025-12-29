@@ -19,22 +19,6 @@ import SensorDimensions from "./components/statistics/analytics/SensorDimensions
 import { LibraryProvider } from "./context/LibraryContext";
 import {queryClient} from "./queryClient";
 
-const theme = createTheme({
-  colorSchemes: {
-    dark: {
-      palette: {
-        primary: {
-          main: '#7986cb',
-        },
-        secondary: {
-          main: '#f50057',
-        },
-      },
-    },
-  },
-  cssVariables: false,
-});
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -74,9 +58,31 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(
     document.getElementById("root") as HTMLElement,
 );
+
+
+const theme = createTheme({
+  cssVariables: {
+    colorSchemeSelector: 'data',
+    defaultColorScheme: 'dark', // This sets the default
+  },
+  colorSchemes: {
+    dark: {
+      palette: {
+        primary: {
+          main: '#7986cb',
+        },
+        secondary: {
+          main: '#f50057',
+        },
+      },
+    },
+  },
+});
+
+// In your render, remove defaultMode and set it via CssBaseline
 root.render(
-    <ThemeProvider theme={theme} defaultMode="dark">
-      <CssBaseline/>
+    <ThemeProvider theme={theme}>
+      <CssBaseline enableColorScheme />
       <QueryClientProvider client={queryClient}>
         <LibraryProvider>
           <RouterProvider router={router} />

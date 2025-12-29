@@ -18,9 +18,22 @@ import Link from "@mui/material/Link";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import ListItemText from "@mui/material/ListItemText";
-import {Button, Paper, Tab, Tabs, List, ListItemButton, Collapse, IconButton} from "@mui/material";
+import {
+  Button,
+  Paper,
+  Tab,
+  Tabs,
+  List,
+  ListItemButton,
+  Collapse,
+  IconButton,
+  CircularProgress,
+  Card, CardContent, Stack, LinearProgress,
+  Tooltip
+} from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import { useQuery } from "@tanstack/react-query";
 
 import AliasChips from "./AliasChips";
 import React, {Suspense, useState} from "react";
@@ -28,6 +41,8 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 import {FullPowerProfile} from "../types/PowerProfile";
+import { fetchProfileMetrics } from "../api/analytics.api";
+import { useSummary } from "../hooks/useSummary";
 
 import {Header} from "./Header";
 import {Plot} from "./Plot";
@@ -77,6 +92,12 @@ interface PropertyItem {
 export const ProfileContent: React.FC = () => {
   const profile = useLoaderData() as FullPowerProfile;
   const [expandedSubProfiles, setExpandedSubProfiles] = useState<Record<string, boolean>>({});
+
+  // Fetch profile metrics
+  const { data: profileMetrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ["profileMetrics", profile.manufacturer.dirName, profile.modelId],
+    queryFn: () => fetchProfileMetrics(profile.manufacturer.dirName, profile.modelId),
+  });
 
   const toggleSubProfile = (name: string) => {
     setExpandedSubProfiles(prev => ({
@@ -204,6 +225,74 @@ export const ProfileContent: React.FC = () => {
       </Grid>
   );
 
+  const ProfileMetrics = () => {
+    // Fetch summary data (will be cached by React Query)
+    const { data: summaryData, isLoading: summaryLoading } = useSummary();
+
+    if (metricsLoading || summaryLoading) {
+      return (
+          <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+            <CircularProgress size={20} />
+          </Box>
+      );
+    }
+
+    if (!profileMetrics || !summaryData) return null;
+
+    return (
+        <Card
+            variant="outlined"
+            sx={{
+              height: "100%",
+              borderRadius: 2,
+              bgcolor: "background.paper",
+              backgroundImage: "var(--mui-overlays-6)",
+              borderColor: "divider",
+            }}
+        >
+          <CardContent>
+            <Stack spacing={1.5}>
+              <Typography variant="overline" color="text.secondary">
+                Insights
+              </Typography>
+
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                Used in {profileMetrics.percentage}% of installations
+              </Typography>
+
+              <LinearProgress
+                  variant="determinate"
+                  value={profileMetrics.percentage}
+                  sx={{
+                    height: 8,
+                    borderRadius: 999,
+                    bgcolor: "action.hover",
+                    "& .MuiLinearProgress-bar": {
+                      borderRadius: 999,
+                    },
+                  }}
+              />
+
+              <Typography variant="body2" color="text.secondary">
+                {profileMetrics.installation_count} out of {summaryData.sampled_installations} total{' '}
+                <Tooltip title="Active installations are all users who have opted in for analytics." arrow>
+                  <span style={{ textDecoration: 'underline', textDecorationStyle: 'dotted' }}>installations</span>
+                </Tooltip>
+                {' '}
+                <Link 
+                  href="https://docs.powercalc.nl/misc/analytics/"
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  Learn how to opt-in
+                </Link>
+              </Typography>
+            </Stack>
+          </CardContent>
+        </Card>
+    );
+  };
+
   const properties: PropertyItem[] = [
     {label: "Manufacturer", value: profile.manufacturer.fullName, icon: FactoryIcon, filterKey: "manufacturer"},
     {label: "Model ID", value: profile.modelId, icon: PermDeviceInformationIcon},
@@ -247,30 +336,37 @@ export const ProfileContent: React.FC = () => {
       <>
         <Header/>
         <Box sx={{p: 3}}>
-          <Box sx={{display: "flex", marginBottom: 2, gap: 2}}>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => navigate("/")}
-                startIcon={<HomeIcon/>}
-            >
-              Back to library
-            </Button>
-            <Button
-                variant="outlined"
-                color="primary"
-                href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${profile.manufacturer.dirName}/${profile.modelId}`}
-                startIcon={<GithubIcon/>}
-                target={"_blank"}
-                rel="noopener noreferrer"
-            >
-              Github
-            </Button>
-          </Box>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, md: 8, lg: 9}}>
+              <Box sx={{display: "flex", marginBottom: 2, gap: 2}}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => navigate("/")}
+                    startIcon={<HomeIcon/>}
+                >
+                  Back to library
+                </Button>
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${profile.manufacturer.dirName}/${profile.modelId}`}
+                    startIcon={<GithubIcon/>}
+                    target={"_blank"}
+                    rel="noopener noreferrer"
+                >
+                  Github
+                </Button>
+              </Box>
 
-          <Typography variant="h4" component="h1">
-            {profile.manufacturer.fullName} {profile.modelId}
-          </Typography>
+              <Typography variant="h4" component="h1">
+                {profile.manufacturer.fullName} {profile.modelId}
+              </Typography>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4, lg: 3}}>
+              <ProfileMetrics/>
+            </Grid>
+          </Grid>
 
           <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
             <Tabs value={value} onChange={handleChange} indicatorColor="secondary">
