@@ -13,11 +13,12 @@ import { useQuery } from "@tanstack/react-query";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import {fetchSensorDimensions, DimensionCount, fetchSummary} from "../../../api/analytics.api";
+import {fetchSensorDimensions, DimensionCount} from "../../../api/analytics.api";
 import { Header } from "../../Header";
 import SensorDimensionDetailView from "./SensorDimensionDetailView";
 import {mangoFusionPalette} from "@mui/x-charts";
 import MetricsSelect, { MetricKey } from "./MetricsSelect";
+import AnalyticsHeader from "./AnalyticsHeader";
 
 function groupByDimension(data: DimensionCount[]): Record<string, DimensionCount[]> {
   return data.reduce<Record<string, DimensionCount[]>>((acc, item) => {
@@ -43,17 +44,8 @@ const SensorDimensions: React.FC = () => {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["dimensionData"],
-    queryFn: async () => {
-      const [dimensionCounts, stats] = await Promise.all([
-        fetchSensorDimensions(),
-        fetchSummary(),
-      ]);
-
-      return { dimensionCounts, stats };
-    },
+    queryFn: fetchSensorDimensions
   });
-
-  const sampledInstallations = data?.stats.sampled_installations ?? 0;
 
   const handleMetricChange = (value: MetricKey) => {
     setSelectedMetric(value);
@@ -81,7 +73,7 @@ const SensorDimensions: React.FC = () => {
   // Keep a stable empty array reference so useMemo can actually memoize
   const EMPTY_DIMENSION_COUNTS: DimensionCount[] = [];
 
-  const dimensionCounts = data?.dimensionCounts ?? EMPTY_DIMENSION_COUNTS;
+  const dimensionCounts = data ?? EMPTY_DIMENSION_COUNTS;
 
   const groupedData = useMemo(
       () => groupByDimension(dimensionCounts),
@@ -137,47 +129,38 @@ const SensorDimensions: React.FC = () => {
       <>
         <Header />
         <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
-            <Box>
-              <Typography variant="h4" component="h1" gutterBottom>
-                PowerCalc Statistics
-              </Typography>
-
-              <Typography variant="body2" color="text.secondary">
-                Overview of PowerCalc usage across different dimensions.
-              </Typography>
-
-              <Box
-                  component="ul"
-                  sx={{
-                    pl: 2,
-                    mt: 1,
-                    mb: 1,
-                    color: "text.secondary",
-                    "& li": { mb: 0.5 },
-                  }}
-              >
-                <li>
-                  <strong>Installation Count</strong> – unique Home Assistant installations
-                </li>
-                <li>
-                  <strong>Total Count</strong> – total PowerCalc sensor instances
-                </li>
-                <li>
-                  <strong>Percentage</strong> – percentage of installations using specific type
-                </li>
-              </Box>
-
-              <Typography variant="caption" color="text.secondary">
-                Based on {sampledInstallations} active installations that opted in to analytics.
-              </Typography>
-            </Box>
-
-            <MetricsSelect
-              value={selectedMetric}
-              onChange={handleMetricChange}
-            />
-          </Box>
+          <AnalyticsHeader
+              title={"Sensor Statistics"}
+              description={"Overview of Powercalc usage across different dimensions."}
+              children={
+                <Box
+                    component="ul"
+                    sx={{
+                      pl: 2,
+                      mt: 1,
+                      mb: 1,
+                      color: "text.secondary",
+                      "& li": { mb: 0.5 },
+                    }}
+                >
+                  <li>
+                    <strong>Installation Count</strong> – unique Home Assistant installations
+                  </li>
+                  <li>
+                    <strong>Total Count</strong> – total PowerCalc sensor instances
+                  </li>
+                  <li>
+                    <strong>Percentage</strong> – percentage of installations using specific type
+                  </li>
+                </Box>
+              }
+              rightContent={
+                <MetricsSelect
+                    value={selectedMetric}
+                    onChange={handleMetricChange}
+                />
+              }
+          />
 
           <Grid container spacing={4}>
             {dimensions.map((dimension) => {

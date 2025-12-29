@@ -8,4 +8,5 @@ export const API_ENDPOINTS = {
   ANALYTICS_SENSORS: `${API_BASE_URL}/analytics/sensors`,
   ANALYTICS_SUMMARY: `${API_BASE_URL}/analytics/summary`,
   ANALYTICS_PROFILES: `${API_BASE_URL}/analytics/profiles`,
+  ANALYTICS_VERSIONS: `${API_BASE_URL}/analytics/versions`,
 };

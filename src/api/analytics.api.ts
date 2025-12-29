@@ -21,6 +21,17 @@ export interface ProfileMetrics {
   percentage: number;
 }
 
+export interface VersionInfo {
+  version: string;
+  installation_count: number;
+  percentage: number;
+}
+
+export interface VersionsData {
+  ha_versions: VersionInfo[];
+  powercalc_versions: VersionInfo[];
+}
+
 export const fetchSensorDimensions = async (): Promise<DimensionCount[]> => {
   const res = await fetch(API_ENDPOINTS.ANALYTICS_SENSORS);
   if (!res.ok) throw new Error("Failed to fetch dimension counts");
@@ -37,5 +48,11 @@ export const fetchProfileMetrics = async (manufacturer: string, model: string): 
   const url = `${API_ENDPOINTS.ANALYTICS_PROFILES}/${encodeURIComponent(manufacturer)}/${encodeURIComponent(model)}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch profile metrics");
+  return res.json();
+};
+
+export const fetchVersionsData = async (): Promise<VersionsData> => {
+  const res = await fetch(API_ENDPOINTS.ANALYTICS_VERSIONS);
+  if (!res.ok) throw new Error("Failed to fetch versions data");
   return res.json();
 };
