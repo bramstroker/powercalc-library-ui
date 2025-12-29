@@ -13,15 +13,15 @@ import { useQuery } from "@tanstack/react-query";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import {fetchSensorDimensions, DimensionCount} from "../../../api/analytics.api";
+import {fetchSensors, SensorStats} from "../../../api/analytics.api";
 import { Header } from "../../Header";
 import SensorDimensionDetailView from "./SensorDimensionDetailView";
 import {mangoFusionPalette} from "@mui/x-charts";
 import MetricsSelect, { MetricKey } from "./MetricsSelect";
 import AnalyticsHeader from "./AnalyticsHeader";
 
-function groupByDimension(data: DimensionCount[]): Record<string, DimensionCount[]> {
-  return data.reduce<Record<string, DimensionCount[]>>((acc, item) => {
+function groupByDimension(data: SensorStats[]): Record<string, SensorStats[]> {
+  return data.reduce<Record<string, SensorStats[]>>((acc, item) => {
     (acc[item.dimension] ??= []).push(item);
     return acc;
   }, {});
@@ -44,7 +44,7 @@ const SensorDimensions: React.FC = () => {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["dimensionData"],
-    queryFn: fetchSensorDimensions
+    queryFn: fetchSensors
   });
 
   const handleMetricChange = (value: MetricKey) => {
@@ -71,7 +71,7 @@ const SensorDimensions: React.FC = () => {
   };
 
   // Keep a stable empty array reference so useMemo can actually memoize
-  const EMPTY_DIMENSION_COUNTS: DimensionCount[] = [];
+  const EMPTY_DIMENSION_COUNTS: SensorStats[] = [];
 
   const dimensionCounts = data ?? EMPTY_DIMENSION_COUNTS;
 

@@ -41,7 +41,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 import {FullPowerProfile} from "../types/PowerProfile";
-import { fetchProfileMetrics } from "../api/analytics.api";
+import { fetchProfile } from "../api/analytics.api";
 import { useSummary } from "../hooks/useSummary";
 
 import {Header} from "./Header";
@@ -96,7 +96,7 @@ export const ProfileContent: React.FC = () => {
   // Fetch profile metrics
   const { data: profileMetrics, isLoading: metricsLoading } = useQuery({
     queryKey: ["profileMetrics", profile.manufacturer.dirName, profile.modelId],
-    queryFn: () => fetchProfileMetrics(profile.manufacturer.dirName, profile.modelId),
+    queryFn: () => fetchProfile(profile.manufacturer.dirName, profile.modelId),
   });
 
   const toggleSubProfile = (name: string) => {

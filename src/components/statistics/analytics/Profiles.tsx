@@ -4,6 +4,7 @@ import {
   Typography,
   Box,
   CircularProgress,
+  useTheme,
 } from "@mui/material";
 import {DataGrid, GridColDef, GridRenderCellParams} from '@mui/x-data-grid';
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +21,7 @@ function getErrorMessage(err: unknown): string {
 }
 
 const Profiles: React.FC = () => {
+  const theme = useTheme();
   const { data, isLoading, error } = useQuery({
     queryKey: ["profilesData"],
     queryFn: fetchProfiles,
@@ -135,10 +137,13 @@ const Profiles: React.FC = () => {
             getRowId={(row) => row.manufacturer + row.model}
             sx={{
               '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#f5f5f5',
+                backgroundColor: theme.palette.grey[800],
                 fontWeight: 'bold',
-                borderBottom: '2px solid #ccc',
+                borderBottom: `2px solid ${theme.palette.grey[700]}`,
                 fontSize: '0.875rem',
+              },
+              '& .MuiDataGrid-cell': {
+                borderBottom: `1px solid ${theme.palette.grey[700]}`,
               },
             }}
             slotProps={{

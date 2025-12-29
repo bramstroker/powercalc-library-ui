@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { DimensionCount } from "../../../api/analytics.api";
+import { SensorStats } from "../../../api/analytics.api";
 import { Header } from "../../Header";
 import { bluePalette } from "@mui/x-charts";
 import MetricsSelect, { MetricKey } from "./MetricsSelect";
@@ -17,7 +17,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface DimensionDetailViewProps {
   dimension: string;
-  data: DimensionCount[];
+  data: SensorStats[];
   metric: MetricKey;
   onBack: () => void;
   onMetricChange?: (metric: MetricKey) => void;

@@ -3,15 +3,15 @@ import {
   Container,
   Typography,
   Box,
-  Paper,
   CircularProgress,
 } from "@mui/material";
-import { BarChart } from "@mui/x-charts/BarChart";
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchVersionsData, VersionsData } from "../../../api/analytics.api";
+import {fetchCountries, fetchVersions, VersionStats} from "../../../api/analytics.api";
 import { Header } from "../../Header";
 import AnalyticsHeader from "./AnalyticsHeader";
+import {TopCountriesList} from "./TopCountriesList";
+import VersionChart from "./VersionChart";
 
 function getErrorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
@@ -22,7 +22,14 @@ function getErrorMessage(err: unknown): string {
 const Installations: React.FC = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["versionsData"],
-    queryFn: fetchVersionsData,
+    queryFn: async () => {
+      const [versionsData, countriesData] = await Promise.all([
+        fetchVersions(),
+        fetchCountries(),
+      ]);
+
+      return { versionsData, countriesData };
+    },
   });
 
   if (isLoading) {
@@ -51,17 +58,9 @@ const Installations: React.FC = () => {
     );
   }
 
-  const versionsData = data as VersionsData;
-
-  // Prepare data for HA versions chart
+  const versionsData = data?.versionsData as VersionStats;
   const haVersions = versionsData.ha_versions.slice(0, 10); // Limit to top 10 versions
-  const haVersionLabels = haVersions.map(v => v.version);
-  const haVersionCounts = haVersions.map(v => v.installation_count);
-
-  // Prepare data for powercalc versions chart
   const pcVersions = versionsData.powercalc_versions.slice(0, 10); // Limit to top 10 versions
-  const pcVersionLabels = pcVersions.map(v => v.version);
-  const pcVersionCounts = pcVersions.map(v => v.installation_count);
 
   return (
     <>
@@ -72,63 +71,21 @@ const Installations: React.FC = () => {
             description={" Overview of Home Assistant and PowerCalc versions used in installations."}
         />
 
-        <Paper sx={{ p: 3, mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Home Assistant Versions
-          </Typography>
-          <Box sx={{ height: 400 }}>
-            <BarChart
-              layout="horizontal"
-              xAxis={[{
-                label: 'Installation Count',
-              }]}
-              series={[
-                {
-                  data: haVersionCounts,
-                  label: 'Installation Count',
-                  color: '#7986cb',
-                },
-              ]}
-              yAxis={[{
-                scaleType: 'band',
-                data: haVersionLabels,
-                label: 'Version',
-                width: 140
-              }]}
-              height={350}
-              margin={{ top: 20, right: 20, bottom: 70, left: 70 }}
-            />
-          </Box>
-        </Paper>
+        <VersionChart
+          title="Home Assistant Versions"
+          data={haVersions}
+          color="#7986cb"
+          marginBottom={4}
+        />
 
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            PowerCalc Versions
-          </Typography>
-          <Box sx={{ height: 400 }}>
-            <BarChart
-              layout="horizontal"
-              xAxis={[{
-                label: 'Installation Count',
-              }]}
-              series={[
-                {
-                  data: pcVersionCounts,
-                  label: 'Installation Count',
-                  color: '#f50057',
-                },
-              ]}
-              yAxis={[{
-                scaleType: 'band',
-                data: pcVersionLabels,
-                label: 'Version',
-                width: 140
-              }]}
-              height={350}
-              margin={{ top: 20, right: 20, bottom: 70, left: 70 }}
-            />
-          </Box>
-        </Paper>
+        <VersionChart
+          title="PowerCalc Versions"
+          data={pcVersions}
+          color="#f50057"
+          marginBottom={4}
+        />
+
+        <TopCountriesList data={data?.countriesData ?? []} />
       </Container>
     </>
   );
