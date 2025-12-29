@@ -6,19 +6,14 @@ import {
   Paper,
   IconButton,
   Tooltip,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormControl,
-  SelectChangeEvent,
 } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { DimensionCount } from "../../../api/analytics.api";
 import { Header } from "../../Header";
 import { bluePalette } from "@mui/x-charts";
-
-type MetricKey = "installation_count" | "count" | "percentage";
+import MetricsSelect, { MetricKey } from "./MetricsSelect";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface DimensionDetailViewProps {
   dimension: string;
@@ -27,12 +22,6 @@ interface DimensionDetailViewProps {
   onBack: () => void;
   onMetricChange?: (metric: MetricKey) => void;
 }
-
-const METRIC_OPTIONS: ReadonlyArray<{ label: string; value: MetricKey }> = [
-  { label: "Total count", value: "count" },
-  { label: "Installation count", value: "installation_count" },
-  { label: "Percentage", value: "percentage" },
-];
 
 function formatDimensionTitle(dimension: string) {
   return dimension
@@ -48,20 +37,25 @@ const SensorDimensionDetailView: React.FC<DimensionDetailViewProps> = ({
  onBack,
  onMetricChange,
 }) => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [selectedMetric, setSelectedMetric] = React.useState<MetricKey>(metric);
 
   React.useEffect(() => {
     setSelectedMetric(metric);
   }, [metric]);
 
-  const handleMetricChange = (event: SelectChangeEvent) => {
-    const newMetric = event.target.value as MetricKey;
+  const handleMetricChange = (newMetric: MetricKey) => {
     setSelectedMetric(newMetric);
+
+    // Update URL with new metric
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("metric", newMetric);
+    navigate(`/analytics/sensor-dimensions/${dimension}?${newSearchParams.toString()}`, { replace: true });
+
+    // Notify parent component
     onMetricChange?.(newMetric);
   };
-
-  const metricLabel =
-      METRIC_OPTIONS.find((x) => x.value === selectedMetric)?.label ?? "Metric";
 
   const sortedData = React.useMemo(() => {
     return [...data].sort((a, b) => {
@@ -116,25 +110,15 @@ const SensorDimensionDetailView: React.FC<DimensionDetailViewProps> = ({
               </Typography>
             </Box>
 
-            <FormControl
-                size="small"
-                variant="outlined"
-                sx={{ minWidth: 200, flexShrink: 0 }}
-            >
-              <InputLabel id="metric-select-label">Metric</InputLabel>
-              <Select
-                  labelId="metric-select-label"
-                  value={selectedMetric}
-                  label="Metric"
-                  onChange={handleMetricChange}
-              >
-                {METRIC_OPTIONS.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <MetricsSelect
+              value={selectedMetric}
+              onChange={handleMetricChange}
+              formControlProps={{
+                size: "small",
+                variant: "outlined",
+                sx: { minWidth: 200, flexShrink: 0 }
+              }}
+            />
           </Box>
 
           <Paper sx={{ p: 3 }}>
@@ -164,7 +148,6 @@ const SensorDimensionDetailView: React.FC<DimensionDetailViewProps> = ({
                       ]}
                       xAxis={[
                         {
-                          label: metricLabel,
                           valueFormatter: (v: number) => ((selectedMetric === "percentage") ? `${v}%` : v.toLocaleString()),
                           ...(selectedMetric === "percentage" && { min: 0, max: 100 }),
                         },
@@ -172,7 +155,6 @@ const SensorDimensionDetailView: React.FC<DimensionDetailViewProps> = ({
                       series={[
                         {
                           dataKey: "value",
-                          label: metricLabel,
                           valueFormatter: (v: number | null) => ((selectedMetric === "percentage") ? `${v?.toFixed(2)}%` : (v ?? 0).toLocaleString()),
                         },
                       ]}

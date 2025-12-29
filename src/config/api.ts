@@ -5,6 +5,7 @@ export const API_ENDPOINTS = {
   PROFILE: `${API_BASE_URL}/profile`,
   MANUFACTURER: `${API_BASE_URL}/manufacturer`,
   DOWNLOAD: `${API_BASE_URL}/download`,
-  ANALYTICS_SENSOR_DIMENSIONS: `${API_BASE_URL}/analytics/sensors`,
+  ANALYTICS_SENSORS: `${API_BASE_URL}/analytics/sensors`,
   ANALYTICS_SUMMARY: `${API_BASE_URL}/analytics/summary`,
+  ANALYTICS_PROFILES: `${API_BASE_URL}/analytics/profiles`,
 };

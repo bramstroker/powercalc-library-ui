@@ -6,24 +6,18 @@ import {
   Paper,
   Grid,
   CircularProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
   Button,
 } from "@mui/material";
 import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { useQuery } from "@tanstack/react-query";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import {fetchSensorDimensions, DimensionCount, fetchSummary} from "../../../api/analytics.api";
 import { Header } from "../../Header";
 import SensorDimensionDetailView from "./SensorDimensionDetailView";
 import {mangoFusionPalette} from "@mui/x-charts";
-
-type MetricKey = "installation_count" | "count";
+import MetricsSelect, { MetricKey } from "./MetricsSelect";
 
 function groupByDimension(data: DimensionCount[]): Record<string, DimensionCount[]> {
   return data.reduce<Record<string, DimensionCount[]>>((acc, item) => {
@@ -39,9 +33,13 @@ function getErrorMessage(err: unknown): string {
 }
 
 const SensorDimensions: React.FC = () => {
-  const [selectedMetric, setSelectedMetric] = useState<MetricKey>("installation_count");
   const navigate = useNavigate();
   const { dimension: urlDimension } = useParams<{ dimension: string }>();
+  const [searchParams] = useSearchParams();
+
+  // Initialize metric from URL query parameter or default to "installation_count"
+  const initialMetric = (searchParams.get("metric") as MetricKey) || "installation_count";
+  const [selectedMetric, setSelectedMetric] = useState<MetricKey>(initialMetric);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["dimensionData"],
@@ -57,16 +55,27 @@ const SensorDimensions: React.FC = () => {
 
   const sampledInstallations = data?.stats.sampled_installations ?? 0;
 
-  const handleMetricChange = (event: SelectChangeEvent<MetricKey>) => {
-    setSelectedMetric(event.target.value as MetricKey);
+  const handleMetricChange = (value: MetricKey) => {
+    setSelectedMetric(value);
+    // Update URL with new metric without navigating
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("metric", value);
+    navigate({ search: newSearchParams.toString() }, { replace: true });
   };
 
   const handleShowDetails = (dimension: string) => {
-    navigate(`/analytics/sensor-dimensions/${dimension}`);
+    // Include current metric in URL when navigating to detail view
+    navigate(`/analytics/sensor-dimensions/${dimension}?metric=${selectedMetric}`);
   };
 
   const handleBackToOverview = () => {
-    navigate('/analytics/sensor-dimensions');
+    // Include current metric in URL when navigating back to overview
+    navigate(`/analytics/sensor-dimensions?metric=${selectedMetric}`);
+  };
+
+  // Callback for when metric changes in detail view
+  const handleDetailMetricChange = (metric: MetricKey) => {
+    setSelectedMetric(metric);
   };
 
   // Keep a stable empty array reference so useMemo can actually memoize
@@ -118,6 +127,7 @@ const SensorDimensions: React.FC = () => {
         data={groupedData[urlDimension]}
         metric={selectedMetric}
         onBack={handleBackToOverview}
+        onMetricChange={handleDetailMetricChange}
       />
     );
   }
@@ -153,6 +163,9 @@ const SensorDimensions: React.FC = () => {
                 <li>
                   <strong>Total Count</strong> – total PowerCalc sensor instances
                 </li>
+                <li>
+                  <strong>Percentage</strong> – percentage of installations using specific type
+                </li>
               </Box>
 
               <Typography variant="caption" color="text.secondary">
@@ -160,18 +173,10 @@ const SensorDimensions: React.FC = () => {
               </Typography>
             </Box>
 
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel id="metric-select-label">Metric</InputLabel>
-              <Select<MetricKey>
-                  labelId="metric-select-label"
-                  value={selectedMetric}
-                  label="Metric"
-                  onChange={handleMetricChange}
-              >
-                <MenuItem value="count">Total Count</MenuItem>
-                <MenuItem value="installation_count">Installation Count</MenuItem>
-              </Select>
-            </FormControl>
+            <MetricsSelect
+              value={selectedMetric}
+              onChange={handleMetricChange}
+            />
           </Box>
 
           <Grid container spacing={4}>
