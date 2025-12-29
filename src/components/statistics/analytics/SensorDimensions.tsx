@@ -233,7 +233,13 @@ const SensorDimensions: React.FC = () => {
                                       additionalRadius: -30,
                                       color: "gray",
                                     },
-                                    arcLabel: (item) => `${item.label ?? ""} (${item.value})`,
+                                    arcLabel: (item) => {
+                                      let value = item.value.toString();
+                                      if (selectedMetric === "percentage") {
+                                        value = `${item.value.toFixed(1)}%`;
+                                      }
+                                      return `${item.label ?? ""} (${value})`
+                                    },
                                     arcLabelMinAngle: 18,
                                   },
                                 ]}
