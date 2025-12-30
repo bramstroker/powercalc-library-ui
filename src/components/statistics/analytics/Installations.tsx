@@ -1,120 +1,154 @@
 import React from "react";
-import {Stack} from "@mui/material";
-import {useSuspenseQuery} from "@tanstack/react-query";
+import { Stack } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 import {
   CountryStats,
-  fetchCountries, fetchTimeseries,
+  fetchCountries,
+  fetchTimeseries,
   fetchVersions,
   TimeseriesResponse,
-  VersionStats
+  VersionStats,
 } from "../../../api/analytics.api";
-import {useSummary} from "../../../hooks/useSummary";
+import { useSummary } from "../../../hooks/useSummary";
 import AnalyticsHeader from "./AnalyticsHeader";
-import {TopCountriesList} from "./TopCountriesList";
+import { TopCountriesList } from "./TopCountriesList";
 import VersionChart from "./VersionChart";
-import Grid from "@mui/material/Grid";
 import StatCard from "./StatCard";
 
 type InstallationsData = {
   versionsData: VersionStats;
   countriesData: CountryStats[];
   optinsData: TimeseriesResponse;
+  sensorsData: TimeseriesResponse;
 };
+
+type SparkPoint = { label: string; value: number };
+
+function startOfUTCDay(d: Date) {
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
+function addUTCDays(d: Date, days: number) {
+  const next = new Date(d);
+  next.setUTCDate(next.getUTCDate() + days);
+  return next;
+}
+
+function formatUTCDateKey(d: Date) {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function buildSparklineData(
+    response: TimeseriesResponse,
+    metric: string,
+    fromUTC: Date,
+    toUTC: Date,
+    locale = "en-US"
+): SparkPoint[] {
+  const points = response.series.find((s) => s.name === metric)?.points ?? [];
+
+  const map = new Map<string, number>();
+  for (const p of points) {
+    map.set(p.ts.slice(0, 10), p.value);
+  }
+
+  const result: SparkPoint[] = [];
+  for (let d = new Date(fromUTC); d <= toUTC; d = addUTCDays(d, 1)) {
+    const key = formatUTCDateKey(d);
+    const label = d.toLocaleDateString(locale, { month: "short", day: "numeric", timeZone: "UTC" });
+    result.push({ label, value: map.get(key) ?? 0 });
+  }
+
+  return result;
+}
 
 const Installations: React.FC = () => {
   const { data: summaryData } = useSummary();
-  const { data } = useSuspenseQuery<InstallationsData>({
-    queryKey: ["analytics", "installations"],
-    queryFn: async () => {
-      // Calculate dates for the last 30 days
-      const toDate = new Date();
-      const fromDate = new Date();
-      fromDate.setDate(fromDate.getDate() - 29); // 30 days including today
 
-      const [versionsData, countriesData, optinsData] = await Promise.all([
+  const { fromUTC, toUTC } = React.useMemo(() => {
+    const now = new Date();
+    const to = startOfUTCDay(now);
+    const from = addUTCDays(to, -29); // last 30 days including today
+    return { fromUTC: from, toUTC: to };
+  }, []);
+
+  const { data } = useSuspenseQuery<InstallationsData>({
+    queryKey: ["analytics", "installations", formatUTCDateKey(fromUTC), formatUTCDateKey(toUTC)],
+    queryFn: async () => {
+      const [versionsData, countriesData, optinsData, sensorsData] = await Promise.all([
         fetchVersions(),
         fetchCountries(),
-        fetchTimeseries("optins", "day", "UTC", fromDate, toDate)
+        fetchTimeseries("optins", "day", "UTC", fromUTC, toUTC),
+        fetchTimeseries("sensors", "day", "UTC", fromUTC, toUTC),
       ]);
 
-      return {versionsData, countriesData, optinsData};
+      return { versionsData, countriesData, optinsData, sensorsData };
     },
   });
 
-  const versionsData = data.versionsData as VersionStats;
-  const haVersions = versionsData.ha_versions.slice(0, 10); // Limit to top 10 versions
-  const pcVersions = versionsData.powercalc_versions.slice(0, 10); // Limit to top 10 versions
+  const haVersions = React.useMemo(() => data.versionsData.ha_versions.slice(0, 10), [data.versionsData]);
+  const pcVersions = React.useMemo(
+      () => data.versionsData.powercalc_versions.slice(0, 10),
+      [data.versionsData]
+  );
 
-  // Process optins data to ensure 30 data points for the last 30 days
-  const processOptinsData = () => {
-    const optinsSeries = data.optinsData.series.find(s => s.name === "optins")?.points || [];
+  const optinsSeries = React.useMemo(
+      () => buildSparklineData(data.optinsData, "optins", fromUTC, toUTC),
+      [data.optinsData, fromUTC, toUTC]
+  );
 
-    // Create a map of dates to values
-    const dateValueMap = new Map<string, number>();
-    optinsSeries.forEach(point => {
-      const date = point.ts.split('T')[0];
-      dateValueMap.set(date, point.value);
-    });
-
-    // Generate array for the last 30 days with values or 0 for missing dates
-    const result: Array<{ label: string; value: number }> = [];
-    const toDate = new Date();
-    const fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() - 29); // 30 days including today
-
-    for (let d = new Date(fromDate); d <= toDate; d.setDate(d.getDate() + 1)) {
-      const dateStr = d.toISOString().split('T')[0];
-      const monthName = d.toLocaleDateString('en-US', { month: 'short' });
-      const dayNum = d.getDate();
-      const label = `${monthName} ${dayNum}`;
-      result.push({
-        label,
-        value: dateValueMap.get(dateStr) || 0
-      });
-    }
-
-    return result;
-  };
-
-  const optinsData = processOptinsData();
+  const sensorsSeries = React.useMemo(
+      () => buildSparklineData(data.sensorsData, "sensors", fromUTC, toUTC),
+      [data.sensorsData, fromUTC, toUTC]
+  );
 
   return (
       <>
         <AnalyticsHeader
-            title={"Installation statistics"}
-            description={" Overview of Home Assistant and PowerCalc versions used in installations."}
+            title="Installation statistics"
+            description="Overview of Home Assistant and PowerCalc versions used in installations."
         />
 
-        <Grid container spacing={4}>
-          <Grid size={{xs: 12, md: 8}}>
-            <Stack sx={{gap: 4}}>
-              <VersionChart
-                  title="Home Assistant Versions"
-                  data={haVersions}
-                  color="#7986cb"
-              />
-
-              <VersionChart
-                  title="PowerCalc Versions"
-                  data={pcVersions}
-                  color="#f50057"
-              />
+        <Grid container spacing={4} alignItems="stretch">
+          <Grid size={{ xs: 12, md: 8 }}>
+            <Stack spacing={4}>
+              <VersionChart title="Home Assistant Versions" data={haVersions} color="#7986cb" />
+              <VersionChart title="PowerCalc Versions" data={pcVersions} color="#f50057" />
             </Stack>
           </Grid>
 
-          <Grid size={{xs: 12, md: 4}}>
-            <Stack sx={{gap: 4}}>
-              <StatCard
-                  title={'Opt-ins'}
-                  value={summaryData?.sampled_installations?.toLocaleString() || '0'}
-                  interval={''}
-                  trend={'up'}
-                  hideTrendIcon={true}
-                  data={optinsData}
-              />
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Stack spacing={4}>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <StatCard
+                      title="Opt-ins"
+                      value={summaryData.sampled_installations?.toLocaleString() ?? "0"}
+                      interval=""
+                      trend="up"
+                      hideTrendIcon
+                      data={optinsSeries}
+                  />
+                </Grid>
 
-              <TopCountriesList data={data.countriesData ?? []}/>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <StatCard
+                      title="Total sensors"
+                      value={summaryData.total_sensors?.toLocaleString() ?? "0"}
+                      interval=""
+                      trend="up"
+                      hideTrendIcon
+                      data={sensorsSeries}
+                  />
+                </Grid>
+              </Grid>
+
+              <TopCountriesList data={data.countriesData ?? []} />
             </Stack>
           </Grid>
         </Grid>

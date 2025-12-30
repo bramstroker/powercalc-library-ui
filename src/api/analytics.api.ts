@@ -13,6 +13,8 @@ export interface Summary {
   snapshots: number;
   hacs_installs: number;
   github_stars: number;
+  total_sensors: number;
+  contributors: number;
 }
 
 export interface ProfileStats {
