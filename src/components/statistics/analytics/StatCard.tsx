@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import { areaElementClasses } from '@mui/x-charts/LineChart';
-import {Chip} from "@mui/material";
+import {Chip, Tooltip} from "@mui/material";
 
 export type StatCardProps = {
   title: string;
@@ -15,6 +15,7 @@ export type StatCardProps = {
   trend: 'up' | 'down' | 'neutral';
   trendAmount?: string;
   hideTrendIcon?: boolean;
+  tooltip?: string;
   data: Array<{
     label: string;
     value: number;
@@ -39,7 +40,8 @@ export default function StatCard({
                                    interval,
                                    trend,
                                    trendAmount,
-                                    hideTrendIcon,
+                                   hideTrendIcon,
+                                   tooltip,
                                    data,
                                  }: StatCardProps) {
   const theme = useTheme();
@@ -74,9 +76,17 @@ export default function StatCard({
       <Card variant="elevation"
             sx={{display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1}}>
         <CardContent>
-          <Typography component="h2" variant="subtitle2" gutterBottom>
-            {title}
-          </Typography>
+          {tooltip ? (
+            <Tooltip title={tooltip} arrow>
+              <Typography component="h2" variant="subtitle2" gutterBottom>
+                {title}
+              </Typography>
+            </Tooltip>
+          ) : (
+            <Typography component="h2" variant="subtitle2" gutterBottom>
+              {title}
+            </Typography>
+          )}
           <Stack
               direction="column"
               sx={{ justifyContent: 'space-between', flexGrow: '1', gap: 1 }}

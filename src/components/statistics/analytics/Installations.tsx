@@ -132,6 +132,7 @@ const Installations: React.FC = () => {
                       interval=""
                       trend="up"
                       hideTrendIcon
+                      tooltip="Number of users who have opted in for analytics"
                       data={optinsSeries}
                   />
                 </Grid>
@@ -143,6 +144,7 @@ const Installations: React.FC = () => {
                       interval=""
                       trend="up"
                       hideTrendIcon
+                      tooltip="Total number of PowerCalc sensors created across all installations"
                       data={sensorsSeries}
                   />
                 </Grid>
