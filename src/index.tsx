@@ -75,7 +75,7 @@ const router = createBrowserRouter([
       {
         path: "/analytics/profiles",
         element: <Profiles/>,
-      },]
+      }]
   }]);
 
 const root = ReactDOM.createRoot(

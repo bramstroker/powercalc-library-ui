@@ -82,3 +82,45 @@ export const fetchCountries = async (): Promise<CountryStats[]> => {
   if (!res.ok) throw new Error("Failed to fetch versions data");
   return res.json();
 };
+
+export interface TimeseriesQuery {
+  metric: string;
+  bucket: string;
+  timezone: string;
+  from: Date;
+  to: Date;
+}
+
+export interface TimeseriesPoint {
+  ts: string;
+  value: number;
+}
+
+export interface TimeseriesSeries {
+  name: string;
+  points: TimeseriesPoint[];
+}
+
+export interface TimeseriesResponse {
+  query: TimeseriesQuery;
+  series: TimeseriesSeries[];
+}
+
+export const fetchTimeseries = async (
+  metric: string = "optins",
+  bucket: string = "day",
+  timezone: string = "UTC",
+  from: Date = new Date("2024-01-01"),
+  to: Date = new Date()
+): Promise<TimeseriesResponse> => {
+  const url = new URL(API_ENDPOINTS.ANALYTICS_TIMESERIES);
+  url.searchParams.append("metric", metric);
+  url.searchParams.append("bucket", bucket);
+  url.searchParams.append("timezone", timezone);
+  url.searchParams.append("from", from.toISOString().split("T")[0]);
+  url.searchParams.append("to", to.toISOString().split("T")[0]);
+
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error("Failed to fetch timeseries data");
+  return res.json();
+};

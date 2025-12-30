@@ -125,6 +125,9 @@ export function Header() {
               <MenuItem onClick={() => handleMenuItemClick('/analytics/profiles')}>
                 Profile usage
               </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('/analytics/optins')}>
+                Opt-ins Over Time
+              </MenuItem>
             </Menu>
           </Box>
 
