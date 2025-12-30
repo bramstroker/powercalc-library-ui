@@ -12,7 +12,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
   MRT_GlobalFilterTextField, MRT_ShowHideColumnsButton,
 } from "material-react-table";
-import { useTheme } from "@mui/material";
+import { useTheme, Divider } from "@mui/material";
 import {indigo} from "@mui/material/colors";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
@@ -23,22 +23,22 @@ import {useLibrary} from "../context/LibraryContext";
 export function Header() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const [statsAnchorEl, setStatsAnchorEl] = React.useState<null | HTMLElement>(null);
+  const statsOpen = Boolean(statsAnchorEl);
   const { config } = useHeader();
   const libraryStats = useLibrary()
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleStatsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setStatsAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleStatsClose = () => {
+    setStatsAnchorEl(null);
   };
 
   const handleMenuItemClick = (path: string) => {
     navigate(path);
-    handleClose();
+    handleStatsClose();
   };
 
   return (
@@ -92,18 +92,26 @@ export function Header() {
             <Button
               color="inherit"
               sx={{ mr: 2 }}
-              onClick={handleClick}
+              onClick={handleStatsClick}
               endIcon={<KeyboardArrowDownIcon />}
               startIcon={<BarChartIcon />}
+              id="statistics-button"
+              aria-controls={statsOpen ? 'statistics-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={statsOpen ? 'true' : undefined}
             >
               Statistics
             </Button>
             <Menu
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
+              id="statistics-menu"
+              anchorEl={statsAnchorEl}
+              open={statsOpen}
+              onClose={handleStatsClose}
               slotProps={{ list: { 'aria-labelledby': 'statistics-button' } }}
             >
+              <Typography variant="subtitle2" sx={{ px: 2, py: 1, fontWeight: 'bold' }}>
+                Library stats
+              </Typography>
               <MenuItem onClick={() => handleMenuItemClick('/statistics/top-measure-devices')}>
                 Top Measure Devices
               </MenuItem>
@@ -116,6 +124,12 @@ export function Header() {
               <MenuItem onClick={() => handleMenuItemClick('/statistics/top-device-types')}>
                 Top Device Types
               </MenuItem>
+
+              <Divider sx={{ my: 1 }} />
+
+              <Typography variant="subtitle2" sx={{ px: 2, py: 1, fontWeight: 'bold' }}>
+                Insights
+              </Typography>
               <MenuItem onClick={() => handleMenuItemClick('/analytics/sensor-dimensions')}>
                 Sensor usage
               </MenuItem>
