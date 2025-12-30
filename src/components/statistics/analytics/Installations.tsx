@@ -107,6 +107,17 @@ const Installations: React.FC = () => {
       [data.sensorsData, fromUTC, toUTC]
   );
 
+  const avgSensorsPerInstallation = React.useMemo(() => {
+    if (!summaryData.sampled_installations || summaryData.sampled_installations === 0) {
+      return 0;
+    }
+    return summaryData.total_sensors! / summaryData.sampled_installations;
+  }, [summaryData]);
+
+  const optinsLastMonth = React.useMemo(() => {
+    return optinsSeries.reduce((sum, point) => sum + point.value, 0);
+  }, [optinsSeries]);
+
   return (
       <>
         <AnalyticsHeader
@@ -129,7 +140,7 @@ const Installations: React.FC = () => {
                   <StatCard
                       title="Opt-ins"
                       value={summaryData.sampled_installations?.toLocaleString() ?? "0"}
-                      interval=""
+                      interval={`${optinsLastMonth} in last 30 days`}
                       trend="up"
                       hideTrendIcon
                       tooltip="Number of users who have opted in for analytics"
@@ -141,7 +152,7 @@ const Installations: React.FC = () => {
                   <StatCard
                       title="Total sensors"
                       value={summaryData.total_sensors?.toLocaleString() ?? "0"}
-                      interval=""
+                      interval={`avg ${avgSensorsPerInstallation.toFixed(0)} per installation`}
                       trend="up"
                       hideTrendIcon
                       tooltip="Total number of PowerCalc sensors created across all installations"
