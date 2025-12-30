@@ -71,7 +71,8 @@ export default function StatCard({
   const chartColor = trendColors[trend];
 
   return (
-      <Card variant="outlined" sx={{ height: '100%', flexGrow: 1 }}>
+      <Card variant="elevation"
+            sx={{display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1}}>
         <CardContent>
           <Typography component="h2" variant="subtitle2" gutterBottom>
             {title}
