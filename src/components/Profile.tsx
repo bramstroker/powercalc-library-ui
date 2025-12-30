@@ -216,7 +216,7 @@ export const Profile: React.FC = () => {
   const SubProfilesTab = ({profile}: SubProfilesTabProps) => {
     const [copySuccessMap, setCopySuccessMap] = useState<Record<string, boolean>>({});
 
-    const handleCopy = async (name: string, json: any) => {
+    const handleCopy = async (name: string, json: Record<string, unknown>) => {
       try {
         await navigator.clipboard.writeText(JSON.stringify(json, null, 2));
         setCopySuccessMap(prev => ({ ...prev, [name]: true }));
