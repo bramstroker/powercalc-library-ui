@@ -18,6 +18,7 @@ import TopDeviceTypes from "./components/statistics/TopDeviceTypes";
 import SensorDimensions from "./components/statistics/analytics/SensorDimensions";
 import Installations from "./components/statistics/analytics/Installations";
 import Profiles from "./components/statistics/analytics/Profiles";
+import AnalyticsOverview from "./components/statistics/analytics/AnalyticsOverview";
 import {LibraryProvider} from "./context/LibraryContext";
 import {queryClient} from "./queryClient";
 import {DefaultPageLayout} from "./layouts/DefaultPageLayout";
@@ -59,6 +60,10 @@ const router = createBrowserRouter([
       {
         path: "/statistics/top-device-types",
         element: <TopDeviceTypes/>,
+      },
+      {
+        path: "/analytics",
+        element: <AnalyticsOverview/>,
       },
       {
         path: "/analytics/sensor-dimensions",
