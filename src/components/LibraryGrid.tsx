@@ -351,7 +351,7 @@ const LibraryGrid: React.FC = () => {
         variant: "default",
       });
     };
-  }, [setConfig]);
+  }, [setConfig, table]);
 
   return (
     <Box>
