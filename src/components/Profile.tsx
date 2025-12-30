@@ -32,6 +32,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import {useSuspenseQuery} from "@tanstack/react-query";
 
 import AliasChips from "./AliasChips";
@@ -180,18 +181,54 @@ export const Profile: React.FC = () => {
   );
 
   type JsonTabProps = { profile: FullPowerProfile };
-  const JsonTab = ({profile}: JsonTabProps) => (
-      <Paper sx={{p: 2}}>
+  const JsonTab = ({profile}: JsonTabProps) => {
+    const [copySuccess, setCopySuccess] = useState(false);
+
+    const handleCopy = async () => {
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(profile.rawJson, null, 2));
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+    };
+
+    return (
+      <Paper sx={{p: 2, position: 'relative'}}>
+        <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}>
+          <Tooltip title={copySuccess ? "Copied!" : "Copy to clipboard"} arrow>
+            <IconButton onClick={handleCopy} size="small" color={copySuccess ? "success" : "default"}>
+              <ContentCopyIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
         <Box component="pre" sx={{m: 0, overflow: "auto"}}>
           {JSON.stringify(profile.rawJson, null, 2)}
         </Box>
       </Paper>
-  );
+    );
+  };
 
   type SubProfilesTabProps = {
     profile: FullPowerProfile;
   };
-  const SubProfilesTab = ({profile}: SubProfilesTabProps) => (
+  const SubProfilesTab = ({profile}: SubProfilesTabProps) => {
+    const [copySuccessMap, setCopySuccessMap] = useState<Record<string, boolean>>({});
+
+    const handleCopy = async (name: string, json: any) => {
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(json, null, 2));
+        setCopySuccessMap(prev => ({ ...prev, [name]: true }));
+        setTimeout(() => {
+          setCopySuccessMap(prev => ({ ...prev, [name]: false }));
+        }, 2000); // Reset after 2 seconds
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+    };
+
+    return (
       <List component="nav" aria-label="sub profiles">
         {profile.subProfiles.map((subProfile) => (
             <React.Fragment key={subProfile.name}>
@@ -202,7 +239,18 @@ export const Profile: React.FC = () => {
                 </IconButton>
               </ListItemButton>
               <Collapse in={expandedSubProfiles[subProfile.name]} timeout="auto" unmountOnExit>
-                <Paper sx={{p: 2, m: 2}}>
+                <Paper sx={{p: 2, m: 2, position: 'relative'}}>
+                  <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}>
+                    <Tooltip title={copySuccessMap[subProfile.name] ? "Copied!" : "Copy to clipboard"} arrow>
+                      <IconButton 
+                        onClick={() => handleCopy(subProfile.name, subProfile.rawJson)} 
+                        size="small" 
+                        color={copySuccessMap[subProfile.name] ? "success" : "default"}
+                      >
+                        <ContentCopyIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                   <Box component="pre" sx={{m: 0, overflow: "auto"}}>
                     {JSON.stringify(subProfile.rawJson, null, 2)}
                   </Box>
@@ -211,7 +259,8 @@ export const Profile: React.FC = () => {
             </React.Fragment>
         ))}
       </List>
-  );
+    );
+  };
 
   type PlotsTabProps = { profile: FullPowerProfile };
   const PlotsTab = ({profile}: PlotsTabProps) => (
