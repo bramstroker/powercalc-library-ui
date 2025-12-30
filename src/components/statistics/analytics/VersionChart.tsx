@@ -35,6 +35,7 @@ const VersionChart: React.FC<VersionChartProps> = ({
           <Box sx={{height: 400}}>
             <BarChart
                 layout="horizontal"
+                hideLegend={true}
                 xAxis={[{
                   label: 'Installation Count',
                 }]}
@@ -48,11 +49,9 @@ const VersionChart: React.FC<VersionChartProps> = ({
                 yAxis={[{
                   scaleType: 'band',
                   data: labels,
-                  label: 'Version',
-                  width: 140
+                  width: 120
                 }]}
                 height={350}
-                margin={{top: 20, right: 20, bottom: 70, left: 70}}
             />
           </Box>
         </CardContent>
