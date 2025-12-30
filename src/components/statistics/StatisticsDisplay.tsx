@@ -7,8 +7,7 @@ import {
   TableHead, 
   TableRow, 
   Paper, 
-  Typography, 
-  Container, 
+  Typography,
   Box,
   Link,
   FormControl,
@@ -17,8 +16,6 @@ import {
   MenuItem,
   SelectChangeEvent
 } from "@mui/material";
-
-import { Header } from "../Header";
 
 type StatItem = {
   name: string;
@@ -62,8 +59,7 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
 
   return (
     <>
-      <Header total={totalItems} />
-      <Container maxWidth="md" sx={{ mt: 4 }}>
+      {/*<Header total={totalItems} />*/}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h4" component="h1" gutterBottom>
             {title}
@@ -125,7 +121,6 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
             Based on data from {totalItems} power profiles in the library.
           </Typography>
         </Box>
-      </Container>
     </>
   );
 };

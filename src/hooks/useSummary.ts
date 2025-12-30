@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { fetchSummary, Summary } from "../api/analytics.api";
 
 export const useSummary = () => {
-  return useQuery<Summary>({
+  return useSuspenseQuery<Summary>({
     queryKey: ["summary"],
     queryFn: fetchSummary,
   });

@@ -18,52 +18,65 @@ import TopDeviceTypes from "./components/statistics/TopDeviceTypes";
 import SensorDimensions from "./components/statistics/analytics/SensorDimensions";
 import Installations from "./components/statistics/analytics/Installations";
 import Profiles from "./components/statistics/analytics/Profiles";
-import { LibraryProvider } from "./context/LibraryContext";
+import {LibraryProvider} from "./context/LibraryContext";
 import {queryClient} from "./queryClient";
+import {DefaultPageLayout} from "./layouts/DefaultPageLayout";
+import {RouteError} from "./routes/RouteError";
+import {FullWidthPageLayout} from "./layouts/FullWidthPageLayout";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <LibraryGrid />,
+    element: <FullWidthPageLayout/>,
+    errorElement: <RouteError />,
+    children: [
+      {
+        path: "/",
+        element: <LibraryGrid/>,
+      },
+      {
+        path: "/profiles/:manufacturer/:model",
+        element: <Profile/>,
+        loader: powerProfileLoader
+      },
+    ]
   },
   {
-    path: "/profiles/:manufacturer/:model",
-    element: <Profile />,
-    loader: powerProfileLoader
-  },
-  {
-    path: "/statistics/top-measure-devices",
-    element: <TopMeasureDevices />,
-  },
-  {
-    path: "/statistics/top-authors",
-    element: <TopAuthors />,
-  },
-  {
-    path: "/statistics/top-manufacturers",
-    element: <TopManufacturers />,
-  },
-  {
-    path: "/statistics/top-device-types",
-    element: <TopDeviceTypes />,
-  },
-  {
-    path: "/analytics/sensor-dimensions",
-    element: <SensorDimensions />,
-  },
-  {
-    path: "/analytics/sensor-dimensions/:dimension",
-    element: <SensorDimensions />,
-  },
-  {
-    path: "/analytics/installations",
-    element: <Installations />,
-  },
-  {
-    path: "/analytics/profiles",
-    element: <Profiles />,
-  },
-]);
+    element: <DefaultPageLayout/>,
+    errorElement: <RouteError />,
+    children: [
+      {
+        path: "/statistics/top-measure-devices",
+        element: <TopMeasureDevices/>,
+      },
+      {
+        path: "/statistics/top-authors",
+        element: <TopAuthors/>,
+      },
+      {
+        path: "/statistics/top-manufacturers",
+        element: <TopManufacturers/>,
+      },
+      {
+        path: "/statistics/top-device-types",
+        element: <TopDeviceTypes/>,
+      },
+      {
+        path: "/analytics/sensor-dimensions",
+        element: <SensorDimensions/>,
+      },
+      {
+        path: "/analytics/sensor-dimensions/:dimension",
+        element: <SensorDimensions/>,
+      },
+      {
+        path: "/analytics/installations",
+        element: <Installations/>,
+      },
+      {
+        path: "/analytics/profiles",
+        element: <Profiles/>,
+      },]
+  }]);
 
 const root = ReactDOM.createRoot(
     document.getElementById("root") as HTMLElement,
@@ -85,10 +98,10 @@ const theme = createTheme({
 
 root.render(
     <ThemeProvider theme={theme}>
-      <CssBaseline enableColorScheme />
+      <CssBaseline enableColorScheme/>
       <QueryClientProvider client={queryClient}>
         <LibraryProvider>
-          <RouterProvider router={router} />
+          <RouterProvider router={router}/>
         </LibraryProvider>
       </QueryClientProvider>
     </ThemeProvider>

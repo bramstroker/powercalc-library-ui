@@ -11,19 +11,15 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef, MRT_Row, MRT_ColumnFiltersState,
 } from "material-react-table";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Box from "@mui/material/Box";
-import {IconButton, Backdrop, CircularProgress, Tooltip, Stack} from "@mui/material";
+import {IconButton, Tooltip, Stack} from "@mui/material";
 
 import AliasChips from "./AliasChips";
 
 import { useLibrary } from "../context/LibraryContext";
 import { PowerProfile } from "../types/PowerProfile";
 import { ColorMode } from "../types/ColorMode";
-
-import { Header } from "./Header";
-
-const queryClient = new QueryClient();
+import {useHeader} from "../context/HeaderContext";
 
 // Component to render color mode icons
 const ColorModeIcons: React.FC<{ colorModes: ColorMode[] }> = ({ colorModes }) => {
@@ -102,10 +98,12 @@ const buildSearchParamsFromFilterState = (
 };
 
 const LibraryGrid: React.FC = () => {
-  const { powerProfiles: data, loading, error, total } = useLibrary();
+  const { powerProfiles: data } = useLibrary();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [profileLoading, setProfileLoading] = useState(false);
+  // const [setProfileLoading] = useState(false);
+
+  const { setConfig } = useHeader();
 
   const filterParamMap: Record<string, string> = useMemo(
       () => ({
@@ -258,7 +256,7 @@ const LibraryGrid: React.FC = () => {
   const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
     const manufacturer = row.original.manufacturer.dirName;
     const model = row.original.modelId;
-    setProfileLoading(true);
+    // setProfileLoading(true);
     navigate(`/profiles/${manufacturer}/${model}`);
   }
 
@@ -311,7 +309,6 @@ const LibraryGrid: React.FC = () => {
         createdAt: false,
       },
     },
-    //columnFilterDisplayMode: 'popover',
     muiSearchTextFieldProps: {
       placeholder: "Search all profiles",
       variant: "outlined",
@@ -342,39 +339,24 @@ const LibraryGrid: React.FC = () => {
     layoutMode: "grid",
   });
 
-  if (loading) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <Header />
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-          Loading library data...
-        </div>
-      </QueryClientProvider>
-    );
-  }
+  useEffect(() => {
+    setConfig({
+      libraryGrid: table,
+      variant: "library",
+    });
 
-  if (error) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <Header />
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem', color: 'red' }}>
-          {error}
-        </div>
-      </QueryClientProvider>
-    );
-  }
+    return () => {
+      setConfig({
+        libraryGrid: undefined,
+        variant: "default",
+      });
+    };
+  }, [setConfig]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Header total={total} table={table} />
+    <Box>
       <MaterialReactTable table={table} />
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={profileLoading}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-    </QueryClientProvider>
+    </Box>
   );
 };
 

@@ -1,15 +1,13 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery} from "@tanstack/react-query";
 
 import { PowerProfile } from '../types/PowerProfile';
 import { DeviceType } from '../types/DeviceType';
 import { ColorMode } from '../types/ColorMode';
-import { fetchLibrary, LibraryModel } from "../api/library.api";
+import {fetchLibrary, LibraryJson, LibraryModel} from "../api/library.api";
 
 interface LibraryContextType {
   powerProfiles: PowerProfile[];
-  loading: boolean;
-  error: string | null;
   total: number;
 }
 
@@ -20,7 +18,7 @@ interface LibraryProviderProps {
 }
 
 export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) => {
-  const { data, isLoading, error } = useQuery({
+  const { data } = useSuspenseQuery<LibraryJson>({
     queryKey: ["library"],
     queryFn: fetchLibrary,
   });
@@ -54,8 +52,6 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       <LibraryContext.Provider
           value={{
             powerProfiles: profiles,
-            loading: isLoading,
-            error: error ? "Failed to fetch library data" : null,
             total: profiles.length,
           }}
       >
