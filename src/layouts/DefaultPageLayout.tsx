@@ -18,6 +18,7 @@ export function DefaultPageLayout() {
   return (
       <HeaderProvider>
         <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+
           <Header />
 
           <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>

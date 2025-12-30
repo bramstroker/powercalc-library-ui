@@ -10,4 +10,5 @@ export const API_ENDPOINTS = {
   ANALYTICS_PROFILES: `${API_BASE_URL}/analytics/profiles`,
   ANALYTICS_VERSIONS: `${API_BASE_URL}/analytics/versions`,
   ANALYTICS_COUNTRIES: `${API_BASE_URL}/analytics/countries`,
+  ANALYTICS_TIMESERIES: `${API_BASE_URL}/analytics/timeseries`,
 };
