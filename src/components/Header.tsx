@@ -142,13 +142,19 @@ export function Header() {
             </Menu>
           </Box>
 
-          { config.libraryGrid && <MRT_GlobalFilterTextField table={config.libraryGrid} sx={{ mr: 2 }} /> }
+          {config.libraryGrid && (
+              <>
+                <MRT_GlobalFilterTextField table={config.libraryGrid} sx={{ mr: 2 }} />
 
-          { config.libraryGrid && <MRT_ShowHideColumnsButton table={config.libraryGrid} /> }
+                <MRT_ShowHideColumnsButton table={config.libraryGrid} />
 
-          { config.libraryGrid && <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
-            <Typography noWrap>{libraryStats.total} profiles</Typography>
-          </Box> }
+                <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
+                  <Typography noWrap>
+                    {libraryStats.total} profiles
+                  </Typography>
+                </Box>
+              </>
+          )}
         </Toolbar>
       </Container>
     </AppBar>
