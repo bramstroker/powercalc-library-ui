@@ -51,7 +51,6 @@ const VersionChart: React.FC<VersionChartProps> = ({
                   data: labels,
                   width: 120
                 }]}
-                height={350}
             />
           </Box>
         </CardContent>
