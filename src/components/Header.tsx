@@ -11,26 +11,22 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
   MRT_GlobalFilterTextField, MRT_ShowHideColumnsButton,
-  MRT_TableInstance,
 } from "material-react-table";
 import { useTheme } from "@mui/material";
 import {indigo} from "@mui/material/colors";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
-import { PowerProfile } from "../types/PowerProfile";
-
 import Logo from "./Logo";
+import {useHeader} from "../context/HeaderContext";
+import {useLibrary} from "../context/LibraryContext";
 
-type HeaderProps = {
-  total?: number;
-  table?: MRT_TableInstance<PowerProfile>;
-};
-
-export function Header({ total, table }: HeaderProps) {
+export function Header() {
   const theme = useTheme();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const { config } = useHeader();
+  const libraryStats = useLibrary()
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -132,12 +128,12 @@ export function Header({ total, table }: HeaderProps) {
             </Menu>
           </Box>
 
-          { table && <MRT_GlobalFilterTextField table={table} sx={{ mr: 2 }} /> }
+          { config.libraryGrid && <MRT_GlobalFilterTextField table={config.libraryGrid} sx={{ mr: 2 }} /> }
 
-          { table && <MRT_ShowHideColumnsButton table={table} /> }
+          { config.libraryGrid && <MRT_ShowHideColumnsButton table={config.libraryGrid} /> }
 
-          { table && <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
-            <Typography noWrap>{total} profiles</Typography>
+          { config.libraryGrid && <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
+            <Typography noWrap>{libraryStats.total} profiles</Typography>
           </Box> }
         </Toolbar>
       </Container>

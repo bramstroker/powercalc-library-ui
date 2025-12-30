@@ -27,24 +27,22 @@ import {
   ListItemButton,
   Collapse,
   IconButton,
-  CircularProgress,
   Card, CardContent, Stack, LinearProgress,
   Tooltip
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import { useQuery } from "@tanstack/react-query";
+import {useSuspenseQuery} from "@tanstack/react-query";
 
 import AliasChips from "./AliasChips";
-import React, {Suspense, useState} from "react";
+import React, {useState} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 import {FullPowerProfile} from "../types/PowerProfile";
-import { fetchProfile } from "../api/analytics.api";
+import {fetchProfile, ProfileStats} from "../api/analytics.api";
 import { useSummary } from "../hooks/useSummary";
 
-import {Header} from "./Header";
 import {Plot} from "./Plot";
 
 interface TabPanelProps {
@@ -89,13 +87,12 @@ interface PropertyItem {
   filterKey?: string;
 }
 
-export const ProfileContent: React.FC = () => {
+export const Profile: React.FC = () => {
   const profile = useLoaderData() as FullPowerProfile;
   const [expandedSubProfiles, setExpandedSubProfiles] = useState<Record<string, boolean>>({});
 
-  // Fetch profile metrics
-  const { data: profileMetrics, isLoading: metricsLoading } = useQuery({
-    queryKey: ["profileMetrics", profile.manufacturer.dirName, profile.modelId],
+  const { data: profileMetrics } = useSuspenseQuery<ProfileStats>({
+    queryKey: ["analyticsProfile", profile.manufacturer.dirName, profile.modelId],
     queryFn: () => fetchProfile(profile.manufacturer.dirName, profile.modelId),
   });
 
@@ -227,15 +224,7 @@ export const ProfileContent: React.FC = () => {
 
   const ProfileMetrics = () => {
     // Fetch summary data (will be cached by React Query)
-    const { data: summaryData, isLoading: summaryLoading } = useSummary();
-
-    if (metricsLoading || summaryLoading) {
-      return (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-            <CircularProgress size={20} />
-          </Box>
-      );
-    }
+    const { data: summaryData } = useSummary();
 
     if (!profileMetrics || !summaryData) return null;
 
@@ -334,7 +323,6 @@ export const ProfileContent: React.FC = () => {
 
   return (
       <>
-        <Header/>
         <Box sx={{p: 3}}>
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 8, lg: 9}}>
@@ -383,14 +371,6 @@ export const ProfileContent: React.FC = () => {
           ))}
         </Box>
       </>
-  );
-};
-
-const Profile = () => {
-  return (
-      <Suspense fallback={<div>Loading profile...</div>}>
-        <ProfileContent/>
-      </Suspense>
   );
 };
 

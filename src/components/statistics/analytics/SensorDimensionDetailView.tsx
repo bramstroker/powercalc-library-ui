@@ -10,7 +10,6 @@ import {
 import { BarChart } from "@mui/x-charts/BarChart";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { SensorStats } from "../../../api/analytics.api";
-import { Header } from "../../Header";
 import { bluePalette } from "@mui/x-charts";
 import MetricsSelect, { MetricKey } from "./MetricsSelect";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -82,7 +81,6 @@ const SensorDimensionDetailView: React.FC<DimensionDetailViewProps> = ({
 
   return (
       <>
-        <Header />
         <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
           <Box
               sx={{

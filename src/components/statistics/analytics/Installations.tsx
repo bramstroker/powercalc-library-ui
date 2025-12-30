@@ -1,28 +1,21 @@
 import React from "react";
-import {
-  Container,
-  Typography,
-  Box,
-  CircularProgress, Stack,
-} from "@mui/material";
-import {useQuery} from "@tanstack/react-query";
+import {Stack} from "@mui/material";
+import {useSuspenseQuery} from "@tanstack/react-query";
 
-import {fetchCountries, fetchVersions, VersionStats} from "../../../api/analytics.api";
-import {Header} from "../../Header";
+import {CountryStats, fetchCountries, fetchVersions, VersionStats} from "../../../api/analytics.api";
 import AnalyticsHeader from "./AnalyticsHeader";
 import {TopCountriesList} from "./TopCountriesList";
 import VersionChart from "./VersionChart";
 import Grid from "@mui/material/Grid";
 
-function getErrorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (typeof err === "string") return err;
-  return "Unknown error";
-}
+type InstallationsData = {
+  versionsData: VersionStats;
+  countriesData: CountryStats[];
+};
 
 const Installations: React.FC = () => {
-  const {data, isLoading, error} = useQuery({
-    queryKey: ["versionsData"],
+  const { data } = useSuspenseQuery<InstallationsData>({
+    queryKey: ["installationsData"],
     queryFn: async () => {
       const [versionsData, countriesData] = await Promise.all([
         fetchVersions(),
@@ -33,68 +26,38 @@ const Installations: React.FC = () => {
     },
   });
 
-  if (isLoading) {
-    return (
-        <>
-          <Header/>
-          <Container maxWidth="lg" sx={{mt: 4}}>
-            <Box sx={{display: "flex", justifyContent: "center", mt: 8}}>
-              <CircularProgress/>
-            </Box>
-          </Container>
-        </>
-    );
-  }
-
-  if (error) {
-    return (
-        <>
-          <Header/>
-          <Container maxWidth="lg" sx={{mt: 4}}>
-            <Typography color="error">
-              Error loading versions data: {getErrorMessage(error)}
-            </Typography>
-          </Container>
-        </>
-    );
-  }
-
   const versionsData = data?.versionsData as VersionStats;
   const haVersions = versionsData.ha_versions.slice(0, 10); // Limit to top 10 versions
   const pcVersions = versionsData.powercalc_versions.slice(0, 10); // Limit to top 10 versions
 
   return (
       <>
-        <Header/>
-        <Container maxWidth="lg" sx={{mt: 4, mb: 8}}>
+        <AnalyticsHeader
+            title={"Installation statistics"}
+            description={" Overview of Home Assistant and PowerCalc versions used in installations."}
+        />
 
-          <AnalyticsHeader
-              title={"Installation statistics"}
-              description={" Overview of Home Assistant and PowerCalc versions used in installations."}
-          />
+        <Grid container spacing={4}>
+          <Grid size={{xs: 12, md: 8}}>
+            <Stack sx={{gap: 4}}>
+              <VersionChart
+                  title="Home Assistant Versions"
+                  data={haVersions}
+                  color="#7986cb"
+              />
 
-          <Grid container spacing={4}>
-            <Grid size={{xs: 12, md: 8}}>
-              <Stack sx={{gap: 4}}>
-                <VersionChart
-                    title="Home Assistant Versions"
-                    data={haVersions}
-                    color="#7986cb"
-                />
-
-                <VersionChart
-                    title="PowerCalc Versions"
-                    data={pcVersions}
-                    color="#f50057"
-                />
-              </Stack>
-            </Grid>
-
-            <Grid size={{xs: 12, md: 4}}>
-              <TopCountriesList data={data?.countriesData ?? []}/>
-            </Grid>
+              <VersionChart
+                  title="PowerCalc Versions"
+                  data={pcVersions}
+                  color="#f50057"
+              />
+            </Stack>
           </Grid>
-        </Container>
+
+          <Grid size={{xs: 12, md: 4}}>
+            <TopCountriesList data={data?.countriesData ?? []}/>
+          </Grid>
+        </Grid>
       </>
   );
 };

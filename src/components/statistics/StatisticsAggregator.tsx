@@ -27,10 +27,10 @@ const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
 }) => {
   const [items, setItems] = useState<StatItem[]>([]);
   const [resultsCount, setResultsCount] = useState<number>(10);
-  const { powerProfiles, loading, error, total: totalProfiles } = useLibrary();
+  const { powerProfiles, total: totalProfiles } = useLibrary();
 
   useEffect(() => {
-    if (!loading && !error && powerProfiles.length > 0) {
+    if (powerProfiles.length > 0) {
       // Count items based on the property path
       const counts: Record<string, number> = {};
 
@@ -65,15 +65,13 @@ const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
 
       setItems(sortedItems);
     }
-  }, [powerProfiles, loading, error, propertyPath, valueExtractor, resultsCount]);
+  }, [powerProfiles, propertyPath, valueExtractor, resultsCount]);
 
   return (
     <StatisticsDisplay
       title={title.replace(/Top \d+/, `Top ${resultsCount}`)}
       items={items.slice(0, resultsCount)}
       totalItems={totalProfiles}
-      loading={loading}
-      error={error}
       nameColumnLabel={nameColumnLabel}
       filterQueryParam={filterQueryParam ?? propertyPath as string}
       resultsCount={resultsCount}

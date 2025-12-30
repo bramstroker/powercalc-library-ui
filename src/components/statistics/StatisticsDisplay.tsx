@@ -7,8 +7,7 @@ import {
   TableHead, 
   TableRow, 
   Paper, 
-  Typography, 
-  Container, 
+  Typography,
   Box,
   Link,
   FormControl,
@@ -17,8 +16,6 @@ import {
   MenuItem,
   SelectChangeEvent
 } from "@mui/material";
-
-import { Header } from "../Header";
 
 type StatItem = {
   name: string;
@@ -29,8 +26,6 @@ type StatisticsDisplayProps = {
   title: string;
   items: StatItem[];
   totalItems: number;
-  loading: boolean;
-  error: string | null;
   nameColumnLabel: string;
   filterQueryParam: string;
   onResultsCountChange?: (count: number) => void;
@@ -42,8 +37,6 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
   title,
   items,
   totalItems,
-  loading,
-  error,
   nameColumnLabel,
   filterQueryParam,
   onResultsCountChange,
@@ -62,8 +55,6 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
 
   return (
     <>
-      <Header total={totalItems} />
-      <Container maxWidth="md" sx={{ mt: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h4" component="h1" gutterBottom>
             {title}
@@ -85,47 +76,40 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
           </FormControl>
         </Box>
 
-        {loading && <Typography>Loading...</Typography>}
-
-        {error && <Typography color="error">{error}</Typography>}
-
-        {!loading && !error && (
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Rank</TableCell>
-                  <TableCell>{nameColumnLabel}</TableCell>
-                  <TableCell align="right">Count</TableCell>
-                  <TableCell align="right">Percentage</TableCell>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Rank</TableCell>
+                <TableCell>{nameColumnLabel}</TableCell>
+                <TableCell align="right">Count</TableCell>
+                <TableCell align="right">Percentage</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {items.map((item, index) => (
+                <TableRow key={item.name}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>
+                    <Link href={`/?${encodeURIComponent(filterQueryParam)}=${encodeURIComponent(item.name)}`}>
+                      {item.name}
+                    </Link>
+                  </TableCell>
+                  <TableCell align="right">{item.count}</TableCell>
+                  <TableCell align="right">
+                    {totalItems > 0 ? `${((item.count / totalItems) * 100).toFixed(1)}%` : '0%'}
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {items.map((item, index) => (
-                  <TableRow key={item.name}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>
-                      <Link href={`/?${encodeURIComponent(filterQueryParam)}=${encodeURIComponent(item.name)}`}>
-                        {item.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell align="right">{item.count}</TableCell>
-                    <TableCell align="right">
-                      {totalItems > 0 ? `${((item.count / totalItems) * 100).toFixed(1)}%` : '0%'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
         <Box sx={{ mt: 4, mb: 4 }}>
           <Typography variant="body2" color="text.secondary">
             Based on data from {totalItems} power profiles in the library.
           </Typography>
         </Box>
-      </Container>
     </>
   );
 };

@@ -1,57 +1,21 @@
 import React from "react";
 import {
-  Container,
-  Typography,
-  Box,
-  CircularProgress,
   useTheme,
 } from "@mui/material";
 import {DataGrid, GridColDef, GridRenderCellParams} from '@mui/x-data-grid';
-import { useQuery } from "@tanstack/react-query";
+import {useSuspenseQuery} from "@tanstack/react-query";
 
-import { Header } from "../../Header";
 import AnalyticsHeader from "./AnalyticsHeader";
 import {fetchProfiles} from "../../../api/analytics.api";
 import { Link } from "react-router-dom";
 
-function getErrorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (typeof err === "string") return err;
-  return "Unknown error";
-}
 
 const Profiles: React.FC = () => {
   const theme = useTheme();
-  const { data, isLoading, error } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ["profilesData"],
     queryFn: fetchProfiles,
   });
-
-  if (isLoading) {
-    return (
-      <>
-        <Header />
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
-            <CircularProgress />
-          </Box>
-        </Container>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <Header />
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
-          <Typography color="error">
-            Error loading versions data: {getErrorMessage(error)}
-          </Typography>
-        </Container>
-      </>
-    );
-  }
 
   const columns: GridColDef[] = [
     {
@@ -113,67 +77,64 @@ const Profiles: React.FC = () => {
 
   return (
     <>
-      <Header />
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
-        <AnalyticsHeader
-            title={"Profile statistics"}
-            description={" Overview of Home Assistant and PowerCalc versions used in installations."}
-        />
+      <AnalyticsHeader
+          title={"Profile statistics"}
+          description={" Overview of Home Assistant and PowerCalc versions used in installations."}
+      />
 
-        <DataGrid
-            rows={data}
-            columns={columns}
-            getRowClassName={(params) =>
-                params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
-            }
-            initialState={{
-              pagination: { paginationModel: { pageSize: 50 } },
-              sorting: {
-                sortModel: [{ field: 'percentage', sort: 'desc' }],
-              },
-            }}
-            disableColumnResize
-            density="compact"
-            getRowId={(row) => row.manufacturer + row.model}
-            sx={{
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: theme.palette.grey[800],
-                fontWeight: 'bold',
-                borderBottom: `2px solid ${theme.palette.grey[700]}`,
-                fontSize: '0.875rem',
-              },
-              '& .MuiDataGrid-cell': {
-                borderBottom: `1px solid ${theme.palette.grey[700]}`,
-              },
-            }}
-            slotProps={{
-              filterPanel: {
-                filterFormProps: {
-                  logicOperatorInputProps: {
+      <DataGrid
+          rows={data}
+          columns={columns}
+          getRowClassName={(params) =>
+              params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
+          }
+          initialState={{
+            pagination: { paginationModel: { pageSize: 50 } },
+            sorting: {
+              sortModel: [{ field: 'percentage', sort: 'desc' }],
+            },
+          }}
+          disableColumnResize
+          density="compact"
+          getRowId={(row) => row.manufacturer + row.model}
+          sx={{
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: theme.palette.grey[800],
+              fontWeight: 'bold',
+              borderBottom: `2px solid ${theme.palette.grey[700]}`,
+              fontSize: '0.875rem',
+            },
+            '& .MuiDataGrid-cell': {
+              borderBottom: `1px solid ${theme.palette.grey[700]}`,
+            },
+          }}
+          slotProps={{
+            filterPanel: {
+              filterFormProps: {
+                logicOperatorInputProps: {
+                  variant: 'outlined',
+                  size: 'small',
+                },
+                columnInputProps: {
+                  variant: 'outlined',
+                  size: 'small',
+                  sx: { mt: 'auto' },
+                },
+                operatorInputProps: {
+                  variant: 'outlined',
+                  size: 'small',
+                  sx: { mt: 'auto' },
+                },
+                valueInputProps: {
+                  InputComponentProps: {
                     variant: 'outlined',
                     size: 'small',
-                  },
-                  columnInputProps: {
-                    variant: 'outlined',
-                    size: 'small',
-                    sx: { mt: 'auto' },
-                  },
-                  operatorInputProps: {
-                    variant: 'outlined',
-                    size: 'small',
-                    sx: { mt: 'auto' },
-                  },
-                  valueInputProps: {
-                    InputComponentProps: {
-                      variant: 'outlined',
-                      size: 'small',
-                    },
                   },
                 },
               },
-            }}
-        />
-      </Container>
+            },
+          }}
+      />
     </>
   );
 };
