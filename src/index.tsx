@@ -34,17 +34,17 @@ const router = createBrowserRouter([
         path: "/",
         element: <LibraryGrid/>,
       },
-      {
-        path: "/profiles/:manufacturer/:model",
-        element: <Profile/>,
-        loader: powerProfileLoader
-      },
     ]
   },
   {
     element: <DefaultPageLayout/>,
     errorElement: <RouteError />,
     children: [
+      {
+        path: "/profiles/:manufacturer/:model",
+        element: <Profile/>,
+        loader: powerProfileLoader
+      },
       {
         path: "/statistics/top-measure-devices",
         element: <TopMeasureDevices/>,
