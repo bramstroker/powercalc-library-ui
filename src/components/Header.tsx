@@ -10,22 +10,26 @@ import MenuItem from "@mui/material/MenuItem";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
-  MRT_GlobalFilterTextField, MRT_ShowHideColumnsButton,
+  MRT_GlobalFilterTextField, MRT_ShowHideColumnsButton, MRT_TableInstance,
 } from "material-react-table";
-import { useTheme, Divider } from "@mui/material";
 import {indigo} from "@mui/material/colors";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import {Link as RouterLink, useNavigate} from "react-router-dom";
 
 import Logo from "./Logo";
-import {useHeader} from "../context/HeaderContext";
+import {PowerProfile} from "../types/PowerProfile";
 import {useLibrary} from "../context/LibraryContext";
+import {Divider} from "@mui/material";
 
-export function Header() {
-  const theme = useTheme();
+export type HeaderProps = {
+  table?: MRT_TableInstance<PowerProfile>;
+};
+
+export const Header: React.FC<HeaderProps> = ({
+                                                table
+                                              }) => {
   const navigate = useNavigate();
   const [statsAnchorEl, setStatsAnchorEl] = React.useState<null | HTMLElement>(null);
   const statsOpen = Boolean(statsAnchorEl);
-  const { config } = useHeader();
   const libraryStats = useLibrary()
 
   const handleStatsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -42,121 +46,116 @@ export function Header() {
   };
 
   return (
-    <AppBar
-      position="static"
-      sx={{ justifyContent: "center", backgroundColor: indigo[700] }}
-    >
-      <Container maxWidth="xl">
-        <Toolbar
-          disableGutters
-          sx={{
-            [theme.breakpoints.only("xs")]: {
-              flexDirection: "column",
-              marginBottom: "15px",
-              justifyContent: "center",
-            },
-            [theme.breakpoints.up("sm")]: {
-              flexDirection: "row",
-              alignItems: "center",
-            },
-          }}
-        >
-          <Box
-            sx={{
-              m: 2,
-              flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <Logo width={40} />
-
-            <Typography
-              variant="h6"
-              noWrap
-              component={RouterLink}
-              to="/"
+      <AppBar
+          position="static"
+          sx={{justifyContent: "center", backgroundColor: indigo[700]}}
+      >
+        <Container maxWidth="xl">
+          <Toolbar
+              disableGutters
               sx={{
-                ml: 2,
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-                flexGrow: 1,
+                flexDirection: {xs: "column", sm: "row"},
+                mb: {xs: 2, sm: 0},
+                justifyContent: {xs: "center", sm: "flex-start"},
+                alignItems: {sm: "center"},
               }}
+          >
+            <Box
+                sx={{
+                  m: 2,
+                  flexGrow: 1,
+                  display: "flex",
+                  alignItems: "center",
+                }}
             >
-              Profile Library
-            </Typography>
+              <Logo width={40}/>
 
-            <Button
-              color="inherit"
-              sx={{ mr: 2 }}
-              onClick={handleStatsClick}
-              endIcon={<KeyboardArrowDownIcon />}
-              startIcon={<BarChartIcon />}
-              id="statistics-button"
-              aria-controls={statsOpen ? 'statistics-menu' : undefined}
-              aria-haspopup="true"
-              aria-expanded={statsOpen ? 'true' : undefined}
-            >
-              Statistics
-            </Button>
-            <Menu
-              id="statistics-menu"
-              anchorEl={statsAnchorEl}
-              open={statsOpen}
-              onClose={handleStatsClose}
-              slotProps={{ list: { 'aria-labelledby': 'statistics-button' } }}
-            >
-              <Typography variant="subtitle2" sx={{ px: 2, py: 1, fontWeight: 'bold' }}>
-                Library stats
+              <Typography
+                  variant="h6"
+                  noWrap
+                  component={RouterLink}
+                  to="/"
+                  sx={{
+                    ml: 2,
+                    fontFamily: "monospace",
+                    fontWeight: 700,
+                    letterSpacing: ".3rem",
+                    color: "inherit",
+                    textDecoration: "none",
+                    flexGrow: 1,
+                  }}
+              >
+                Profile Library
               </Typography>
-              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-measure-devices')}>
-                Top Measure Devices
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-authors')}>
-                Top Authors
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-manufacturers')}>
-                Top Manufacturers
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-device-types')}>
-                Top Device Types
-              </MenuItem>
 
-              <Divider sx={{ my: 1 }} />
+              <Button
+                  color="inherit"
+                  sx={{mr: 2}}
+                  onClick={handleStatsClick}
+                  endIcon={<KeyboardArrowDownIcon/>}
+                  startIcon={<BarChartIcon/>}
+                  id="statistics-button"
+                  aria-controls={statsOpen ? 'statistics-menu' : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={statsOpen ? 'true' : undefined}
+              >
+                Statistics
+              </Button>
+              <Menu
+                  id="statistics-menu"
+                  anchorEl={statsAnchorEl}
+                  open={statsOpen}
+                  onClose={handleStatsClose}
+                  slotProps={{list: {'aria-labelledby': 'statistics-button'}}}
+              >
+                <Typography variant="subtitle2" sx={{px: 2, py: 1, fontWeight: 'bold'}}>
+                  Library stats
+                </Typography>
+                <MenuItem onClick={() => handleMenuItemClick('/statistics/top-measure-devices')}>
+                  Top Measure Devices
+                </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/statistics/top-authors')}>
+                  Top Authors
+                </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/statistics/top-manufacturers')}>
+                  Top Manufacturers
+                </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/statistics/top-device-types')}>
+                  Top Device Types
+                </MenuItem>
 
-              <Typography variant="subtitle2" sx={{ px: 2, py: 1, fontWeight: 'bold' }}>
-                Insights
-              </Typography>
-              <MenuItem onClick={() => handleMenuItemClick('/analytics/sensor-dimensions')}>
-                Sensor usage
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/analytics/installations')}>
-                Installation statistics
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/analytics/profiles')}>
-                Profile usage
-              </MenuItem>
-            </Menu>
-          </Box>
+                <Divider sx={{my: 1}}/>
 
-          {config.libraryGrid && (
-              <>
-                <MRT_GlobalFilterTextField table={config.libraryGrid} sx={{ mr: 2 }} />
+                <Typography variant="subtitle2" sx={{px: 2, py: 1, fontWeight: 'bold'}}>
+                  Insights
+                </Typography>
+                <MenuItem onClick={() => handleMenuItemClick('/analytics/sensor-dimensions')}>
+                  Sensor usage
+                </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/analytics/installations')}>
+                  Installation statistics
+                </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/analytics/profiles')}>
+                  Profile usage
+                </MenuItem>
+              </Menu>
+            </Box>
 
-                <MRT_ShowHideColumnsButton table={config.libraryGrid} />
+            {table && (
+                <>
+                  <MRT_GlobalFilterTextField table={table} sx={{mr: 2}}/>
 
-                <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
-                  <Typography noWrap>
-                    {libraryStats.total} profiles
-                  </Typography>
-                </Box>
-              </>
-          )}
-        </Toolbar>
-      </Container>
-    </AppBar>
+                  <MRT_ShowHideColumnsButton table={table}/>
+
+                  <Box sx={{flexGrow: 0, display: {xs: "none", md: "flex"}}}>
+                    <Typography noWrap>
+                      {libraryStats.total} profiles
+                    </Typography>
+                  </Box>
+                </>
+            )}
+          </Toolbar>
+        </Container>
+      </AppBar>
   );
-}
+};

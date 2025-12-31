@@ -1,7 +1,6 @@
-import * as React from "react";
-import { Outlet } from "react-router-dom";
 import {Box, CircularProgress, Container} from "@mui/material";
-import { Header } from "../components/Header";
+import * as React from "react";
+import {Outlet} from "react-router-dom";
 
 function PageSpinner() {
   return (
@@ -13,23 +12,14 @@ function PageSpinner() {
   );
 }
 
-export function DefaultPageLayout() {
+export function LibraryGridPageLayout() {
   return (
       <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-
-        <Header />
-
-        <Container
-            maxWidth="lg"
-            sx={{
-              mt: 4,
-              mb: 4,
-            }}
-        >
+        <Box>
           <React.Suspense fallback={<PageSpinner />}>
             <Outlet />
           </React.Suspense>
-        </Container>
+        </Box>
       </Box>
   );
 }

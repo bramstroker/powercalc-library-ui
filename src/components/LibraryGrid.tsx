@@ -19,7 +19,7 @@ import AliasChips from "./AliasChips";
 import { useLibrary } from "../context/LibraryContext";
 import { PowerProfile } from "../types/PowerProfile";
 import { ColorMode } from "../types/ColorMode";
-import {useHeader} from "../context/HeaderContext";
+import {Header} from "./Header";
 
 // Component to render color mode icons
 const ColorModeIcons: React.FC<{ colorModes: ColorMode[] }> = ({ colorModes }) => {
@@ -101,9 +101,6 @@ const LibraryGrid: React.FC = () => {
   const { powerProfiles: data } = useLibrary();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  // const [setProfileLoading] = useState(false);
-
-  const { setConfig } = useHeader();
 
   const filterParamMap: Record<string, string> = useMemo(
       () => ({
@@ -339,22 +336,9 @@ const LibraryGrid: React.FC = () => {
     layoutMode: "grid",
   });
 
-  useEffect(() => {
-    setConfig({
-      libraryGrid: table,
-      variant: "library",
-    });
-
-    return () => {
-      setConfig({
-        libraryGrid: undefined,
-        variant: "default",
-      });
-    };
-  }, [setConfig, table]);
-
   return (
     <Box>
+      <Header table={table} />
       <MaterialReactTable table={table} />
     </Box>
   );

@@ -23,11 +23,11 @@ import {LibraryProvider} from "./context/LibraryContext";
 import {queryClient} from "./queryClient";
 import {DefaultPageLayout} from "./layouts/DefaultPageLayout";
 import {RouteError} from "./routes/RouteError";
-import {FullWidthPageLayout} from "./layouts/FullWidthPageLayout";
+import {LibraryGridPageLayout} from "./layouts/LibraryGridPageLayout";
 
 const router = createBrowserRouter([
   {
-    element: <FullWidthPageLayout/>,
+    element: <LibraryGridPageLayout/>,
     errorElement: <RouteError />,
     children: [
       {

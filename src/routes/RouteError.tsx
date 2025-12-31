@@ -1,6 +1,5 @@
 import { useRouteError, isRouteErrorResponse } from "react-router-dom";
 import { Container, Typography } from "@mui/material";
-import {HeaderProvider} from "../context/HeaderContext";
 import Box from "@mui/material/Box";
 import {Header} from "../components/Header";
 
@@ -18,17 +17,15 @@ export function RouteError() {
       : getErrorMessage(err);
 
   return (
-      <HeaderProvider>
-        <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-          <Header />
+      <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <Header />
 
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 8, flex: 1 }}>
-            <Typography variant="h6" color="error" gutterBottom>
-              Something went wrong
-            </Typography>
-            <Typography color="text.secondary">{message}</Typography>
-          </Container>
-        </Box>
-      </HeaderProvider>
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 8, flex: 1 }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Something went wrong
+          </Typography>
+          <Typography color="text.secondary">{message}</Typography>
+        </Container>
+      </Box>
   );
 }

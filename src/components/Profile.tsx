@@ -42,7 +42,7 @@ import Typography from "@mui/material/Typography";
 
 import {FullPowerProfile} from "../types/PowerProfile";
 import {fetchProfile, ProfileStats} from "../api/analytics.api";
-import { useSummary } from "../hooks/useSummary";
+import {useSummary} from "../hooks/useSummary";
 
 import {Plot} from "./Plot";
 
@@ -76,7 +76,7 @@ function a11yProps(index: number) {
 }
 
 function distributeIntoColumns<T>(items: T[], columns: number): T[][] {
-  const result: T[][] = Array.from({ length: columns }, () => []);
+  const result: T[][] = Array.from({length: columns}, () => []);
   items.forEach((item, i) => result[i % columns].push(item));
   return result;
 }
@@ -92,7 +92,7 @@ export const Profile: React.FC = () => {
   const profile = useLoaderData() as FullPowerProfile;
   const [expandedSubProfiles, setExpandedSubProfiles] = useState<Record<string, boolean>>({});
 
-  const { data: profileMetrics } = useSuspenseQuery<ProfileStats>({
+  const {data: profileMetrics} = useSuspenseQuery<ProfileStats>({
     queryKey: ["analyticsProfile", profile.manufacturer.dirName, profile.modelId],
     queryFn: () => fetchProfile(profile.manufacturer.dirName, profile.modelId),
   });
@@ -161,7 +161,7 @@ export const Profile: React.FC = () => {
       <Grid size={{xs: 12, md: 6}}>
         <Grid container spacing={1}>
           {chunkedProperties.map((chunk, columnIndex) => (
-              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={columnIndex}>
+              <Grid size={{xs: 12, sm: 6, md: 3}} key={columnIndex}>
                 {chunk.map((property) => (
                     <ListItem
                         key={`${property.label}-${property.filterKey ?? ""}-${String(property.value)}`}
@@ -195,18 +195,18 @@ export const Profile: React.FC = () => {
     };
 
     return (
-      <Paper sx={{p: 2, position: 'relative'}}>
-        <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}>
-          <Tooltip title={copySuccess ? "Copied!" : "Copy to clipboard"} arrow>
-            <IconButton onClick={handleCopy} size="small" color={copySuccess ? "success" : "default"}>
-              <ContentCopyIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-        <Box component="pre" sx={{m: 0, overflow: "auto"}}>
-          {JSON.stringify(profile.rawJson, null, 2)}
-        </Box>
-      </Paper>
+        <Paper sx={{p: 2, position: 'relative'}}>
+          <Box sx={{position: 'absolute', top: 8, right: 8, zIndex: 1}}>
+            <Tooltip title={copySuccess ? "Copied!" : "Copy to clipboard"} arrow>
+              <IconButton onClick={handleCopy} size="small" color={copySuccess ? "success" : "default"}>
+                <ContentCopyIcon/>
+              </IconButton>
+            </Tooltip>
+          </Box>
+          <Box component="pre" sx={{m: 0, overflow: "auto"}}>
+            {JSON.stringify(profile.rawJson, null, 2)}
+          </Box>
+        </Paper>
     );
   };
 
@@ -219,9 +219,9 @@ export const Profile: React.FC = () => {
     const handleCopy = async (name: string, json: Record<string, unknown>) => {
       try {
         await navigator.clipboard.writeText(JSON.stringify(json, null, 2));
-        setCopySuccessMap(prev => ({ ...prev, [name]: true }));
+        setCopySuccessMap(prev => ({...prev, [name]: true}));
         setTimeout(() => {
-          setCopySuccessMap(prev => ({ ...prev, [name]: false }));
+          setCopySuccessMap(prev => ({...prev, [name]: false}));
         }, 2000); // Reset after 2 seconds
       } catch (err) {
         console.error('Failed to copy text: ', err);
@@ -229,36 +229,36 @@ export const Profile: React.FC = () => {
     };
 
     return (
-      <List component="nav" aria-label="sub profiles">
-        {profile.subProfiles.map((subProfile) => (
-            <React.Fragment key={subProfile.name}>
-              <ListItemButton onClick={() => toggleSubProfile(subProfile.name)}>
-                <ListItemText primary={subProfile.name}/>
-                <IconButton edge="end" aria-label="expand">
-                  {expandedSubProfiles[subProfile.name] ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
-                </IconButton>
-              </ListItemButton>
-              <Collapse in={expandedSubProfiles[subProfile.name]} timeout="auto" unmountOnExit>
-                <Paper sx={{p: 2, m: 2, position: 'relative'}}>
-                  <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}>
-                    <Tooltip title={copySuccessMap[subProfile.name] ? "Copied!" : "Copy to clipboard"} arrow>
-                      <IconButton 
-                        onClick={() => handleCopy(subProfile.name, subProfile.rawJson)} 
-                        size="small" 
-                        color={copySuccessMap[subProfile.name] ? "success" : "default"}
-                      >
-                        <ContentCopyIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                  <Box component="pre" sx={{m: 0, overflow: "auto"}}>
-                    {JSON.stringify(subProfile.rawJson, null, 2)}
-                  </Box>
-                </Paper>
-              </Collapse>
-            </React.Fragment>
-        ))}
-      </List>
+        <List component="nav" aria-label="sub profiles">
+          {profile.subProfiles.map((subProfile) => (
+              <React.Fragment key={subProfile.name}>
+                <ListItemButton onClick={() => toggleSubProfile(subProfile.name)}>
+                  <ListItemText primary={subProfile.name}/>
+                  <IconButton edge="end" aria-label="expand">
+                    {expandedSubProfiles[subProfile.name] ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+                  </IconButton>
+                </ListItemButton>
+                <Collapse in={expandedSubProfiles[subProfile.name]} timeout="auto" unmountOnExit>
+                  <Paper sx={{p: 2, m: 2, position: 'relative'}}>
+                    <Box sx={{position: 'absolute', top: 8, right: 8, zIndex: 1}}>
+                      <Tooltip title={copySuccessMap[subProfile.name] ? "Copied!" : "Copy to clipboard"} arrow>
+                        <IconButton
+                            onClick={() => handleCopy(subProfile.name, subProfile.rawJson)}
+                            size="small"
+                            color={copySuccessMap[subProfile.name] ? "success" : "default"}
+                        >
+                          <ContentCopyIcon/>
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <Box component="pre" sx={{m: 0, overflow: "auto"}}>
+                      {JSON.stringify(subProfile.rawJson, null, 2)}
+                    </Box>
+                  </Paper>
+                </Collapse>
+              </React.Fragment>
+          ))}
+        </List>
     );
   };
 
@@ -273,7 +273,7 @@ export const Profile: React.FC = () => {
 
   const ProfileMetrics = () => {
     // Fetch summary data (will be cached by React Query)
-    const { data: summaryData } = useSummary();
+    const {data: summaryData} = useSummary();
 
     if (!profileMetrics || !summaryData) return null;
 
@@ -294,7 +294,7 @@ export const Profile: React.FC = () => {
                 Insights
               </Typography>
 
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              <Typography variant="body2" sx={{fontWeight: 500}}>
                 Used in {profileMetrics.percentage}% of installations
               </Typography>
 
@@ -314,13 +314,13 @@ export const Profile: React.FC = () => {
               <Typography variant="body2" color="text.secondary">
                 {profileMetrics.installation_count} out of {summaryData.sampled_installations} total{' '}
                 <Tooltip title="Active installations are all users who have opted in for analytics." arrow>
-                  <span style={{ textDecoration: 'underline', textDecorationStyle: 'dotted' }}>installations</span>
+                  <span style={{textDecoration: 'underline', textDecorationStyle: 'dotted'}}>installations</span>
                 </Tooltip>
                 {' '}
-                <Link 
-                  href="https://docs.powercalc.nl/misc/analytics/"
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <Link
+                    href="https://docs.powercalc.nl/misc/analytics/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                 >
                   Learn how to opt-in
                 </Link>
@@ -340,7 +340,12 @@ export const Profile: React.FC = () => {
     {label: "Created", value: profile.createdAt.toLocaleString(), icon: HistoryIcon},
     {label: "Updated", value: profile.updatedAt?.toLocaleString(), icon: HistoryIcon},
     {label: "Author", value: profile.author, icon: PersonIcon, filterKey: "author"},
-    {label: "Calculation strategy", value: profile.calculationStrategy, icon: CalculateIcon, filterKey: "calculationStrategy"},
+    {
+      label: "Calculation strategy",
+      value: profile.calculationStrategy,
+      icon: CalculateIcon,
+      filterKey: "calculationStrategy"
+    },
     {label: "Color modes", value: profile.colorModes, icon: PaletteIcon, filterKey: "colorMode"},
     {label: "Aliases", value: profile.aliases, icon: MediationIcon},
     {label: "Measure device", value: profile.measureDevice, icon: ElectricMeterIcon, filterKey: "measureDevice"},
@@ -354,7 +359,7 @@ export const Profile: React.FC = () => {
   const filteredProperties = properties.filter(
       (property) => property.value != null && property.value !== "",
   );
-  const chunkedProperties  =distributeIntoColumns(filteredProperties, 4)
+  const chunkedProperties = distributeIntoColumns(filteredProperties, 4)
 
   const [value, setValue] = React.useState(0);
   const navigate = useNavigate();
@@ -372,53 +377,51 @@ export const Profile: React.FC = () => {
 
   return (
       <>
-        <Box sx={{p: 3}}>
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 8, lg: 9}}>
-              <Box sx={{display: "flex", marginBottom: 2, gap: 2}}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigate("/")}
-                    startIcon={<HomeIcon/>}
-                >
-                  Back to library
-                </Button>
-                <Button
-                    variant="outlined"
-                    color="primary"
-                    href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${profile.manufacturer.dirName}/${profile.modelId}`}
-                    startIcon={<GithubIcon/>}
-                    target={"_blank"}
-                    rel="noopener noreferrer"
-                >
-                  Github
-                </Button>
-              </Box>
+        <Grid container spacing={2}>
+          <Grid size={{xs: 12, md: 8, lg: 9}}>
+            <Box sx={{display: "flex", mb: 2, gap: 2}}>
+              <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => navigate("/")}
+                  startIcon={<HomeIcon/>}
+              >
+                Back to library
+              </Button>
+              <Button
+                  variant="outlined"
+                  color="primary"
+                  href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${profile.manufacturer.dirName}/${profile.modelId}`}
+                  startIcon={<GithubIcon/>}
+                  target={"_blank"}
+                  rel="noopener noreferrer"
+              >
+                Github
+              </Button>
+            </Box>
 
-              <Typography variant="h4" component="h1">
-                {profile.manufacturer.fullName} {profile.modelId}
-              </Typography>
-            </Grid>
-            <Grid size={{ xs: 12, md: 4, lg: 3}}>
-              <ProfileMetrics/>
-            </Grid>
+            <Typography variant="h4" component="h1">
+              {profile.manufacturer.fullName} {profile.modelId}
+            </Typography>
           </Grid>
+          <Grid size={{xs: 12, md: 4, lg: 3}}>
+            <ProfileMetrics/>
+          </Grid>
+        </Grid>
 
-          <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-            <Tabs value={value} onChange={handleChange} indicatorColor="secondary">
-              {tabs.map((t, i) => (
-                  <Tab key={t.label} label={t.label} {...a11yProps(i)} />
-              ))}
-            </Tabs>
-          </Box>
-
-          {tabs.map((t, i) => (
-              <CustomTabPanel key={t.label} value={value} index={i}>
-                {t.render}
-              </CustomTabPanel>
-          ))}
+        <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+          <Tabs value={value} onChange={handleChange} indicatorColor="secondary">
+            {tabs.map((t, i) => (
+                <Tab key={t.label} label={t.label} {...a11yProps(i)} />
+            ))}
+          </Tabs>
         </Box>
+
+        {tabs.map((t, i) => (
+            <CustomTabPanel key={t.label} value={value} index={i}>
+              {t.render}
+            </CustomTabPanel>
+        ))}
       </>
   );
 };
