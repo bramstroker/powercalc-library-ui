@@ -109,7 +109,7 @@ export interface TimeseriesResponse {
 }
 
 export const fetchTimeseries = async (
-  metric: string = "optins",
+  metric: string = "optin_date",
   bucket: string = "day",
   timezone: string = "UTC",
   from: Date = new Date("2024-01-01"),

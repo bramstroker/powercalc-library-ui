@@ -83,7 +83,7 @@ const Installations: React.FC = () => {
       const [versionsData, countriesData, optinsData, sensorsData] = await Promise.all([
         fetchVersions(),
         fetchCountries(),
-        fetchTimeseries("optins", "day", "UTC", fromUTC, toUTC),
+        fetchTimeseries("optin_date", "day", "UTC", fromUTC, toUTC),
         fetchTimeseries("sensors", "day", "UTC", fromUTC, toUTC),
       ]);
 
@@ -98,7 +98,7 @@ const Installations: React.FC = () => {
   );
 
   const optinsSeries = React.useMemo(
-      () => buildSparklineData(data.optinsData, "optins", fromUTC, toUTC),
+      () => buildSparklineData(data.optinsData, "optin_date", fromUTC, toUTC),
       [data.optinsData, fromUTC, toUTC]
   );
 
