@@ -18,7 +18,7 @@ import {Link as RouterLink, useNavigate} from "react-router-dom";
 import Logo from "./Logo";
 import {PowerProfile} from "../types/PowerProfile";
 import {useLibrary} from "../context/LibraryContext";
-import {Divider} from "@mui/material";
+import {Divider, IconButton, Tooltip, useMediaQuery, useTheme} from "@mui/material";
 
 export type HeaderProps = {
   table?: MRT_TableInstance<PowerProfile>;
@@ -44,6 +44,9 @@ export const Header: React.FC<HeaderProps> = ({
     navigate(path);
     handleStatsClose();
   };
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
       <AppBar
@@ -88,19 +91,36 @@ export const Header: React.FC<HeaderProps> = ({
                 Profile Library
               </Typography>
 
-              <Button
-                  color="inherit"
-                  sx={{mr: 2}}
-                  onClick={handleStatsClick}
-                  endIcon={<KeyboardArrowDownIcon/>}
-                  startIcon={<BarChartIcon/>}
-                  id="statistics-button"
-                  aria-controls={statsOpen ? 'statistics-menu' : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={statsOpen ? 'true' : undefined}
-              >
-                Statistics
-              </Button>
+              {isMobile ? (
+                  <Tooltip title="Statistics">
+                    <IconButton
+                        color="inherit"
+                        onClick={handleStatsClick}
+                        id="statistics-button"
+                        aria-controls={statsOpen ? "statistics-menu" : undefined}
+                        aria-haspopup="true"
+                        aria-expanded={statsOpen ? "true" : undefined}
+                        aria-label="Statistics menu"
+                    >
+                      <BarChartIcon />
+                    </IconButton>
+                  </Tooltip>
+              ) : (
+                  <Button
+                      color="inherit"
+                      sx={{ mr: 2 }}
+                      onClick={handleStatsClick}
+                      startIcon={<BarChartIcon />}
+                      endIcon={<KeyboardArrowDownIcon />}
+                      id="statistics-button"
+                      aria-controls={statsOpen ? "statistics-menu" : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={statsOpen ? "true" : undefined}
+                  >
+                    Statistics
+                  </Button>
+              )}
+
               <Menu
                   id="statistics-menu"
                   anchorEl={statsAnchorEl}
@@ -143,9 +163,11 @@ export const Header: React.FC<HeaderProps> = ({
 
             {table && (
                 <>
-                  <MRT_GlobalFilterTextField table={table} sx={{mr: 2}}/>
+                  <Box sx={{flexGrow: 0, display: "flex"}}>
+                    <MRT_GlobalFilterTextField table={table} sx={{mr: 2}}/>
 
-                  <MRT_ShowHideColumnsButton table={table}/>
+                    <MRT_ShowHideColumnsButton table={table}/>
+                  </Box>
 
                   <Box sx={{flexGrow: 0, display: {xs: "none", md: "flex"}}}>
                     <Typography noWrap>
