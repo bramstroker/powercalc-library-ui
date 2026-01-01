@@ -8,7 +8,6 @@ import {
   Select,
   MenuItem
 } from "@mui/material";
-import React from "react";
 
 export type MetricKey = "installation_count" | "count" | "percentage";
 

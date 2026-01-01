@@ -5,7 +5,6 @@ import {
   CardContent,
 } from "@mui/material";
 import {BarChart} from "@mui/x-charts/BarChart";
-import React from "react";
 
 import type {VersionInfo} from "../../../api/analytics.api";
 
