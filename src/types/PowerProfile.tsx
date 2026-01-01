@@ -1,5 +1,5 @@
-import { DeviceType } from "./DeviceType";
-import { ColorMode } from "./ColorMode";
+import type { ColorMode } from "./ColorMode";
+import type { DeviceType } from "./DeviceType";
 
 export type PowerProfile = {
   manufacturer: Manufacturer;

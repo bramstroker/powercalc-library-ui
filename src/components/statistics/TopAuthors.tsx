@@ -1,8 +1,6 @@
-import React from "react";
+import {StatisticsAggregator} from "./StatisticsAggregator";
 
-import StatisticsAggregator from "./StatisticsAggregator";
-
-const TopAuthors: React.FC = () => {
+export const TopAuthors = () => {
   return (
     <StatisticsAggregator
       title="Top 10 Most Active Authors"
@@ -12,4 +10,3 @@ const TopAuthors: React.FC = () => {
   );
 };
 
-export default TopAuthors;

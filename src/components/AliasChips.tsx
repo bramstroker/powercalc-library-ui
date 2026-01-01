@@ -1,5 +1,5 @@
-import React, { useState } from "react";
 import { Chip, Stack, Popover, Typography, Box } from "@mui/material";
+import React, { useState } from "react";
 
 interface AliasChipsProps {
   aliases: string;
@@ -7,11 +7,11 @@ interface AliasChipsProps {
   marginTop?: number;
 }
 
-const AliasChips: React.FC<AliasChipsProps> = ({ 
+export const AliasChips = ({ 
   aliases, 
   maxVisible = 3,
   marginTop = 0
-}) => {
+}: AliasChipsProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -100,4 +100,3 @@ const AliasChips: React.FC<AliasChipsProps> = ({
   );
 };
 
-export default AliasChips;

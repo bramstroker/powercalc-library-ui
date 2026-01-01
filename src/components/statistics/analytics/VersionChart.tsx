@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Typography,
   Box,
@@ -6,7 +5,9 @@ import {
   CardContent,
 } from "@mui/material";
 import {BarChart} from "@mui/x-charts/BarChart";
-import {VersionInfo} from "../../../api/analytics.api";
+import React from "react";
+
+import type {VersionInfo} from "../../../api/analytics.api";
 
 interface VersionChartProps {
   title: string;
@@ -15,11 +16,11 @@ interface VersionChartProps {
   marginBottom?: number;
 }
 
-const VersionChart: React.FC<VersionChartProps> = ({
-                                                     title,
-                                                     data,
-                                                     color,
-                                                   }) => {
+export const VersionChart = ({
+                                title,
+                                data,
+                                color,
+                              }: VersionChartProps) => {
   const series = data.map((item) => item.installation_count);
   const labels = data.map((item) => item.version);
 
@@ -58,4 +59,3 @@ const VersionChart: React.FC<VersionChartProps> = ({
   );
 };
 
-export default VersionChart;

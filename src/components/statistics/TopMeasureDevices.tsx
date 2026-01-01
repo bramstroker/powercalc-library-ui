@@ -1,8 +1,6 @@
-import React from "react";
+import {StatisticsAggregator} from "./StatisticsAggregator";
 
-import StatisticsAggregator from "./StatisticsAggregator";
-
-const TopMeasureDevices: React.FC = () => {
+export const TopMeasureDevices = () => {
   return (
     <StatisticsAggregator
       title="Top 10 Most Used Measure Devices"
@@ -12,4 +10,3 @@ const TopMeasureDevices: React.FC = () => {
   );
 };
 
-export default TopMeasureDevices;

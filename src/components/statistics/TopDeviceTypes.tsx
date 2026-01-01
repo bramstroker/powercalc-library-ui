@@ -1,8 +1,6 @@
-import React from "react";
+import {StatisticsAggregator} from "./StatisticsAggregator";
 
-import StatisticsAggregator from "./StatisticsAggregator";
-
-const TopDeviceTypes: React.FC = () => {
+export const TopDeviceTypes = () => {
   return (
     <StatisticsAggregator
       title="Top 10 Most Common Device Types"
@@ -12,4 +10,3 @@ const TopDeviceTypes: React.FC = () => {
   );
 };
 
-export default TopDeviceTypes;

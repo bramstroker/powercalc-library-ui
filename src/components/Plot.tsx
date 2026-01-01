@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Card,
   CardActionArea,
@@ -8,8 +7,9 @@ import {
   DialogContentText,
   Typography,
 } from "@mui/material";
+import { useState } from "react";
 
-import {PlotLink} from "../types/PowerProfile";
+import type {PlotLink} from "../types/PowerProfile";
 
 export const Plot = ({ link }: { link: PlotLink }) => {
   const [open, setOpen] = useState(false);
@@ -53,5 +53,3 @@ export const Plot = ({ link }: { link: PlotLink }) => {
     </>
   );
 };
-
-export default Plot;

@@ -1,13 +1,12 @@
-import React from "react";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import TimelineIcon from "@mui/icons-material/Timeline";
 import { Grid, Card, CardContent, CardActions, Typography, Button, Box } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import TimelineIcon from "@mui/icons-material/Timeline";
-import TableChartIcon from "@mui/icons-material/TableChart";
 
-import AnalyticsHeader from "./AnalyticsHeader";
+import { AnalyticsHeader } from "./AnalyticsHeader";
 
-const AnalyticsOverview: React.FC = () => {
+export const AnalyticsOverview = () => {
   return (
     <>
       <AnalyticsHeader
@@ -101,4 +100,3 @@ const AnalyticsOverview: React.FC = () => {
   );
 };
 
-export default AnalyticsOverview;

@@ -1,13 +1,14 @@
-import React from "react";
+import type {
+  SelectChangeEvent,
+  FormControlProps,
+  SelectProps} from "@mui/material";
 import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem,
-  SelectChangeEvent,
-  FormControlProps,
-  SelectProps,
+  MenuItem
 } from "@mui/material";
+import React from "react";
 
 export type MetricKey = "installation_count" | "count" | "percentage";
 
@@ -31,14 +32,14 @@ export interface MetricsSelectProps {
   label?: string;
 }
 
-const MetricsSelect: React.FC<MetricsSelectProps> = ({
+export const MetricsSelect = ({
   value,
   onChange,
   options = DEFAULT_METRIC_OPTIONS,
   formControlProps = { sx: { minWidth: 200 } },
   selectProps,
   label = "Metric",
-}) => {
+}: MetricsSelectProps) => {
   const labelId = "metric-select-label";
 
   const handleChange = (event: SelectChangeEvent<MetricKey>) => {
@@ -65,4 +66,3 @@ const MetricsSelect: React.FC<MetricsSelectProps> = ({
   );
 };
 
-export default MetricsSelect;

@@ -1,11 +1,12 @@
-import {LoaderFunctionArgs} from "react-router-dom";
+import type {LoaderFunctionArgs} from "react-router-dom";
 
-import { queryClient } from "../queryClient";
-import { fetchLibrary ,LibraryModel} from "../api/library.api";
-import {FullPowerProfile, PlotLink, SubProfile} from "../types/PowerProfile";
-import {ColorMode} from "../types/ColorMode";
-import {DeviceType} from "../types/DeviceType";
+import type {LibraryModel} from "../api/library.api";
+import { fetchLibrary } from "../api/library.api";
 import {API_ENDPOINTS} from "../config/api";
+import { queryClient } from "../queryClient";
+import type {ColorMode} from "../types/ColorMode";
+import type {DeviceType} from "../types/DeviceType";
+import type {FullPowerProfile, PlotLink, SubProfile} from "../types/PowerProfile";
 
 interface DownloadLink {
   url: string;

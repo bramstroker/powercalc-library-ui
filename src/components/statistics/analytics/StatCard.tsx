@@ -1,12 +1,12 @@
-import { useTheme } from '@mui/material/styles';
+import {Chip, Tooltip} from "@mui/material";
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
+import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
-import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import { areaElementClasses } from '@mui/x-charts/LineChart';
-import {Chip, Tooltip} from "@mui/material";
+import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 
 export type StatCardProps = {
   title: string;
@@ -23,7 +23,7 @@ export type StatCardProps = {
 };
 
 
-function AreaGradient({ color, id }: { color: string; id: string }) {
+const AreaGradient = ({ color, id }: { color: string; id: string }) => {
   return (
       <defs>
         <linearGradient id={id} x1="50%" y1="0%" x2="50%" y2="100%">
@@ -34,7 +34,7 @@ function AreaGradient({ color, id }: { color: string; id: string }) {
   );
 }
 
-export default function StatCard({
+export const StatCard = ({
                                    title,
                                    value,
                                    interval,
@@ -43,7 +43,7 @@ export default function StatCard({
                                    hideTrendIcon,
                                    tooltip,
                                    data,
-                                 }: StatCardProps) {
+                                 }: StatCardProps) => {
   const theme = useTheme();
   const chartValues = data.map(item => item.value);
   const chartLabels = data.map(item => item.label);

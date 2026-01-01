@@ -1,32 +1,35 @@
-import React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import Button from "@mui/material/Button";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {
-  MRT_GlobalFilterTextField, MRT_ShowHideColumnsButton, MRT_TableInstance,
-} from "material-react-table";
+import {Divider, IconButton, Tooltip, useMediaQuery, useTheme} from "@mui/material";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import {indigo} from "@mui/material/colors";
+import Container from "@mui/material/Container";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import type { MRT_TableInstance} from "material-react-table";
+import {
+  MRT_GlobalFilterTextField, MRT_ShowHideColumnsButton
+} from "material-react-table";
+import React from "react";
 import {Link as RouterLink, useNavigate} from "react-router-dom";
 
-import Logo from "./Logo";
-import {PowerProfile} from "../types/PowerProfile";
 import {useLibrary} from "../context/LibraryContext";
-import {Divider, IconButton, Tooltip, useMediaQuery, useTheme} from "@mui/material";
+import type {PowerProfile} from "../types/PowerProfile";
+
+import {Logo} from "./Logo";
+
 
 export type HeaderProps = {
   table?: MRT_TableInstance<PowerProfile>;
 };
 
-export const Header: React.FC<HeaderProps> = ({
-                                                table
-                                              }) => {
+export const Header = ({
+                                 table
+                               }: HeaderProps) => {
   const navigate = useNavigate();
   const [statsAnchorEl, setStatsAnchorEl] = React.useState<null | HTMLElement>(null);
   const statsOpen = Boolean(statsAnchorEl);
@@ -41,7 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const handleMenuItemClick = (path: string) => {
-    navigate(path);
+    void navigate(path);
     handleStatsClose();
   };
 

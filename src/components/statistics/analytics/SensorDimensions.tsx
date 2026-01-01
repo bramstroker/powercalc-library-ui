@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import BarChartIcon from "@mui/icons-material/BarChart";
 import {
   Typography,
   Box,
@@ -6,25 +6,30 @@ import {
   Grid,
   Button,
 } from "@mui/material";
+import {mangoFusionPalette} from "@mui/x-charts";
 import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { useSuspenseQuery} from "@tanstack/react-query";
-import BarChartIcon from "@mui/icons-material/BarChart";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import {fetchSensors, SensorStats} from "../../../api/analytics.api";
-import SensorDimensionDetailView from "./SensorDimensionDetailView";
-import {mangoFusionPalette} from "@mui/x-charts";
-import MetricsSelect, { MetricKey } from "./MetricsSelect";
-import AnalyticsHeader from "./AnalyticsHeader";
+import type { SensorStats} from "../../../api/analytics.api";
+import {fetchSensors} from "../../../api/analytics.api";
 
-function groupByDimension(data: SensorStats[]): Record<string, SensorStats[]> {
+import { AnalyticsHeader } from "./AnalyticsHeader";
+import type { MetricKey } from "./MetricsSelect";
+import { MetricsSelect } from "./MetricsSelect";
+import { SensorDimensionDetailView } from "./SensorDimensionDetailView";
+
+
+
+const groupByDimension = (data: SensorStats[]): Record<string, SensorStats[]> => {
   return data.reduce<Record<string, SensorStats[]>>((acc, item) => {
     (acc[item.dimension] ??= []).push(item);
     return acc;
   }, {});
-}
+};
 
-const SensorDimensions: React.FC = () => {
+export const SensorDimensions = () => {
   const navigate = useNavigate();
   const { dimension: urlDimension } = useParams<{ dimension: string }>();
   const [searchParams] = useSearchParams();
@@ -43,17 +48,17 @@ const SensorDimensions: React.FC = () => {
     // Update URL with new metric without navigating
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("metric", value);
-    navigate({ search: newSearchParams.toString() }, { replace: true });
+    void navigate({ search: newSearchParams.toString() }, { replace: true });
   };
 
   const handleShowDetails = (dimension: string) => {
     // Include current metric in URL when navigating to detail view
-    navigate(`/analytics/sensor-dimensions/${dimension}?metric=${selectedMetric}`);
+    void navigate(`/analytics/sensor-dimensions/${dimension}?metric=${selectedMetric}`);
   };
 
   const handleBackToOverview = () => {
     // Include current metric in URL when navigating back to overview
-    navigate(`/analytics/sensor-dimensions?metric=${selectedMetric}`);
+    void navigate(`/analytics/sensor-dimensions?metric=${selectedMetric}`);
   };
 
   // Callback for when metric changes in detail view
@@ -209,5 +214,3 @@ const SensorDimensions: React.FC = () => {
       </>
   );
 };
-
-export default SensorDimensions;

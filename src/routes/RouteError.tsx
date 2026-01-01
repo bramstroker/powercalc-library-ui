@@ -1,15 +1,16 @@
-import { useRouteError, isRouteErrorResponse } from "react-router-dom";
 import { Container, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
+import { useRouteError, isRouteErrorResponse } from "react-router-dom";
+
 import {Header} from "../components/Header";
 
-function getErrorMessage(err: unknown): string {
+const getErrorMessage = (err: unknown): string => {
   if (err instanceof Error) return err.message;
   if (typeof err === "string") return err;
   return "Unknown error";
-}
+};
 
-export function RouteError() {
+export const RouteError = () => {
   const err = useRouteError();
 
   const message = isRouteErrorResponse(err)

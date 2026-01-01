@@ -1,8 +1,6 @@
-import React from "react";
+import {StatisticsAggregator} from "./StatisticsAggregator";
 
-import StatisticsAggregator from "./StatisticsAggregator";
-
-const TopManufacturers: React.FC = () => {
+export const TopManufacturers = () => {
   return (
     <StatisticsAggregator
       title="Top 10 Most Common Manufacturers"
@@ -13,4 +11,3 @@ const TopManufacturers: React.FC = () => {
   );
 };
 
-export default TopManufacturers;

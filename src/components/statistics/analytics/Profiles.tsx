@@ -1,16 +1,17 @@
-import React from "react";
 import {
   useTheme,
 } from "@mui/material";
-import {DataGrid, GridColDef, GridRenderCellParams} from '@mui/x-data-grid';
+import type { GridColDef, GridRenderCellParams} from '@mui/x-data-grid';
+import {DataGrid} from '@mui/x-data-grid';
 import {useSuspenseQuery} from "@tanstack/react-query";
-
-import AnalyticsHeader from "./AnalyticsHeader";
-import {fetchProfiles} from "../../../api/analytics.api";
 import { Link } from "react-router-dom";
 
+import {fetchProfiles} from "../../../api/analytics.api";
 
-const Profiles: React.FC = () => {
+import { AnalyticsHeader } from "./AnalyticsHeader";
+
+
+export const Profiles = () => {
   const theme = useTheme();
   const { data } = useSuspenseQuery({
     queryKey: ["profilesData"],
@@ -139,4 +140,3 @@ const Profiles: React.FC = () => {
   );
 };
 
-export default Profiles;

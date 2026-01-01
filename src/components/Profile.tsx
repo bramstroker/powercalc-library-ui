@@ -1,23 +1,19 @@
-import {useLoaderData, useNavigate} from "react-router-dom";
-import FactoryIcon from "@mui/icons-material/Factory";
-import PermDeviceInformationIcon from "@mui/icons-material/PermDeviceInformation";
-import TypeSpecimenIcon from "@mui/icons-material/TypeSpecimen";
-import MoreIcon from "@mui/icons-material/More";
-import HistoryIcon from "@mui/icons-material/History";
-import PersonIcon from "@mui/icons-material/Person";
-import PaletteIcon from "@mui/icons-material/Palette";
-import MediationIcon from "@mui/icons-material/Mediation";
-import ElectricMeterIcon from "@mui/icons-material/ElectricMeter";
-import CalculateIcon from "@mui/icons-material/Calculate";
 import BoltIcon from "@mui/icons-material/Bolt";
-import HomeIcon from "@mui/icons-material/Home";
+import CalculateIcon from "@mui/icons-material/Calculate";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import ElectricMeterIcon from "@mui/icons-material/ElectricMeter";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import FactoryIcon from "@mui/icons-material/Factory";
 import GithubIcon from "@mui/icons-material/GitHub";
-import Grid from "@mui/material/Grid";
-import ListItem from "@mui/material/ListItem";
-import Link from "@mui/material/Link";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import Avatar from "@mui/material/Avatar";
-import ListItemText from "@mui/material/ListItemText";
+import HistoryIcon from "@mui/icons-material/History";
+import HomeIcon from "@mui/icons-material/Home";
+import MediationIcon from "@mui/icons-material/Mediation";
+import MoreIcon from "@mui/icons-material/More";
+import PaletteIcon from "@mui/icons-material/Palette";
+import PermDeviceInformationIcon from "@mui/icons-material/PermDeviceInformation";
+import PersonIcon from "@mui/icons-material/Person";
+import TypeSpecimenIcon from "@mui/icons-material/TypeSpecimen";
 import {
   Button,
   Paper,
@@ -30,20 +26,24 @@ import {
   Card, CardContent, Stack, LinearProgress,
   Tooltip
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import {useSuspenseQuery} from "@tanstack/react-query";
-
-import AliasChips from "./AliasChips";
-import React, {useState} from "react";
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Link from "@mui/material/Link";
+import ListItem from "@mui/material/ListItem";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
+import {useSuspenseQuery} from "@tanstack/react-query";
+import React, {useState} from "react";
+import {useLoaderData, useNavigate} from "react-router-dom";
 
-import {FullPowerProfile} from "../types/PowerProfile";
-import {fetchProfile, ProfileStats} from "../api/analytics.api";
+import type { ProfileStats} from "../api/analytics.api";
+import {fetchProfile} from "../api/analytics.api";
 import {useSummary} from "../hooks/useSummary";
+import type {FullPowerProfile} from "../types/PowerProfile";
 
+import {AliasChips} from "./AliasChips";
 import {Plot} from "./Plot";
 
 interface TabPanelProps {
@@ -52,7 +52,7 @@ interface TabPanelProps {
   value: number;
 }
 
-function CustomTabPanel(props: TabPanelProps) {
+const CustomTabPanel = (props: TabPanelProps) => {
   const {children, value, index, ...other} = props;
 
   return (
@@ -68,18 +68,18 @@ function CustomTabPanel(props: TabPanelProps) {
   );
 }
 
-function a11yProps(index: number) {
+const a11yProps = (index: number) => {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   };
-}
+};
 
-function distributeIntoColumns<T>(items: T[], columns: number): T[][] {
+const distributeIntoColumns = <T,>(items: T[], columns: number): T[][] => {
   const result: T[][] = Array.from({length: columns}, () => []);
   items.forEach((item, i) => result[i % columns].push(item));
   return result;
-}
+};
 
 interface PropertyItem {
   label: string;
@@ -88,7 +88,7 @@ interface PropertyItem {
   filterKey?: string;
 }
 
-export const Profile: React.FC = () => {
+export const Profile = () => {
   const profile = useLoaderData() as FullPowerProfile;
   const [expandedSubProfiles, setExpandedSubProfiles] = useState<Record<string, boolean>>({});
 
@@ -198,7 +198,7 @@ export const Profile: React.FC = () => {
         <Paper sx={{p: 2, position: 'relative'}}>
           <Box sx={{position: 'absolute', top: 8, right: 8, zIndex: 1}}>
             <Tooltip title={copySuccess ? "Copied!" : "Copy to clipboard"} arrow>
-              <IconButton onClick={handleCopy} size="small" color={copySuccess ? "success" : "default"}>
+              <IconButton onClick={() => void handleCopy()} size="small" color={copySuccess ? "success" : "default"}>
                 <ContentCopyIcon/>
               </IconButton>
             </Tooltip>
@@ -243,7 +243,7 @@ export const Profile: React.FC = () => {
                     <Box sx={{position: 'absolute', top: 8, right: 8, zIndex: 1}}>
                       <Tooltip title={copySuccessMap[subProfile.name] ? "Copied!" : "Copy to clipboard"} arrow>
                         <IconButton
-                            onClick={() => handleCopy(subProfile.name, subProfile.rawJson)}
+                            onClick={() => void handleCopy(subProfile.name, subProfile.rawJson)}
                             size="small"
                             color={copySuccessMap[subProfile.name] ? "success" : "default"}
                         >
@@ -383,7 +383,7 @@ export const Profile: React.FC = () => {
               <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => navigate("/")}
+                  onClick={() => void navigate("/")}
                   startIcon={<HomeIcon/>}
               >
                 Back to library
@@ -425,5 +425,3 @@ export const Profile: React.FC = () => {
       </>
   );
 };
-
-export default Profile;

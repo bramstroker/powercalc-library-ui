@@ -1,21 +1,23 @@
-import React from "react";
 import { Stack } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import React from "react";
 
-import {
+import type {
   CountryStats,
+  TimeseriesResponse,
+  VersionStats} from "../../../api/analytics.api";
+import {
   fetchCountries,
   fetchTimeseries,
-  fetchVersions,
-  TimeseriesResponse,
-  VersionStats,
+  fetchVersions
 } from "../../../api/analytics.api";
 import { useSummary } from "../../../hooks/useSummary";
-import AnalyticsHeader from "./AnalyticsHeader";
+
+import { AnalyticsHeader } from "./AnalyticsHeader";
+import { StatCard } from "./StatCard";
 import { TopCountriesList } from "./TopCountriesList";
-import VersionChart from "./VersionChart";
-import StatCard from "./StatCard";
+import { VersionChart } from "./VersionChart";
 
 type InstallationsData = {
   versionsData: VersionStats;
@@ -26,30 +28,30 @@ type InstallationsData = {
 
 type SparkPoint = { label: string; value: number };
 
-function startOfUTCDay(d: Date) {
+const startOfUTCDay = (d: Date) => {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-}
+};
 
-function addUTCDays(d: Date, days: number) {
+const addUTCDays = (d: Date, days: number) => {
   const next = new Date(d);
   next.setUTCDate(next.getUTCDate() + days);
   return next;
-}
+};
 
-function formatUTCDateKey(d: Date) {
+const formatUTCDateKey = (d: Date) => {
   const y = d.getUTCFullYear();
   const m = String(d.getUTCMonth() + 1).padStart(2, "0");
   const day = String(d.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
-}
+};
 
-function buildSparklineData(
+const buildSparklineData = (
     response: TimeseriesResponse,
     metric: string,
     fromUTC: Date,
     toUTC: Date,
     locale = "en-US"
-): SparkPoint[] {
+): SparkPoint[] => {
   const points = response.series.find((s) => s.name === metric)?.points ?? [];
 
   const map = new Map<string, number>();
@@ -65,9 +67,9 @@ function buildSparklineData(
   }
 
   return result;
-}
+};
 
-const Installations: React.FC = () => {
+export const Installations = () => {
   const { data: summaryData } = useSummary();
 
   const { fromUTC, toUTC } = React.useMemo(() => {
@@ -168,5 +170,3 @@ const Installations: React.FC = () => {
       </>
   );
 };
-
-export default Installations;
