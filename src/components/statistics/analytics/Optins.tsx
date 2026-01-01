@@ -1,10 +1,12 @@
-import React from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Box } from "@mui/material";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import React from "react";
 
-import { fetchTimeseries, TimeseriesResponse } from "../../../api/analytics.api";
-import AnalyticsHeader from "./AnalyticsHeader";
-import { OptinsChart } from "./OptinsChart";
+import type { TimeseriesResponse } from "../../../api/analytics.api";
+import { fetchTimeseries } from "../../../api/analytics.api";
+
+import { AnalyticsHeader } from "./AnalyticsHeader";
+import { TimeSeriesChart } from "./TimeSeriesChart";
 
 /**
  * Transform TimeseriesResponse to the format expected by OptinsChart
@@ -27,13 +29,13 @@ const transformTimeseriesForLineChart = (
 };
 
 
-const Optins: React.FC = () => {
+export const Optins = () => {
   const { data } = useSuspenseQuery<TimeseriesResponse>({
     queryKey: ["optinsTimeseries"],
     queryFn: async () => {
       // Default parameters: metric="optins", bucket="day", timezone="UTC", 
       // from="2023-01-01", to=current date
-      return fetchTimeseries();
+      return fetchTimeseries("install_date", "day", "UTC", new Date("2025-01-01"));
     },
   });
 
@@ -51,7 +53,7 @@ const Optins: React.FC = () => {
 
       <Box sx={{ mt: 4, mb: 4 }}>
         {chartData.length > 0 ? (
-          <OptinsChart series={chartData} />
+          <TimeSeriesChart series={chartData} />
         ) : (
           <Box sx={{ textAlign: "center", p: 4 }}>Loading data...</Box>
         )}
@@ -60,4 +62,3 @@ const Optins: React.FC = () => {
   );
 };
 
-export default Optins;

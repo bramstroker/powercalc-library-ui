@@ -1,18 +1,20 @@
-import * as React from "react";
 import {
   Typography,
   LinearProgress,
   Stack, Card, CardContent,
 } from "@mui/material";
-import {CountryStats} from "../../../api/analytics.api";
-import ReactCountryFlag from "react-country-flag";
 import Avatar from "@mui/material/Avatar";
+import * as React from "react";
+import ReactCountryFlag from "react-country-flag";
+
+import type {CountryStats} from "../../../api/analytics.api";
+
 
 interface Props {
   data: CountryStats[];
 }
 
-export function TopCountriesList({ data }: Props) {
+export const TopCountriesList = ({ data }: Props) => {
   const top10 = React.useMemo(
       () =>
           [...data]
@@ -28,9 +30,9 @@ export function TopCountriesList({ data }: Props) {
 
   const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
 
-  function getCountryName(code: string): string {
+  const getCountryName = (code: string): string => {
     return regionNames.of(code.toUpperCase()) ?? code;
-  }
+  };
 
   return (
       <Card

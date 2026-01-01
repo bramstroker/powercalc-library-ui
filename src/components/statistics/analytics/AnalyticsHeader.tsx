@@ -1,10 +1,12 @@
-import React, { ReactNode } from "react";
 import {
   Typography,
   Box,
 } from "@mui/material";
-import {useSummary} from "../../../hooks/useSummary";
 import Link from "@mui/material/Link";
+import type { ReactNode } from "react";
+
+import {useSummary} from "../../../hooks/useSummary";
+
 
 interface AnalyticsHeaderProps {
   title: string;
@@ -13,12 +15,12 @@ interface AnalyticsHeaderProps {
   rightContent?: ReactNode;
 }
 
-const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
+export const AnalyticsHeader = ({
   title,
   description,
   children,
   rightContent,
-}) => {
+}: AnalyticsHeaderProps) => {
   const summary = useSummary();
 
   return (
@@ -58,4 +60,3 @@ const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
   );
 };
 
-export default AnalyticsHeader;

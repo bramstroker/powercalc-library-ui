@@ -1,10 +1,12 @@
-import React, { createContext, useContext, ReactNode } from 'react';
 import { useSuspenseQuery} from "@tanstack/react-query";
+import type { ReactNode } from 'react';
+import { createContext, useContext } from 'react';
 
-import { PowerProfile } from '../types/PowerProfile';
-import { DeviceType } from '../types/DeviceType';
-import { ColorMode } from '../types/ColorMode';
-import {fetchLibrary, LibraryJson, LibraryModel} from "../api/library.api";
+import type { LibraryJson, LibraryModel} from "../api/library.api";
+import {fetchLibrary} from "../api/library.api";
+import type { ColorMode } from '../types/ColorMode';
+import type { DeviceType } from '../types/DeviceType';
+import type { PowerProfile } from '../types/PowerProfile';
 
 interface LibraryContextType {
   powerProfiles: PowerProfile[];
@@ -17,7 +19,7 @@ interface LibraryProviderProps {
   children: ReactNode;
 }
 
-export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) => {
+export const LibraryProvider = ({ children }: LibraryProviderProps) => {
   const { data } = useSuspenseQuery<LibraryJson>({
     queryKey: ["library"],
     queryFn: fetchLibrary,

@@ -1,10 +1,10 @@
-import * as React from "react";
-import { LineChart } from "@mui/x-charts/LineChart";
 import {Card, CardContent} from "@mui/material";
+import { LineChart } from "@mui/x-charts/LineChart";
+import * as React from "react";
 
 type Point = { date: string; count: number };
 
-export function OptinsChart({ series }: { series: Point[] }) {
+export const TimeSeriesChart = ({ series }: { series: Point[] }) => {
   const x = React.useMemo(
       () => series.map((p) => new Date(p.date)), // "YYYY-MM-DD" -> Date
       [series]

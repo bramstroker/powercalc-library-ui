@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import type {
+  SelectChangeEvent
+} from "@mui/material";
 import { 
   Table, 
   TableBody, 
@@ -13,9 +15,9 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem,
-  SelectChangeEvent
+  MenuItem
 } from "@mui/material";
+import { useState } from "react";
 
 type StatItem = {
   name: string;
@@ -33,7 +35,7 @@ type StatisticsDisplayProps = {
   resultsCount: number;
 };
 
-const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
+export const StatisticsDisplay = ({
   title,
   items,
   totalItems,
@@ -42,7 +44,7 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
   onResultsCountChange,
   aggregationsCount,
   resultsCount
-}) => {
+}: StatisticsDisplayProps) => {
   const [count, setCount] = useState<number>(resultsCount);
 
   const handleCountChange = (event: SelectChangeEvent<number>) => {
@@ -114,4 +116,3 @@ const StatisticsDisplay: React.FC<StatisticsDisplayProps> = ({
   );
 };
 
-export default StatisticsDisplay;

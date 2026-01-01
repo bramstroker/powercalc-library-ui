@@ -1,28 +1,30 @@
-import React, { useEffect, useMemo, useState } from "react";
-import NextIcon from "@mui/icons-material/NavigateNext";
-import BrightnessIcon from "@mui/icons-material/Brightness6";
-import ThermostatIcon from "@mui/icons-material/Thermostat";
-import PaletteIcon from "@mui/icons-material/Palette";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import BrightnessIcon from "@mui/icons-material/Brightness6";
+import NextIcon from "@mui/icons-material/NavigateNext";
+import PaletteIcon from "@mui/icons-material/Palette";
+import ThermostatIcon from "@mui/icons-material/Thermostat";
+import {IconButton, Tooltip, Stack} from "@mui/material";
+import Box from "@mui/material/Box";
 import isEqual from "fast-deep-equal";
+import type { MRT_Row, MRT_ColumnFiltersState} from "material-react-table";
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  type MRT_ColumnDef, MRT_Row, MRT_ColumnFiltersState,
+  type MRT_ColumnDef
 } from "material-react-table";
-import Box from "@mui/material/Box";
-import {IconButton, Tooltip, Stack} from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-import AliasChips from "./AliasChips";
 
 import { useLibrary } from "../context/LibraryContext";
-import { PowerProfile } from "../types/PowerProfile";
 import { ColorMode } from "../types/ColorMode";
+import type { PowerProfile } from "../types/PowerProfile";
+
+import {AliasChips} from "./AliasChips";
 import {Header} from "./Header";
 
 // Component to render color mode icons
-const ColorModeIcons: React.FC<{ colorModes: ColorMode[] }> = ({ colorModes }) => {
+const ColorModeIcons = ({ colorModes }: { colorModes: ColorMode[] }) => {
   if (!colorModes || colorModes.length === 0) {
     return null;
   }
@@ -97,7 +99,7 @@ const buildSearchParamsFromFilterState = (
   return searchParams.toString();
 };
 
-const LibraryGrid: React.FC = () => {
+export const LibraryGrid = () => {
   const { powerProfiles: data } = useLibrary();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -253,8 +255,7 @@ const LibraryGrid: React.FC = () => {
   const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
     const manufacturer = row.original.manufacturer.dirName;
     const model = row.original.modelId;
-    // setProfileLoading(true);
-    navigate(`/profiles/${manufacturer}/${model}`);
+    void navigate(`/profiles/${manufacturer}/${model}`);
   }
 
   const table = useMaterialReactTable({
@@ -344,4 +345,3 @@ const LibraryGrid: React.FC = () => {
   );
 };
 
-export default LibraryGrid;

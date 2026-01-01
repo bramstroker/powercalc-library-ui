@@ -1,29 +1,30 @@
-import ReactDOM from "react-dom/client";
+import {createTheme} from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
+import {ThemeProvider} from "@mui/material/styles";
+import {QueryClientProvider} from "@tanstack/react-query";
+import ReactDOM from "react-dom/client";
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import {createTheme} from "@mui/material";
-import {ThemeProvider} from "@mui/material/styles";
-import {QueryClientProvider} from "@tanstack/react-query";
 
-import Profile from "./components/Profile";
-import {powerProfileLoader} from "./loaders/powerProfileLoader";
-import LibraryGrid from "./components/LibraryGrid";
-import TopMeasureDevices from "./components/statistics/TopMeasureDevices";
-import TopAuthors from "./components/statistics/TopAuthors";
-import TopManufacturers from "./components/statistics/TopManufacturers";
-import TopDeviceTypes from "./components/statistics/TopDeviceTypes";
-import SensorDimensions from "./components/statistics/analytics/SensorDimensions";
-import Installations from "./components/statistics/analytics/Installations";
-import Profiles from "./components/statistics/analytics/Profiles";
-import AnalyticsOverview from "./components/statistics/analytics/AnalyticsOverview";
+import { LibraryGrid } from "./components/LibraryGrid";
+import { Profile } from "./components/Profile";
+import { AnalyticsOverview } from "./components/statistics/analytics/AnalyticsOverview";
+import { Installations } from "./components/statistics/analytics/Installations";
+import { Optins } from "./components/statistics/analytics/Optins";
+import { Profiles } from "./components/statistics/analytics/Profiles";
+import { SensorDimensions } from "./components/statistics/analytics/SensorDimensions";
+import { TopAuthors } from "./components/statistics/TopAuthors";
+import { TopDeviceTypes } from "./components/statistics/TopDeviceTypes";
+import { TopManufacturers } from "./components/statistics/TopManufacturers";
+import { TopMeasureDevices } from "./components/statistics/TopMeasureDevices";
 import {LibraryProvider} from "./context/LibraryContext";
-import {queryClient} from "./queryClient";
 import {DefaultPageLayout} from "./layouts/DefaultPageLayout";
-import {RouteError} from "./routes/RouteError";
 import {LibraryGridPageLayout} from "./layouts/LibraryGridPageLayout";
+import {powerProfileLoader} from "./loaders/powerProfileLoader";
+import {queryClient} from "./queryClient";
+import {RouteError} from "./routes/RouteError";
 
 const router = createBrowserRouter([
   {
@@ -80,7 +81,12 @@ const router = createBrowserRouter([
       {
         path: "/analytics/profiles",
         element: <Profiles/>,
-      }]
+      },
+      {
+        path: "/analytics/optins",
+        element: <Optins/>,
+      }
+    ]
   }]);
 
 const root = ReactDOM.createRoot(

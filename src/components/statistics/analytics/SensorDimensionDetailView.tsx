@@ -1,4 +1,4 @@
-import React from "react";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   Container,
   Typography,
@@ -7,12 +7,16 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { BarChart } from "@mui/x-charts/BarChart";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { SensorStats } from "../../../api/analytics.api";
 import { bluePalette } from "@mui/x-charts";
-import MetricsSelect, { MetricKey } from "./MetricsSelect";
+import { BarChart } from "@mui/x-charts/BarChart";
+import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+
+import type { SensorStats } from "../../../api/analytics.api";
+
+
+import type { MetricKey } from "./MetricsSelect";
+import { MetricsSelect } from "./MetricsSelect";
 
 interface DimensionDetailViewProps {
   dimension: string;
@@ -22,20 +26,20 @@ interface DimensionDetailViewProps {
   onMetricChange?: (metric: MetricKey) => void;
 }
 
-function formatDimensionTitle(dimension: string) {
+const formatDimensionTitle = (dimension: string) => {
   return dimension
       .replace(/^by_/, "")
       .replace(/_/g, " ")
       .replace(/\b\w/g, (l) => l.toUpperCase());
-}
+};
 
-const SensorDimensionDetailView: React.FC<DimensionDetailViewProps> = ({
+export const SensorDimensionDetailView = ({
  dimension,
  data,
  metric,
  onBack,
  onMetricChange,
-}) => {
+}: DimensionDetailViewProps) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [selectedMetric, setSelectedMetric] = React.useState<MetricKey>(metric);
@@ -50,7 +54,7 @@ const SensorDimensionDetailView: React.FC<DimensionDetailViewProps> = ({
     // Update URL with new metric
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("metric", newMetric);
-    navigate(`/analytics/sensor-dimensions/${dimension}?${newSearchParams.toString()}`, { replace: true });
+    void navigate(`/analytics/sensor-dimensions/${dimension}?${newSearchParams.toString()}`, { replace: true });
 
     // Notify parent component
     onMetricChange?.(newMetric);
@@ -167,5 +171,3 @@ const SensorDimensionDetailView: React.FC<DimensionDetailViewProps> = ({
       </>
   );
 };
-
-export default SensorDimensionDetailView;

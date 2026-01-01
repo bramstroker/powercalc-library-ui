@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
-import { PowerProfile } from "../../types/PowerProfile";
 import { useLibrary } from "../../context/LibraryContext";
+import type { PowerProfile } from "../../types/PowerProfile";
 
-import StatisticsDisplay from "./StatisticsDisplay";
+import { StatisticsDisplay } from "./StatisticsDisplay";
 
 type StatItem = {
   name: string;
@@ -18,13 +18,13 @@ type StatisticsAggregatorProps = {
   valueExtractor?: (profile: PowerProfile) => string | undefined;
 };
 
-const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
+export const StatisticsAggregator = ({
   title,
   nameColumnLabel,
   propertyPath,
   filterQueryParam,
   valueExtractor
-}) => {
+}: StatisticsAggregatorProps) => {
   const [items, setItems] = useState<StatItem[]>([]);
   const [resultsCount, setResultsCount] = useState<number>(10);
   const { powerProfiles, total: totalProfiles } = useLibrary();
@@ -80,5 +80,3 @@ const StatisticsAggregator: React.FC<StatisticsAggregatorProps> = ({
     />
   );
 };
-
-export default StatisticsAggregator;
