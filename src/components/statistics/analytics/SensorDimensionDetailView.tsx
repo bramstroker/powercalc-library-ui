@@ -26,6 +26,9 @@ interface DimensionDetailViewProps {
   onMetricChange?: (metric: MetricKey) => void;
 }
 
+const BAR_HEIGHT = 36;      // px per bar (tweak to taste)
+const CHART_PADDING = 40;  // top + bottom breathing room
+
 const formatDimensionTitle = (dimension: string) => {
   return dimension
       .replace(/^by_/, "")
@@ -83,6 +86,9 @@ export const SensorDimensionDetailView = ({
       [dimension]
   );
 
+  const chartHeight =
+      chartData.length * BAR_HEIGHT + CHART_PADDING;
+
   return (
       <>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
@@ -124,7 +130,7 @@ export const SensorDimensionDetailView = ({
           </Box>
 
           <Paper sx={{ p: 3 }}>
-            <Box sx={{ height: "calc(100vh - 250px)", minHeight: 500 }}>
+            <Box>
               {chartData.length === 0 ? (
                   <Box
                       sx={{
@@ -141,6 +147,7 @@ export const SensorDimensionDetailView = ({
               ) : (
                   <BarChart
                       dataset={chartData}
+                      height={chartHeight}
                       yAxis={[
                         {
                           scaleType: "band",

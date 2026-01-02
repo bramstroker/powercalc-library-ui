@@ -24,7 +24,7 @@ export const AnalyticsHeader = ({
 
   return (
     <>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "top", mb: 4 }}>
         <Box>
           {title && (
             <Typography variant="h4" component="h1" gutterBottom>
