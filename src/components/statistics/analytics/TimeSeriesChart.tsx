@@ -2,9 +2,14 @@ import {Card, CardContent} from "@mui/material";
 import { LineChart } from "@mui/x-charts/LineChart";
 import * as React from "react";
 
+type Props = {
+  series: Point[];
+  label: string;
+}
+
 type Point = { date: string; count: number };
 
-export const TimeSeriesChart = ({ series }: { series: Point[] }) => {
+export const TimeSeriesChart = ({ series, label }: Props) => {
   const x = React.useMemo(
       () => series.map((p) => new Date(p.date)), // "YYYY-MM-DD" -> Date
       [series]
@@ -34,7 +39,7 @@ export const TimeSeriesChart = ({ series }: { series: Point[] }) => {
               series={[
                 {
                   data: y,
-                  label: "Opt-ins",
+                  label: label,
                   showMark: false,
                 },
               ]}

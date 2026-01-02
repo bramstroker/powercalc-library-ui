@@ -12,9 +12,9 @@ import { LibraryGrid } from "./components/LibraryGrid";
 import { Profile } from "./components/Profile";
 import { AnalyticsOverview } from "./components/statistics/analytics/AnalyticsOverview";
 import { Installations } from "./components/statistics/analytics/Installations";
-import { Optins } from "./components/statistics/analytics/Optins";
 import { Profiles } from "./components/statistics/analytics/Profiles";
 import { SensorDimensions } from "./components/statistics/analytics/SensorDimensions";
+import { TimeSeries } from "./components/statistics/analytics/TimeSeries";
 import { TopAuthors } from "./components/statistics/TopAuthors";
 import { TopDeviceTypes } from "./components/statistics/TopDeviceTypes";
 import { TopManufacturers } from "./components/statistics/TopManufacturers";
@@ -83,8 +83,8 @@ const router = createBrowserRouter([
         element: <Profiles/>,
       },
       {
-        path: "/analytics/optins",
-        element: <Optins/>,
+        path: "/analytics/time-series",
+        element: <TimeSeries/>,
       }
     ]
   }]);
