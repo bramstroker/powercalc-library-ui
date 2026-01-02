@@ -163,7 +163,7 @@ export const Installations = () => {
                 </Grid>
               </Grid>
 
-              <TopCountriesList data={data.countriesData ?? []} />
+              <TopCountriesList data={data.countriesData ?? []} limit={10} />
             </Stack>
           </Grid>
         </Grid>
