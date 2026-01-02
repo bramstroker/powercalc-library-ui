@@ -3,7 +3,7 @@ import {
   Box,
 } from "@mui/material";
 import Link from "@mui/material/Link";
-import type { ReactNode } from "react";
+import type {PropsWithChildren, ReactNode} from "react";
 
 import {useSummary} from "../../../hooks/useSummary";
 
@@ -11,7 +11,6 @@ import {useSummary} from "../../../hooks/useSummary";
 interface AnalyticsHeaderProps {
   title: string;
   description: string;
-  children?: ReactNode;
   rightContent?: ReactNode;
 }
 
@@ -20,7 +19,7 @@ export const AnalyticsHeader = ({
   description,
   children,
   rightContent,
-}: AnalyticsHeaderProps) => {
+}: PropsWithChildren<AnalyticsHeaderProps>) => {
   const summary = useSummary();
 
   return (
