@@ -168,7 +168,7 @@ export const SensorDimensions = () => {
                       </Button>
                     </Box>
 
-                    <Box sx={{ position: "relative" }}>
+                    <Box sx={{ position: "relative", height: 300 }}>
                       {chartData.length === 0 ? (
                           <Box sx={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}>
                             <Typography color="text.secondary">No data</Typography>
@@ -199,10 +199,24 @@ export const SensorDimensions = () => {
                                   fill: "white",
                                   fontSize: 14,
                                 },
+                                height: '100%',
                               }}
-                              height={300}
                               margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
                               colors={mangoFusionPalette}
+                              slotProps={{
+                                legend: {
+                                  direction: 'vertical',
+                                  position: {
+                                    vertical: 'top',
+                                    horizontal: 'end'
+                                  },
+                                  sx: {
+                                    overflowY: 'scroll',
+                                    flexWrap: 'nowrap',
+                                    height: '100%',
+                                  },
+                                },
+                              }}
                           />
                       )}
                     </Box>
