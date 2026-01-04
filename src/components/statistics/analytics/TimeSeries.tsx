@@ -1,5 +1,7 @@
-import { Box, FormControl, InputLabel, MenuItem, Select, Stack } from "@mui/material";
+import { Box, ButtonGroup, Button, Divider, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 
@@ -41,6 +43,14 @@ const METRIC_OPTIONS : MetricOption[] = [
 export const TimeSeries = () => {
   const [selectedGrouping, setSelectedGrouping] = useState<string>("day");
   const [selectedMetric, setSelectedMetric] = useState<string>("install_date");
+  const [chartType, setChartType] = useState<'line' | 'bar'>('line');
+
+  // Default start date is 3 months ago
+  const defaultStartDate = new Date();
+  defaultStartDate.setMonth(defaultStartDate.getMonth() - 3);
+
+  const [startDate, setStartDate] = useState<Date>(defaultStartDate);
+  const [endDate, setEndDate] = useState<Date>(new Date());
 
   const handleGroupingChange = (event: SelectChangeEvent) => {
     setSelectedGrouping(event.target.value);
@@ -50,10 +60,22 @@ export const TimeSeries = () => {
     setSelectedMetric(event.target.value);
   };
 
+  const handleChartTypeChange = (newChartType: 'line' | 'bar') => {
+    setChartType(newChartType);
+  };
+
+  const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setStartDate(new Date(event.target.value));
+  };
+
+  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEndDate(new Date(event.target.value));
+  };
+
   const { data } = useSuspenseQuery<TimeseriesResponse>({
-    queryKey: ["optinsTimeseries", selectedMetric, selectedGrouping],
+    queryKey: ["timeseries", selectedMetric, selectedGrouping, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]],
     queryFn: async () => {
-      return fetchTimeseries(selectedMetric, selectedGrouping, "UTC", new Date("2024-10-01"));
+      return fetchTimeseries(selectedMetric, selectedGrouping, "UTC", startDate, endDate);
     },
   });
 
@@ -63,8 +85,8 @@ export const TimeSeries = () => {
   }, [data]);
 
   const groupingOptions = [
-    { value: "day", label: "Group by Day" },
-    { value: "month", label: "Group by Month" },
+    { value: "day", label: "Day" },
+    { value: "month", label: "Month" },
   ];
 
   const filterControls = (
@@ -85,7 +107,7 @@ export const TimeSeries = () => {
         </Select>
       </FormControl>
 
-      <FormControl sx={{ minWidth: 150 }}>
+      <FormControl sx={{ minWidth: 100 }}>
         <InputLabel id="grouping-select-label">Grouping</InputLabel>
         <Select
           labelId="grouping-select-label"
@@ -100,6 +122,46 @@ export const TimeSeries = () => {
           ))}
         </Select>
       </FormControl>
+
+      <TextField
+        label="From"
+        type="date"
+        value={startDate.toISOString().split('T')[0]}
+        onChange={handleStartDateChange}
+        InputLabelProps={{
+          shrink: true,
+        }}
+        sx={{ width: 150 }}
+      />
+
+      <TextField
+        label="To"
+        type="date"
+        value={endDate.toISOString().split('T')[0]}
+        onChange={handleEndDateChange}
+        InputLabelProps={{
+          shrink: true,
+        }}
+        sx={{ width: 150 }}
+      />
+
+      <ButtonGroup variant="outlined" aria-label="Chart type selection">
+        <Button 
+          onClick={() => handleChartTypeChange('line')}
+          variant={chartType === 'line' ? 'contained' : 'outlined'}
+          aria-label="Line chart"
+        >
+          <ShowChartIcon />
+        </Button>
+        <Divider orientation="vertical" flexItem />
+        <Button 
+          onClick={() => handleChartTypeChange('bar')}
+          variant={chartType === 'bar' ? 'contained' : 'outlined'}
+          aria-label="Bar chart"
+        >
+          <BarChartIcon />
+        </Button>
+      </ButtonGroup>
     </Stack>
   );
 
@@ -121,6 +183,8 @@ export const TimeSeries = () => {
           <TimeSeriesChart
               series={chartData}
               label={metricOption.label}
+              chartType={chartType}
+              grouping={selectedGrouping}
           />
         ) : (
           <Box sx={{ textAlign: "center", p: 4 }}>Loading data...</Box>
