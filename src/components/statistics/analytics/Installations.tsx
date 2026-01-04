@@ -141,7 +141,11 @@ export const Installations = () => {
                 <Grid size={{ xs: 12, md: 6 }}>
                   <StatCard
                       title="Opt-ins"
-                      value={summaryData.sampled_installations?.toLocaleString() ?? "0"}
+                      value={
+                        summaryData.sampled_installations != null
+                            ? new Intl.NumberFormat("en", { notation: "compact" }).format(summaryData.sampled_installations)
+                            : "0"
+                      }
                       interval={`${optinsLastMonth} in last 30 days`}
                       trend="up"
                       hideTrendIcon
@@ -153,7 +157,11 @@ export const Installations = () => {
                 <Grid size={{ xs: 12, md: 6 }}>
                   <StatCard
                       title="Total sensors"
-                      value={summaryData.total_sensors?.toLocaleString() ?? "0"}
+                      value={
+                        summaryData.total_sensors != null
+                            ? new Intl.NumberFormat("en", { notation: "compact", }).format(summaryData.total_sensors)
+                            : "0"
+                      }
                       interval={`avg ${avgSensorsPerInstallation.toFixed(0)} per installation`}
                       trend="up"
                       hideTrendIcon
