@@ -5,6 +5,7 @@ import PaletteIcon from "@mui/icons-material/Palette";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
 import {IconButton, Tooltip, Stack} from "@mui/material";
 import Box from "@mui/material/Box";
+import type {VisibilityState} from "@tanstack/react-table";
 import isEqual from "fast-deep-equal";
 import type { MRT_Row, MRT_ColumnFiltersState} from "material-react-table";
 import {
@@ -120,6 +121,27 @@ export const LibraryGrid = () => {
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
       () => buildFilterStateFromSearchParams(searchParams, filterParamMap)
   );
+
+  // Default column visibility state
+  const defaultColumnVisibility = {
+    author: false,
+    colorModes: false,
+    measureDevice: false,
+    measureMethod: false,
+    maxPower: false,
+    standbyPower: false,
+    standbyPowerOn: false,
+    calculationStrategy: false,
+    subProfileCount: false,
+    updatedAt: false,
+    createdAt: false,
+  };
+
+  // Get column visibility from localStorage or use default
+  const [columnVisibility, setColumnVisibility] = useState(() => {
+    const savedVisibility = localStorage.getItem('libraryGridColumnVisibility');
+    return savedVisibility ? JSON.parse(savedVisibility) : defaultColumnVisibility;
+  });
 
   useEffect(() => {
     const next = buildFilterStateFromSearchParams(searchParams, filterParamMap);
@@ -274,6 +296,7 @@ export const LibraryGrid = () => {
     enableStickyFooter: true,
     state: {
       columnFilters,
+      columnVisibility, // Use the state variable for column visibility
     },
     onColumnFiltersChange: (updater) => {
       setColumnFilters((prev) => {
@@ -289,23 +312,19 @@ export const LibraryGrid = () => {
         return next;
       });
     },
+    onColumnVisibilityChange: (updater) => {
+      setColumnVisibility((prev: VisibilityState) => {
+        const next = 
+            typeof updater === 'function' ? updater(prev) : updater;
+
+        localStorage.setItem('libraryGridColumnVisibility', JSON.stringify(next));
+        return next;
+      });
+    },
     initialState: {
       showColumnFilters: true,
       showGlobalFilter: true,
       pagination: { pageSize: 15, pageIndex: 0 },
-      columnVisibility: {
-        author: false,
-        colorModes: false,
-        measureDevice: false,
-        measureMethod: false,
-        maxPower: false,
-        standbyPower: false,
-        standbyPowerOn: false,
-        calculationStrategy: false,
-        subProfileCount: false,
-        updatedAt: false,
-        createdAt: false,
-      },
     },
     muiSearchTextFieldProps: {
       placeholder: "Search all profiles",
@@ -344,4 +363,3 @@ export const LibraryGrid = () => {
     </Box>
   );
 };
-
