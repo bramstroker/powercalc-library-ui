@@ -2,6 +2,7 @@ import {Box, CircularProgress, Container} from "@mui/material";
 import * as React from "react";
 import { Outlet } from "react-router-dom";
 
+import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 
 const PageSpinner = () => {
@@ -25,12 +26,15 @@ export const DefaultPageLayout = () => {
             sx={{
               mt: 4,
               mb: 4,
+              flex: 1,
             }}
         >
           <React.Suspense fallback={<PageSpinner />}>
             <Outlet />
           </React.Suspense>
         </Container>
+
+        <Footer />
       </Box>
   );
 }

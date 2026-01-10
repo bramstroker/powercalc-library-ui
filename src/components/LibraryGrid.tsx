@@ -265,8 +265,8 @@ export const LibraryGrid = () => {
       sortingFn: 'datetime',
     },
     {
-      "accessorKey": "calculationStrategy",
-      "header": "Calculation strategy",
+      accessorKey: "calculationStrategy",
+      header: "Calculation strategy",
     },
     {
       accessorKey: "subProfileCount",

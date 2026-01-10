@@ -2,6 +2,8 @@ import {Box, CircularProgress, Container} from "@mui/material";
 import * as React from "react";
 import {Outlet} from "react-router-dom";
 
+import { Footer } from "../components/Footer";
+
 const PageSpinner = () => {
   return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -15,11 +17,12 @@ const PageSpinner = () => {
 export const LibraryGridPageLayout = () => {
   return (
       <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-        <Box>
+        <Box sx={{ flex: 1 }}>
           <React.Suspense fallback={<PageSpinner />}>
             <Outlet />
           </React.Suspense>
         </Box>
+        <Footer />
       </Box>
   );
 }
