@@ -5,6 +5,7 @@ import PaletteIcon from "@mui/icons-material/Palette";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
 import {IconButton, Tooltip, Stack} from "@mui/material";
 import Box from "@mui/material/Box";
+import type {VisibilityState} from "@tanstack/react-table";
 import isEqual from "fast-deep-equal";
 import type { MRT_Row, MRT_ColumnFiltersState} from "material-react-table";
 import {
@@ -22,7 +23,6 @@ import type { PowerProfile } from "../types/PowerProfile";
 
 import {AliasChips} from "./AliasChips";
 import {Header} from "./Header";
-import {VisibilityState} from "@tanstack/react-table";
 
 // Component to render color mode icons
 const ColorModeIcons = ({ colorModes }: { colorModes: ColorMode[] }) => {
