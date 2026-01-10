@@ -13,7 +13,7 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef
 } from "material-react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 
@@ -24,7 +24,6 @@ import type { PowerProfile } from "../types/PowerProfile";
 import {AliasChips} from "./AliasChips";
 import {Header} from "./Header";
 
-// Component to render color mode icons
 const ColorModeIcons = ({ colorModes }: { colorModes: ColorMode[] }) => {
   if (!colorModes || colorModes.length === 0) {
     return null;
@@ -122,7 +121,6 @@ export const LibraryGrid = () => {
       () => buildFilterStateFromSearchParams(searchParams, filterParamMap)
   );
 
-  // Default column visibility state
   const defaultColumnVisibility = {
     author: false,
     colorModes: false,
@@ -137,11 +135,22 @@ export const LibraryGrid = () => {
     createdAt: false,
   };
 
-  // Get column visibility from localStorage or use default
-  const [columnVisibility, setColumnVisibility] = useState(() => {
-    const savedVisibility = localStorage.getItem('libraryGridColumnVisibility');
-    return savedVisibility ? JSON.parse(savedVisibility) : defaultColumnVisibility;
-  });
+  const isFirstRender = useRef(true);
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(defaultColumnVisibility);
+
+  useEffect(() => {
+    const savedVisibility = sessionStorage.getItem('libraryGridColumnVisibility');
+    if (savedVisibility) {
+      setColumnVisibility(JSON.parse(savedVisibility));
+    }
+    isFirstRender.current = false;
+  }, []);
+
+  useEffect(() => {
+    if (isFirstRender.current) return;
+    sessionStorage.setItem('libraryGridColumnVisibility', JSON.stringify(columnVisibility));
+  }, [columnVisibility]);
 
   useEffect(() => {
     const next = buildFilterStateFromSearchParams(searchParams, filterParamMap);
@@ -296,7 +305,7 @@ export const LibraryGrid = () => {
     enableStickyFooter: true,
     state: {
       columnFilters,
-      columnVisibility, // Use the state variable for column visibility
+      columnVisibility,
     },
     onColumnFiltersChange: (updater) => {
       setColumnFilters((prev) => {
@@ -312,15 +321,7 @@ export const LibraryGrid = () => {
         return next;
       });
     },
-    onColumnVisibilityChange: (updater) => {
-      setColumnVisibility((prev: VisibilityState) => {
-        const next = 
-            typeof updater === 'function' ? updater(prev) : updater;
-
-        localStorage.setItem('libraryGridColumnVisibility', JSON.stringify(next));
-        return next;
-      });
-    },
+    onColumnVisibilityChange: setColumnVisibility,
     initialState: {
       showColumnFilters: true,
       showGlobalFilter: true,
