@@ -403,6 +403,11 @@ export const Profile = () => {
             <Typography variant="h4" component="h1">
               {profile.manufacturer.fullName} {profile.modelId}
             </Typography>
+            {profile.name && (
+              <Typography variant="h6" component="h2" sx={{ mt: 1 }}>
+                {profile.name}
+              </Typography>
+            )}
           </Grid>
           <Grid size={{xs: 12, md: 4, lg: 3}}>
             <ProfileMetrics/>
