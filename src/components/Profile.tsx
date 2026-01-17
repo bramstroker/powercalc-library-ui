@@ -357,7 +357,10 @@ export const Profile = () => {
   ];
 
   const filteredProperties = properties.filter(
-      (property) => property.value != null && property.value !== "",
+      (property) =>
+          property.value != null &&
+          property.value !== "" &&
+          !(Array.isArray(property.value) && property.value.length === 0),
   );
   const chunkedProperties = distributeIntoColumns(filteredProperties, 4)
 
