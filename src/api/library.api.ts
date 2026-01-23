@@ -18,6 +18,8 @@ export interface LibraryModel {
   standby_power: number;
   standby_power_on?: number;
   sub_profile_count: number;
+  min_version?: string;
+  compatible_integrations?: string[];
 }
 
 export type LibraryJson = {

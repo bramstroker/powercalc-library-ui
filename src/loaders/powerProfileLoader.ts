@@ -98,12 +98,14 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     measureMethod: modelJson['measure_method'],
     measureDescription: modelJson['measure_description'],
     calculationStrategy: modelJson['calculation_strategy'],
-    maxPower: libraryModel?.max_power,
+    maxPower: libraryModel?.max_power !== undefined && libraryModel?.max_power > 0 ? libraryModel.max_power : null,
     standbyPower: modelJson['standby_power'],
     standbyPowerOn: modelJson['standby_power_on'],
     author: modelJson['author'],
     plots: plots,
     subProfiles: subProfiles,
-    subProfileCount: libraryModel?.sub_profile_count || 0
+    subProfileCount: libraryModel?.sub_profile_count || 0,
+    minVersion: modelJson['min_version'] || null,
+    compatibleIntegrations: modelJson['compatible_integrations'] || [],
   };
 };

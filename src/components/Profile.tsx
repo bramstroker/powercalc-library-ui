@@ -83,7 +83,7 @@ const distributeIntoColumns = <T,>(items: T[], columns: number): T[][] => {
 
 interface PropertyItem {
   label: string;
-  value: string | number | undefined | string[];
+  value: string | number | undefined | null| string[];
   icon: React.ElementType;
   filterKey?: string;
 }
@@ -354,6 +354,8 @@ export const Profile = () => {
     {label: "Max power", value: profile.maxPower, icon: BoltIcon},
     {label: "Standby power", value: profile.standbyPower, icon: BoltIcon},
     {label: "Standby power on", value: profile.standbyPowerOn, icon: BoltIcon},
+    {label: "Min version", value: profile.minVersion, icon: MoreIcon},
+    {label: "Compatible integrations", value: profile.compatibleIntegrations, icon: MoreIcon, filterKey: "compatibleIntegration"},
   ];
 
   const filteredProperties = properties.filter(

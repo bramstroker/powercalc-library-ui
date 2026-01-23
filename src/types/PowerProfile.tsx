@@ -17,9 +17,11 @@ export type PowerProfile = {
   calculationStrategy: string;
   standbyPower: number;
   standbyPowerOn?: number;
-  maxPower?: number;
-  author?: string;
+  maxPower?: number | null;
+  author?: string | null;
   subProfileCount: number;
+  minVersion?: string | null;
+  compatibleIntegrations: string[];
 };
 
 export interface Manufacturer {

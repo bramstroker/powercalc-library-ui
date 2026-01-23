@@ -43,10 +43,12 @@ export const LibraryProvider = ({ children }: LibraryProviderProps) => {
                 measureMethod: model.measure_method,
                 measureDescription: model.measure_description,
                 calculationStrategy: model.calculation_strategy,
-                maxPower: model.max_power,
+                maxPower: model.max_power ?? 0 > 0 ? model.max_power : null,
                 standbyPower: model.standby_power,
                 standbyPowerOn: model.standby_power_on,
                 subProfileCount: model.sub_profile_count,
+                minVersion: model.min_version,
+                compatibleIntegrations: model.compatible_integrations || [],
               }))
       );
 
