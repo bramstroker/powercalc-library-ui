@@ -355,7 +355,7 @@ export const Profile = () => {
     {label: "Standby power", value: profile.standbyPower, icon: BoltIcon},
     {label: "Standby power on", value: profile.standbyPowerOn, icon: BoltIcon},
     {label: "Min version", value: profile.minVersion, icon: MoreIcon},
-    {label: "Compatible integrations", value: profile.compatibleIntegrations, icon: MoreIcon, filterKey: "compatibleIntegration"},
+    {label: "Compatible integrations", value: profile.compatibleIntegrations, icon: MoreIcon},
   ];
 
   const filteredProperties = properties.filter(
