@@ -7,7 +7,7 @@ type Props = {
   series: Point[];
   label: string;
   chartType?: 'line' | 'bar';
-  grouping?: string;
+  grouping?: 'day' | 'week' | 'month';
   height?: number;
 }
 
@@ -72,6 +72,23 @@ const limitDataPoints = (series: Point[], maxPoints: number): Point[] => {
   return result;
 };
 
+const getISOWeekYear = (date: Date): { week: number; year: number } => {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+
+  // Set to nearest Thursday: current date + 4 - current day number
+  // (Sunday = 0 → 7)
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+
+  return {
+    week,
+    year: d.getUTCFullYear(),
+  };
+}
+
 export const TimeSeriesChart = ({series, label, chartType = 'line', grouping = 'day', height = 300}: Props) => {
   // Fill in missing days in the series data only when grouping is by day
   const completeSeriesData = React.useMemo(
@@ -113,9 +130,14 @@ export const TimeSeriesChart = ({series, label, chartType = 'line', grouping = '
   );
 
   const xLabelFormatter = (d: Date) => {
-    return grouping === 'month'
-        ? d.toLocaleDateString("nl-NL", {month: "short"})
-        : d.toLocaleDateString("nl-NL", {month: "short", day: "2-digit"});
+    if (grouping === 'week') {
+      const { week, year } = getISOWeekYear(d);
+      return `W${week} ${year}`;
+    }
+    if (grouping === 'month') {
+      return d.toLocaleDateString("nl-NL", {month: "short"});
+    }
+    return d.toLocaleDateString("nl-NL", {month: "short", day: "2-digit"});
   }
 
   return (
