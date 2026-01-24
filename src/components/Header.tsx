@@ -10,7 +10,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import type { MRT_TableInstance} from "material-react-table";
+import type {MRT_TableInstance} from "material-react-table";
 import {
   MRT_GlobalFilterTextField, MRT_ShowHideColumnsButton
 } from "material-react-table";
@@ -28,8 +28,8 @@ export type HeaderProps = {
 };
 
 export const Header = ({
-                                 table
-                               }: HeaderProps) => {
+                         table
+                       }: HeaderProps) => {
   const navigate = useNavigate();
   const [statsAnchorEl, setStatsAnchorEl] = React.useState<null | HTMLElement>(null);
   const statsOpen = Boolean(statsAnchorEl);
@@ -75,13 +75,13 @@ export const Header = ({
                 }}
             >
               <Box
-                component={RouterLink}
-                to="/"
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  textDecoration: 'none',
-                }}
+                  component={RouterLink}
+                  to="/"
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    textDecoration: 'none',
+                  }}
               >
                 <Logo width={40}/>
               </Box>
@@ -115,22 +115,22 @@ export const Header = ({
                         aria-expanded={statsOpen ? "true" : undefined}
                         aria-label="Statistics menu"
                     >
-                      <BarChartIcon />
+                      <BarChartIcon/>
                     </IconButton>
                   </Tooltip>
               ) : (
                   <Button
                       color="inherit"
-                      sx={{ mr: 2 }}
+                      sx={{mr: 2}}
                       onClick={handleStatsClick}
-                      startIcon={<BarChartIcon />}
-                      endIcon={<KeyboardArrowDownIcon />}
+                      startIcon={<BarChartIcon/>}
+                      endIcon={<KeyboardArrowDownIcon/>}
                       id="statistics-button"
                       aria-controls={statsOpen ? "statistics-menu" : undefined}
                       aria-haspopup="true"
                       aria-expanded={statsOpen ? "true" : undefined}
                   >
-                    Statistics
+                    Insights
                   </Button>
               )}
 
@@ -141,6 +141,25 @@ export const Header = ({
                   onClose={handleStatsClose}
                   slotProps={{list: {'aria-labelledby': 'statistics-button'}}}
               >
+                <Typography
+                    variant="subtitle2"
+                    sx={{px: 2, py: 1, fontWeight: 'bold', cursor: 'pointer'}}
+                    onClick={() => handleMenuItemClick('/analytics')}
+                >
+                  Usage stats
+                </Typography>
+                <MenuItem onClick={() => handleMenuItemClick('/analytics/sensor-dimensions')}>
+                  Sensor usage
+                </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/analytics/installations')}>
+                  Installation statistics
+                </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/analytics/profiles')}>
+                  Profile usage
+                </MenuItem>
+
+                <Divider sx={{my: 1}}/>
+
                 <Typography variant="subtitle2" sx={{px: 2, py: 1, fontWeight: 'bold'}}>
                   Library stats
                 </Typography>
@@ -158,21 +177,6 @@ export const Header = ({
                 </MenuItem>
                 <MenuItem onClick={() => handleMenuItemClick('/statistics/weekly-contributions')}>
                   Weekly Contributions
-                </MenuItem>
-
-                <Divider sx={{my: 1}}/>
-
-                <Typography variant="subtitle2" sx={{px: 2, py: 1, fontWeight: 'bold'}}>
-                  Insights
-                </Typography>
-                <MenuItem onClick={() => handleMenuItemClick('/analytics/sensor-dimensions')}>
-                  Sensor usage
-                </MenuItem>
-                <MenuItem onClick={() => handleMenuItemClick('/analytics/installations')}>
-                  Installation statistics
-                </MenuItem>
-                <MenuItem onClick={() => handleMenuItemClick('/analytics/profiles')}>
-                  Profile usage
                 </MenuItem>
               </Menu>
             </Box>
