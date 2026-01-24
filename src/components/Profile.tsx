@@ -81,12 +81,13 @@ const distributeIntoColumns = <T,>(items: T[], columns: number): T[][] => {
   return result;
 };
 
+type ItemValueType = string | number | undefined | null | string[];
 interface PropertyItem {
   label: string;
-  value: string | number | undefined | null | string[];
+  value: ItemValueType;
   icon: React.ElementType;
   filterKey?: string;
-  renderFn?: (value: any) => React.ReactNode;
+  renderFn?: (value: ItemValueType) => React.ReactNode;
 }
 
 export const Profile = () => {
