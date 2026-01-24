@@ -11,7 +11,7 @@ import {
   ListItemText,
   Chip
 } from '@mui/material';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 
 import { useLibrary } from '../context/LibraryContext';
