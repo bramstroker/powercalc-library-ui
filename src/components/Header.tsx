@@ -156,6 +156,9 @@ export const Header = ({
                 <MenuItem onClick={() => handleMenuItemClick('/statistics/top-device-types')}>
                   Top Device Types
                 </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/statistics/weekly-contributions')}>
+                  Weekly Contributions
+                </MenuItem>
 
                 <Divider sx={{my: 1}}/>
 

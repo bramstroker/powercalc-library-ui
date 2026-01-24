@@ -20,6 +20,7 @@ import { TopContributors } from "./components/statistics/TopContributors";
 import { TopDeviceTypes } from "./components/statistics/TopDeviceTypes";
 import { TopManufacturers } from "./components/statistics/TopManufacturers";
 import { TopMeasureDevices } from "./components/statistics/TopMeasureDevices";
+import { WeeklyContributions } from "./components/statistics/WeeklyContributions";
 import {LibraryProvider} from "./context/LibraryContext";
 import {DefaultPageLayout} from "./layouts/DefaultPageLayout";
 import {LibraryGridPageLayout} from "./layouts/LibraryGridPageLayout";
@@ -62,6 +63,10 @@ const router = createBrowserRouter([
       {
         path: "/statistics/top-device-types",
         element: <TopDeviceTypes/>,
+      },
+      {
+        path: "/statistics/weekly-contributions",
+        element: <WeeklyContributions/>,
       },
       {
         path: "/analytics",
