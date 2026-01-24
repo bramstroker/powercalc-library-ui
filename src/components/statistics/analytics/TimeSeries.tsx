@@ -20,7 +20,8 @@ import type {TimeseriesResponse} from "../../../api/analytics.api";
 import {fetchTimeseries} from "../../../api/analytics.api";
 
 import {AnalyticsHeader} from "./AnalyticsHeader";
-import {ChartType, Grouping, TimeSeriesChart} from "./TimeSeriesChart";
+import type {ChartType} from "./TimeSeriesChart";
+import { Grouping, TimeSeriesChart} from "./TimeSeriesChart";
 
 const transformTimeseriesForLineChart = (
     response: TimeseriesResponse
