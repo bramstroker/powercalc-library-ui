@@ -1,12 +1,11 @@
 import type {LoaderFunctionArgs} from "react-router-dom";
 
 import type {LibraryModel} from "../api/library.api";
-import { fetchLibrary } from "../api/library.api";
+import {fetchLibrary} from "../api/library.api";
 import {API_ENDPOINTS} from "../config/api";
-import { queryClient } from "../queryClient";
-import type {ColorMode} from "../types/ColorMode";
-import type {DeviceType} from "../types/DeviceType";
+import {queryClient} from "../queryClient";
 import type {FullPowerProfile, PlotLink, SubProfile} from "../types/PowerProfile";
+import {mapToBasePowerProfile} from "../utils/profileMappers";
 
 interface DownloadLink {
   url: string;
@@ -69,50 +68,29 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
       .filter((link: DownloadLink) => link.url.endsWith('model.json') && link.path !== "model.json");
 
   const subProfiles: SubProfile[] = await Promise.all(
-    subProfileLinks.map(async (link: DownloadLink) => {
-      const response = await fetch(link.url);
-      if (!response.ok) {
-        console.error(`Failed to fetch subProfile at ${link.url}`);
-        return { name: link.path.split('/')[0], rawJson: {} };
-      }
-      const json = await response.json();
-      return {
-        name: link.path.split('/')[0], // Use the directory name as the subProfile name
-        rawJson: json
-      };
-    })
+      subProfileLinks.map(async (link: DownloadLink) => {
+        const response = await fetch(link.url);
+        if (!response.ok) {
+          console.error(`Failed to fetch subProfile at ${link.url}`);
+          return {name: link.path.split('/')[0], rawJson: {}};
+        }
+        const json = await response.json();
+        return {
+          name: link.path.split('/')[0], // Use the directory name as the subProfile name
+          rawJson: json
+        };
+      })
   );
 
   return {
-    rawJson: modelJson,
-    manufacturer: {
-      dirName: manufacturer,
-      fullName: manufacturerJson['name'],
-    },
-    modelId: model,
-    name: modelJson['name'],
-    aliases: Array.isArray(modelJson['aliases']) ? modelJson['aliases'].join("|") : (modelJson['aliases'] || ""),
-    deviceType: modelJson['device_type'] as DeviceType,
-    colorModes: (libraryModel.color_modes || []) as ColorMode[],
-    updatedAt: new Date(libraryModel.updated_at),
-    createdAt: new Date(modelJson['created_at']),
-    description: modelJson['description'],
-    measureDevice: modelJson['measure_device'],
-    measureMethod: modelJson['measure_method'],
+    ...mapToBasePowerProfile(
+        libraryModel, {
+          dirName: manufacturer,
+          fullName: manufacturerJson['name'],
+        }),
     measureDescription: modelJson['measure_description'],
-    calculationStrategy: modelJson['calculation_strategy'],
-    maxPower: libraryModel.max_power !== undefined && libraryModel.max_power > 0 ? libraryModel.max_power : null,
-    standbyPower: modelJson['standby_power'],
-    standbyPowerOn: modelJson['standby_power_on'],
-    author: {
-      name: libraryModel.author_info.name,
-      email: libraryModel.author_info.email,
-      githubUsername: libraryModel.author_info.github,
-    },
+    rawJson: modelJson,
     plots: plots,
     subProfiles: subProfiles,
-    subProfileCount: libraryModel.sub_profile_count || 0,
-    minVersion: modelJson['min_version'] || null,
-    compatibleIntegrations: modelJson['compatible_integrations'] || [],
   };
 };
