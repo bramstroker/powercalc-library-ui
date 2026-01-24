@@ -3,11 +3,19 @@ import {BarChart} from "@mui/x-charts/BarChart";
 import {LineChart} from "@mui/x-charts/LineChart";
 import * as React from "react";
 
+export enum Grouping {
+  Day = 'day',
+  Week = 'week',
+  Month = 'month'
+}
+
+export type ChartType = 'line' | 'bar';
+
 type Props = {
   series: Point[];
   label: string;
-  chartType?: 'line' | 'bar';
-  grouping?: 'day' | 'week' | 'month';
+  chartType?: ChartType;
+  grouping?: Grouping;
   height?: number;
 }
 
@@ -89,16 +97,16 @@ const getISOWeekYear = (date: Date): { week: number; year: number } => {
   };
 }
 
-export const TimeSeriesChart = ({series, label, chartType = 'line', grouping = 'day', height = 300}: Props) => {
+export const TimeSeriesChart = ({series, label, chartType = 'line', grouping = Grouping.Day, height = 300}: Props) => {
   // Fill in missing days in the series data only when grouping is by day
   const completeSeriesData = React.useMemo(
-      () => grouping === 'day' ? fillMissingDays(series) : series,
+      () => grouping === Grouping.Day ? fillMissingDays(series) : series,
       [series, grouping]
   );
 
   // For bar chart with day grouping, limit the number of data points to prevent visual clutter
   const limitedSeriesData = React.useMemo(
-      () => chartType === 'bar' && grouping === 'day' 
+      () => chartType === 'bar' && grouping === Grouping.Day
           ? limitDataPoints(completeSeriesData, MAX_BAR_CHART_POINTS)
           : completeSeriesData,
       [completeSeriesData, chartType, grouping]
@@ -130,11 +138,11 @@ export const TimeSeriesChart = ({series, label, chartType = 'line', grouping = '
   );
 
   const xLabelFormatter = (d: Date) => {
-    if (grouping === 'week') {
+    if (grouping === Grouping.Week) {
       const { week, year } = getISOWeekYear(d);
       return `W${week} ${year}`;
     }
-    if (grouping === 'month') {
+    if (grouping === Grouping.Month) {
       return d.toLocaleDateString("nl-NL", {month: "short"});
     }
     return d.toLocaleDateString("nl-NL", {month: "short", day: "2-digit"});

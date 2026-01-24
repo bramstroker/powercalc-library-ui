@@ -1,15 +1,26 @@
 import BarChartIcon from "@mui/icons-material/BarChart";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
-import { Box, ButtonGroup, Button, Divider, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
-import type { SelectChangeEvent } from "@mui/material";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import React, { useState } from "react";
+import type {SelectChangeEvent} from "@mui/material";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Divider,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField
+} from "@mui/material";
+import {useSuspenseQuery} from "@tanstack/react-query";
+import React, {useState} from "react";
 
-import type { TimeseriesResponse } from "../../../api/analytics.api";
-import { fetchTimeseries } from "../../../api/analytics.api";
+import type {TimeseriesResponse} from "../../../api/analytics.api";
+import {fetchTimeseries} from "../../../api/analytics.api";
 
-import { AnalyticsHeader } from "./AnalyticsHeader";
-import { TimeSeriesChart } from "./TimeSeriesChart";
+import {AnalyticsHeader} from "./AnalyticsHeader";
+import {ChartType, Grouping, TimeSeriesChart} from "./TimeSeriesChart";
 
 const transformTimeseriesForLineChart = (
     response: TimeseriesResponse
@@ -41,9 +52,9 @@ const METRIC_OPTIONS : MetricOption[] = [
 
 
 export const TimeSeries = () => {
-  const [selectedGrouping, setSelectedGrouping] = useState<string>("day");
+  const [selectedGrouping, setSelectedGrouping] = useState<Grouping>(Grouping.Day);
   const [selectedMetric, setSelectedMetric] = useState<string>("install_date");
-  const [chartType, setChartType] = useState<'line' | 'bar'>('line');
+  const [chartType, setChartType] = useState<ChartType>('line');
 
   // Default start date is 3 months ago
   const defaultStartDate = new Date();
@@ -53,14 +64,14 @@ export const TimeSeries = () => {
   const [endDate, setEndDate] = useState<Date>(new Date());
 
   const handleGroupingChange = (event: SelectChangeEvent) => {
-    setSelectedGrouping(event.target.value);
+    setSelectedGrouping(event.target.value as Grouping);
   };
 
   const handleMetricChange = (event: SelectChangeEvent) => {
     setSelectedMetric(event.target.value);
   };
 
-  const handleChartTypeChange = (newChartType: 'line' | 'bar') => {
+  const handleChartTypeChange = (newChartType: ChartType) => {
     setChartType(newChartType);
   };
 
@@ -85,8 +96,9 @@ export const TimeSeries = () => {
   }, [data]);
 
   const groupingOptions = [
-    { value: "day", label: "Day" },
-    { value: "month", label: "Month" },
+    { value: Grouping.Day, label: "Day" },
+    { value: Grouping.Week, label: "Week" },
+    { value: Grouping.Month, label: "Month" },
   ];
 
   const filterControls = (
