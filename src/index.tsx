@@ -8,6 +8,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
+import { Author } from "./components/Author";
 import { LibraryGrid } from "./components/LibraryGrid";
 import { Profile } from "./components/Profile";
 import { AnalyticsOverview } from "./components/statistics/analytics/AnalyticsOverview";
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
       {
         path: "/analytics/time-series",
         element: <TimeSeries/>,
+      },
+      {
+        path: "/author/:authorName",
+        element: <Author/>,
       }
     ]
   }]);
