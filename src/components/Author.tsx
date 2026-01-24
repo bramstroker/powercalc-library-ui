@@ -1,5 +1,6 @@
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import PersonIcon from '@mui/icons-material/Person';
+import GitHubIcon from '@mui/icons-material/GitHub';
 import { 
   Typography, 
   Box, 
@@ -23,7 +24,7 @@ export const Author = () => {
 
   const authorProfiles = useMemo(() => {
     if (!authorName) return [];
-    return powerProfiles.filter(profile => profile.author === authorName);
+    return powerProfiles.filter(profile => profile.author.githubUsername === authorName);
   }, [powerProfiles, authorName]);
 
   const contributionCount = authorProfiles.length;
@@ -68,14 +69,24 @@ export const Author = () => {
           </Typography>
         </Box>
 
-        <Button 
-          variant="contained" 
-          component={RouterLink} 
-          to={`/?author=${encodeURIComponent(authorName)}`}
-          sx={{ mt: 2 }}
-        >
-          View all profiles by this author
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Button 
+            variant="contained" 
+            component={RouterLink} 
+            to={`/?author=${encodeURIComponent(authorName)}`}
+          >
+            View all profiles by this author
+          </Button>
+          <Button 
+            variant="outlined" 
+            startIcon={<GitHubIcon />}
+            href={`https://github.com/${authorName}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub Profile
+          </Button>
+        </Box>
       </Paper>
 
       <Typography variant="h5" component="h2" sx={{ mb: 2 }}>

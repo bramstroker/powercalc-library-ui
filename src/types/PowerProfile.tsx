@@ -1,6 +1,12 @@
 import type { ColorMode } from "./ColorMode";
 import type { DeviceType } from "./DeviceType";
 
+export type Author = {
+  name: string;
+  email?: string | null;
+  githubUsername: string;
+}
+
 export type PowerProfile = {
   manufacturer: Manufacturer;
   modelId: string;
@@ -18,7 +24,7 @@ export type PowerProfile = {
   standbyPower: number;
   standbyPowerOn?: number;
   maxPower?: number | null;
-  author?: string | null;
+  author: Author;
   subProfileCount: number;
   minVersion?: string | null;
   compatibleIntegrations: string[];

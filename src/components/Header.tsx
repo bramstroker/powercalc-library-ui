@@ -147,8 +147,8 @@ export const Header = ({
                 <MenuItem onClick={() => handleMenuItemClick('/statistics/top-measure-devices')}>
                   Top Measure Devices
                 </MenuItem>
-                <MenuItem onClick={() => handleMenuItemClick('/statistics/top-authors')}>
-                  Top Authors
+                <MenuItem onClick={() => handleMenuItemClick('/statistics/top-contributors')}>
+                  Top Contributors
                 </MenuItem>
                 <MenuItem onClick={() => handleMenuItemClick('/statistics/top-manufacturers')}>
                   Top Manufacturers

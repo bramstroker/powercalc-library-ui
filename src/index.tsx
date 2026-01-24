@@ -16,7 +16,7 @@ import { Installations } from "./components/statistics/analytics/Installations";
 import { Profiles } from "./components/statistics/analytics/Profiles";
 import { SensorDimensions } from "./components/statistics/analytics/SensorDimensions";
 import { TimeSeries } from "./components/statistics/analytics/TimeSeries";
-import { TopAuthors } from "./components/statistics/TopAuthors";
+import { TopContributors } from "./components/statistics/TopContributors";
 import { TopDeviceTypes } from "./components/statistics/TopDeviceTypes";
 import { TopManufacturers } from "./components/statistics/TopManufacturers";
 import { TopMeasureDevices } from "./components/statistics/TopMeasureDevices";
@@ -52,8 +52,8 @@ const router = createBrowserRouter([
         element: <TopMeasureDevices/>,
       },
       {
-        path: "/statistics/top-authors",
-        element: <TopAuthors/>,
+        path: "/statistics/top-contributors",
+        element: <TopContributors/>,
       },
       {
         path: "/statistics/top-manufacturers",

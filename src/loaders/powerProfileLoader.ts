@@ -45,6 +45,9 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
   });
   const mfr = library.manufacturers.find((m) => m.dir_name === manufacturer);
   const libraryModel = mfr?.models?.find((mdl: LibraryModel) => mdl.id === model);
+  if (libraryModel === undefined) {
+    throw new Error(`Model ${model} not found in library for manufacturer ${manufacturer}`);
+  }
 
   // Fetch download links
   const downloadUrl = `${API_ENDPOINTS.DOWNLOAD}/${manufacturer}/${model}?includePlots=1`;
@@ -90,21 +93,25 @@ export const powerProfileLoader = async ({params}: LoaderFunctionArgs): Promise<
     name: modelJson['name'],
     aliases: Array.isArray(modelJson['aliases']) ? modelJson['aliases'].join("|") : (modelJson['aliases'] || ""),
     deviceType: modelJson['device_type'] as DeviceType,
-    colorModes: (libraryModel?.color_modes || []) as ColorMode[],
-    updatedAt: libraryModel ? new Date(libraryModel.updated_at) : null,
+    colorModes: (libraryModel.color_modes || []) as ColorMode[],
+    updatedAt: new Date(libraryModel.updated_at),
     createdAt: new Date(modelJson['created_at']),
     description: modelJson['description'],
     measureDevice: modelJson['measure_device'],
     measureMethod: modelJson['measure_method'],
     measureDescription: modelJson['measure_description'],
     calculationStrategy: modelJson['calculation_strategy'],
-    maxPower: libraryModel?.max_power !== undefined && libraryModel?.max_power > 0 ? libraryModel.max_power : null,
+    maxPower: libraryModel.max_power !== undefined && libraryModel.max_power > 0 ? libraryModel.max_power : null,
     standbyPower: modelJson['standby_power'],
     standbyPowerOn: modelJson['standby_power_on'],
-    author: modelJson['author'],
+    author: {
+      name: libraryModel.author_info.name,
+      email: libraryModel.author_info.email,
+      githubUsername: libraryModel.author_info.github,
+    },
     plots: plots,
     subProfiles: subProfiles,
-    subProfileCount: libraryModel?.sub_profile_count || 0,
+    subProfileCount: libraryModel.sub_profile_count || 0,
     minVersion: modelJson['min_version'] || null,
     compatibleIntegrations: modelJson['compatible_integrations'] || [],
   };

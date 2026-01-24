@@ -33,7 +33,11 @@ export const LibraryProvider = ({ children }: LibraryProviderProps) => {
                 modelId: model.id,
                 name: model.name,
                 aliases: model.aliases?.join("|") || "",
-                author: model.author,
+                author: {
+                  name: model.author_info.name,
+                  email: model.author_info.email,
+                  githubUsername: model.author_info.github,
+                },
                 deviceType: model.device_type as DeviceType,
                 colorModes: (model.color_modes || []) as ColorMode[],
                 updatedAt: new Date(model.updated_at),

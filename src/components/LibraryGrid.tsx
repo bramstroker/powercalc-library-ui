@@ -19,7 +19,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { useLibrary } from "../context/LibraryContext";
 import { ColorMode } from "../types/ColorMode";
-import type { PowerProfile } from "../types/PowerProfile";
+import type {Author, PowerProfile} from "../types/PowerProfile";
 
 import {AliasChips} from "./AliasChips";
 import {Header} from "./Header";
@@ -232,13 +232,25 @@ export const LibraryGrid = () => {
     {
       accessorKey: "author",
       header: "Author",
+      filterVariant: "text",
+      muiFilterTextFieldProps: { placeholder: "Filter" },
+      filterFn: (row, columnId, filterValue) => {
+        const author = row.getValue<Author>(columnId);
+        if (!author) return false;
+        if (!filterValue) return true;
+
+        const filterValueLower = String(filterValue).toLowerCase();
+        return (
+          author.name.toLowerCase().includes(filterValueLower) ||
+          author.githubUsername.toLowerCase().includes(filterValueLower)
+        );
+      },
       Cell: ({ cell }) => {
-        const author = cell.getValue<string>();
-        if (!author) return null;
+        const author = cell.getValue<Author>();
         return (
           <Box
             component="a"
-            href={`/author/${encodeURIComponent(author)}`}
+            href={`/author/${encodeURIComponent(author.githubUsername)}`}
             onClick={(e) => {
               e.stopPropagation(); // Prevent row click from triggering
             }}
@@ -250,7 +262,7 @@ export const LibraryGrid = () => {
               }
             }}
           >
-            {author}
+            {author.name}
           </Box>
         );
       },
