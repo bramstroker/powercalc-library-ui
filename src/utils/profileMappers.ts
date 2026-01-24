@@ -6,10 +6,10 @@ import type { Manufacturer, PowerProfile } from "../types/PowerProfile";
 /**
  * Maps library model data to a PowerProfile object
  */
-export function mapToBasePowerProfile(
+export const mapToBasePowerProfile = (
   model: LibraryModel,
   manufacturer: Manufacturer
-): PowerProfile {
+): PowerProfile => {
   return {
     manufacturer,
     modelId: model.id,

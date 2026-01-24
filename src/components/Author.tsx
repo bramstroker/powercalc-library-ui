@@ -1,6 +1,6 @@
+import GitHubIcon from '@mui/icons-material/GitHub';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import PersonIcon from '@mui/icons-material/Person';
-import GitHubIcon from '@mui/icons-material/GitHub';
 import { 
   Typography, 
   Box, 
