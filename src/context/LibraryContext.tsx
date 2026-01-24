@@ -4,9 +4,8 @@ import { createContext, useContext } from 'react';
 
 import type { LibraryJson, LibraryModel} from "../api/library.api";
 import {fetchLibrary} from "../api/library.api";
-import type { ColorMode } from '../types/ColorMode';
-import type { DeviceType } from '../types/DeviceType';
 import type { PowerProfile } from '../types/PowerProfile';
+import { mapToBasePowerProfile } from '../utils/profileMappers';
 
 interface LibraryContextType {
   powerProfiles: PowerProfile[];
@@ -28,28 +27,12 @@ export const LibraryProvider = ({ children }: LibraryProviderProps) => {
   const profiles: PowerProfile[] =
       (data?.manufacturers ?? []).flatMap(
           (manufacturer: { models: LibraryModel[]; full_name: string; dir_name: string }) =>
-              manufacturer.models.map((model) => ({
-                manufacturer: { fullName: manufacturer.full_name, dirName: manufacturer.dir_name },
-                modelId: model.id,
-                name: model.name,
-                aliases: model.aliases?.join("|") || "",
-                author: model.author,
-                deviceType: model.device_type as DeviceType,
-                colorModes: (model.color_modes || []) as ColorMode[],
-                updatedAt: new Date(model.updated_at),
-                createdAt: new Date(model.created_at),
-                description: model.description,
-                measureDevice: model.measure_device,
-                measureMethod: model.measure_method,
-                measureDescription: model.measure_description,
-                calculationStrategy: model.calculation_strategy,
-                maxPower: model.max_power ?? 0 > 0 ? model.max_power : null,
-                standbyPower: model.standby_power,
-                standbyPowerOn: model.standby_power_on,
-                subProfileCount: model.sub_profile_count,
-                minVersion: model.min_version,
-                compatibleIntegrations: model.compatible_integrations || [],
-              }))
+              manufacturer.models.map((model) => 
+                mapToBasePowerProfile(
+                  model, 
+                  { fullName: manufacturer.full_name, dirName: manufacturer.dir_name }
+                )
+              )
       );
 
   return (

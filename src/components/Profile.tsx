@@ -339,7 +339,7 @@ export const Profile = () => {
     {label: "Description", value: profile.description, icon: MoreIcon},
     {label: "Created", value: profile.createdAt.toLocaleString(), icon: HistoryIcon},
     {label: "Updated", value: profile.updatedAt?.toLocaleString(), icon: HistoryIcon},
-    {label: "Author", value: profile.author, icon: PersonIcon, filterKey: "author"},
+    {label: "Author", value: profile.author.name, icon: PersonIcon, filterKey: "author"},
     {
       label: "Calculation strategy",
       value: profile.calculationStrategy,
