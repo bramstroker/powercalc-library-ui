@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 import { useLibrary } from "../../context/LibraryContext";
 
-import { TimeSeriesChart } from "./analytics/TimeSeriesChart";
+import {Grouping, TimeSeriesChart} from "./analytics/TimeSeriesChart";
 
 type WeekData = {
   date: string;
@@ -55,7 +55,7 @@ export const WeeklyContributions = () => {
           series={weeklyData} 
           label="Contributions" 
           chartType="bar"
-          grouping="week"
+          grouping={Grouping.Week}
           height={400}
         />
       ) : (
