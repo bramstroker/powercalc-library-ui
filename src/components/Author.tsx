@@ -1,6 +1,5 @@
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import PersonIcon from '@mui/icons-material/Person';
 import { 
   Typography, 
   Box, 
@@ -10,7 +9,8 @@ import {
   List, 
   ListItem, 
   ListItemText,
-  Chip
+  Chip,
+  Avatar
 } from '@mui/material';
 import { useMemo } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
@@ -20,7 +20,7 @@ import type { PowerProfile } from '../types/PowerProfile';
 
 export const Author = () => {
   const { authorName } = useParams<{ authorName: string }>();
-  const { powerProfiles } = useLibrary();
+  const { powerProfiles, authors } = useLibrary();
 
   const authorProfiles = useMemo(() => {
     if (!authorName) return [];
@@ -28,6 +28,9 @@ export const Author = () => {
   }, [powerProfiles, authorName]);
 
   const contributionCount = authorProfiles.length;
+
+  // Get author details from the authors hashMap
+  const authorDetails = authorName ? authors[authorName] : null;
 
   // Group profiles by device type for better organization
   const profilesByDeviceType = useMemo(() => {
@@ -56,10 +59,24 @@ export const Author = () => {
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <PersonIcon fontSize="large" sx={{ mr: 2 }} />
-          <Typography variant="h4" component="h1">
-            {authorName}
-          </Typography>
+          <Avatar 
+            src={`https://github.com/${authorName}.png`}
+            alt={authorDetails?.name || authorName}
+            sx={{ width: 64, height: 64, mr: 2 }}
+          />
+          <Box>
+            <Typography variant="h4" component="h1">
+              {authorDetails?.name || authorName}
+            </Typography>
+            {authorDetails?.email && (
+              <Typography variant="body1" color="text.secondary">
+                {authorDetails.email}
+              </Typography>
+            )}
+            <Typography variant="body2" color="text.secondary">
+              GitHub: {authorName}
+            </Typography>
+          </Box>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>

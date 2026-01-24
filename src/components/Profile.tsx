@@ -36,7 +36,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import {useSuspenseQuery} from "@tanstack/react-query";
 import React, {useState} from "react";
-import {useLoaderData, useNavigate} from "react-router-dom";
+import {useLoaderData, useNavigate, Link as RouterLink} from "react-router-dom";
 
 import type { ProfileStats} from "../api/analytics.api";
 import {fetchProfile} from "../api/analytics.api";
@@ -83,9 +83,10 @@ const distributeIntoColumns = <T,>(items: T[], columns: number): T[][] => {
 
 interface PropertyItem {
   label: string;
-  value: string | number | undefined | null| string[];
+  value: string | number | undefined | null | string[];
   icon: React.ElementType;
   filterKey?: string;
+  renderFn?: (value: any) => React.ReactNode;
 }
 
 export const Profile = () => {
@@ -123,6 +124,10 @@ export const Profile = () => {
   }
 
   const PropertyValue = ({property}: { property: PropertyItem }) => {
+    if (property.renderFn && property.value != null) {
+      return property.renderFn(property.value);
+    }
+
     if (property.label === "Aliases" && property.value) {
       return <AliasChips aliases={property.value as string} marginTop={1}/>;
     }
@@ -339,7 +344,20 @@ export const Profile = () => {
     {label: "Description", value: profile.description, icon: MoreIcon},
     {label: "Created", value: profile.createdAt.toLocaleString(), icon: HistoryIcon},
     {label: "Updated", value: profile.updatedAt?.toLocaleString(), icon: HistoryIcon},
-    {label: "Author", value: profile.author.name, icon: PersonIcon, filterKey: "author"},
+    {
+      label: "Author", 
+      value: profile.author.name,
+      icon: PersonIcon, 
+      filterKey: "author",
+      renderFn: () => (
+        <RouterLink 
+          to={`/author/${profile.author.githubUsername}`}
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          {profile.author.name}
+        </RouterLink>
+      )
+    },
     {
       label: "Calculation strategy",
       value: profile.calculationStrategy,
