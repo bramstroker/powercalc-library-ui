@@ -74,7 +74,17 @@ export const Header = ({
                   alignItems: "center",
                 }}
             >
-              <Logo width={40}/>
+              <Box
+                component={RouterLink}
+                to="/"
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  textDecoration: 'none',
+                }}
+              >
+                <Logo width={40}/>
+              </Box>
 
               <Typography
                   variant="h6"
