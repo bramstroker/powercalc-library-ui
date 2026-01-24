@@ -1,4 +1,4 @@
-import { Chip, Stack, Popover, Typography, Box } from "@mui/material";
+import { Chip, Stack, Popover, Typography, Box, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 
 interface AliasChipsProps {
@@ -9,7 +9,7 @@ interface AliasChipsProps {
 
 export const AliasChips = ({ 
   aliases, 
-  maxVisible = 3,
+  maxVisible = 1,
   marginTop = 0
 }: AliasChipsProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -34,6 +34,10 @@ export const AliasChips = ({
   const visibleAliases = aliasArray.slice(0, maxVisible);
   const remainingCount = aliasArray.length - visibleAliases.length;
 
+  // Format remaining aliases for tooltip
+  const remainingAliases = aliasArray.slice(maxVisible);
+  const tooltipContent = remainingAliases.join(", ");
+
   return (
     <>
       <Stack 
@@ -56,14 +60,16 @@ export const AliasChips = ({
           />
         ))}
         {remainingCount > 0 && (
-          <Chip 
-            label={`+${remainingCount} more`} 
-            size="small" 
-            variant="outlined" 
-            color="secondary"
-            onClick={handleClick}
-            sx={{ cursor: "pointer" }}
-          />
+          <Tooltip title={tooltipContent} arrow placement="top">
+            <Chip 
+              label={`+${remainingCount} more`} 
+              size="small" 
+              variant="outlined" 
+              color="secondary"
+              onClick={handleClick}
+              sx={{ cursor: "pointer" }}
+            />
+          </Tooltip>
         )}
       </Stack>
       <Popover
@@ -99,4 +105,3 @@ export const AliasChips = ({
     </>
   );
 };
-

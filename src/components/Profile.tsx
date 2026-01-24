@@ -124,6 +124,25 @@ export const Profile = () => {
     );
   }
 
+  const TruncatedText = ({ text, maxLines = 2 }: { text: string, maxLines?: number }) => {
+    return (
+      <Tooltip title={text} arrow placement="top">
+        <Typography
+          variant="body2"
+          sx={{
+            display: '-webkit-box',
+            WebkitLineClamp: maxLines,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {text}
+        </Typography>
+      </Tooltip>
+    );
+  };
+
   const PropertyValue = ({property}: { property: PropertyItem }) => {
     if (property.renderFn && property.value != null) {
       return property.renderFn(property.value);
@@ -131,6 +150,10 @@ export const Profile = () => {
 
     if (property.label === "Aliases" && property.value) {
       return <AliasChips aliases={property.value as string} marginTop={1}/>;
+    }
+
+    if (property.label === "Measure description" && property.value) {
+      return <TruncatedText text={property.value as string} />;
     }
 
     if (Array.isArray(property.value)) {
