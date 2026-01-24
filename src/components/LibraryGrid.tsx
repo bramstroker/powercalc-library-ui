@@ -232,6 +232,28 @@ export const LibraryGrid = () => {
     {
       accessorKey: "author",
       header: "Author",
+      Cell: ({ cell }) => {
+        const author = cell.getValue<string>();
+        if (!author) return null;
+        return (
+          <Box
+            component="a"
+            href={`/author/${encodeURIComponent(author)}`}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent row click from triggering
+            }}
+            sx={{ 
+              textDecoration: 'none',
+              color: 'primary.main',
+              '&:hover': {
+                textDecoration: 'underline'
+              }
+            }}
+          >
+            {author}
+          </Box>
+        );
+      },
     },
     {
       accessorKey: "measureMethod",

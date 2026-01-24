@@ -93,9 +93,15 @@ export const StatisticsDisplay = ({
                 <TableRow key={item.name}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>
-                    <Link href={`/?${encodeURIComponent(filterQueryParam)}=${encodeURIComponent(item.name)}`}>
-                      {item.name}
-                    </Link>
+                    {filterQueryParam === 'author' ? (
+                      <Link href={`/author/${encodeURIComponent(item.name)}`}>
+                        {item.name}
+                      </Link>
+                    ) : (
+                      <Link href={`/?${encodeURIComponent(filterQueryParam)}=${encodeURIComponent(item.name)}`}>
+                        {item.name}
+                      </Link>
+                    )}
                   </TableCell>
                   <TableCell align="right">{item.count}</TableCell>
                   <TableCell align="right">
@@ -115,4 +121,3 @@ export const StatisticsDisplay = ({
     </>
   );
 };
-
