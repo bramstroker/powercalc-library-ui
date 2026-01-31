@@ -15,7 +15,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Avatar
 } from "@mui/material";
 import { useState } from "react";
 
@@ -94,9 +95,16 @@ export const StatisticsDisplay = ({
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>
                     {filterQueryParam === 'author' ? (
-                      <Link href={`/author/${encodeURIComponent(item.name)}`}>
-                        {item.name}
-                      </Link>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Avatar 
+                          src={`https://github.com/${item.name}.png`} 
+                          alt={item.name}
+                          sx={{ width: 24, height: 24 }}
+                        />
+                        <Link href={`/author/${encodeURIComponent(item.name)}`}>
+                          {item.name}
+                        </Link>
+                      </Box>
                     ) : (
                       <Link href={`/?${encodeURIComponent(filterQueryParam)}=${encodeURIComponent(item.name)}`}>
                         {item.name}
