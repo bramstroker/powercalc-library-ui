@@ -1,5 +1,5 @@
-import type {
-  SelectChangeEvent
+import {
+  SelectChangeEvent, Stack
 } from "@mui/material";
 import { 
   Table, 
@@ -59,9 +59,14 @@ export const StatisticsDisplay = ({
   return (
     <>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            {title}
-          </Typography>
+          <Stack>
+            <Typography variant="h4" component="h1" gutterBottom>
+              {title}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {aggregationsCount} total {nameColumnLabel.toLowerCase()}s
+            </Typography>
+          </Stack>
           <FormControl sx={{ minWidth: 120 }}>
             <InputLabel id="results-count-label">Show</InputLabel>
             <Select
