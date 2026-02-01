@@ -4,7 +4,7 @@ export const TopContributors = () => {
   return (
     <StatisticsAggregator
       title="Top 10 Most Active Contributors"
-      nameColumnLabel="Author"
+      nameColumnLabel="Contributor"
       propertyPath={["author", "githubUsername"]}
       filterQueryParam="author"
     />
