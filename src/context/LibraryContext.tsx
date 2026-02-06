@@ -1,71 +1,62 @@
-import { useSuspenseQuery} from "@tanstack/react-query";
-import type { ReactNode } from 'react';
-import { createContext, useContext } from 'react';
+import { useSuspenseQuery } from "@tanstack/react-query";
+import type { ReactNode } from "react";
+import { createContext, useContext, useMemo } from "react";
 
-import type { LibraryJson, LibraryModel} from "../api/library.api";
-import {fetchLibrary} from "../api/library.api";
-import type {Author, Manufacturer, PowerProfile} from '../types/PowerProfile';
-import { mapToBasePowerProfile } from '../utils/profileMappers';
+import type { LibraryJson } from "../api/library.api";
+import { fetchLibrary } from "../api/library.api";
+import type { Author, Manufacturer, PowerProfile } from "../types/PowerProfile";
+import { mapToBasePowerProfile } from "../utils/profileMappers";
 
 interface LibraryContextType {
   powerProfiles: PowerProfile[];
   total: number;
   authors: Record<string, Author>;
-  manufacturers: Record<string, Manufacturer>
+  manufacturers: Record<string, Manufacturer>;
 }
 
-const LibraryContext = createContext<LibraryContextType | undefined>(undefined);
+const LibraryContext = createContext<LibraryContextType | null>(null);
 
-interface LibraryProviderProps {
-  children: ReactNode;
-}
-
-export const LibraryProvider = ({ children }: LibraryProviderProps) => {
+export function LibraryProvider({ children }: { children: ReactNode }) {
   const { data } = useSuspenseQuery<LibraryJson>({
     queryKey: ["library"],
     queryFn: fetchLibrary,
   });
 
-  const profiles: PowerProfile[] =
-      (data?.manufacturers ?? []).flatMap(
-          (manufacturer: { models: LibraryModel[]; full_name: string; dir_name: string }) =>
-              manufacturer.models.map((model) => 
-                mapToBasePowerProfile(
-                  model, 
-                  { fullName: manufacturer.full_name, dirName: manufacturer.dir_name }
-                )
-              )
-      );
+  const value = useMemo<LibraryContextType>(() => {
+    const powerProfiles: PowerProfile[] = [];
+    const authors: Record<string, Author> = {};
+    const manufacturers: Record<string, Manufacturer> = {};
 
-  // Create a hashMap of authors and manufacturers
-  const authors: Record<string, Author> = {};
-  const manufacturers: Record<string, Manufacturer> = {};
-  profiles.forEach(profile => {
-    const { author, manufacturer } = profile;
-    manufacturers[manufacturer.dirName] = manufacturer;
-    if (author.githubUsername && !authors[author.githubUsername]) {
-      authors[author.githubUsername] = author;
+    for (const manufacturerData of data.manufacturers ?? []) {
+      const manufacturer = {
+        fullName: manufacturerData.full_name,
+        dirName: manufacturerData.dir_name
+      };
+      manufacturers[manufacturerData.dir_name] = manufacturer;
+
+      for (const modelData of manufacturerData.models ?? []) {
+        const profile = mapToBasePowerProfile(modelData, manufacturer);
+        powerProfiles.push(profile);
+
+        const { author } = profile;
+        const key = author.githubUsername;
+        if (key && !authors[key]) authors[key] = author;
+      }
     }
-  });
 
-  return (
-      <LibraryContext.Provider
-          value={{
-            powerProfiles: profiles,
-            total: profiles.length,
-            authors,
-            manufacturers
-          }}
-      >
-        {children}
-      </LibraryContext.Provider>
-  );
-};
+    return {
+      powerProfiles,
+      total: powerProfiles.length,
+      authors,
+      manufacturers,
+    };
+  }, [data]);
 
-export const useLibrary = (): LibraryContextType => {
-  const context = useContext(LibraryContext);
-  if (context === undefined) {
-    throw new Error('useLibrary must be used within a LibraryProvider');
-  }
-  return context;
-};
+  return <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>;
+}
+
+export function useLibrary(): LibraryContextType {
+  const ctx = useContext(LibraryContext);
+  if (!ctx) throw new Error("useLibrary must be used within a LibraryProvider");
+  return ctx;
+}
