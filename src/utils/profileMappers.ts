@@ -1,14 +1,15 @@
 import type { LibraryModel } from "../api/library.api";
 import type { ColorMode } from "../types/ColorMode";
 import type { DeviceType } from "../types/DeviceType";
-import type { Manufacturer, PowerProfile } from "../types/PowerProfile";
+import type {Manufacturer, PowerProfile, UsageStats} from "../types/PowerProfile";
 
 /**
  * Maps library model data to a PowerProfile object
  */
 export const mapToBasePowerProfile = (
   model: LibraryModel,
-  manufacturer: Manufacturer
+  manufacturer: Manufacturer,
+  usageStats: UsageStats,
 ): PowerProfile => {
   return {
     manufacturer,
@@ -35,5 +36,6 @@ export const mapToBasePowerProfile = (
     subProfileCount: model.sub_profile_count || 0,
     minVersion: model.min_version || null,
     compatibleIntegrations: model.compatible_integrations || [],
+    usageStats: usageStats
   };
 }

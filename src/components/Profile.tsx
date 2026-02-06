@@ -34,12 +34,9 @@ import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
-import {useSuspenseQuery} from "@tanstack/react-query";
 import React, {useState} from "react";
 import {useLoaderData, useNavigate, Link as RouterLink} from "react-router-dom";
 
-import type { ProfileStats} from "../api/analytics.api";
-import {fetchProfile} from "../api/analytics.api";
 import {useSummary} from "../hooks/useSummary";
 import type {FullPowerProfile} from "../types/PowerProfile";
 
@@ -93,11 +90,6 @@ interface PropertyItem {
 export const Profile = () => {
   const profile = useLoaderData() as FullPowerProfile;
   const [expandedSubProfiles, setExpandedSubProfiles] = useState<Record<string, boolean>>({});
-
-  const {data: profileMetrics} = useSuspenseQuery<ProfileStats>({
-    queryKey: ["analyticsProfile", profile.manufacturer.dirName, profile.modelId],
-    queryFn: () => fetchProfile(profile.manufacturer.dirName, profile.modelId),
-  });
 
   const toggleSubProfile = (name: string) => {
     setExpandedSubProfiles(prev => ({
@@ -304,7 +296,7 @@ export const Profile = () => {
     // Fetch summary data (will be cached by React Query)
     const {data: summaryData} = useSummary();
 
-    if (!profileMetrics || !summaryData) return null;
+    if (!summaryData) return null;
 
     return (
         <Card
@@ -324,12 +316,12 @@ export const Profile = () => {
               </Typography>
 
               <Typography variant="body2" sx={{fontWeight: 500}}>
-                Used in {profileMetrics.percentage}% of installations
+                Used in {profile.usageStats.percentage}% of installations
               </Typography>
 
               <LinearProgress
                   variant="determinate"
-                  value={profileMetrics.percentage}
+                  value={profile.usageStats.percentage}
                   sx={{
                     height: 8,
                     borderRadius: 999,
@@ -341,7 +333,7 @@ export const Profile = () => {
               />
 
               <Typography variant="body2" color="text.secondary">
-                {profileMetrics.installation_count} out of {summaryData.sampled_installations} total{' '}
+                {profile.usageStats.installationCount} out of {summaryData.sampled_installations} total{' '}
                 <Tooltip title="Active installations are all users who have opted in for analytics." arrow>
                   <span style={{textDecoration: 'underline', textDecorationStyle: 'dotted'}}>installations</span>
                 </Tooltip>

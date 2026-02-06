@@ -30,7 +30,7 @@ export type LibraryJson = {
   manufacturers: Array<{
     full_name: string;
     dir_name: string;
-    models: Array<LibraryModel>;
+    models: LibraryModel[];
   }>;
 };
 

@@ -7,6 +7,12 @@ export type Author = {
   githubUsername: string;
 }
 
+export type UsageStats = {
+  installationCount: number;
+  deviceCount: number;
+  percentage: number;
+}
+
 export type PowerProfile = {
   manufacturer: Manufacturer;
   modelId: string;
@@ -28,6 +34,7 @@ export type PowerProfile = {
   subProfileCount: number;
   minVersion?: string | null;
   compatibleIntegrations: string[];
+  usageStats: UsageStats;
 };
 
 export interface Manufacturer {

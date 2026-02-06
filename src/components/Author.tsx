@@ -1,5 +1,6 @@
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import PeopleIcon from '@mui/icons-material/People';
 import {
   Typography,
   Box,
@@ -212,7 +213,8 @@ export const Author = () => {
                         />
 
                         <Chip
-                            label={profile.deviceType}
+                            icon={<PeopleIcon />}
+                            label={profile.usageStats.installationCount}
                             size="small"
                             sx={{
                               display: { xs: 'none', sm: 'inline-flex' },

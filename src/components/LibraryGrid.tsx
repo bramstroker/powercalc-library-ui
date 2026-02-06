@@ -133,6 +133,7 @@ export const LibraryGrid = () => {
     subProfileCount: false,
     updatedAt: false,
     createdAt: false,
+    installationCount: false,
   };
 
   const isFirstRender = useRef(true);
@@ -315,6 +316,11 @@ export const LibraryGrid = () => {
       accessorKey: "subProfileCount",
       header: "Sub profile count",
     },
+    {
+      id: "installationCount",
+      accessorKey: "usageStats.installationCount",
+      header: "Installation count"
+    }
   ];
 
   const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
