@@ -4,13 +4,14 @@ import { createContext, useContext } from 'react';
 
 import type { LibraryJson, LibraryModel} from "../api/library.api";
 import {fetchLibrary} from "../api/library.api";
-import type { Author, PowerProfile } from '../types/PowerProfile';
+import type {Author, Manufacturer, PowerProfile} from '../types/PowerProfile';
 import { mapToBasePowerProfile } from '../utils/profileMappers';
 
 interface LibraryContextType {
   powerProfiles: PowerProfile[];
   total: number;
   authors: Record<string, Author>;
+  manufacturers: Record<string, Manufacturer>
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined);
@@ -36,10 +37,12 @@ export const LibraryProvider = ({ children }: LibraryProviderProps) => {
               )
       );
 
-  // Create a hashMap of authors keyed by githubUsername
+  // Create a hashMap of authors and manufacturers
   const authors: Record<string, Author> = {};
+  const manufacturers: Record<string, Manufacturer> = {};
   profiles.forEach(profile => {
-    const { author } = profile;
+    const { author, manufacturer } = profile;
+    manufacturers[manufacturer.dirName] = manufacturer;
     if (author.githubUsername && !authors[author.githubUsername]) {
       authors[author.githubUsername] = author;
     }
@@ -51,6 +54,7 @@ export const LibraryProvider = ({ children }: LibraryProviderProps) => {
             powerProfiles: profiles,
             total: profiles.length,
             authors,
+            manufacturers
           }}
       >
         {children}

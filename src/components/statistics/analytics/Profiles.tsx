@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import {fetchProfiles} from "../../../api/analytics.api";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
+import {useLibrary} from "../../../context/LibraryContext";
 
 
 export const Profiles = () => {
@@ -17,6 +18,7 @@ export const Profiles = () => {
     queryKey: ["profilesData"],
     queryFn: fetchProfiles,
   });
+  const library = useLibrary()
 
   const columns: GridColDef[] = [
     {
@@ -24,7 +26,10 @@ export const Profiles = () => {
       type: 'string',
       headerName: 'Manufacturer',
       flex: 1.5,
-      minWidth: 200
+      minWidth: 200,
+      valueFormatter: (value: string) => {
+        return library.manufacturers[value]?.fullName || value
+      },
     },
     {
       field: 'model',
