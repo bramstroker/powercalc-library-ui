@@ -10,6 +10,9 @@ export const mapToBasePowerProfile = (
   model: LibraryModel,
   manufacturer: Manufacturer
 ): PowerProfile => {
+  if (!model.author_info) {
+    throw new Error(`Model ${model.id} is missing author_info`);
+  }
   return {
     manufacturer,
     modelId: model.id,
