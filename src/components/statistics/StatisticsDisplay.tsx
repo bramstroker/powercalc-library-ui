@@ -1,5 +1,6 @@
-import {
-  SelectChangeEvent, Stack
+import type {
+  SelectChangeEvent} from "@mui/material";
+import { Stack
 } from "@mui/material";
 import { 
   Table, 

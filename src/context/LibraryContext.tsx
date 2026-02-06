@@ -16,7 +16,7 @@ interface LibraryContextType {
 
 const LibraryContext = createContext<LibraryContextType | null>(null);
 
-export function LibraryProvider({ children }: { children: ReactNode }) {
+export const LibraryProvider = ({ children }: { children: ReactNode }) => {
   const { data } = useSuspenseQuery<LibraryJson>({
     queryKey: ["library"],
     queryFn: fetchLibrary,
@@ -55,7 +55,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   return <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>;
 }
 
-export function useLibrary(): LibraryContextType {
+export const useLibrary = (): LibraryContextType => {
   const ctx = useContext(LibraryContext);
   if (!ctx) throw new Error("useLibrary must be used within a LibraryProvider");
   return ctx;

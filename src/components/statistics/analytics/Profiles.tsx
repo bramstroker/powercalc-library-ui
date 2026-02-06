@@ -7,9 +7,9 @@ import {useSuspenseQuery} from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
 import {fetchProfiles} from "../../../api/analytics.api";
+import {useLibrary} from "../../../context/LibraryContext";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
-import {useLibrary} from "../../../context/LibraryContext";
 
 
 export const Profiles = () => {
