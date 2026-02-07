@@ -192,24 +192,26 @@ export const Author = () => {
                         <ListItemText
                             primary={profile.name}
                             secondary={`${profile.manufacturer.fullName} • Created: ${profile.createdAt.toLocaleDateString()}`}
-                            primaryTypographyProps={{
-                              sx: {
-                                fontSize: { xs: '0.95rem', sm: '1rem' },
-                                lineHeight: 1.2,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                              },
-                            }}
-                            secondaryTypographyProps={{
-                              sx: {
-                                fontSize: '0.8rem',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                              },
-                            }}
                             sx={{ my: 0, minWidth: 0 }}
+                            slotProps={{
+                              primary: {
+                                sx: {
+                                  fontSize: { xs: '0.95rem', sm: '1rem' },
+                                  lineHeight: 1.2,
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                },
+                              },
+                              secondary: {
+                                sx: {
+                                  fontSize: '0.8rem',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                },
+                              }
+                            }}
                         />
 
                         <Chip
