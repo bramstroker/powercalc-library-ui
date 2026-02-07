@@ -12,7 +12,7 @@ import {
   Paper,
   IconButton,
   Typography,
-  Avatar,
+  Avatar, useMediaQuery, useTheme,
 } from "@mui/material";
 import * as React from "react";
 import ReactCountryFlag from "react-country-flag";
@@ -37,12 +37,16 @@ export const CountryListPopup = ({ open, onClose, data }: CountryListPopupProps)
     return regionNames.of(code.toUpperCase()) ?? code;
   };
 
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
     <Dialog
       open={open}
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      fullScreen={fullScreen}
       aria-labelledby="country-list-dialog-title"
     >
       <DialogTitle id="country-list-dialog-title">
@@ -65,7 +69,6 @@ export const CountryListPopup = ({ open, onClose, data }: CountryListPopupProps)
             <TableHead>
               <TableRow>
                 <TableCell>Rank</TableCell>
-                <TableCell>Flag</TableCell>
                 <TableCell>Country</TableCell>
                 <TableCell align="right">Installation Count</TableCell>
                 <TableCell align="right">Percentage</TableCell>
@@ -75,27 +78,26 @@ export const CountryListPopup = ({ open, onClose, data }: CountryListPopupProps)
               {sortedData.map((country, index) => (
                 <TableRow key={country.country_code}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>
+                  <TableCell sx={{ display: "flex", alignItems: "center" }}>
                     <Avatar
-                      sx={{
-                        width: 24,
-                        height: 24,
-                        bgcolor: "transparent",
-                      }}
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          bgcolor: "transparent",
+                          mr: 2,
+                        }}
                     >
                       <ReactCountryFlag
-                        svg
-                        countryCode={country.country_code.toUpperCase()}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                        }}
+                          svg
+                          countryCode={country.country_code.toUpperCase()}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                          }}
                       />
                     </Avatar>
-                  </TableCell>
-                  <TableCell>
                     <Typography variant="body2">
                       {getCountryName(country.country_code)}
                     </Typography>
