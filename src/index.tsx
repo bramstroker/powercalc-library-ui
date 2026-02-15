@@ -1,12 +1,9 @@
-import {createTheme} from "@mui/material";
+import { createTheme } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
-import {ThemeProvider} from "@mui/material/styles";
-import {QueryClientProvider} from "@tanstack/react-query";
+import { ThemeProvider } from "@mui/material/styles";
+import { QueryClientProvider } from "@tanstack/react-query";
 import ReactDOM from "react-dom/client";
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { Author } from "./components/Author";
 import { LibraryGrid } from "./components/LibraryGrid";
@@ -21,109 +18,118 @@ import { TopDeviceTypes } from "./components/statistics/TopDeviceTypes";
 import { TopManufacturers } from "./components/statistics/TopManufacturers";
 import { TopMeasureDevices } from "./components/statistics/TopMeasureDevices";
 import { WeeklyContributions } from "./components/statistics/WeeklyContributions";
-import {LibraryProvider} from "./context/LibraryContext";
-import {DefaultPageLayout} from "./layouts/DefaultPageLayout";
-import {LibraryGridPageLayout} from "./layouts/LibraryGridPageLayout";
-import {powerProfileLoader} from "./loaders/powerProfileLoader";
-import {queryClient} from "./queryClient";
-import {RouteError} from "./routes/RouteError";
+import { LibraryProvider } from "./context/LibraryContext";
+import { DefaultPageLayout } from "./layouts/DefaultPageLayout";
+import { LibraryGridPageLayout } from "./layouts/LibraryGridPageLayout";
+import { powerProfileLoader } from "./loaders/powerProfileLoader";
+import { queryClient } from "./queryClient";
+import { RouteError } from "./routes/RouteError";
+
+import * as Sentry from "@sentry/react";
+
+Sentry.init({
+  dsn: "https://0d99b37d629842e88ae62be9ecddd530@o4510889348890624.ingest.de.sentry.io/4510889353936976",
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true,
+});
 
 const router = createBrowserRouter([
   {
-    element: <LibraryGridPageLayout/>,
+    element: <LibraryGridPageLayout />,
     errorElement: <RouteError />,
     children: [
       {
         path: "/",
-        element: <LibraryGrid/>,
+        element: <LibraryGrid />,
       },
-    ]
+    ],
   },
   {
-    element: <DefaultPageLayout/>,
+    element: <DefaultPageLayout />,
     errorElement: <RouteError />,
     children: [
       {
         path: "/profiles/:manufacturer/:model",
-        element: <Profile/>,
-        loader: powerProfileLoader
+        element: <Profile />,
+        loader: powerProfileLoader,
       },
       {
         path: "/statistics/top-measure-devices",
-        element: <TopMeasureDevices/>,
+        element: <TopMeasureDevices />,
       },
       {
         path: "/statistics/top-contributors",
-        element: <TopContributors/>,
+        element: <TopContributors />,
       },
       {
         path: "/statistics/top-manufacturers",
-        element: <TopManufacturers/>,
+        element: <TopManufacturers />,
       },
       {
         path: "/statistics/top-device-types",
-        element: <TopDeviceTypes/>,
+        element: <TopDeviceTypes />,
       },
       {
         path: "/statistics/weekly-contributions",
-        element: <WeeklyContributions/>,
+        element: <WeeklyContributions />,
       },
       {
         path: "/analytics",
-        element: <AnalyticsOverview/>,
+        element: <AnalyticsOverview />,
       },
       {
         path: "/analytics/sensor-dimensions",
-        element: <SensorDimensions/>,
+        element: <SensorDimensions />,
       },
       {
         path: "/analytics/sensor-dimensions/:dimension",
-        element: <SensorDimensions/>,
+        element: <SensorDimensions />,
       },
       {
         path: "/analytics/installations",
-        element: <Installations/>,
+        element: <Installations />,
       },
       {
         path: "/analytics/profiles",
-        element: <Profiles/>,
+        element: <Profiles />,
       },
       {
         path: "/analytics/time-series",
-        element: <TimeSeries/>,
+        element: <TimeSeries />,
       },
       {
         path: "/author/:authorName",
-        element: <Author/>,
-      }
-    ]
-  }]);
+        element: <Author />,
+      },
+    ],
+  },
+]);
 
 const root = ReactDOM.createRoot(
-    document.getElementById("root") as HTMLElement,
+  document.getElementById("root") as HTMLElement,
 );
-
 
 const theme = createTheme({
   cssVariables: true,
   palette: {
-    mode: 'dark',
+    mode: "dark",
     primary: {
-      main: '#7986cb',
+      main: "#7986cb",
     },
     secondary: {
-      main: '#f50057',
+      main: "#f50057",
     },
-  }
+  },
 });
 
 root.render(
-    <ThemeProvider theme={theme}>
-      <CssBaseline enableColorScheme/>
-      <QueryClientProvider client={queryClient}>
-        <LibraryProvider>
-          <RouterProvider router={router}/>
-        </LibraryProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+  <ThemeProvider theme={theme}>
+    <CssBaseline enableColorScheme />
+    <QueryClientProvider client={queryClient}>
+      <LibraryProvider>
+        <RouterProvider router={router} />
+      </LibraryProvider>
+    </QueryClientProvider>
+  </ThemeProvider>,
 );
