@@ -1,10 +1,13 @@
 import BarChartIcon from "@mui/icons-material/BarChart";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import {
   Typography,
   Box,
   Paper,
   Grid,
   Button,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import {mangoFusionPalette} from "@mui/x-charts";
 import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
@@ -20,7 +23,21 @@ import type { MetricKey } from "./MetricsSelect";
 import { MetricsSelect } from "./MetricsSelect";
 import { SensorDimensionDetailView } from "./SensorDimensionDetailView";
 
+type Dimension = {
+  title: string;
+  description: string;
+}
 
+const DIMENSIONS: Record<string, Dimension> = {
+  by_config_type: { title: "Config type", description: "How the Powercalc sensor is configured" },
+  by_device_type: { title: "Device type", description: "The device type of power profile used" },
+  by_entity_type: { title: "Entity type", description: "The type of Powercalc entity (power, energy, utility_meter)" },
+  by_group_type: { title: "Group type", description: "The type of group" },
+  by_power_profile_source: { title: "PowerProfile source", description: "How the virtual power sensor is configured" },
+  by_sensor_type: { title: "Sensor type", description: "The type of Powercalc sensor" },
+  by_source_domain: { title: "Source domain", description: "The domain of the source entity" },
+  by_strategy: { title: "Calculation strategy", description: "The strategy used to calculate power" },
+}
 
 const groupByDimension = (data: SensorStats[]): Record<string, SensorStats[]> => {
   return data.reduce<Record<string, SensorStats[]>>((acc, item) => {
@@ -146,18 +163,28 @@ export const SensorDimensions = () => {
                 }))
                 .filter((x) => x.value > 0);
 
-            const title = dimension
+            const dimensionInfo = DIMENSIONS[dimension];
+            const title = dimensionInfo?.title ?? dimension
                 .replace("by_", "")
                 .replace(/_/g, " ")
                 .replace(/\b\w/g, (l) => l.toUpperCase());
 
             return (
-                <Grid size={{ xs: 12, md: 6 }}>
+                <Grid size={{ xs: 12, md: 6 }} key={dimension}>
                   <Paper sx={{ p: 3, height: "100%" }}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                      <Typography variant="h6">
-                        {title}
-                      </Typography>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Typography variant="h6">
+                          {title}
+                        </Typography>
+                        {dimensionInfo?.description && (
+                          <Tooltip title={dimensionInfo.description} arrow>
+                            <IconButton size="small" sx={{ ml: 0.5, color: "text.secondary" }}>
+                              <InfoOutlinedIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </Box>
                       <Button
                         variant="outlined"
                         size="small"

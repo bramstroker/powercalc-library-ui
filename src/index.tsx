@@ -1,6 +1,7 @@
 import { createTheme } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
+import * as Sentry from "@sentry/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -25,7 +26,6 @@ import { powerProfileLoader } from "./loaders/powerProfileLoader";
 import { queryClient } from "./queryClient";
 import { RouteError } from "./routes/RouteError";
 
-import * as Sentry from "@sentry/react";
 
 Sentry.init({
   dsn: "https://0d99b37d629842e88ae62be9ecddd530@o4510889348890624.ingest.de.sentry.io/4510889353936976",
