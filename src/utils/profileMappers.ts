@@ -29,9 +29,9 @@ export const mapToBasePowerProfile = (
     standbyPower: model.standby_power,
     standbyPowerOn: model.standby_power_on,
     author: {
-      name: model.author_info.name,
-      email: model.author_info.email,
-      githubUsername: model.author_info.github,
+      name: model.author_info?.name ?? '',
+      email: model.author_info?.email,
+      githubUsername: model.author_info?.github ?? '',
     },
     subProfileCount: model.sub_profile_count || 0,
     minVersion: model.min_version || null,
