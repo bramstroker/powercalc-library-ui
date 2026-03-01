@@ -3,6 +3,7 @@ export enum DeviceType {
   COVER = "cover",
   FAN = "fan",
   GENERIC_IOT = "generic_iot",
+  HEATING = "heating",
   LIGHT = "light",
   POWER_METER = "power_meter",
   PRINTER = "printer",
