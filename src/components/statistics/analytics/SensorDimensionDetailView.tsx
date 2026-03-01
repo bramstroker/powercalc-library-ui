@@ -95,7 +95,8 @@ export const SensorDimensionDetailView = ({
           <Box
               sx={{
                 display: "flex",
-                alignItems: "center",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: { xs: "flex-start", md: "center" },
                 justifyContent: "space-between",
                 gap: 2,
                 mb: 4,
@@ -129,7 +130,7 @@ export const SensorDimensionDetailView = ({
             />
           </Box>
 
-          <Paper sx={{ p: 3 }}>
+          <Paper sx={{ p: { xs: 1, sm: 2 } }}>
             <Box>
               {chartData.length === 0 ? (
                   <Box
@@ -148,11 +149,12 @@ export const SensorDimensionDetailView = ({
                   <BarChart
                       dataset={chartData}
                       height={chartHeight}
+                      margin={{ left: 80, right: 20, top: 20, bottom: 40 }}
                       yAxis={[
                         {
                           scaleType: "band",
                           dataKey: "key",
-                          width: 140
+                          width: 80
                         }
                       ]}
                       xAxis={[

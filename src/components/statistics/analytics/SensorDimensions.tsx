@@ -139,7 +139,7 @@ export const SensorDimensions = () => {
                 </li>
               </Box>
             }
-            rightContent={
+            filterSection={
               <MetricsSelect
                   value={selectedMetric}
                   onChange={handleMetricChange}

@@ -188,7 +188,7 @@ export const TimeSeries = () => {
       <AnalyticsHeader
         title={metricOption.label}
         description={metricOption.description ?? ""}
-        rightContent={filterControls}
+        filterSection={filterControls}
       />
 
       <Box sx={{ mt: 4, mb: 4 }}>

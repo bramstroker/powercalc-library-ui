@@ -28,7 +28,7 @@ export const VersionChart = ({
           variant="elevation"
           sx={{display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1}}
       >
-        <CardContent>
+        <CardContent sx={{ p: { xs: 2, sm: 2 }, '&:last-child': { pb: { xs: 1, sm: 2 } } }}>
           <Typography variant="h6" gutterBottom>
             {title}
           </Typography>
@@ -36,6 +36,7 @@ export const VersionChart = ({
             <BarChart
                 layout="horizontal"
                 hideLegend={true}
+                margin={{ right: 20, top: 20, bottom: 40 }}
                 xAxis={[{
                   label: 'Installation Count',
                 }]}
@@ -49,7 +50,7 @@ export const VersionChart = ({
                 yAxis={[{
                   scaleType: 'band',
                   data: labels,
-                  width: 120
+                  width: 80
                 }]}
             />
           </Box>

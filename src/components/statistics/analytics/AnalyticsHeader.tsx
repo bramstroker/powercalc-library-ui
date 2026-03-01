@@ -11,20 +11,29 @@ import {useSummary} from "../../../hooks/useSummary";
 interface AnalyticsHeaderProps {
   title: string;
   description: string;
-  rightContent?: ReactNode;
+  filterSection?: ReactNode;
 }
 
 export const AnalyticsHeader = ({
   title,
   description,
   children,
-  rightContent,
+  filterSection,
 }: PropsWithChildren<AnalyticsHeaderProps>) => {
   const summary = useSummary();
 
   return (
     <>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "top", mb: 4 }}>
+      <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", md: "flex-start" },
+            gap: 2,
+            mb: 4,
+          }}
+      >
         <Box>
           {title && (
             <Typography variant="h4" component="h1" gutterBottom>
@@ -53,7 +62,7 @@ export const AnalyticsHeader = ({
           </Typography>
         </Box>
 
-        {rightContent}
+        {filterSection}
       </Box>
     </>
   );
