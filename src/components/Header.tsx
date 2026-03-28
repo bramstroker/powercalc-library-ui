@@ -21,6 +21,7 @@ import {useLibrary} from "../context/LibraryContext";
 import type {PowerProfile} from "../types/PowerProfile";
 
 import {Logo} from "./Logo";
+import {SupporterTicker} from "./SupporterTicker";
 
 
 export type HeaderProps = {
@@ -56,6 +57,7 @@ export const Header = ({
           position="static"
           sx={{justifyContent: "center", backgroundColor: indigo[700]}}
       >
+        <SupporterTicker />
         <Container maxWidth="xl">
           <Toolbar
               disableGutters
