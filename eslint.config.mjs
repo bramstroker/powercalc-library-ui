@@ -7,7 +7,7 @@ import tsPlugin from "@typescript-eslint/eslint-plugin";
 
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
-import importPlugin from "eslint-plugin-import";
+import importPlugin from "eslint-plugin-import-x";
 import unusedImports from "eslint-plugin-unused-imports";
 
 const tsconfigRootDir = new URL(".", import.meta.url).pathname;
@@ -52,7 +52,7 @@ export default [
         },
       ],
     },
-    settings: { react: { version: "detect" } },
+    settings: { react: { version: "19.0" } },
   },
 
   // -------------------------
@@ -151,7 +151,7 @@ export default [
       "@typescript-eslint/no-misused-promises": "error",
       "@typescript-eslint/consistent-type-imports": ["warn", { prefer: "type-imports" }],
     },
-    settings: { react: { version: "detect" } },
+    settings: { react: { version: "19.0" } },
   },
 
   // -------------------------
