@@ -56,8 +56,7 @@ export const Author = () => {
           <Stack
               direction={{ xs: 'column', sm: 'row' }}
               spacing={{ xs: 1.5, sm: 2 }}
-              alignItems={{ xs: 'flex-start', sm: 'center' }}
-              sx={{ mb: { xs: 1.5, sm: 2 } }}
+              sx={{ alignItems: { xs: 'flex-start', sm: 'center' }, mb: { xs: 1.5, sm: 2 } }}
           >
             <Avatar
                 src={`https://github.com/${authorName}.png`}
@@ -95,7 +94,7 @@ export const Author = () => {
           </Stack>
 
           {/* Contribution count */}
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: { xs: 1.5, sm: 2 } }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: { xs: 1.5, sm: 2 } }}>
             <LibraryBooksIcon fontSize="small" />
             <Typography variant="body2">
               {contributionCount} contribution{contributionCount !== 1 ? 's' : ''}
@@ -155,9 +154,7 @@ export const Author = () => {
             <Paper key={deviceType} elevation={2} sx={{ mb: { xs: 0, sm: 3 }, p: { xs: 1, sm: 2 } }}>
               <Stack
                   direction="row"
-                  alignItems="baseline"
-                  justifyContent="space-between"
-                  sx={{ px: { xs: 1, sm: 0 }, mb: 1 }}
+                  sx={{ alignItems: 'baseline', justifyContent: 'space-between', px: { xs: 1, sm: 0 }, mb: 1 }}
               >
                 <Typography
                     variant="h6"

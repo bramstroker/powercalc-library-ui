@@ -10,7 +10,7 @@ import {
   IconButton,
 } from "@mui/material";
 import {mangoFusionPalette} from "@mui/x-charts";
-import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
+import { PieChart, pieClasses } from "@mui/x-charts/PieChart";
 import { useSuspenseQuery} from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -222,7 +222,7 @@ export const SensorDimensions = () => {
                                 },
                               ]}
                               sx={{
-                                [`& .${pieArcLabelClasses.root}`]: {
+                                [`& .${pieClasses.arcLabel}`]: {
                                   fill: "white",
                                   fontSize: 14,
                                 },

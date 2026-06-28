@@ -55,7 +55,7 @@ export const TopCountriesList = ({ data, limit }: Props) => {
             sx={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1 }}
         >
           <CardContent>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+            <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
               <Typography variant="h6" gutterBottom>
                 Users by country
               </Typography>

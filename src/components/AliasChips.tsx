@@ -89,7 +89,7 @@ export const AliasChips = ({
           <Typography variant="subtitle1" gutterBottom>
             All Aliases
           </Typography>
-          <Stack direction="row" spacing={1} flexWrap="wrap">
+          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
             {aliasArray.map((alias, index) => (
               <Chip 
                 key={index} 

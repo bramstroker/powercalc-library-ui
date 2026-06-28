@@ -28,9 +28,9 @@ export const Plot = ({ link }: { link: PlotLink }) => {
         <CardActionArea>
           <Typography
             gutterBottom
-            paddingLeft="20px"
             variant="subtitle1"
             component="div"
+            sx={{ paddingLeft: '20px' }}
           >
             {link.label}
           </Typography>
