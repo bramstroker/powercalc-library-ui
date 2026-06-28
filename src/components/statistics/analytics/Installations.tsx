@@ -127,7 +127,7 @@ export const Installations = () => {
             description="Overview of Home Assistant and PowerCalc versions used in installations."
         />
 
-        <Grid container spacing={4} alignItems="stretch">
+        <Grid container spacing={4} sx={{ alignItems: 'stretch' }}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Stack spacing={4}>
               <VersionChart title="Home Assistant Versions" data={haVersions} color="#7986cb" />

@@ -103,7 +103,7 @@ export const TimeSeries = () => {
   ];
 
   const filterControls = (
-    <Stack direction="row" spacing={2} alignItems="flex-start">
+    <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
       <FormControl sx={{ minWidth: 150 }}>
         <InputLabel id="metric-select-label">Metric</InputLabel>
         <Select
@@ -141,8 +141,10 @@ export const TimeSeries = () => {
         type="date"
         value={startDate.toISOString().split('T')[0]}
         onChange={handleStartDateChange}
-        InputLabelProps={{
-          shrink: true,
+        slotProps={{
+          inputLabel: {
+            shrink: true,
+          },
         }}
         sx={{ width: 150 }}
       />
@@ -152,8 +154,10 @@ export const TimeSeries = () => {
         type="date"
         value={endDate.toISOString().split('T')[0]}
         onChange={handleEndDateChange}
-        InputLabelProps={{
-          shrink: true,
+        slotProps={{
+          inputLabel: {
+            shrink: true,
+          },
         }}
         sx={{ width: 150 }}
       />
