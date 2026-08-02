@@ -1,10 +1,38 @@
 {
   "extends": ["config:recommended", ":disableDependencyDashboard"],
+  "minimumReleaseAge": "3 days",
+  "internalChecksFilter": "strict",
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "platformAutomerge": false,
   "packageRules": [
     {
       "matchPackageNames": ["typescript"],
       "allowedVersions": "<7.0.0",
       "description": "TypeScript 7 is the Go-native port and ships no stable programmatic compiler API (it lands in 7.1). typescript-eslint cannot parse with it, so type-aware linting breaks. Hold on 6.x until 7.1 and typescript-eslint support land."
+    },
+    {
+      "description": "Automerge GitHub Actions minor and patch updates. Scope is CI only, and a break fails loudly in the workflow run.",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "description": "Automerge devDependency minor and patch updates. These never reach the production bundle, and lint/type-check/test cover them.",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "description": "Automerge patch updates for runtime dependencies. Merging master deploys to production, so minors and majors stay manual.",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "description": "Never automerge a major, regardless of dep type.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
     }
   ]
 }
