@@ -1,3 +1,10 @@
 {
-  "extends": ["config:recommended", ":disableDependencyDashboard"]
+  "extends": ["config:recommended", ":disableDependencyDashboard"],
+  "packageRules": [
+    {
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7.0.0",
+      "description": "TypeScript 7 is the Go-native port and ships no stable programmatic compiler API (it lands in 7.1). typescript-eslint cannot parse with it, so type-aware linting breaks. Hold on 6.x until 7.1 and typescript-eslint support land."
+    }
+  ]
 }
