@@ -24,7 +24,9 @@ import {
   Collapse,
   IconButton,
   Card, CardContent, Stack, LinearProgress,
-  Tooltip
+  Tooltip,
+  useMediaQuery,
+  useTheme
 } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -61,7 +63,7 @@ const CustomTabPanel = (props: TabPanelProps) => {
           aria-labelledby={`simple-tab-${index}`}
           {...other}
       >
-        {value === index && <Box sx={{p: 3}}>{children}</Box>}
+        {value === index && <Box sx={{px: {xs: 0, sm: 3}, py: 3}}>{children}</Box>}
       </div>
   );
 }
@@ -73,6 +75,11 @@ const a11yProps = (index: number) => {
   };
 };
 
+/**
+ * Deals the items across `columns` columns round-robin, so reading the rendered columns left to
+ * right, row by row, yields the original order. That only holds while every column sits on one row,
+ * which is why the count is chosen per breakpoint rather than fixed at 4.
+ */
 const distributeIntoColumns = <T,>(items: T[], columns: number): T[][] => {
   const result: T[][] = Array.from({length: columns}, () => []);
   items.forEach((item, i) => result[i % columns].push(item));
@@ -214,10 +221,11 @@ export const Profile = () => {
       <Grid size={{xs: 12, md: 6}}>
         <Grid container spacing={1}>
           {chunkedProperties.map((chunk, columnIndex) => (
-              <Grid size={{xs: 12, sm: 6, md: 3}} key={columnIndex}>
+              <Grid size={12 / chunkedProperties.length} key={columnIndex}>
                 {chunk.map((property) => (
                     <ListItem
                         key={`${property.label}-${property.filterKey ?? ""}-${String(property.value)}`}
+                        data-testid="profile-attribute"
                     >
                       <ListItemAvatar>
                         <Avatar>
@@ -441,7 +449,11 @@ export const Profile = () => {
           property.value !== "" &&
           !(Array.isArray(property.value) && property.value.length === 0),
   );
-  const chunkedProperties = distributeIntoColumns(filteredProperties, 4)
+  const theme = useTheme();
+  const isTabletUp = useMediaQuery(theme.breakpoints.up("sm"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const columnCount = isDesktop ? 4 : isTabletUp ? 2 : 1;
+  const chunkedProperties = distributeIntoColumns(filteredProperties, columnCount)
 
   const [value, setValue] = React.useState(0);
   const navigate = useNavigate();
@@ -461,7 +473,7 @@ export const Profile = () => {
       <>
         <Grid container spacing={2}>
           <Grid size={{xs: 12, md: 8, lg: 9}}>
-            <Box sx={{display: "flex", mb: 2, gap: 2}}>
+            <Box sx={{display: "flex", flexWrap: "wrap", mb: 2, gap: 2}}>
               <Button
                   variant="contained"
                   color="primary"
@@ -497,7 +509,14 @@ export const Profile = () => {
         </Grid>
 
         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-          <Tabs value={value} onChange={handleChange} indicatorColor="secondary">
+          <Tabs
+              value={value}
+              onChange={handleChange}
+              indicatorColor="secondary"
+              variant={isTabletUp ? "standard" : "scrollable"}
+              scrollButtons="auto"
+              allowScrollButtonsMobile
+          >
             {tabs.map((t, i) => (
                 <Tab key={t.label} label={t.label} {...a11yProps(i)} />
             ))}

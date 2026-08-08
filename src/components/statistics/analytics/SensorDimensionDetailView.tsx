@@ -6,6 +6,8 @@ import {
   Paper,
   IconButton,
   Tooltip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { bluePalette } from "@mui/x-charts";
 import { BarChart } from "@mui/x-charts/BarChart";
@@ -43,6 +45,8 @@ export const SensorDimensionDetailView = ({
  onBack,
  onMetricChange,
 }: DimensionDetailViewProps) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [selectedMetric, setSelectedMetric] = React.useState<MetricKey>(metric);
@@ -149,12 +153,12 @@ export const SensorDimensionDetailView = ({
                   <BarChart
                       dataset={chartData}
                       height={chartHeight}
-                      margin={{ left: 80, right: 20, top: 20, bottom: 40 }}
+                      margin={{ left: 0, right: isMobile ? 8 : 20, top: 20, bottom: 0 }}
                       yAxis={[
                         {
                           scaleType: "band",
                           dataKey: "key",
-                          width: 80
+                          width: isMobile ? 96 : 140
                         }
                       ]}
                       xAxis={[
