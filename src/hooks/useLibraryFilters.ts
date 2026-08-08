@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import type { FacetKey, LibraryFilters, Range, RangeKey } from "../types/LibraryFilters";
@@ -92,6 +92,14 @@ export type UseLibraryFilters = LibraryFilterActions & {
   filters: LibraryFilters;
 };
 
+const cloneFilters = (filters: LibraryFilters): LibraryFilters => ({
+  ...filters,
+  facets: Object.fromEntries(
+    FACET_KEYS.map((key) => [key, [...filters.facets[key]]]),
+  ) as LibraryFilters["facets"],
+  ranges: { ...filters.ranges },
+});
+
 /**
  * The URL is the single source of truth for the grid's filter state — there is no mirrored React
  * state to keep in sync, so deep links, the back button and the UI can never disagree.
@@ -101,16 +109,33 @@ export const useLibraryFilters = (): UseLibraryFilters => {
 
   const filters = useMemo(() => parseFilters(searchParams), [searchParams]);
 
+  /*
+   * Writing to the URL is asynchronous, and until the navigation commits both `searchParams` and
+   * the value React Router hands a functional updater still describe the *previous* state. Two
+   * quick toggles would therefore both build on the pre-click filters, and the second would drop
+   * the first — ticking "light" then "smart_switch" left only `?deviceType=smart_switch`.
+   *
+   * So each update builds on the last one this hook issued, and the draft is re-adopted whenever
+   * the query string changes to something we did not write (a deep link, the back button).
+   */
+  const draftRef = useRef(filters);
+  const writtenRef = useRef(searchParams.toString());
+
+  const currentQuery = searchParams.toString();
+  if (writtenRef.current !== currentQuery) {
+    writtenRef.current = currentQuery;
+    draftRef.current = filters;
+  }
+
   const update = useCallback(
     (mutate: (draft: LibraryFilters) => void) => {
-      setSearchParams(
-        (current) => {
-          const draft = parseFilters(current);
-          mutate(draft);
-          return serializeFilters(draft);
-        },
-        { replace: true },
-      );
+      const draft = cloneFilters(draftRef.current);
+      mutate(draft);
+      draftRef.current = draft;
+
+      const next = serializeFilters(draft);
+      writtenRef.current = next.toString();
+      setSearchParams(next, { replace: true });
     },
     [setSearchParams],
   );
@@ -177,6 +202,8 @@ export const useLibraryFilters = (): UseLibraryFilters => {
   );
 
   const clearAll = useCallback(() => {
+    draftRef.current = createEmptyFilters();
+    writtenRef.current = "";
     setSearchParams(new URLSearchParams(), { replace: true });
   }, [setSearchParams]);
 
