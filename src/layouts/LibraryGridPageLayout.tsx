@@ -15,13 +15,23 @@ const PageSpinner = () => {
 }
 
 /**
- * App-shell layout for the grid: the page itself never scrolls, the grid scrolls internally and the
- * footer stays pinned to the bottom. The children rely on this being a flex column with a definite
- * height so the DataGrid can size itself.
+ * App-shell layout for the grid: on desktop the page never scrolls, the grid scrolls internally and
+ * the footer stays pinned. On phones a pinned footer costs ~17% of the viewport for links nobody is
+ * looking for, so there the page scrolls normally and the footer sits below the results.
+ *
+ * The children rely on this being a flex column with a definite height so the grid can size itself.
  */
 export const LibraryGridPageLayout = () => {
   return (
-      <Box sx={{ height: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <Box
+          sx={{
+            height: { xs: "auto", md: "100dvh" },
+            minHeight: { xs: "100dvh", md: "auto" },
+            display: "flex",
+            flexDirection: "column",
+            overflow: { xs: "visible", md: "hidden" },
+          }}
+      >
         <React.Suspense fallback={<PageSpinner />}>
           <Outlet />
         </React.Suspense>

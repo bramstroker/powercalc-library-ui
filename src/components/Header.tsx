@@ -63,18 +63,19 @@ export const Header = ({
           <Toolbar
               disableGutters
               sx={{
-                flexDirection: {xs: "column", sm: "row"},
-                mb: {xs: 2, sm: 0},
-                justifyContent: {xs: "center", sm: "flex-start"},
-                alignItems: {sm: "center"},
+                flexDirection: "row",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                gap: 1,
               }}
           >
             <Box
                 sx={{
-                  m: 2,
-                  flexGrow: 1,
+                  my: {xs: 1, sm: 2},
+                  flexGrow: {xs: 0, sm: 1},
                   display: "flex",
                   alignItems: "center",
+                  minWidth: 0,
                 }}
             >
               <Box
@@ -98,6 +99,7 @@ export const Header = ({
                   component={RouterLink}
                   to="/"
                   sx={{
+                    display: {xs: "none", md: "block"},
                     ml: 2,
                     fontFamily: "monospace",
                     fontWeight: 700,
@@ -192,11 +194,11 @@ export const Header = ({
             {searchSlot && (
                 <Box
                     sx={{
-                      flexGrow: 0,
+                      flexGrow: 1,
                       display: "flex",
-                      width: {xs: "100%", sm: 280, md: 360},
+                      minWidth: 0,
+                      maxWidth: {sm: 280, md: 360},
                       mr: {sm: 2},
-                      mb: {xs: 2, sm: 0},
                     }}
                 >
                   {searchSlot}
