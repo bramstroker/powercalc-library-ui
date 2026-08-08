@@ -17,7 +17,7 @@ export type PowerProfile = {
   manufacturer: Manufacturer;
   modelId: string;
   name: string;
-  aliases: string; // Cannot use string[] yet as global search won't work
+  aliases: string[];
   deviceType: DeviceType;
   colorModes: ColorMode[];
   updatedAt?: Date | null;

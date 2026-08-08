@@ -1,6 +1,3 @@
-import {
-  useTheme,
-} from "@mui/material";
 import type { GridColDef, GridRenderCellParams} from '@mui/x-data-grid';
 import {DataGrid} from '@mui/x-data-grid';
 import {useSuspenseQuery} from "@tanstack/react-query";
@@ -13,7 +10,6 @@ import { AnalyticsHeader } from "./AnalyticsHeader";
 
 
 export const Profiles = () => {
-  const theme = useTheme();
   const { data } = useSuspenseQuery({
     queryKey: ["profilesData"],
     queryFn: fetchProfiles,
@@ -104,14 +100,8 @@ export const Profiles = () => {
           density="compact"
           getRowId={(row) => row.manufacturer + row.model}
           sx={{
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: theme.palette.grey[800],
+            '& .MuiDataGrid-columnHeaderTitle': {
               fontWeight: 'bold',
-              borderBottom: `2px solid ${theme.palette.grey[700]}`,
-              fontSize: '0.875rem',
-            },
-            '& .MuiDataGrid-cell': {
-              borderBottom: `1px solid ${theme.palette.grey[700]}`,
             },
           }}
           slotProps={{

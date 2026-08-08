@@ -32,6 +32,20 @@ test("navigates back to the library", async ({ page }) => {
   await expect(page.getByText("4 profiles")).toBeVisible();
 });
 
+test("links the filterable attributes back into the library", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  // The link keeps its own accessible name; the tooltip only describes it.
+  const manufacturer = page.getByRole("link", { name: "Signify", exact: true });
+  await expect(manufacturer).toBeVisible();
+
+  await manufacturer.click();
+
+  await expect(page).toHaveURL("/?manufacturer=Signify");
+  await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
+  await expect(page.getByRole("gridcell", { name: "S31" })).toBeHidden();
+});
+
 test("renders an error page for an unknown profile", async ({ page }) => {
   await page.goto("/profiles/signify/does-not-exist");
 

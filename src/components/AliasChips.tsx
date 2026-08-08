@@ -2,15 +2,18 @@ import { Chip, Stack, Popover, Typography, Box, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 
 interface AliasChipsProps {
-  aliases: string;
+  aliases: string[];
   maxVisible?: number;
   marginTop?: number;
+  /** Show every alias across as many lines as needed. For pages with vertical room to spare. */
+  wrap?: boolean;
 }
 
-export const AliasChips = ({ 
-  aliases, 
+export const AliasChips = ({
+  aliases,
   maxVisible = 1,
-  marginTop = 0
+  marginTop = 0,
+  wrap = false
 }: AliasChipsProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -24,11 +27,21 @@ export const AliasChips = ({
 
   const open = Boolean(anchorEl);
 
-  if (!aliases) {
+  const aliasArray = aliases ?? [];
+
+  if (aliasArray.length === 0) {
     return null;
   }
 
-  const aliasArray = aliases.split("|");
+  if (wrap) {
+    return (
+      <Stack direction="row" sx={{ flexWrap: "wrap", gap: 1, mt: marginTop }}>
+        {aliasArray.map((alias, index) => (
+          <Chip key={index} label={alias} size="small" variant="outlined" color="primary" />
+        ))}
+      </Stack>
+    );
+  }
 
   // Show only first N chips, with a "+N more" chip if there are more
   const visibleAliases = aliasArray.slice(0, maxVisible);

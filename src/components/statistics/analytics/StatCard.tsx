@@ -48,19 +48,12 @@ export const StatCard = ({
   const chartValues = data.map(item => item.value);
   const chartLabels = data.map(item => item.label);
 
+  // These resolve to CSS variables, so they follow the active color scheme without branching on
+  // theme.palette.mode — which is not reliable once both color schemes are defined.
   const trendColors = {
-    up:
-        theme.palette.mode === 'light'
-            ? theme.palette.success.main
-            : theme.palette.success.dark,
-    down:
-        theme.palette.mode === 'light'
-            ? theme.palette.error.main
-            : theme.palette.error.dark,
-    neutral:
-        theme.palette.mode === 'light'
-            ? theme.palette.grey[400]
-            : theme.palette.grey[700],
+    up: theme.palette.success.main,
+    down: theme.palette.error.main,
+    neutral: theme.palette.grey[500],
   };
 
   const labelColors = {

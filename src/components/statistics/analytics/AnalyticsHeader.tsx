@@ -5,6 +5,7 @@ import {
 import Link from "@mui/material/Link";
 import type {PropsWithChildren, ReactNode} from "react";
 
+import {usePageMeta} from "../../../hooks/usePageMeta";
 import {useSummary} from "../../../hooks/useSummary";
 
 
@@ -21,6 +22,9 @@ export const AnalyticsHeader = ({
   filterSection,
 }: PropsWithChildren<AnalyticsHeaderProps>) => {
   const summary = useSummary();
+
+  // Every analytics page renders this header, so titling it here titles all of them.
+  usePageMeta({title, description});
 
   return (
     <>

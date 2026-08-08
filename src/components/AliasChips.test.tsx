@@ -7,13 +7,13 @@ describe("AliasChips", () => {
   afterEach(cleanup);
 
   it("renders nothing when there are no aliases", () => {
-    const { container } = render(<AliasChips aliases="" />);
+    const { container } = render(<AliasChips aliases={[]} />);
 
     expect(container).toBeEmptyDOMElement();
   });
 
   it("renders a chip per alias when they all fit", () => {
-    render(<AliasChips aliases="LWB010|LWB014" maxVisible={2} />);
+    render(<AliasChips aliases={["LWB010", "LWB014"]} maxVisible={2} />);
 
     expect(screen.getByText("LWB010")).toBeInTheDocument();
     expect(screen.getByText("LWB014")).toBeInTheDocument();
@@ -21,7 +21,7 @@ describe("AliasChips", () => {
   });
 
   it("collapses the overflowing aliases into a '+N more' chip", () => {
-    render(<AliasChips aliases="LWB010|LWB014|LWB006" maxVisible={1} />);
+    render(<AliasChips aliases={["LWB010", "LWB014", "LWB006"]} maxVisible={1} />);
 
     expect(screen.getByText("LWB010")).toBeInTheDocument();
     expect(screen.getByText("+2 more")).toBeInTheDocument();
