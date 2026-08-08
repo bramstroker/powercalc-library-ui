@@ -24,6 +24,7 @@ import { applyFilters } from "../utils/libraryFiltering";
 import { Header } from "./Header";
 import { ActiveFilterChips } from "./library/ActiveFilterChips";
 import { FILTER_PANEL_WIDTH, FilterPanel } from "./library/FilterPanel";
+import { LibraryCardList } from "./library/LibraryCardList";
 import { LibraryDataGrid } from "./library/LibraryDataGrid";
 import { LibrarySearchField } from "./library/LibrarySearchField";
 
@@ -151,20 +152,26 @@ export const LibraryGrid = () => {
                 : `${rows.length} of ${powerProfiles.length} results`}
             </Typography>
 
-            <Tooltip title="Show/hide columns">
-              <IconButton
-                size="small"
-                aria-label="Show/hide columns"
-                onClick={() => {
-                  apiRef.current?.showPreferences(GridPreferencePanelsValue.columns);
-                }}
-              >
-                <ViewColumnIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {isDesktop && (
+              <Tooltip title="Show/hide columns">
+                <IconButton
+                  size="small"
+                  aria-label="Show/hide columns"
+                  onClick={() => {
+                    apiRef.current?.showPreferences(GridPreferencePanelsValue.columns);
+                  }}
+                >
+                  <ViewColumnIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Stack>
 
-          <LibraryDataGrid rows={rows} apiRef={apiRef} />
+          {isDesktop ? (
+            <LibraryDataGrid rows={rows} apiRef={apiRef} />
+          ) : (
+            <LibraryCardList rows={rows} />
+          )}
         </Box>
       </Box>
     </Box>

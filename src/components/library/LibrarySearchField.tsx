@@ -123,6 +123,8 @@ export const LibrarySearchField = ({ value, onChange }: LibrarySearchFieldProps)
                   component="kbd"
                   aria-hidden
                   sx={{
+                    // Pointless without a physical keyboard.
+                    display: { xs: "none", md: "block" },
                     px: 0.75,
                     borderRadius: 0.75,
                     border: 1,
