@@ -1,38 +1,38 @@
-import { createTheme } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import * as Sentry from "@sentry/react";
 import { QueryClientProvider } from "@tanstack/react-query";
+import type React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import { Author } from "./components/Author";
+import { AppBoundary } from "./components/AppBoundary";
 import { LibraryGrid } from "./components/LibraryGrid";
-import { Profile } from "./components/Profile";
-import { AnalyticsOverview } from "./components/statistics/analytics/AnalyticsOverview";
-import { Installations } from "./components/statistics/analytics/Installations";
-import { Profiles } from "./components/statistics/analytics/Profiles";
-import { SensorDimensions } from "./components/statistics/analytics/SensorDimensions";
-import { TimeSeries } from "./components/statistics/analytics/TimeSeries";
-import { TopContributors } from "./components/statistics/TopContributors";
-import { TopDeviceTypes } from "./components/statistics/TopDeviceTypes";
-import { TopManufacturers } from "./components/statistics/TopManufacturers";
-import { TopMeasureDevices } from "./components/statistics/TopMeasureDevices";
-import { WeeklyContributions } from "./components/statistics/WeeklyContributions";
 import { LibraryProvider } from "./context/LibraryContext";
 import { DefaultPageLayout } from "./layouts/DefaultPageLayout";
 import { LibraryGridPageLayout } from "./layouts/LibraryGridPageLayout";
 import { powerProfileLoader } from "./loaders/powerProfileLoader";
 import { queryClient } from "./queryClient";
 import { RouteError } from "./routes/RouteError";
+import { theme } from "./theme";
 
 
 Sentry.init({
   dsn: "https://0d99b37d629842e88ae62be9ecddd530@o4510889348890624.ingest.de.sentry.io/4510889353936976",
-  // Setting this option to true will send default PII data to Sentry.
-  // For example, automatic IP address collection on events
-  sendDefaultPii: true,
+  // Leave visitor PII (IP addresses among others) out of error reports — this is a public site
+  // with a largely EU audience. Flip to true only with a deliberate privacy decision behind it.
+  sendDefaultPii: false,
 });
+
+/**
+ * Only the grid is bundled eagerly — it is where nearly every visit lands. The statistics and
+ * analytics pages carry the chart and date-picker libraries, so loading them on demand keeps them
+ * off the critical path.
+ */
+const lazyRoute = (load: () => Promise<Record<string, React.ComponentType>>, name: string) => async () => {
+  const module = await load();
+  return { Component: module[name] };
+};
 
 const router = createBrowserRouter([
   {
@@ -51,56 +51,56 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/profiles/:manufacturer/:model",
-        element: <Profile />,
+        lazy: lazyRoute(() => import("./components/Profile"), "Profile"),
         loader: powerProfileLoader,
       },
       {
         path: "/statistics/top-measure-devices",
-        element: <TopMeasureDevices />,
+        lazy: lazyRoute(() => import("./components/statistics/TopMeasureDevices"), "TopMeasureDevices"),
       },
       {
         path: "/statistics/top-contributors",
-        element: <TopContributors />,
+        lazy: lazyRoute(() => import("./components/statistics/TopContributors"), "TopContributors"),
       },
       {
         path: "/statistics/top-manufacturers",
-        element: <TopManufacturers />,
+        lazy: lazyRoute(() => import("./components/statistics/TopManufacturers"), "TopManufacturers"),
       },
       {
         path: "/statistics/top-device-types",
-        element: <TopDeviceTypes />,
+        lazy: lazyRoute(() => import("./components/statistics/TopDeviceTypes"), "TopDeviceTypes"),
       },
       {
         path: "/statistics/weekly-contributions",
-        element: <WeeklyContributions />,
+        lazy: lazyRoute(() => import("./components/statistics/WeeklyContributions"), "WeeklyContributions"),
       },
       {
         path: "/analytics",
-        element: <AnalyticsOverview />,
+        lazy: lazyRoute(() => import("./components/statistics/analytics/AnalyticsOverview"), "AnalyticsOverview"),
       },
       {
         path: "/analytics/sensor-dimensions",
-        element: <SensorDimensions />,
+        lazy: lazyRoute(() => import("./components/statistics/analytics/SensorDimensions"), "SensorDimensions"),
       },
       {
         path: "/analytics/sensor-dimensions/:dimension",
-        element: <SensorDimensions />,
+        lazy: lazyRoute(() => import("./components/statistics/analytics/SensorDimensions"), "SensorDimensions"),
       },
       {
         path: "/analytics/installations",
-        element: <Installations />,
+        lazy: lazyRoute(() => import("./components/statistics/analytics/Installations"), "Installations"),
       },
       {
         path: "/analytics/profiles",
-        element: <Profiles />,
+        lazy: lazyRoute(() => import("./components/statistics/analytics/Profiles"), "Profiles"),
       },
       {
         path: "/analytics/time-series",
-        element: <TimeSeries />,
+        lazy: lazyRoute(() => import("./components/statistics/analytics/TimeSeries"), "TimeSeries"),
       },
       {
         path: "/author/:authorName",
-        element: <Author />,
+        lazy: lazyRoute(() => import("./components/Author"), "Author"),
       },
     ],
   },
@@ -110,26 +110,15 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
 
-const theme = createTheme({
-  cssVariables: true,
-  palette: {
-    mode: "dark",
-    primary: {
-      main: "#7986cb",
-    },
-    secondary: {
-      main: "#f50057",
-    },
-  },
-});
-
 root.render(
-  <ThemeProvider theme={theme}>
+  <ThemeProvider theme={theme} defaultMode="dark">
     <CssBaseline enableColorScheme />
     <QueryClientProvider client={queryClient}>
-      <LibraryProvider>
-        <RouterProvider router={router} />
-      </LibraryProvider>
+      <AppBoundary>
+        <LibraryProvider>
+          <RouterProvider router={router} />
+        </LibraryProvider>
+      </AppBoundary>
     </QueryClientProvider>
   </ThemeProvider>,
 );

@@ -4,6 +4,7 @@ export enum DeviceType {
   FAN = "fan",
   GENERIC_IOT = "generic_iot",
   HEATING = "heating",
+  LAWN_MOWER_ROBOT = "lawn_mower_robot",
   LIGHT = "light",
   POWER_METER = "power_meter",
   PRINTER = "printer",
@@ -12,5 +13,6 @@ export enum DeviceType {
   SMART_SPEAKER = "smart_speaker",
   SMART_SWITCH = "smart_switch",
   TELEVISION = "television",
+  UPS = "ups",
   VACUUM_ROBOT = "vacuum_robot",
 }

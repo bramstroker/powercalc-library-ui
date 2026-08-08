@@ -8,17 +8,18 @@ export const Footer = () => {
   return (
     <Box
       component="footer"
-      sx={{
+      sx={(theme) => ({
         py: 3,
         px: 2,
         mt: 'auto',
-        backgroundColor: (theme) => theme.palette.mode === 'light' ? theme.palette.grey[200] : theme.palette.grey[900],
+        backgroundColor: theme.palette.grey[900],
+        ...theme.applyStyles('light', { backgroundColor: theme.palette.grey[200] }),
         display: 'flex',
         flexDirection: { xs: 'column', sm: 'row' },
         alignItems: 'center',
         justifyContent: 'center',
         gap: 2,
-      }}
+      })}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <Link

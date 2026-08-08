@@ -1,406 +1,172 @@
-import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
-import BrightnessIcon from "@mui/icons-material/Brightness6";
-import NextIcon from "@mui/icons-material/NavigateNext";
-import PaletteIcon from "@mui/icons-material/Palette";
-import ThermostatIcon from "@mui/icons-material/Thermostat";
-import {IconButton, Tooltip, Stack} from "@mui/material";
-import Box from "@mui/material/Box";
-import type {VisibilityState} from "@tanstack/react-table";
-import isEqual from "fast-deep-equal";
-import type { MRT_Row, MRT_ColumnFiltersState} from "material-react-table";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import {
-  MaterialReactTable,
-  useMaterialReactTable,
-  type MRT_ColumnDef
-} from "material-react-table";
-import { useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-
+  Badge,
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { GridPreferencePanelsValue, useGridApiRef } from "@mui/x-data-grid";
+import { useCallback, useMemo, useState } from "react";
 
 import { useLibrary } from "../context/LibraryContext";
-import { ColorMode } from "../types/ColorMode";
-import type {Author, PowerProfile} from "../types/PowerProfile";
+import { useLibraryFilters } from "../hooks/useLibraryFilters";
+import { usePageMeta } from "../hooks/usePageMeta";
+import { countActiveFilters } from "../types/LibraryFilters";
+import { applyFilters } from "../utils/libraryFiltering";
 
-import {AliasChips} from "./AliasChips";
-import {Header} from "./Header";
+import { Header } from "./Header";
+import { ActiveFilterChips } from "./library/ActiveFilterChips";
+import { FILTER_PANEL_WIDTH, FilterPanel } from "./library/FilterPanel";
+import { LibraryDataGrid } from "./library/LibraryDataGrid";
+import { LibrarySearchField } from "./library/LibrarySearchField";
 
-const ColorModeIcons = ({ colorModes }: { colorModes: ColorMode[] }) => {
-  if (!colorModes || colorModes.length === 0) {
-    return null;
-  }
-
-  return (
-    <Stack direction="row" spacing={1}>
-      {colorModes.includes(ColorMode.BRIGHTNESS) && (
-        <Tooltip title="Brightness">
-          <BrightnessIcon fontSize="small" />
-        </Tooltip>
-      )}
-      {colorModes.includes(ColorMode.COLOR_TEMP) && (
-        <Tooltip title="Color Temperature">
-          <ThermostatIcon fontSize="small" />
-        </Tooltip>
-      )}
-      {colorModes.includes(ColorMode.HS) && (
-        <Tooltip title="Hue/Saturation">
-          <PaletteIcon fontSize="small" />
-        </Tooltip>
-      )}
-      {colorModes.includes(ColorMode.EFFECT) && (
-        <Tooltip title="Effect">
-          <AutoFixHighIcon fontSize="small" />
-        </Tooltip>
-      )}
-    </Stack>
-  );
-};
-
-const normalizeFilterVal = (v: unknown) => {
-  if (Array.isArray(v)) {
-    return v.map(String).sort().join(',');
-  }
-  if (v == null) {
-    return '';
-  }
-  return String(v);
-};
-
-const buildFilterStateFromSearchParams = (
-    searchParams: URLSearchParams,
-    map: Record<string, string>
-): MRT_ColumnFiltersState => {
-  const result: MRT_ColumnFiltersState = [];
-  for (const [param, colId] of Object.entries(map)) {
-    const val = searchParams.get(param);
-    if (val) {
-      result.push({ id: colId, value: val });
-    }
-  }
-  return result;
-};
-
-const buildSearchParamsFromFilterState = (
-    filters: MRT_ColumnFiltersState,
-    map: Record<string, string>
-) => {
-  const searchParams = new URLSearchParams();
-  const byParam: Array<[string, string]> = [];
-  for (const f of filters) {
-    const param = Object.entries(map).find(([, colId]) => colId === f.id)?.[0];
-    if (!param) {
-      continue;
-    }
-    const value = normalizeFilterVal(f.value);
-    if (value) {
-      byParam.push([param, value]);
-    }
-  }
-  byParam.sort(([a], [b]) => a.localeCompare(b)).forEach(([k, v]) => searchParams.set(k, v));
-  return searchParams.toString();
-};
+const PANEL_COLLAPSED_STORAGE_KEY = "libraryFilterPanelCollapsed";
 
 export const LibraryGrid = () => {
-  const { powerProfiles: data } = useLibrary();
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const filterParamMap: Record<string, string> = useMemo(
-      () => ({
-        manufacturer: "manufacturer.fullName",
-        colorMode: "colorModes",
-        deviceType: "deviceType",
-        author: "author",
-        measureDevice: "measureDevice",
-        calculationStrategy: "calculationStrategy",
-        measureMethod: "measureMethod",
-      }),
-      []
+  const { powerProfiles } = useLibrary();
+  const { filters, ...actions } = useLibraryFilters();
+  const theme = useTheme();
+  const apiRef = useGridApiRef();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem(PANEL_COLLAPSED_STORAGE_KEY) === "true",
   );
 
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-      () => buildFilterStateFromSearchParams(searchParams, filterParamMap)
-  );
-
-  const defaultColumnVisibility = {
-    author: false,
-    colorModes: false,
-    measureDevice: false,
-    measureMethod: false,
-    maxPower: false,
-    standbyPower: false,
-    standbyPowerOn: false,
-    calculationStrategy: false,
-    subProfileCount: false,
-    updatedAt: false,
-    createdAt: false,
-    installationCount: false,
-  };
-
-  const isFirstRender = useRef(true);
-
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(defaultColumnVisibility);
-
-  useEffect(() => {
-    const savedVisibility = sessionStorage.getItem('libraryGridColumnVisibility');
-    if (savedVisibility) {
-      setColumnVisibility(JSON.parse(savedVisibility));
-    }
-    isFirstRender.current = false;
+  const setCollapsedPersisted = useCallback((next: boolean) => {
+    setCollapsed(next);
+    localStorage.setItem(PANEL_COLLAPSED_STORAGE_KEY, String(next));
   }, []);
 
-  useEffect(() => {
-    if (isFirstRender.current) return;
-    sessionStorage.setItem('libraryGridColumnVisibility', JSON.stringify(columnVisibility));
-  }, [columnVisibility]);
+  const rows = useMemo(() => applyFilters(powerProfiles, filters), [powerProfiles, filters]);
+  const activeCount = countActiveFilters(filters);
 
-  useEffect(() => {
-    const next = buildFilterStateFromSearchParams(searchParams, filterParamMap);
-    const currentNormalized = columnFilters
-        .map(f => ({ id: f.id, value: normalizeFilterVal(f.value) }))
-        .sort((a,b) => a.id.localeCompare(b.id));
-    const nextNormalized = next
-        .map(f => ({ id: f.id, value: normalizeFilterVal(f.value) }))
-        .sort((a,b) => a.id.localeCompare(b.id));
+  // Puts the search term in the tab, so several filtered views stay tellable apart.
+  usePageMeta({ title: filters.search || undefined });
+  const panelHidden = isDesktop ? collapsed : true;
 
-    if (!isEqual(currentNormalized, nextNormalized)) {
-      setColumnFilters(next);
-    }
-  }, [searchParams, filterParamMap]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const columns: MRT_ColumnDef<PowerProfile>[] = [
-    {
-      accessorKey: "deviceType",
-      header: "Device type",
-      enableGlobalFilter: false,
-      filterVariant: "select",
-      grow: false,
-      size: 150,
-      enableColumnActions: false,
-      enableSorting: false,
-      enableColumnDragging: false,
-      muiFilterTextFieldProps: { placeholder: "Filter" },
-    },
-    {
-      accessorKey: "manufacturer.fullName",
-      header: "Manufacturer",
-      filterVariant: "select",
-      grow: false,
-      size: 200,
-      muiFilterTextFieldProps: { placeholder: "Filter" },
-    },
-    {
-      accessorKey: "modelId",
-      header: "Model",
-      muiFilterTextFieldProps: { placeholder: "Filter" },
-    },
-    {
-      accessorKey: "name",
-      header: "Name",
-      muiFilterTextFieldProps: { placeholder: "Filter" },
-    },
-    {
-      accessorKey: "aliases",
-      header: "Aliases",
-      Cell: ({ cell }) => {
-        const aliases = cell.getValue<string>();
-        return <AliasChips aliases={aliases} />;
-      },
-    },
-    {
-      accessorKey: "colorModes",
-      header: "Color Modes",
-      enableGlobalFilter: false,
-      filterVariant: "select",
-      filterSelectOptions: Object.values(ColorMode),
-      filterFn: (row, columnId, filterValue) => {
-        const cellValue = row.getValue<string[]>(columnId);
-
-        if (!Array.isArray(cellValue)) return false;
-        if (!filterValue) return true;
-
-        return cellValue.some((val) =>
-            String(val).toLowerCase().includes(String(filterValue).toLowerCase()),
-        );
-      },
-      grow: false,
-      size: 200,
-      enableColumnActions: false,
-      Cell: ({ cell }) => {
-        const colorModes = cell.getValue<ColorMode[]>();
-        return <ColorModeIcons colorModes={colorModes} />;
-      },
-    },
-    {
-      accessorKey: "author",
-      header: "Author",
-      filterVariant: "text",
-      muiFilterTextFieldProps: { placeholder: "Filter" },
-      filterFn: (row, columnId, filterValue) => {
-        const author = row.getValue<Author>(columnId);
-        if (!author) return false;
-        if (!filterValue) return true;
-
-        const filterValueLower = String(filterValue).toLowerCase();
-        return (
-          author.name.toLowerCase().includes(filterValueLower) ||
-          author.githubUsername.toLowerCase().includes(filterValueLower)
-        );
-      },
-      Cell: ({ cell }) => {
-        const author = cell.getValue<Author>();
-        return (
-          <Box
-            component="a"
-            href={`/author/${encodeURIComponent(author.githubUsername)}`}
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent row click from triggering
-            }}
-            sx={{ 
-              textDecoration: 'none',
-              color: 'primary.main',
-              '&:hover': {
-                textDecoration: 'underline'
-              }
-            }}
-          >
-            {author.name}
-          </Box>
-        );
-      },
-    },
-    {
-      accessorKey: "measureMethod",
-      header: "Measure method",
-    },
-    {
-      accessorKey: "measureDevice",
-      header: "Measure device",
-      filterVariant: "select",
-      muiFilterTextFieldProps: { placeholder: "Filter" },
-    },
-    {
-      accessorKey: "standbyPower",
-      header: "Standby power",
-    },
-    {
-      accessorKey: "standbyPowerOn",
-      header: "Standby power on",
-    },
-    {
-      accessorKey: "maxPower",
-      header: "Max power",
-    },
-    {
-      accessorKey: "updatedAt",
-      header: "Updated",
-      Cell: ({ cell }) => {
-        const date = cell.getValue<Date>();
-        return date ? date.toLocaleString() : '';
-      },
-      sortingFn: 'datetime',
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Created",
-      Cell: ({ cell }) => {
-        const date = cell.getValue<Date>();
-        return date ? date.toLocaleString() : '';
-      },
-      sortingFn: 'datetime',
-    },
-    {
-      accessorKey: "calculationStrategy",
-      header: "Calculation strategy",
-    },
-    {
-      accessorKey: "subProfileCount",
-      header: "Sub profile count",
-    },
-    {
-      id: "installationCount",
-      accessorKey: "usageStats.installationCount",
-      header: "Installation count"
-    }
-  ];
-
-  const navigateToProfile = (row: MRT_Row<PowerProfile>) => {
-    const manufacturer = row.original.manufacturer.dirName;
-    const model = row.original.modelId;
-    void navigate(`/profiles/${manufacturer}/${model}`);
-  }
-
-  const table = useMaterialReactTable({
-    columns,
-    data,
-    enableColumnFilterModes: false,
-    enableColumnOrdering: true,
-    enableDensityToggle: false,
-    enableColumnPinning: false,
-    enableFacetedValues: true,
-    enableRowActions: true,
-    enableRowSelection: false,
-    enableTopToolbar: false,
-    enableTableHead: true,
-    enableStickyHeader: true,
-    enableStickyFooter: true,
-    state: {
-      columnFilters,
-      columnVisibility,
-    },
-    onColumnFiltersChange: (updater) => {
-      setColumnFilters((prev) => {
-        const next =
-            typeof updater === 'function' ? (updater as (prevState: MRT_ColumnFiltersState) => MRT_ColumnFiltersState)(prev) : updater;
-
-        // push to URL only for UI-originated changes
-        const target = buildSearchParamsFromFilterState(next, filterParamMap);
-        const curr = searchParams.toString();
-        if (curr !== target) {
-          setSearchParams(new URLSearchParams(target), { replace: true });
-        }
-        return next;
-      });
-    },
-    onColumnVisibilityChange: setColumnVisibility,
-    initialState: {
-      showColumnFilters: true,
-      showGlobalFilter: true,
-      pagination: { pageSize: 15, pageIndex: 0 },
-    },
-    muiSearchTextFieldProps: {
-      placeholder: "Search all profiles",
-      variant: "outlined",
-    },
-    displayColumnDefOptions: {
-      'mrt-row-actions': {
-        header: '',
-        size: 10,
-      },
-    },
-    renderRowActions: ({ row }) => (
-        <Box>
-          <IconButton onClick={() => {
-            navigateToProfile(row);
-          }}>
-            <NextIcon />
-          </IconButton>
-        </Box>
-    ),
-    muiTableBodyRowProps: ({ row }) => ({
-      onClick: (_event) => {
-        navigateToProfile(row);
-      },
-      sx: {
-        cursor: 'pointer',
-      },
-    }),
-    layoutMode: "grid",
-  });
+  const panel = (
+    <FilterPanel
+      profiles={powerProfiles}
+      filters={filters}
+      onCollapse={
+        isDesktop
+          ? () => {
+              setCollapsedPersisted(true);
+            }
+          : undefined
+      }
+      {...actions}
+    />
+  );
 
   return (
-    <Box>
-      <Header table={table} />
-      <MaterialReactTable table={table} />
+    <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+      <Header
+        searchSlot={<LibrarySearchField value={filters.search} onChange={actions.setSearch} />}
+        resultCount={rows.length}
+      />
+
+      <Box sx={{ flex: 1, display: "flex", minHeight: 0 }}>
+        {isDesktop ? (
+          !collapsed && (
+            <Box
+              component="aside"
+              sx={{
+                width: FILTER_PANEL_WIDTH,
+                flexShrink: 0,
+                overflowY: "auto",
+                borderRight: 1,
+                borderColor: "divider",
+              }}
+            >
+              {panel}
+            </Box>
+          )
+        ) : (
+          <Drawer
+            open={drawerOpen}
+            onClose={() => {
+              setDrawerOpen(false);
+            }}
+            slotProps={{ paper: { sx: { width: FILTER_PANEL_WIDTH } } }}
+          >
+            {panel}
+          </Drawer>
+        )}
+
+        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+          {/* One bar directly above the table it describes, replacing the grid's own toolbar. */}
+          <Stack
+            direction="row"
+            sx={{
+              alignItems: "center",
+              gap: 1,
+              px: 2,
+              py: 1,
+              minHeight: 52,
+              borderBottom: 1,
+              borderColor: "divider",
+            }}
+          >
+            {panelHidden && (
+              <Badge badgeContent={activeCount} color="primary">
+                <Button
+                  size="small"
+                  startIcon={<FilterListIcon />}
+                  onClick={() => {
+                    if (isDesktop) {
+                      setCollapsedPersisted(false);
+                    } else {
+                      setDrawerOpen(true);
+                    }
+                  }}
+                >
+                  Filters
+                </Button>
+              </Badge>
+            )}
+
+            <ActiveFilterChips filters={filters} {...actions} />
+
+            <Box sx={{ flexGrow: 1 }} />
+
+            {/* Only shown where the header count is hidden, and worded differently from it so the
+                two can never collide when locating either. */}
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              noWrap
+              sx={{ display: { xs: "block", md: "none" } }}
+            >
+              {rows.length === powerProfiles.length
+                ? `${rows.length} results`
+                : `${rows.length} of ${powerProfiles.length} results`}
+            </Typography>
+
+            <Tooltip title="Show/hide columns">
+              <IconButton
+                size="small"
+                aria-label="Show/hide columns"
+                onClick={() => {
+                  apiRef.current?.showPreferences(GridPreferencePanelsValue.columns);
+                }}
+              >
+                <ViewColumnIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+
+          <LibraryDataGrid rows={rows} apiRef={apiRef} />
+        </Box>
+      </Box>
     </Box>
   );
 };

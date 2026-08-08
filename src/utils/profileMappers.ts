@@ -15,7 +15,7 @@ export const mapToBasePowerProfile = (
     manufacturer,
     modelId: model.id,
     name: model.name,
-    aliases: model.aliases?.join("|") || "",
+    aliases: model.aliases ?? [],
     deviceType: model.device_type as DeviceType,
     colorModes: (model.color_modes || []) as ColorMode[],
     updatedAt: new Date(model.updated_at),

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { useLibrary } from "../../context/LibraryContext";
+import { usePageMeta } from "../../hooks/usePageMeta";
 import type { PowerProfile } from "../../types/PowerProfile";
 
 import { StatisticsDisplay } from "./StatisticsDisplay";
@@ -28,6 +29,9 @@ export const StatisticsAggregator = ({
   const [items, setItems] = useState<StatItem[]>([]);
   const [resultsCount, setResultsCount] = useState<number>(10);
   const { powerProfiles, total: totalProfiles } = useLibrary();
+
+  // Shared by every "Top ..." statistics page.
+  usePageMeta({ title });
 
   useEffect(() => {
     if (powerProfiles.length > 0) {

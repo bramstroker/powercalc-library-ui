@@ -10,25 +10,25 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import type {MRT_TableInstance} from "material-react-table";
-import {
-  MRT_GlobalFilterTextField, MRT_ShowHideColumnsButton
-} from "material-react-table";
 import React from "react";
 import {Link as RouterLink, useNavigate} from "react-router-dom";
 
 import {useLibrary} from "../context/LibraryContext";
-import type {PowerProfile} from "../types/PowerProfile";
 
+import {ColorModeToggle} from "./ColorModeToggle";
 import {Logo} from "./Logo";
 
 
 export type HeaderProps = {
-  table?: MRT_TableInstance<PowerProfile>;
+  /** Rendered in the middle of the toolbar. The library grid passes its search field here. */
+  searchSlot?: React.ReactNode;
+  /** Number of profiles currently shown. Omit when the page is not showing a filtered list. */
+  resultCount?: number;
 };
 
 export const Header = ({
-                         table
+                         searchSlot,
+                         resultCount,
                        }: HeaderProps) => {
   const navigate = useNavigate();
   const [statsAnchorEl, setStatsAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -54,6 +54,9 @@ export const Header = ({
   return (
       <AppBar
           position="static"
+          // Without this MUI overrides the bar with its own dark-scheme background, which now wins
+          // over the sx rule because it is applied through a color-scheme selector.
+          enableColorOnDark
           sx={{justifyContent: "center", backgroundColor: indigo[700]}}
       >
         <Container maxWidth="xl">
@@ -81,6 +84,9 @@ export const Header = ({
                     display: 'flex',
                     alignItems: 'center',
                     textDecoration: 'none',
+                    // The logo inherits its fill, and this anchor would otherwise tint it with the
+                    // default link colour instead of the app bar's white.
+                    color: 'inherit',
                   }}
               >
                 <Logo width={40}/>
@@ -179,22 +185,32 @@ export const Header = ({
                   Weekly Contributions
                 </MenuItem>
               </Menu>
+
+              <ColorModeToggle/>
             </Box>
 
-            {table && (
-                <>
-                  <Box sx={{flexGrow: 0, display: "flex"}}>
-                    <MRT_GlobalFilterTextField table={table} sx={{mr: 2}}/>
+            {searchSlot && (
+                <Box
+                    sx={{
+                      flexGrow: 0,
+                      display: "flex",
+                      width: {xs: "100%", sm: 280, md: 360},
+                      mr: {sm: 2},
+                      mb: {xs: 2, sm: 0},
+                    }}
+                >
+                  {searchSlot}
+                </Box>
+            )}
 
-                    <MRT_ShowHideColumnsButton table={table}/>
-                  </Box>
-
-                  <Box sx={{flexGrow: 0, display: {xs: "none", md: "flex"}}}>
-                    <Typography noWrap>
-                      {libraryStats.total} profiles
-                    </Typography>
-                  </Box>
-                </>
+            {resultCount !== undefined && (
+                <Box sx={{flexGrow: 0, display: {xs: "none", md: "flex"}}}>
+                  <Typography noWrap>
+                    {resultCount === libraryStats.total
+                        ? `${libraryStats.total} profiles`
+                        : `${resultCount} of ${libraryStats.total} profiles`}
+                  </Typography>
+                </Box>
             )}
           </Toolbar>
         </Container>

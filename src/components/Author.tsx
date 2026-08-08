@@ -20,6 +20,7 @@ import { useMemo } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 
 import { useLibrary } from '../context/LibraryContext';
+import { usePageMeta } from '../hooks/usePageMeta';
 import type { PowerProfile } from '../types/PowerProfile';
 
 export const Author = () => {
@@ -33,6 +34,11 @@ export const Author = () => {
 
   const contributionCount = authorProfiles.length;
   const authorDetails = authorName ? authors[authorName] : null;
+
+  usePageMeta({
+    title: authorDetails?.name || authorName,
+    description: `${contributionCount} Powercalc device profiles contributed by ${authorDetails?.name || authorName}.`,
+  });
 
   const profilesByDeviceType = useMemo(() => {
     const grouped: Record<string, PowerProfile[]> = {};

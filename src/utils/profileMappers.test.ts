@@ -60,10 +60,10 @@ describe("mapToBasePowerProfile", () => {
     });
   });
 
-  it("joins aliases with a pipe so global search can match them", () => {
+  it("keeps the aliases as a list", () => {
     const profile = mapToBasePowerProfile(createModel(), manufacturer, usageStats);
 
-    expect(profile.aliases).toBe("LWB010|LWB014");
+    expect(profile.aliases).toEqual(["LWB010", "LWB014"]);
   });
 
   it("parses the timestamps into dates", () => {
@@ -96,7 +96,7 @@ describe("mapToBasePowerProfile", () => {
 
     const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
 
-    expect(profile.aliases).toBe("");
+    expect(profile.aliases).toEqual([]);
     expect(profile.colorModes).toEqual([]);
     expect(profile.maxPower).toBeNull();
     expect(profile.minVersion).toBeNull();

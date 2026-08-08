@@ -3,4 +3,5 @@ export enum ColorMode {
   COLOR_TEMP = "color_temp",
   BRIGHTNESS = "brightness",
   EFFECT = "effect",
+  TAPERING = "tapering",
 }

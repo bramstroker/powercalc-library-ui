@@ -37,6 +37,7 @@ import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useLoaderData, useNavigate, Link as RouterLink} from "react-router-dom";
 
+import {usePageMeta} from "../hooks/usePageMeta";
 import {useSummary} from "../hooks/useSummary";
 import type {FullPowerProfile} from "../types/PowerProfile";
 
@@ -91,6 +92,18 @@ export const Profile = () => {
   const profile = useLoaderData() as FullPowerProfile;
   const [expandedSubProfiles, setExpandedSubProfiles] = useState<Record<string, boolean>>({});
 
+  usePageMeta({
+    title: `${profile.manufacturer.fullName} ${profile.modelId}`,
+    description: [
+      profile.name,
+      `${profile.deviceType} power profile measured with ${profile.measureDevice || "an unknown device"}.`,
+      profile.maxPower ? `Max power ${profile.maxPower} W,` : null,
+      `standby power ${profile.standbyPower} W.`,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  });
+
   const toggleSubProfile = (name: string) => {
     setExpandedSubProfiles(prev => ({
       ...prev,
@@ -101,18 +114,33 @@ export const Profile = () => {
   type FilterLinkProps = {
     filterKey: string;
     value: string;
+    label: string;
     children: React.ReactNode;
   };
-  const FilterLink = ({filterKey, value, children}: FilterLinkProps) => {
+  /**
+   * Coloured and underlined rather than styled as plain text — otherwise there is nothing to tell
+   * the clickable attributes apart from the inert ones sitting right next to them.
+   *
+   * `describeChild` matters: without it MUI labels the child with the tooltip, so the link would
+   * announce as "Show all profiles with this manufacturer" instead of "Signify".
+   */
+  const FilterLink = ({filterKey, value, label, children}: FilterLinkProps) => {
     return (
-        <Link
-            href={`/?${filterKey}=${encodeURIComponent(value)}`}
-            underline="hover"
-            color="inherit"
-            sx={{cursor: "pointer"}}
+        <Tooltip
+            title={`Show all profiles with this ${label.toLowerCase()}`}
+            describeChild
+            arrow
+            placement="top"
         >
-          {children}
-        </Link>
+          <Link
+              href={`/?${filterKey}=${encodeURIComponent(value)}`}
+              underline="always"
+              color="primary"
+              sx={{cursor: "pointer", textDecorationStyle: "dotted"}}
+          >
+            {children}
+          </Link>
+        </Tooltip>
     );
   }
 
@@ -141,7 +169,7 @@ export const Profile = () => {
     }
 
     if (property.label === "Aliases" && property.value) {
-      return <AliasChips aliases={property.value as string} marginTop={1}/>;
+      return <AliasChips aliases={property.value as string[]} marginTop={1} wrap/>;
     }
 
     if (property.label === "Measure description" && property.value) {
@@ -155,7 +183,7 @@ export const Profile = () => {
             {values.map((v: string, i: number) => (
                 <React.Fragment key={`${property.filterKey ?? "v"}-${v}`}>
                   {property.filterKey ? (
-                      <FilterLink filterKey={property.filterKey} value={v}>{v}</FilterLink>
+                      <FilterLink filterKey={property.filterKey} value={v} label={property.label}>{v}</FilterLink>
                   ) : (
                       v
                   )}
@@ -168,7 +196,11 @@ export const Profile = () => {
 
     if (property.filterKey && property.value != null) {
       return (
-          <FilterLink filterKey={property.filterKey} value={String(property.value)}>
+          <FilterLink
+              filterKey={property.filterKey}
+              value={String(property.value)}
+              label={property.label}
+          >
             {String(property.value)}
           </FilterLink>
       );
@@ -192,7 +224,13 @@ export const Profile = () => {
                           <property.icon/>
                         </Avatar>
                       </ListItemAvatar>
-                      <ListItemText primary={property.label} secondary={<PropertyValue property={property}/>}/>
+                      <ListItemText
+                          primary={property.label}
+                          secondary={<PropertyValue property={property}/>}
+                          // The values render chips and other block elements, which are not valid
+                          // inside the <p> the secondary slot uses by default.
+                          slotProps={{secondary: {component: "div"}}}
+                      />
                     </ListItem>
                 ))}
               </Grid>
@@ -366,12 +404,17 @@ export const Profile = () => {
       icon: PersonIcon, 
       filterKey: "author",
       renderFn: () => (
-        <RouterLink 
-          to={`/author/${profile.author.githubUsername}`}
-          style={{ textDecoration: 'none', color: 'inherit' }}
-        >
-          {profile.author.name}
-        </RouterLink>
+        <Tooltip title="View this author's profiles" describeChild arrow placement="top">
+          <Link
+            component={RouterLink}
+            to={`/author/${profile.author.githubUsername}`}
+            underline="always"
+            color="primary"
+            sx={{textDecorationStyle: "dotted"}}
+          >
+            {profile.author.name}
+          </Link>
+        </Tooltip>
       )
     },
     {

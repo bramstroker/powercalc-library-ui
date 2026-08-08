@@ -2,6 +2,7 @@ import { Typography, Box } from "@mui/material";
 import { useState, useEffect } from "react";
 
 import { useLibrary } from "../../context/LibraryContext";
+import { usePageMeta } from "../../hooks/usePageMeta";
 
 import {Grouping, TimeSeriesChart} from "./analytics/TimeSeriesChart";
 
@@ -13,6 +14,11 @@ type WeekData = {
 export const WeeklyContributions = () => {
   const [weeklyData, setWeeklyData] = useState<WeekData[]>([]);
   const { powerProfiles } = useLibrary();
+
+  usePageMeta({
+    title: "Weekly contributions",
+    description: "New Powercalc device profiles added to the library each week.",
+  });
 
   useEffect(() => {
     if (powerProfiles.length > 0) {
