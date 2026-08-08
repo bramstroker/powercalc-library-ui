@@ -8,6 +8,8 @@ import {
   Button,
   Tooltip,
   IconButton,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {mangoFusionPalette} from "@mui/x-charts";
 import { PieChart, pieClasses } from "@mui/x-charts/PieChart";
@@ -47,6 +49,8 @@ const groupByDimension = (data: SensorStats[]): Record<string, SensorStats[]> =>
 };
 
 export const SensorDimensions = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const { dimension: urlDimension } = useParams<{ dimension: string }>();
   const [searchParams] = useSearchParams();
@@ -171,7 +175,7 @@ export const SensorDimensions = () => {
 
             return (
                 <Grid size={{ xs: 12, md: 6 }} key={dimension}>
-                  <Paper sx={{ p: 3, height: "100%" }}>
+                  <Paper sx={{ p: { xs: 1.5, sm: 3 }, height: "100%" }}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
                         <Typography variant="h6">
@@ -195,9 +199,9 @@ export const SensorDimensions = () => {
                       </Button>
                     </Box>
 
-                    <Box sx={{ position: "relative", height: 300 }}>
+                    <Box sx={{ position: "relative", height: isMobile ? 420 : 300 }}>
                       {chartData.length === 0 ? (
-                          <Box sx={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                             <Typography color="text.secondary">No data</Typography>
                           </Box>
                       ) : (
@@ -212,13 +216,12 @@ export const SensorDimensions = () => {
                                     color: "gray",
                                   },
                                   arcLabel: (item) => {
-                                    let value = item.value.toString();
-                                    if (selectedMetric === "percentage") {
-                                      value = `${item.value.toFixed(1)}%`;
-                                    }
-                                    return `${item.label ?? ""} (${value})`
+                                    const value = selectedMetric === "percentage"
+                                        ? `${item.value.toFixed(1)}%`
+                                        : item.value.toString();
+                                    return isMobile ? value : `${item.label ?? ""} (${value})`;
                                   },
-                                  arcLabelMinAngle: 18,
+                                  arcLabelMinAngle: isMobile ? 25 : 18,
                                 },
                               ]}
                               sx={{
@@ -231,18 +234,30 @@ export const SensorDimensions = () => {
                               margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
                               colors={mangoFusionPalette}
                               slotProps={{
-                                legend: {
-                                  direction: 'vertical',
-                                  position: {
-                                    vertical: 'top',
-                                    horizontal: 'end'
-                                  },
-                                  sx: {
-                                    overflowY: 'scroll',
-                                    flexWrap: 'nowrap',
-                                    height: '100%',
-                                  },
-                                },
+                                legend: isMobile
+                                    ? {
+                                      direction: 'horizontal',
+                                      position: {
+                                        vertical: 'bottom',
+                                        horizontal: 'center'
+                                      },
+                                      sx: {
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'center',
+                                      },
+                                    }
+                                    : {
+                                      direction: 'vertical',
+                                      position: {
+                                        vertical: 'top',
+                                        horizontal: 'end'
+                                      },
+                                      sx: {
+                                        overflowY: 'scroll',
+                                        flexWrap: 'nowrap',
+                                        height: '100%',
+                                      },
+                                    },
                               }}
                           />
                       )}

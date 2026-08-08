@@ -32,6 +32,64 @@ test("does not scroll sideways", async ({ page }) => {
   expect(scrollWidth).toBe(clientWidth);
 });
 
+test("lists the profile attributes in their declared order", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  await expect(page.getByTestId("profile-attribute").first()).toBeVisible();
+
+  const items = await page.getByTestId("profile-attribute").allInnerTexts();
+  const labels = items.map((text) => text.split("\n")[0]);
+
+  expect(labels.slice(0, 5)).toEqual([
+    "Manufacturer",
+    "Model ID",
+    "Device type",
+    "Name",
+    "Description",
+  ]);
+});
+
+test("keeps every profile tab reachable", async ({ page }) => {
+  await page.route("https://api.powercalc.nl/download/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([
+        { url: "https://api.powercalc.nl/x/sub/model.json", path: "brightness/model.json" },
+        { url: "https://api.powercalc.nl/x/plot.png", path: "plot_brightness.png" },
+      ]),
+    }),
+  );
+
+  await page.goto("/profiles/signify/LCA001");
+
+  await page.getByRole("tab", { name: "Graphs" }).click();
+
+  await expect(page.getByText("plot_brightness")).toBeVisible();
+});
+
+test("puts the pie chart legend below the chart", async ({ page }) => {
+  await page.goto("/analytics/sensor-dimensions");
+
+  const card = page.locator(".MuiPaper-root").filter({ hasText: "Source domain" }).first();
+  await expect(card).toBeVisible();
+
+  const pie = await card.locator("path").first().boundingBox();
+  const legend = await card.getByText("media_player").boundingBox();
+
+  expect(legend!.y).toBeGreaterThan(pie!.y + pie!.height);
+});
+
+test("gives the detail bar chart room for its category labels", async ({ page }) => {
+  await page.goto("/analytics/sensor-dimensions/by_source_domain");
+
+  await expect(page.getByRole("heading", { name: "Source Domain", level: 1 })).toBeVisible();
+
+  // Truncated labels render as "media_pla…" when the y axis is too narrow for them.
+  await expect(page.getByText("media_player", { exact: true })).toBeVisible();
+  await expect(page.getByText("binary_sensor", { exact: true })).toBeVisible();
+});
+
 test("filters from the drawer and opens a profile", async ({ page }) => {
   await page.goto("/");
 

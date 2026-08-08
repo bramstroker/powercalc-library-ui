@@ -114,6 +114,30 @@ export const summary = {
   contributors: 210,
 };
 
+const sensorEntry = (dimension: string, key_name: string, installation_count: number) => ({
+  dimension,
+  key_name,
+  count: installation_count * 3,
+  installation_count,
+  percentage: installation_count / 40,
+});
+
+export const sensors = [
+  ...["gui", "yaml"].map((k, i) => sensorEntry("by_config_type", k, 900 - i * 300)),
+  ...[
+    "light",
+    "switch",
+    "media_player",
+    "binary_sensor",
+    "sensor",
+    "fan",
+    "climate",
+    "vacuum",
+    "water_heater",
+    "humidifier",
+  ].map((k, i) => sensorEntry("by_source_domain", k, 900 - i * 70)),
+];
+
 export const modelJson = {
   name: "Hue White and Color Ambiance A60",
   measure_description: "Measured with the powercalc measure tool",
@@ -144,6 +168,9 @@ export const mockApi = async (page: Page): Promise<void> => {
     }
     if (pathname === "/analytics/summary") {
       return route.fulfill(json(summary));
+    }
+    if (pathname === "/analytics/sensors") {
+      return route.fulfill(json(sensors));
     }
     if (pathname.startsWith("/profile/")) {
       return route.fulfill(json(modelJson));
