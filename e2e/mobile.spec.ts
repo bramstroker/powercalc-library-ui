@@ -32,6 +32,18 @@ test("does not scroll sideways", async ({ page }) => {
   expect(scrollWidth).toBe(clientWidth);
 });
 
+test("keeps the profile within the phone viewport", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+  await expect(page.getByRole("heading", { name: "Signify LCA001", level: 1 })).toBeVisible();
+
+  const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+
+  expect(scrollWidth).toBe(clientWidth);
+});
+
 test("groups the profile attributes into sections", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 
@@ -43,6 +55,8 @@ test("groups the profile attributes into sections", async ({ page }) => {
 
   // The overline variant uppercases the headings in CSS.
   expect(headings).toEqual(["DEVICE", "POWER", "MEASUREMENT", "LIBRARY"]);
+  await expect(page.getByRole("heading", { name: "Device", level: 2 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Power", level: 2 })).toBeVisible();
 
   // Power figures belong to the Power section, not scattered through the list.
   await expect(groups.filter({ hasText: "Power" }).first().getByText("Max power")).toBeVisible();

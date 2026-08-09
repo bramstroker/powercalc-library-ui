@@ -25,8 +25,6 @@ import type { FullPowerProfile } from "../../types/PowerProfile";
 export const MY_HA_CONFIG_FLOW_URL =
   "https://my.home-assistant.io/redirect/config_flow_start/?domain=powercalc";
 
-const MY_HA_BADGE_URL = "https://my.home-assistant.io/badges/config_flow_start.svg";
-
 /**
  * Builds the YAML a Home Assistant user pastes into configuration.yaml.
  * Sub-profiles are appended to the model with a slash, per the Powercalc docs.
@@ -61,8 +59,7 @@ export type ProfileSetupProps = {
 export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
   const [subProfile, setSubProfile] = useState("");
   const [copied, setCopied] = useState(false);
-  // The badge is served by my.home-assistant.io; fall back to a plain button if it cannot load.
-  const [badgeFailed, setBadgeFailed] = useState(false);
+  const discoveryBy = profile.discoveryBy ?? "entity";
 
   const yaml = buildSensorYaml({
     manufacturerDir: profile.manufacturer.dirName,
@@ -83,67 +80,45 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
     }
   };
 
-  return (
-    <Paper variant="outlined" sx={{ p: 2, mb: 3 }} data-testid="profile-setup">
-      <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 700, mb: 1.5 }}>
-        Use this profile
-      </Typography>
+  const manualSetup = (
+    <>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        sx={{ alignItems: { sm: "center" }, gap: 2 }}
+      >
+        <Box sx={{ flexGrow: 1 }}>
+          <Typography component="h3" variant="subtitle2" sx={{ fontWeight: 700 }}>
+            Through the interface{" "}
+            <Typography component="span" variant="body2" color="text.secondary">
+              (recommended)
+            </Typography>
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Start the Powercalc config flow, choose <strong>Virtual power (library)</strong>, and
+            pick <strong>{profile.manufacturer.fullName}</strong> →{" "}
+            <strong>{profile.modelId}</strong>.
+          </Typography>
+        </Box>
 
-      {profile.discoveryBy && (
-        <Alert severity="success" variant="outlined" sx={{ mb: 2 }}>
-          Powercalc discovers this model automatically (by {profile.discoveryBy}) — it should appear
-          in Home Assistant without any setup.{" "}
-          <Link href="https://docs.powercalc.nl/library/discovery/" target="_blank" rel="noopener">
-            About discovery
-          </Link>
-        </Alert>
-      )}
-
-      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-        Through the interface{" "}
-        <Typography component="span" variant="body2" color="text.secondary">
-          (recommended)
-        </Typography>
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1.5 }}>
-        Start the Powercalc config flow, choose <strong>Virtual power sensor</strong>, then{" "}
-        <strong>Library</strong>, and pick <strong>{profile.manufacturer.fullName}</strong> →{" "}
-        <strong>{profile.modelId}</strong>.
-      </Typography>
-
-      <Box sx={{ mb: 1 }}>
-        {badgeFailed ? (
-          <Button
-            variant="contained"
-            startIcon={<HomeIcon />}
-            href={MY_HA_CONFIG_FLOW_URL}
-            target="_blank"
-            rel="noopener"
-          >
-            Open in my Home Assistant
-          </Button>
-        ) : (
-          <Link href={MY_HA_CONFIG_FLOW_URL} target="_blank" rel="noopener">
-            <Box
-              component="img"
-              src={MY_HA_BADGE_URL}
-              alt="Open your Home Assistant instance and start setting up a new integration."
-              onError={() => {
-                setBadgeFailed(true);
-              }}
-              sx={{ height: 30, display: "block" }}
-            />
-          </Link>
-        )}
-      </Box>
+        <Button
+          variant="contained"
+          startIcon={<HomeIcon />}
+          href={MY_HA_CONFIG_FLOW_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ flexShrink: 0, alignSelf: { xs: "flex-start", sm: "center" } }}
+        >
+          Open in Home Assistant
+        </Button>
+      </Stack>
 
       <Accordion
         disableGutters
         elevation={0}
         sx={{ mt: 1, backgroundColor: "transparent", "&:before": { display: "none" } }}
       >
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0, minHeight: 0 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0 }}>
+          <Typography component="h3" variant="subtitle2" sx={{ fontWeight: 700 }}>
             Or configure with YAML
           </Typography>
         </AccordionSummary>
@@ -207,15 +182,48 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
         </AccordionDetails>
       </Accordion>
 
-      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1.5 }}>
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
         <Link
           href="https://docs.powercalc.nl/sensor-types/virtual-power-library/"
           target="_blank"
-          rel="noopener"
+          rel="noopener noreferrer"
         >
           Library sensor documentation
         </Link>
       </Typography>
+    </>
+  );
+
+  return (
+    <Paper variant="outlined" sx={{ p: 2, mb: 3 }} data-testid="profile-setup">
+      <Typography component="h2" variant="h6" sx={{ fontSize: "1rem", fontWeight: 700, mb: 1 }}>
+        Use this profile
+      </Typography>
+
+      <Alert severity="success" variant="outlined">
+        Powercalc can discover this model automatically (by {discoveryBy}). Look for a discovery
+        prompt in Home Assistant and accept it to create the sensors.{" "}
+        <Link
+          href="https://docs.powercalc.nl/library/discovery/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          About discovery
+        </Link>
+      </Alert>
+
+      <Accordion
+        disableGutters
+        elevation={0}
+        sx={{ mt: 1, backgroundColor: "transparent", "&:before": { display: "none" } }}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0 }}>
+          <Typography component="h3" variant="subtitle2" sx={{ fontWeight: 700 }}>
+            Set up manually instead
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ px: 0, pt: 0 }}>{manualSetup}</AccordionDetails>
+      </Accordion>
     </Paper>
   );
 };

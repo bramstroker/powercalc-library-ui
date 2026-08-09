@@ -9,6 +9,7 @@ import FactoryIcon from "@mui/icons-material/Factory";
 import GithubIcon from "@mui/icons-material/GitHub";
 import HistoryIcon from "@mui/icons-material/History";
 import HomeIcon from "@mui/icons-material/Home";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LayersIcon from "@mui/icons-material/Layers";
 import MediationIcon from "@mui/icons-material/Mediation";
 import MoreIcon from "@mui/icons-material/More";
@@ -33,8 +34,6 @@ import {
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
@@ -82,6 +81,13 @@ type ItemValueType = string | number | boolean | undefined | null | string[] | R
 
 /** Power figures are watts; the unit belongs next to the number, not only in the headline. */
 const watts = (value: ItemValueType) => `${String(value)} W`;
+const humanizeIdentifier = (value: string) =>
+  value
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+
 type AttributeGroup = "device" | "power" | "measurement" | "library";
 
 /** Section order and headings for the attributes tab. */
@@ -157,25 +163,6 @@ export const Profile = () => {
     );
   }
 
-  const TruncatedText = ({ text, maxLines = 2 }: { text: string, maxLines?: number }) => {
-    return (
-      <Tooltip title={text} arrow placement="top">
-        <Typography
-          variant="body2"
-          sx={{
-            display: '-webkit-box',
-            WebkitLineClamp: maxLines,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
-        >
-          {text}
-        </Typography>
-      </Tooltip>
-    );
-  };
-
   const PropertyValue = ({property}: { property: PropertyItem }) => {
     if (property.renderFn && property.value != null) {
       return property.renderFn(property.value);
@@ -183,10 +170,6 @@ export const Profile = () => {
 
     if (property.label === "Aliases" && property.value) {
       return <AliasChips aliases={property.value as string[]} marginTop={1} wrap/>;
-    }
-
-    if (property.label === "Measure description" && property.value) {
-      return <TruncatedText text={property.value as string} />;
     }
 
     if (Array.isArray(property.value)) {
@@ -240,44 +223,66 @@ export const Profile = () => {
             return null;
           }
 
+          const headingId = `attribute-group-${key}`;
+
           return (
-              <Box key={key} data-testid="attribute-group">
+              <Box
+                  component="section"
+                  key={key}
+                  data-testid="attribute-group"
+                  aria-labelledby={headingId}
+              >
                 <Typography
+                    component="h2"
+                    id={headingId}
                     variant="overline"
                     color="text.secondary"
-                    sx={{fontWeight: 700, letterSpacing: ".08em"}}
+                    sx={{fontWeight: 700, letterSpacing: ".08em", m: 0}}
                 >
                   {label}
                 </Typography>
                 <Divider sx={{mb: 0.5}}/>
 
-                <Grid container spacing={1}>
+                <Grid component="dl" container spacing={1} sx={{m: 0}}>
                   {items.map((property) => (
                       <Grid
+                          component="div"
                           size={{xs: 12, sm: 6, md: 3}}
                           key={`${property.label}-${property.filterKey ?? ""}`}
+                          data-testid="profile-attribute"
+                          sx={{
+                            py: 1,
+                            minWidth: 0,
+                            display: "grid",
+                            gridTemplateColumns: "34px minmax(0, 1fr)",
+                            alignContent: "start",
+                          }}
                       >
-                        <ListItem
-                            data-testid="profile-attribute"
-                            disableGutters
-                            alignItems="flex-start"
-                            sx={{py: 1, px: 0}}
+                        <Typography
+                            component="dt"
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{
+                              gridColumn: "1 / -1",
+                              display: "grid",
+                              gridTemplateColumns: "34px minmax(0, 1fr)",
+                              alignItems: "start",
+                            }}
                         >
-                          <ListItemAvatar sx={{minWidth: 34, mt: 0.25}}>
-                            <property.icon fontSize="small" sx={{color: "text.secondary"}}/>
-                          </ListItemAvatar>
-                          <ListItemText
-                              primary={property.label}
-                              secondary={<PropertyValue property={property}/>}
-                              // The values render chips and other block elements, which are not
-                              // valid inside the <p> the secondary slot uses by default.
-                              slotProps={{
-                                primary: {variant: "caption", color: "text.secondary"},
-                                secondary: {component: "div", color: "text.primary"},
-                              }}
-                              sx={{my: 0}}
-                          />
-                        </ListItem>
+                          <property.icon aria-hidden="true" fontSize="small"/>
+                          <Box component="span">{property.label}</Box>
+                        </Typography>
+                        <Box
+                            component="dd"
+                            sx={{
+                              gridColumn: 2,
+                              m: 0,
+                              color: "text.primary",
+                              overflowWrap: "anywhere",
+                            }}
+                        >
+                          <PropertyValue property={property}/>
+                        </Box>
                       </Grid>
                   ))}
                 </Grid>
@@ -398,7 +403,10 @@ export const Profile = () => {
             <Typography variant="caption" color="text.secondary" sx={{display: "block"}}>
               {label}
             </Typography>
-            <Typography variant="subtitle2" sx={{fontWeight: 700, lineHeight: 1.3}}>
+            <Typography
+                variant="subtitle2"
+                sx={{fontWeight: 700, lineHeight: 1.3, overflowWrap: "anywhere"}}
+            >
               {value}
             </Typography>
           </Box>
@@ -412,11 +420,12 @@ export const Profile = () => {
 
     if (!summaryData) return null;
 
+    const hasReportedUsage = profile.usageStats.installationCount > 0;
+
     return (
         <Card
             variant="outlined"
             sx={{
-              height: "100%",
               borderRadius: 2,
               bgcolor: "background.paper",
               backgroundImage: "var(--mui-overlays-6)",
@@ -430,26 +439,39 @@ export const Profile = () => {
               </Typography>
 
               <Typography variant="body2" sx={{fontWeight: 500}}>
-                Used in {profile.usageStats.percentage}% of installations
+                {hasReportedUsage
+                    ? `Used in ${profile.usageStats.percentage}% of installations`
+                    : "No opted-in installations reported yet"}
               </Typography>
 
-              <LinearProgress
-                  variant="determinate"
-                  value={profile.usageStats.percentage}
-                  sx={{
-                    height: 8,
-                    borderRadius: 999,
-                    bgcolor: "action.hover",
-                    "& .MuiLinearProgress-bar": {
+              {hasReportedUsage && (
+                <LinearProgress
+                    variant="determinate"
+                    value={profile.usageStats.percentage}
+                    aria-label="Profile usage across opted-in installations"
+                    aria-valuetext={`${profile.usageStats.percentage}%`}
+                    sx={{
+                      height: 8,
                       borderRadius: 999,
-                    },
-                  }}
-              />
+                      bgcolor: "action.hover",
+                      "& .MuiLinearProgress-bar": {
+                        borderRadius: 999,
+                      },
+                    }}
+                />
+              )}
 
               <Typography variant="body2" color="text.secondary">
                 {profile.usageStats.installationCount} out of {summaryData.sampled_installations} total{' '}
-                <Tooltip title="Active installations are all users who have opted in for analytics." arrow>
-                  <span style={{textDecoration: 'underline', textDecorationStyle: 'dotted'}}>installations</span>
+                installations
+                <Tooltip title="These are active installations whose users opted in to analytics." arrow>
+                  <IconButton
+                      size="small"
+                      aria-label="About installation analytics"
+                      sx={{p: 0.25, ml: 0.25, verticalAlign: "text-bottom"}}
+                  >
+                    <InfoOutlinedIcon sx={{fontSize: 16}}/>
+                  </IconButton>
                 </Tooltip>
               </Typography>
 
@@ -532,7 +554,7 @@ export const Profile = () => {
     },
     {
       label: "Discovery",
-      value: profile.discoveryBy ? `Automatic, by ${profile.discoveryBy}` : null,
+      value: `Automatic, by ${profile.discoveryBy ?? "entity"}`,
       icon: PermDeviceInformationIcon,
       group: "library",
     },
@@ -605,7 +627,7 @@ export const Profile = () => {
               </Button>
             </Box>
 
-            <Typography variant="h4" component="h1">
+            <Typography variant="h4" component="h1" sx={{overflowWrap: "anywhere"}}>
               {profile.manufacturer.fullName} {profile.modelId}
             </Typography>
             {profile.name && (
@@ -617,7 +639,7 @@ export const Profile = () => {
             <Stack direction="row" sx={{flexWrap: "wrap", gap: 1, mt: 2}}>
               <HeadlineFact
                   label="Device type"
-                  value={profile.deviceType}
+                  value={humanizeIdentifier(profile.deviceType)}
                   // Same per-device-type glyph the grid and the filter panel use.
                   icon={getDeviceTypeIcon(profile.deviceType) ?? TypeSpecimenIcon}
               />
@@ -626,7 +648,7 @@ export const Profile = () => {
               )}
               {profile.standbyPower != null && (
                 <HeadlineFact
-                    label="Standby"
+                    label="Standby power"
                     value={`${profile.standbyPower} W`}
                     icon={BedtimeIcon}
                 />
