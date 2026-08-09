@@ -71,6 +71,10 @@ const router = createBrowserRouter([
         lazy: lazyRoute(() => import("./components/statistics/TopDeviceTypes"), "TopDeviceTypes"),
       },
       {
+        path: "/whats-new",
+        lazy: lazyRoute(() => import("./components/statistics/WhatsNew"), "WhatsNew"),
+      },
+      {
         path: "/statistics/weekly-contributions",
         lazy: lazyRoute(() => import("./components/statistics/WeeklyContributions"), "WeeklyContributions"),
       },

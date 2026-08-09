@@ -1,4 +1,4 @@
-import { Box, Link } from "@mui/material";
+import { Box, Link, Stack } from "@mui/material";
 import type {
   GridColDef,
   GridColumnVisibilityModel,
@@ -12,10 +12,12 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 import type { ColorMode } from "../../types/ColorMode";
 import type { Author, PowerProfile } from "../../types/PowerProfile";
+import { isRecentlyAdded } from "../../utils/recency";
 import { AliasChips } from "../AliasChips";
 
 import { ColorModeIcons } from "./ColorModeIcons";
 import { DeviceTypeIcon } from "./facetIcons";
+import { NewBadge } from "./NewBadge";
 
 const COLUMN_VISIBILITY_STORAGE_KEY = "libraryGridColumnVisibility";
 
@@ -60,6 +62,12 @@ const columns: GridColDef<PowerProfile>[] = [
     headerName: "Model",
     flex: 1,
     minWidth: 140,
+    renderCell: ({ value, row }: GridRenderCellParams<PowerProfile, string>) => (
+      <Stack direction="row" sx={{ alignItems: "center", gap: 1, height: "100%" }}>
+        <span>{value}</span>
+        {isRecentlyAdded(row) && <NewBadge />}
+      </Stack>
+    ),
   },
   {
     field: "name",

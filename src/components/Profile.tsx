@@ -28,7 +28,6 @@ import {
   useMediaQuery,
   useTheme
 } from "@mui/material";
-import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
@@ -44,6 +43,7 @@ import {useSummary} from "../hooks/useSummary";
 import type {FullPowerProfile} from "../types/PowerProfile";
 
 import {AliasChips} from "./AliasChips";
+import {ProfileSetup} from "./library/ProfileSetup";
 import {Plot} from "./Plot";
 
 interface TabPanelProps {
@@ -86,7 +86,10 @@ const distributeIntoColumns = <T,>(items: T[], columns: number): T[][] => {
   return result;
 };
 
-type ItemValueType = string | number | undefined | null | string[];
+type ItemValueType = string | number | boolean | undefined | null | string[] | Record<string, unknown>;
+
+/** Power figures are watts; the unit belongs next to the number, not only in the headline. */
+const watts = (value: ItemValueType) => `${String(value)} W`;
 interface PropertyItem {
   label: string;
   value: ItemValueType;
@@ -213,7 +216,12 @@ export const Profile = () => {
       );
     }
 
-    return property.value ?? null;
+    if (property.value == null || typeof property.value === "object") {
+      // Objects only render through a renderFn of their own; there is nothing sensible to print.
+      return null;
+    }
+
+    return String(property.value);
   };
 
   type AttributesTabProps = { chunkedProperties: PropertyItem[][] };
@@ -226,18 +234,23 @@ export const Profile = () => {
                     <ListItem
                         key={`${property.label}-${property.filterKey ?? ""}-${String(property.value)}`}
                         data-testid="profile-attribute"
+                        disableGutters
+                        alignItems="flex-start"
+                        sx={{py: 1, px: 0}}
                     >
-                      <ListItemAvatar>
-                        <Avatar>
-                          <property.icon/>
-                        </Avatar>
+                      <ListItemAvatar sx={{minWidth: 34, mt: 0.25}}>
+                        <property.icon fontSize="small" sx={{color: "text.secondary"}}/>
                       </ListItemAvatar>
                       <ListItemText
                           primary={property.label}
                           secondary={<PropertyValue property={property}/>}
                           // The values render chips and other block elements, which are not valid
                           // inside the <p> the secondary slot uses by default.
-                          slotProps={{secondary: {component: "div"}}}
+                          slotProps={{
+                            primary: {variant: "caption", color: "text.secondary"},
+                            secondary: {component: "div", color: "text.primary"},
+                          }}
+                          sx={{my: 0}}
                       />
                     </ListItem>
                 ))}
@@ -338,6 +351,20 @@ export const Profile = () => {
       </Grid>
   );
 
+  const HeadlineFact = ({label, value}: {label: string; value: string}) => (
+      <Paper
+          variant="outlined"
+          sx={{px: 1.5, py: 1, minWidth: 96, borderRadius: 2}}
+      >
+        <Typography variant="caption" color="text.secondary" sx={{display: "block"}}>
+          {label}
+        </Typography>
+        <Typography variant="subtitle2" sx={{fontWeight: 700}}>
+          {value}
+        </Typography>
+      </Paper>
+  );
+
   const ProfileMetrics = () => {
     // Fetch summary data (will be cached by React Query)
     const {data: summaryData} = useSummary();
@@ -383,15 +410,16 @@ export const Profile = () => {
                 <Tooltip title="Active installations are all users who have opted in for analytics." arrow>
                   <span style={{textDecoration: 'underline', textDecorationStyle: 'dotted'}}>installations</span>
                 </Tooltip>
-                {' '}
-                <Link
-                    href="https://docs.powercalc.nl/misc/analytics/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                  Learn how to opt-in
-                </Link>
               </Typography>
+
+              <Link
+                  variant="caption"
+                  href="https://docs.powercalc.nl/misc/analytics/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+              >
+                Learn how to opt-in
+              </Link>
             </Stack>
           </CardContent>
         </Card>
@@ -436,10 +464,48 @@ export const Profile = () => {
     {label: "Measure device", value: profile.measureDevice, icon: ElectricMeterIcon, filterKey: "measureDevice"},
     {label: "Measure method", value: profile.measureMethod, icon: ElectricMeterIcon, filterKey: "measureMethod"},
     {label: "Measure description", value: profile.measureDescription, icon: ElectricMeterIcon},
-    {label: "Max power", value: profile.maxPower, icon: BoltIcon},
-    {label: "Standby power", value: profile.standbyPower, icon: BoltIcon},
-    {label: "Standby power on", value: profile.standbyPowerOn, icon: BoltIcon},
+    {label: "Max power", value: profile.maxPower, icon: BoltIcon, renderFn: watts},
+    {label: "Standby power", value: profile.standbyPower, icon: BoltIcon, renderFn: watts},
+    {label: "Standby power on", value: profile.standbyPowerOn, icon: BoltIcon, renderFn: watts},
     {label: "Min version", value: profile.minVersion, icon: MoreIcon},
+    {
+      label: "Measure device firmware",
+      value: profile.measureDeviceFirmware,
+      icon: ElectricMeterIcon,
+    },
+    {
+      label: "Measure settings",
+      value: profile.measureSettings,
+      icon: ElectricMeterIcon,
+      renderFn: (value) => (
+        <Typography variant="body2" component="span">
+          {Object.entries(value as Record<string, unknown>)
+            .map(([key, entry]) => `${key}: ${String(entry)}`)
+            .join(", ")}
+        </Typography>
+      ),
+    },
+    {
+      label: "Discovery",
+      value: profile.discoveryBy ? `Automatic, by ${profile.discoveryBy}` : null,
+      icon: PermDeviceInformationIcon,
+    },
+    {
+      label: "Only self usage",
+      value: profile.onlySelfUsage ? "Yes" : null,
+      icon: BoltIcon,
+    },
+    {
+      label: "Linked profile",
+      value: profile.linkedProfile,
+      icon: MediationIcon,
+      // The value is "<manufacturer>/<model>", which is exactly the profile route.
+      renderFn: (value) => (
+        <Link component={RouterLink} to={`/profiles/${String(value)}`}>
+          {String(value)}
+        </Link>
+      ),
+    },
     {label: "Compatible integrations", value: profile.compatibleIntegrations, icon: MoreIcon},
   ];
 
@@ -471,7 +537,7 @@ export const Profile = () => {
 
   return (
       <>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{mb: 3}}>
           <Grid size={{xs: 12, md: 8, lg: 9}}>
             <Box sx={{display: "flex", flexWrap: "wrap", mb: 2, gap: 2}}>
               <Button
@@ -502,11 +568,26 @@ export const Profile = () => {
                 {profile.name}
               </Typography>
             )}
+
+            <Stack direction="row" sx={{flexWrap: "wrap", gap: 1, mt: 2}}>
+              <HeadlineFact label="Device type" value={profile.deviceType}/>
+              {profile.maxPower != null && (
+                <HeadlineFact label="Max power" value={`${profile.maxPower} W`}/>
+              )}
+              {profile.standbyPower != null && (
+                <HeadlineFact label="Standby" value={`${profile.standbyPower} W`}/>
+              )}
+              {profile.subProfileCount > 0 && (
+                <HeadlineFact label="Sub profiles" value={String(profile.subProfileCount)}/>
+              )}
+            </Stack>
           </Grid>
           <Grid size={{xs: 12, md: 4, lg: 3}}>
             <ProfileMetrics/>
           </Grid>
         </Grid>
+
+        <ProfileSetup profile={profile}/>
 
         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
           <Tabs

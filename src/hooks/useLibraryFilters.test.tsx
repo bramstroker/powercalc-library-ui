@@ -40,11 +40,8 @@ describe("parseFilters", () => {
     expect(parse("standbyPower=5-1").ranges.standbyPower).toBeUndefined();
   });
 
-  it("parses the date bounds", () => {
-    const filters = parse("createdAfter=2025-01-01&updatedAfter=2025-02-01");
-
-    expect(filters.createdAfter).toBe("2025-01-01");
-    expect(filters.updatedAfter).toBe("2025-02-01");
+  it("parses the created-after bound", () => {
+    expect(parse("createdAfter=2025-01-01").createdAfter).toBe("2025-01-01");
   });
 });
 

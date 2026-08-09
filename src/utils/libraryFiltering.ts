@@ -138,9 +138,6 @@ export const applyFiltersExcept = (
     if (filters.createdAfter && !matchesDate(profile.createdAt, filters.createdAfter)) {
       return false;
     }
-    if (filters.updatedAfter && !matchesDate(profile.updatedAt, filters.updatedAfter)) {
-      return false;
-    }
     return true;
   });
 

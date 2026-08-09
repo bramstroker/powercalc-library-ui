@@ -84,15 +84,6 @@ export const ActiveFilterChips = ({
           }}
         />
       )}
-      {filters.updatedAfter && (
-        <Chip
-          size="small"
-          label={`Updated after: ${filters.updatedAfter}`}
-          onDelete={() => {
-            setDate("updatedAfter", undefined);
-          }}
-        />
-      )}
 
       {activeCount > 1 && (
         <Button size="small" color="inherit" onClick={clearAll}>

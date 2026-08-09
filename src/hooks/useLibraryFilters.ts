@@ -7,7 +7,6 @@ import {
   FACET_KEYS,
   RANGE_KEYS,
   SEARCH_PARAM,
-  UPDATED_AFTER_PARAM,
   createEmptyFilters,
 } from "../types/LibraryFilters";
 
@@ -43,7 +42,6 @@ export const parseFilters = (searchParams: URLSearchParams): LibraryFilters => {
     }
   }
   filters.createdAfter = searchParams.get(CREATED_AFTER_PARAM) ?? undefined;
-  filters.updatedAfter = searchParams.get(UPDATED_AFTER_PARAM) ?? undefined;
   return filters;
 };
 
@@ -67,9 +65,6 @@ export const serializeFilters = (filters: LibraryFilters): URLSearchParams => {
   if (filters.createdAfter) {
     entries.push([CREATED_AFTER_PARAM, filters.createdAfter]);
   }
-  if (filters.updatedAfter) {
-    entries.push([UPDATED_AFTER_PARAM, filters.updatedAfter]);
-  }
 
   const searchParams = new URLSearchParams();
   entries.sort(([a], [b]) => a.localeCompare(b)).forEach(([key, value]) => {
@@ -84,7 +79,7 @@ export type LibraryFilterActions = {
   toggleFacetValue: (key: FacetKey, value: string) => void;
   removeFacetValue: (key: FacetKey, value: string) => void;
   setRange: (key: RangeKey, range: Range | undefined) => void;
-  setDate: (key: "createdAfter" | "updatedAfter", value: string | undefined) => void;
+  setDate: (key: "createdAfter", value: string | undefined) => void;
   clearAll: () => void;
 };
 
@@ -193,7 +188,7 @@ export const useLibraryFilters = (): UseLibraryFilters => {
   );
 
   const setDate = useCallback(
-    (key: "createdAfter" | "updatedAfter", value: string | undefined) => {
+    (key: "createdAfter", value: string | undefined) => {
       update((draft) => {
         draft[key] = value || undefined;
       });

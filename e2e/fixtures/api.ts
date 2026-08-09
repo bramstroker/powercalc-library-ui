@@ -30,6 +30,10 @@ export const library = {
           sub_profile_count: 0,
           min_version: "1.16.0",
           compatible_integrations: ["hue"],
+          measure_settings: { SAMPLE_COUNT: 2, SLEEP_TIME: 3 },
+          measure_device_firmware: "ESPHome 2026.4.2",
+          discovery_by: "device",
+          linked_profile: "ikea/LED1836G9",
         },
         {
           id: "LCT010",

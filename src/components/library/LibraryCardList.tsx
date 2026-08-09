@@ -12,10 +12,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { PowerProfile } from "../../types/PowerProfile";
+import { isRecentlyAdded } from "../../utils/recency";
 import { AliasChips } from "../AliasChips";
 
 import { DeviceTypeIcon } from "./facetIcons";
 import { profileRowId } from "./LibraryDataGrid";
+import { NewBadge } from "./NewBadge";
 
 const PAGE_SIZE = 25;
 
@@ -73,6 +75,7 @@ export const LibraryCardList = ({ rows }: LibraryCardListProps) => {
                   <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
                     {profile.modelId}
                   </Typography>
+                  {isRecentlyAdded(profile) && <NewBadge />}
                 </Stack>
 
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
