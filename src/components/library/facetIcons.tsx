@@ -73,12 +73,16 @@ const DEVICE_TYPE_ICONS: Partial<Record<DeviceType, SvgIconComponent>> = {
   [DeviceType.VACUUM_ROBOT]: CleaningServicesIcon,
 };
 
+/** The icon for a device type, or undefined for one this map has not caught up with yet. */
+export const getDeviceTypeIcon = (deviceType: string): SvgIconComponent | undefined =>
+  DEVICE_TYPE_ICONS[deviceType as DeviceType];
+
 /**
  * The device type as its icon, with the raw value one hover away. Falls back to plain text for a
  * type the API added before this map caught up.
  */
 export const DeviceTypeIcon = ({ deviceType }: { deviceType: string }) => {
-  const Icon = DEVICE_TYPE_ICONS[deviceType as DeviceType];
+  const Icon = getDeviceTypeIcon(deviceType);
   return (
     // A bare icon sits on the text baseline and rides high in a grid cell, so it needs its own
     // full-height flex box to centre against the row.

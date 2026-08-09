@@ -1,3 +1,4 @@
+import BedtimeIcon from "@mui/icons-material/Bedtime";
 import BoltIcon from "@mui/icons-material/Bolt";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -8,6 +9,7 @@ import FactoryIcon from "@mui/icons-material/Factory";
 import GithubIcon from "@mui/icons-material/GitHub";
 import HistoryIcon from "@mui/icons-material/History";
 import HomeIcon from "@mui/icons-material/Home";
+import LayersIcon from "@mui/icons-material/Layers";
 import MediationIcon from "@mui/icons-material/Mediation";
 import MoreIcon from "@mui/icons-material/More";
 import PaletteIcon from "@mui/icons-material/Palette";
@@ -23,7 +25,7 @@ import {
   ListItemButton,
   Collapse,
   IconButton,
-  Card, CardContent, Stack, LinearProgress,
+  Card, CardContent, Stack, LinearProgress, Divider,
   Tooltip,
   useMediaQuery,
   useTheme
@@ -43,6 +45,7 @@ import {useSummary} from "../hooks/useSummary";
 import type {FullPowerProfile} from "../types/PowerProfile";
 
 import {AliasChips} from "./AliasChips";
+import {getDeviceTypeIcon} from "./library/facetIcons";
 import {ProfileSetup} from "./library/ProfileSetup";
 import {Plot} from "./Plot";
 
@@ -75,25 +78,25 @@ const a11yProps = (index: number) => {
   };
 };
 
-/**
- * Deals the items across `columns` columns round-robin, so reading the rendered columns left to
- * right, row by row, yields the original order. That only holds while every column sits on one row,
- * which is why the count is chosen per breakpoint rather than fixed at 4.
- */
-const distributeIntoColumns = <T,>(items: T[], columns: number): T[][] => {
-  const result: T[][] = Array.from({length: columns}, () => []);
-  items.forEach((item, i) => result[i % columns].push(item));
-  return result;
-};
-
 type ItemValueType = string | number | boolean | undefined | null | string[] | Record<string, unknown>;
 
 /** Power figures are watts; the unit belongs next to the number, not only in the headline. */
 const watts = (value: ItemValueType) => `${String(value)} W`;
+type AttributeGroup = "device" | "power" | "measurement" | "library";
+
+/** Section order and headings for the attributes tab. */
+const ATTRIBUTE_GROUPS: {key: AttributeGroup; label: string}[] = [
+  {key: "device", label: "Device"},
+  {key: "power", label: "Power"},
+  {key: "measurement", label: "Measurement"},
+  {key: "library", label: "Library"},
+];
+
 interface PropertyItem {
   label: string;
   value: ItemValueType;
   icon: React.ElementType;
+  group: AttributeGroup;
   filterKey?: string;
   renderFn?: (value: ItemValueType) => React.ReactNode;
 }
@@ -224,40 +227,64 @@ export const Profile = () => {
     return String(property.value);
   };
 
-  type AttributesTabProps = { chunkedProperties: PropertyItem[][] };
-  const AttributesTab = ({chunkedProperties}: AttributesTabProps) => (
-      <Grid size={{xs: 12, md: 6}}>
-        <Grid container spacing={1}>
-          {chunkedProperties.map((chunk, columnIndex) => (
-              <Grid size={12 / chunkedProperties.length} key={columnIndex}>
-                {chunk.map((property) => (
-                    <ListItem
-                        key={`${property.label}-${property.filterKey ?? ""}-${String(property.value)}`}
-                        data-testid="profile-attribute"
-                        disableGutters
-                        alignItems="flex-start"
-                        sx={{py: 1, px: 0}}
-                    >
-                      <ListItemAvatar sx={{minWidth: 34, mt: 0.25}}>
-                        <property.icon fontSize="small" sx={{color: "text.secondary"}}/>
-                      </ListItemAvatar>
-                      <ListItemText
-                          primary={property.label}
-                          secondary={<PropertyValue property={property}/>}
-                          // The values render chips and other block elements, which are not valid
-                          // inside the <p> the secondary slot uses by default.
-                          slotProps={{
-                            primary: {variant: "caption", color: "text.secondary"},
-                            secondary: {component: "div", color: "text.primary"},
-                          }}
-                          sx={{my: 0}}
-                      />
-                    </ListItem>
-                ))}
-              </Grid>
-          ))}
-        </Grid>
-      </Grid>
+  type AttributesTabProps = { properties: PropertyItem[] };
+  /**
+   * Grouped into sections so related attributes sit together. Items flow left to right within a
+   * section, which is the natural Grid order — no round-robin dealing needed.
+   */
+  const AttributesTab = ({properties}: AttributesTabProps) => (
+      <Stack spacing={3}>
+        {ATTRIBUTE_GROUPS.map(({key, label}) => {
+          const items = properties.filter((property) => property.group === key);
+          if (items.length === 0) {
+            return null;
+          }
+
+          return (
+              <Box key={key} data-testid="attribute-group">
+                <Typography
+                    variant="overline"
+                    color="text.secondary"
+                    sx={{fontWeight: 700, letterSpacing: ".08em"}}
+                >
+                  {label}
+                </Typography>
+                <Divider sx={{mb: 0.5}}/>
+
+                <Grid container spacing={1}>
+                  {items.map((property) => (
+                      <Grid
+                          size={{xs: 12, sm: 6, md: 3}}
+                          key={`${property.label}-${property.filterKey ?? ""}`}
+                      >
+                        <ListItem
+                            data-testid="profile-attribute"
+                            disableGutters
+                            alignItems="flex-start"
+                            sx={{py: 1, px: 0}}
+                        >
+                          <ListItemAvatar sx={{minWidth: 34, mt: 0.25}}>
+                            <property.icon fontSize="small" sx={{color: "text.secondary"}}/>
+                          </ListItemAvatar>
+                          <ListItemText
+                              primary={property.label}
+                              secondary={<PropertyValue property={property}/>}
+                              // The values render chips and other block elements, which are not
+                              // valid inside the <p> the secondary slot uses by default.
+                              slotProps={{
+                                primary: {variant: "caption", color: "text.secondary"},
+                                secondary: {component: "div", color: "text.primary"},
+                              }}
+                              sx={{my: 0}}
+                          />
+                        </ListItem>
+                      </Grid>
+                  ))}
+                </Grid>
+              </Box>
+          );
+        })}
+      </Stack>
   );
 
   type JsonTabProps = { profile: FullPowerProfile };
@@ -351,17 +378,31 @@ export const Profile = () => {
       </Grid>
   );
 
-  const HeadlineFact = ({label, value}: {label: string; value: string}) => (
+  type HeadlineFactProps = {label: string; value: string; icon: React.ElementType};
+  const HeadlineFact = ({label, value, icon: Icon}: HeadlineFactProps) => (
       <Paper
           variant="outlined"
-          sx={{px: 1.5, py: 1, minWidth: 96, borderRadius: 2}}
+          // The same tinted surface the filter panel uses, so the app has one secondary surface
+          // rather than a new colour per component.
+          sx={(theme) => ({
+            px: 1.5,
+            py: 1,
+            borderRadius: 2,
+            backgroundColor: theme.palette.grey[100],
+            ...theme.applyStyles("dark", {backgroundColor: theme.palette.grey[900]}),
+          })}
       >
-        <Typography variant="caption" color="text.secondary" sx={{display: "block"}}>
-          {label}
-        </Typography>
-        <Typography variant="subtitle2" sx={{fontWeight: 700}}>
-          {value}
-        </Typography>
+        <Stack direction="row" sx={{alignItems: "center", gap: 1.25}}>
+          <Icon sx={{fontSize: 26, color: "text.secondary"}}/>
+          <Box sx={{minWidth: 0}}>
+            <Typography variant="caption" color="text.secondary" sx={{display: "block"}}>
+              {label}
+            </Typography>
+            <Typography variant="subtitle2" sx={{fontWeight: 700, lineHeight: 1.3}}>
+              {value}
+            </Typography>
+          </Box>
+        </Stack>
       </Paper>
   );
 
@@ -427,17 +468,18 @@ export const Profile = () => {
   };
 
   const properties: PropertyItem[] = [
-    {label: "Manufacturer", value: profile.manufacturer.fullName, icon: FactoryIcon, filterKey: "manufacturer"},
-    {label: "Model ID", value: profile.modelId, icon: PermDeviceInformationIcon},
-    {label: "Device type", value: profile.deviceType, icon: TypeSpecimenIcon, filterKey: "deviceType"},
-    {label: "Name", value: profile.name, icon: MoreIcon},
-    {label: "Description", value: profile.description, icon: MoreIcon},
-    {label: "Created", value: profile.createdAt.toLocaleString(), icon: HistoryIcon},
-    {label: "Updated", value: profile.updatedAt?.toLocaleString(), icon: HistoryIcon},
+    {label: "Manufacturer", value: profile.manufacturer.fullName, icon: FactoryIcon, group: "device", filterKey: "manufacturer"},
+    {label: "Model ID", value: profile.modelId, icon: PermDeviceInformationIcon, group: "device"},
+    {label: "Device type", value: profile.deviceType, icon: TypeSpecimenIcon, group: "device", filterKey: "deviceType"},
+    {label: "Name", value: profile.name, icon: MoreIcon, group: "device"},
+    {label: "Description", value: profile.description, icon: MoreIcon, group: "device"},
+    {label: "Created", value: profile.createdAt.toLocaleString(), icon: HistoryIcon, group: "library"},
+    {label: "Updated", value: profile.updatedAt?.toLocaleString(), icon: HistoryIcon, group: "library"},
     {
       label: "Author", 
       value: profile.author.name,
-      icon: PersonIcon, 
+      icon: PersonIcon,
+      group: "library",
       filterKey: "author",
       renderFn: () => (
         <Tooltip title="View this author's profiles" describeChild arrow placement="top">
@@ -457,26 +499,29 @@ export const Profile = () => {
       label: "Calculation strategy",
       value: profile.calculationStrategy,
       icon: CalculateIcon,
+      group: "measurement",
       filterKey: "calculationStrategy"
     },
-    {label: "Color modes", value: profile.colorModes, icon: PaletteIcon, filterKey: "colorMode"},
-    {label: "Aliases", value: profile.aliases, icon: MediationIcon},
-    {label: "Measure device", value: profile.measureDevice, icon: ElectricMeterIcon, filterKey: "measureDevice"},
-    {label: "Measure method", value: profile.measureMethod, icon: ElectricMeterIcon, filterKey: "measureMethod"},
-    {label: "Measure description", value: profile.measureDescription, icon: ElectricMeterIcon},
-    {label: "Max power", value: profile.maxPower, icon: BoltIcon, renderFn: watts},
-    {label: "Standby power", value: profile.standbyPower, icon: BoltIcon, renderFn: watts},
-    {label: "Standby power on", value: profile.standbyPowerOn, icon: BoltIcon, renderFn: watts},
-    {label: "Min version", value: profile.minVersion, icon: MoreIcon},
+    {label: "Color modes", value: profile.colorModes, icon: PaletteIcon, group: "device", filterKey: "colorMode"},
+    {label: "Aliases", value: profile.aliases, icon: MediationIcon, group: "device"},
+    {label: "Measure device", value: profile.measureDevice, icon: ElectricMeterIcon, group: "measurement", filterKey: "measureDevice"},
+    {label: "Measure method", value: profile.measureMethod, icon: ElectricMeterIcon, group: "measurement", filterKey: "measureMethod"},
+    {label: "Measure description", value: profile.measureDescription, icon: ElectricMeterIcon, group: "measurement"},
+    {label: "Max power", value: profile.maxPower, icon: BoltIcon, group: "power", renderFn: watts},
+    {label: "Standby power", value: profile.standbyPower, icon: BoltIcon, group: "power", renderFn: watts},
+    {label: "Standby power on", value: profile.standbyPowerOn, icon: BoltIcon, group: "power", renderFn: watts},
+    {label: "Min version", value: profile.minVersion, icon: MoreIcon, group: "library"},
     {
       label: "Measure device firmware",
       value: profile.measureDeviceFirmware,
       icon: ElectricMeterIcon,
+      group: "measurement",
     },
     {
       label: "Measure settings",
       value: profile.measureSettings,
       icon: ElectricMeterIcon,
+      group: "measurement",
       renderFn: (value) => (
         <Typography variant="body2" component="span">
           {Object.entries(value as Record<string, unknown>)
@@ -489,16 +534,19 @@ export const Profile = () => {
       label: "Discovery",
       value: profile.discoveryBy ? `Automatic, by ${profile.discoveryBy}` : null,
       icon: PermDeviceInformationIcon,
+      group: "library",
     },
     {
       label: "Only self usage",
       value: profile.onlySelfUsage ? "Yes" : null,
       icon: BoltIcon,
+      group: "library",
     },
     {
       label: "Linked profile",
       value: profile.linkedProfile,
       icon: MediationIcon,
+      group: "device",
       // The value is "<manufacturer>/<model>", which is exactly the profile route.
       renderFn: (value) => (
         <Link component={RouterLink} to={`/profiles/${String(value)}`}>
@@ -506,7 +554,7 @@ export const Profile = () => {
         </Link>
       ),
     },
-    {label: "Compatible integrations", value: profile.compatibleIntegrations, icon: MoreIcon},
+    {label: "Compatible integrations", value: profile.compatibleIntegrations, icon: MoreIcon, group: "library"},
   ];
 
   const filteredProperties = properties.filter(
@@ -517,9 +565,6 @@ export const Profile = () => {
   );
   const theme = useTheme();
   const isTabletUp = useMediaQuery(theme.breakpoints.up("sm"));
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-  const columnCount = isDesktop ? 4 : isTabletUp ? 2 : 1;
-  const chunkedProperties = distributeIntoColumns(filteredProperties, columnCount)
 
   const [value, setValue] = React.useState(0);
   const navigate = useNavigate();
@@ -529,7 +574,7 @@ export const Profile = () => {
   };
 
   const tabs = [
-    {label: "Attributes", render: <AttributesTab chunkedProperties={chunkedProperties}/>},
+    {label: "Attributes", render: <AttributesTab properties={filteredProperties}/>},
     {label: "JSON", render: <JsonTab profile={profile}/>},
     ...(profile.subProfiles.length > 0 ? [{label: "Sub Profiles", render: <SubProfilesTab profile={profile}/>}] : []),
     ...(profile.plots.length > 0 ? [{label: "Graphs", render: <PlotsTab profile={profile}/>}] : []),
@@ -570,15 +615,28 @@ export const Profile = () => {
             )}
 
             <Stack direction="row" sx={{flexWrap: "wrap", gap: 1, mt: 2}}>
-              <HeadlineFact label="Device type" value={profile.deviceType}/>
+              <HeadlineFact
+                  label="Device type"
+                  value={profile.deviceType}
+                  // Same per-device-type glyph the grid and the filter panel use.
+                  icon={getDeviceTypeIcon(profile.deviceType) ?? TypeSpecimenIcon}
+              />
               {profile.maxPower != null && (
-                <HeadlineFact label="Max power" value={`${profile.maxPower} W`}/>
+                <HeadlineFact label="Max power" value={`${profile.maxPower} W`} icon={BoltIcon}/>
               )}
               {profile.standbyPower != null && (
-                <HeadlineFact label="Standby" value={`${profile.standbyPower} W`}/>
+                <HeadlineFact
+                    label="Standby"
+                    value={`${profile.standbyPower} W`}
+                    icon={BedtimeIcon}
+                />
               )}
               {profile.subProfileCount > 0 && (
-                <HeadlineFact label="Sub profiles" value={String(profile.subProfileCount)}/>
+                <HeadlineFact
+                    label="Sub profiles"
+                    value={String(profile.subProfileCount)}
+                    icon={LayersIcon}
+                />
               )}
             </Stack>
           </Grid>
