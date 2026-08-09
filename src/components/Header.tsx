@@ -70,156 +70,162 @@ export const Header = ({
               }}
           >
             <Box
+                component={RouterLink}
+                to="/"
                 sx={{
                   my: {xs: 1, sm: 2},
-                  flexGrow: {xs: 0, sm: 1},
-                  display: "flex",
-                  alignItems: "center",
+                  display: 'flex',
+                  alignItems: 'center',
+                  textDecoration: 'none',
+                  // The logo inherits its fill, and this anchor would otherwise tint it with the
+                  // default link colour instead of the app bar's white.
+                  color: 'inherit',
                   minWidth: 0,
                 }}
             >
-              <Box
-                  component={RouterLink}
-                  to="/"
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    textDecoration: 'none',
-                    // The logo inherits its fill, and this anchor would otherwise tint it with the
-                    // default link colour instead of the app bar's white.
-                    color: 'inherit',
-                  }}
-              >
                 <Logo width={40}/>
-              </Box>
 
-              <Typography
-                  variant="h6"
-                  noWrap
-                  component={RouterLink}
-                  to="/"
+              <Box
                   sx={{
-                    display: {xs: "none", md: "block"},
                     ml: 2,
-                    fontFamily: "monospace",
-                    fontWeight: 700,
-                    letterSpacing: ".3rem",
-                    color: "inherit",
-                    textDecoration: "none",
-                    flexGrow: 1,
+                    minWidth: 0,
+                    // On a phone the search field takes the row, so the wordmark stands down —
+                    // but without it the bar is just icons floating in empty space.
+                    display: {xs: searchSlot ? "none" : "block", md: "block"},
                   }}
-              >
-                Profile Library
-              </Typography>
-
-              {isMobile ? (
-                  <Tooltip title="Statistics">
-                    <IconButton
-                        color="inherit"
-                        onClick={handleStatsClick}
-                        id="statistics-button"
-                        aria-controls={statsOpen ? "statistics-menu" : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={statsOpen ? "true" : undefined}
-                        aria-label="Statistics menu"
-                    >
-                      <BarChartIcon/>
-                    </IconButton>
-                  </Tooltip>
-              ) : (
-                  <Button
-                      color="inherit"
-                      sx={{mr: 2}}
-                      onClick={handleStatsClick}
-                      startIcon={<BarChartIcon/>}
-                      endIcon={<KeyboardArrowDownIcon/>}
-                      id="statistics-button"
-                      aria-controls={statsOpen ? "statistics-menu" : undefined}
-                      aria-haspopup="true"
-                      aria-expanded={statsOpen ? "true" : undefined}
-                  >
-                    Insights
-                  </Button>
-              )}
-
-              <Menu
-                  id="statistics-menu"
-                  anchorEl={statsAnchorEl}
-                  open={statsOpen}
-                  onClose={handleStatsClose}
-                  slotProps={{list: {'aria-labelledby': 'statistics-button'}}}
               >
                 <Typography
-                    variant="subtitle2"
-                    sx={{px: 2, py: 1, fontWeight: 'bold', cursor: 'pointer'}}
-                    onClick={() => handleMenuItemClick('/analytics')}
+                    variant="h6"
+                    component="span"
+                    noWrap
+                    sx={{
+                      display: "block",
+                      fontFamily: "monospace",
+                      fontWeight: 700,
+                      letterSpacing: ".2rem",
+                      lineHeight: 1.15,
+                    }}
                 >
-                  Usage stats
+                  Powercalc
                 </Typography>
-                <MenuItem onClick={() => handleMenuItemClick('/analytics/sensor-dimensions')}>
-                  Sensor usage
-                </MenuItem>
-                <MenuItem onClick={() => handleMenuItemClick('/analytics/installations')}>
-                  Installation statistics
-                </MenuItem>
-                <MenuItem onClick={() => handleMenuItemClick('/analytics/profiles')}>
-                  Profile usage
-                </MenuItem>
-
-                <Divider sx={{my: 1}}/>
-
-                <MenuItem onClick={() => handleMenuItemClick('/whats-new')}>
-                  What&apos;s new
-                </MenuItem>
-
-                <Divider sx={{my: 1}}/>
-
-                <Typography variant="subtitle2" sx={{px: 2, py: 1, fontWeight: 'bold'}}>
-                  Library stats
+                <Typography
+                    variant="caption"
+                    component="span"
+                    noWrap
+                    sx={{display: "block", opacity: 0.75, letterSpacing: ".12em"}}
+                >
+                  Profile Library
                 </Typography>
-                <MenuItem onClick={() => handleMenuItemClick('/statistics/top-measure-devices')}>
-                  Top Measure Devices
-                </MenuItem>
-                <MenuItem onClick={() => handleMenuItemClick('/statistics/top-contributors')}>
-                  Top Contributors
-                </MenuItem>
-                <MenuItem onClick={() => handleMenuItemClick('/statistics/top-manufacturers')}>
-                  Top Manufacturers
-                </MenuItem>
-                <MenuItem onClick={() => handleMenuItemClick('/statistics/top-device-types')}>
-                  Top Device Types
-                </MenuItem>
-                <MenuItem onClick={() => handleMenuItemClick('/statistics/weekly-contributions')}>
-                  Weekly Contributions
-                </MenuItem>
-              </Menu>
-
-              <ColorModeToggle/>
+              </Box>
             </Box>
 
-            {searchSlot && (
+            {/* Search takes the space between the brand and the actions on the right. */}
+            {searchSlot ? (
                 <Box
                     sx={{
                       flexGrow: 1,
                       display: "flex",
                       minWidth: 0,
                       maxWidth: {sm: 280, md: 360},
-                      mr: {sm: 2},
+                      ml: {sm: 2},
                     }}
                 >
                   {searchSlot}
                 </Box>
-            )}
+            ) : null}
+
+            <Box sx={{flexGrow: 1}}/>
 
             {resultCount !== undefined && (
-                <Box sx={{flexGrow: 0, display: {xs: "none", md: "flex"}}}>
-                  <Typography noWrap>
-                    {resultCount === libraryStats.total
-                        ? `${libraryStats.total} profiles`
-                        : `${resultCount} of ${libraryStats.total} profiles`}
-                  </Typography>
-                </Box>
+                <Typography noWrap sx={{display: {xs: "none", md: "block"}}}>
+                  {resultCount === libraryStats.total
+                      ? `${libraryStats.total} profiles`
+                      : `${resultCount} of ${libraryStats.total} profiles`}
+                </Typography>
             )}
+
+            {isMobile ? (
+                <Tooltip title="Statistics">
+                  <IconButton
+                      color="inherit"
+                      onClick={handleStatsClick}
+                      id="statistics-button"
+                      aria-controls={statsOpen ? "statistics-menu" : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={statsOpen ? "true" : undefined}
+                      aria-label="Statistics menu"
+                  >
+                    <BarChartIcon/>
+                  </IconButton>
+                </Tooltip>
+            ) : (
+                <Button
+                    color="inherit"
+                    onClick={handleStatsClick}
+                    startIcon={<BarChartIcon/>}
+                    endIcon={<KeyboardArrowDownIcon/>}
+                    id="statistics-button"
+                    aria-controls={statsOpen ? "statistics-menu" : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={statsOpen ? "true" : undefined}
+                >
+                  Insights
+                </Button>
+            )}
+
+            <Menu
+                id="statistics-menu"
+                anchorEl={statsAnchorEl}
+                open={statsOpen}
+                onClose={handleStatsClose}
+                slotProps={{list: {'aria-labelledby': 'statistics-button'}}}
+            >
+              <Typography
+                  variant="subtitle2"
+                  sx={{px: 2, py: 1, fontWeight: 'bold', cursor: 'pointer'}}
+                  onClick={() => handleMenuItemClick('/analytics')}
+              >
+                Usage stats
+              </Typography>
+              <MenuItem onClick={() => handleMenuItemClick('/analytics/sensor-dimensions')}>
+                Sensor usage
+              </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('/analytics/installations')}>
+                Installation statistics
+              </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('/analytics/profiles')}>
+                Profile usage
+              </MenuItem>
+
+              <Divider sx={{my: 1}}/>
+
+              <MenuItem onClick={() => handleMenuItemClick('/whats-new')}>
+                What&apos;s new
+              </MenuItem>
+
+              <Divider sx={{my: 1}}/>
+
+              <Typography variant="subtitle2" sx={{px: 2, py: 1, fontWeight: 'bold'}}>
+                Library stats
+              </Typography>
+              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-measure-devices')}>
+                Top Measure Devices
+              </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-contributors')}>
+                Top Contributors
+              </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-manufacturers')}>
+                Top Manufacturers
+              </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-device-types')}>
+                Top Device Types
+              </MenuItem>
+              <MenuItem onClick={() => handleMenuItemClick('/statistics/weekly-contributions')}>
+                Weekly Contributions
+              </MenuItem>
+            </Menu>
+
+            <ColorModeToggle/>
           </Toolbar>
         </Container>
       </AppBar>
