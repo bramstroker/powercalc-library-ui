@@ -24,6 +24,14 @@ export interface LibraryModel {
   sub_profile_count: number;
   min_version?: string;
   compatible_integrations?: string[];
+  /** Settings the measurement was taken with, e.g. sample count and tooling version. */
+  measure_settings?: Record<string, unknown>;
+  measure_device_firmware?: string;
+  /** "device" or "entity" when Powercalc can auto-discover this model. */
+  discovery_by?: string;
+  only_self_usage?: boolean;
+  /** "<manufacturer>/<model>" of the profile whose measurements this one reuses. */
+  linked_profile?: string;
 }
 
 export type LibraryJson = {

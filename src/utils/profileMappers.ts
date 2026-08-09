@@ -36,6 +36,11 @@ export const mapToBasePowerProfile = (
     subProfileCount: model.sub_profile_count || 0,
     minVersion: model.min_version || null,
     compatibleIntegrations: model.compatible_integrations || [],
+    measureSettings: model.measure_settings ?? null,
+    measureDeviceFirmware: model.measure_device_firmware ?? null,
+    discoveryBy: model.discovery_by ?? null,
+    onlySelfUsage: model.only_self_usage ?? false,
+    linkedProfile: model.linked_profile ?? null,
     usageStats: usageStats
   };
 }

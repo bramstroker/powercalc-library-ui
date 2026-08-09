@@ -158,12 +158,6 @@ describe("applyFilters", () => {
     expect(modelIds(result)).toEqual(["LED1836G9"]);
   });
 
-  it("excludes profiles that were never updated when filtering on updated-after", () => {
-    const result = applyFilters(profiles, withFilters({ updatedAfter: "2025-01-01" }));
-
-    expect(modelIds(result)).toEqual(["LCA001"]);
-  });
-
   it("combines search with facets", () => {
     const result = applyFilters(
       profiles,

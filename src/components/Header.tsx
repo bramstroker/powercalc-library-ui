@@ -168,6 +168,12 @@ export const Header = ({
 
                 <Divider sx={{my: 1}}/>
 
+                <MenuItem onClick={() => handleMenuItemClick('/whats-new')}>
+                  What&apos;s new
+                </MenuItem>
+
+                <Divider sx={{my: 1}}/>
+
                 <Typography variant="subtitle2" sx={{px: 2, py: 1, fontWeight: 'bold'}}>
                   Library stats
                 </Typography>

@@ -34,6 +34,13 @@ export type PowerProfile = {
   subProfileCount: number;
   minVersion?: string | null;
   compatibleIntegrations: string[];
+  measureSettings?: Record<string, unknown> | null;
+  measureDeviceFirmware?: string | null;
+  /** Set when Powercalc can discover this model automatically, by "device" or by "entity". */
+  discoveryBy?: string | null;
+  onlySelfUsage?: boolean;
+  /** "<manufacturer>/<model>" of the profile this one reuses measurements from. */
+  linkedProfile?: string | null;
   usageStats: UsageStats;
 };
 

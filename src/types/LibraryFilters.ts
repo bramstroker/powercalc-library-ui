@@ -26,14 +26,12 @@ export type LibraryFilters = {
   search: string;
   facets: Record<FacetKey, string[]>;
   ranges: Partial<Record<RangeKey, Range>>;
-  /** ISO date strings (yyyy-mm-dd), inclusive lower bounds. */
+  /** ISO date string (yyyy-mm-dd), inclusive lower bound. */
   createdAfter?: string;
-  updatedAfter?: string;
 };
 
 export const SEARCH_PARAM = "q";
 export const CREATED_AFTER_PARAM = "createdAfter";
-export const UPDATED_AFTER_PARAM = "updatedAfter";
 
 export const FACET_LABELS: Record<FacetKey, string> = {
   deviceType: "Device type",
@@ -77,6 +75,5 @@ export const countActiveFilters = (filters: LibraryFilters): number => {
   }
   count += Object.keys(filters.ranges).length;
   if (filters.createdAfter) count += 1;
-  if (filters.updatedAfter) count += 1;
   return count;
 };

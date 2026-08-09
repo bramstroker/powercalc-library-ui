@@ -32,21 +32,34 @@ test("does not scroll sideways", async ({ page }) => {
   expect(scrollWidth).toBe(clientWidth);
 });
 
-test("lists the profile attributes in their declared order", async ({ page }) => {
+test("keeps the profile within the phone viewport", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+  await expect(page.getByRole("heading", { name: "Signify LCA001", level: 1 })).toBeVisible();
+
+  const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+
+  expect(scrollWidth).toBe(clientWidth);
+});
+
+test("groups the profile attributes into sections", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 
-  await expect(page.getByTestId("profile-attribute").first()).toBeVisible();
+  const groups = page.getByTestId("attribute-group");
+  // allInnerTexts does not auto-wait, so settle on the rendered page first.
+  await expect(groups.first()).toBeVisible();
 
-  const items = await page.getByTestId("profile-attribute").allInnerTexts();
-  const labels = items.map((text) => text.split("\n")[0]);
+  const headings = (await groups.allInnerTexts()).map((text) => text.split("\n")[0]);
 
-  expect(labels.slice(0, 5)).toEqual([
-    "Manufacturer",
-    "Model ID",
-    "Device type",
-    "Name",
-    "Description",
-  ]);
+  // The overline variant uppercases the headings in CSS.
+  expect(headings).toEqual(["DEVICE", "POWER", "MEASUREMENT", "LIBRARY"]);
+  await expect(page.getByRole("heading", { name: "Device", level: 2 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Power", level: 2 })).toBeVisible();
+
+  // Power figures belong to the Power section, not scattered through the list.
+  await expect(groups.filter({ hasText: "Power" }).first().getByText("Max power")).toBeVisible();
 });
 
 test("keeps every profile tab reachable", async ({ page }) => {

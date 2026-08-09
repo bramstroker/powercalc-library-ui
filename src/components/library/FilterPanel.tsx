@@ -176,7 +176,7 @@ export const FilterPanel = ({
         );
       })}
 
-      <SectionHeading icon={SECTION_ICONS.dates}>Dates</SectionHeading>
+      <SectionHeading icon={SECTION_ICONS.dates}>Added</SectionHeading>
       <Stack sx={{ gap: 1.5, mt: 1, pb: 1 }}>
         <TextField
           size="small"
@@ -185,16 +185,6 @@ export const FilterPanel = ({
           value={filters.createdAfter ?? ""}
           onChange={(event) => {
             setDate("createdAfter", event.target.value);
-          }}
-          slotProps={{ inputLabel: { shrink: true } }}
-        />
-        <TextField
-          size="small"
-          type="date"
-          label="Updated after"
-          value={filters.updatedAfter ?? ""}
-          onChange={(event) => {
-            setDate("updatedAfter", event.target.value);
           }}
           slotProps={{ inputLabel: { shrink: true } }}
         />
