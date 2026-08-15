@@ -1,3 +1,4 @@
+import AutoGraphIcon from "@mui/icons-material/AutoGraph";
 import BedtimeIcon from "@mui/icons-material/Bedtime";
 import BoltIcon from "@mui/icons-material/Bolt";
 import CalculateIcon from "@mui/icons-material/Calculate";
@@ -46,6 +47,7 @@ import type {FullPowerProfile} from "../types/PowerProfile";
 import {AliasChips} from "./AliasChips";
 import {getDeviceTypeIcon} from "./library/facetIcons";
 import {ProfileSetup} from "./library/ProfileSetup";
+import {QualityBadge} from "./library/QualityBadge";
 import {Plot} from "./Plot";
 
 interface TabPanelProps {
@@ -529,6 +531,25 @@ export const Profile = () => {
     {label: "Measure device", value: profile.measureDevice, icon: ElectricMeterIcon, group: "measurement", filterKey: "measureDevice"},
     {label: "Measure method", value: profile.measureMethod, icon: ElectricMeterIcon, group: "measurement", filterKey: "measureMethod"},
     {label: "Measure description", value: profile.measureDescription, icon: ElectricMeterIcon, group: "measurement"},
+    {
+      label: "LUT quality",
+      value: profile.lutQuality?.score,
+      icon: AutoGraphIcon,
+      group: "measurement",
+      renderFn: (value) => (
+        <Stack direction="row" sx={{alignItems: "center", flexWrap: "wrap", gap: 1}}>
+          <QualityBadge score={value as number} showBand/>
+          {/* Only worth spelling out when one color mode is rougher than the other. */}
+          {profile.lutQuality?.brightness != null &&
+            profile.lutQuality.colorTemp != null &&
+            profile.lutQuality.brightness !== profile.lutQuality.colorTemp && (
+              <Typography variant="body2" color="text.secondary" component="span">
+                brightness {profile.lutQuality.brightness} · color temp {profile.lutQuality.colorTemp}
+              </Typography>
+            )}
+        </Stack>
+      ),
+    },
     {label: "Max power", value: profile.maxPower, icon: BoltIcon, group: "power", renderFn: watts},
     {label: "Standby power", value: profile.standbyPower, icon: BoltIcon, group: "power", renderFn: watts},
     {label: "Standby power on", value: profile.standbyPowerOn, icon: BoltIcon, group: "power", renderFn: watts},

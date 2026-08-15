@@ -110,4 +110,18 @@ describe("mapToBasePowerProfile", () => {
 
     expect(profile.maxPower).toBeNull();
   });
+
+  it("maps the LUT quality scores", () => {
+    const model = createModel({ lut_quality: { score: 84.2, brightness: 97.9, color_temp: 84.2 } });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.lutQuality).toEqual({ score: 84.2, brightness: 97.9, colorTemp: 84.2 });
+  });
+
+  it("leaves the LUT quality null for a profile without LUT files", () => {
+    const profile = mapToBasePowerProfile(createModel(), manufacturer, usageStats);
+
+    expect(profile.lutQuality).toBeNull();
+  });
 });

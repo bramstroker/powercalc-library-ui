@@ -36,6 +36,20 @@ test("uses a readable device type and a clear empty usage state", async ({ page 
   await expect(page.getByText("Powercalc can discover this model automatically (by entity).")).toBeVisible();
 });
 
+test("shows the LUT quality with its per color mode breakdown", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  await expect(page.getByText("96.1 · Excellent")).toBeVisible();
+  await expect(page.getByText("brightness 97.9 · color temp 96.1")).toBeVisible();
+});
+
+test("omits the LUT quality for a profile without measured curves", async ({ page }) => {
+  await page.goto("/profiles/sonoff/S31");
+
+  await expect(page.getByText("Shelly Plug S").or(page.getByText("Zhurui PR10"))).toBeVisible();
+  await expect(page.getByText("LUT quality")).toBeHidden();
+});
+
 test("navigates back to the library", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 

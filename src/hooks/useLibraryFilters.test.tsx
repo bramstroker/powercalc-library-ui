@@ -43,6 +43,13 @@ describe("parseFilters", () => {
   it("parses the created-after bound", () => {
     expect(parse("createdAfter=2025-01-01").createdAfter).toBe("2025-01-01");
   });
+
+  it("parses LUT quality bands, whose labels can carry a space", () => {
+    expect(parse("qualityBand=Poor,Not+applicable").facets.qualityBand).toEqual([
+      "Poor",
+      "Not applicable",
+    ]);
+  });
 });
 
 describe("serializeFilters", () => {
@@ -66,6 +73,7 @@ describe("serializeFilters", () => {
     filters.search = "plug";
     filters.facets.deviceType = ["light", "smart_switch"];
     filters.facets.author = ["Bram"];
+    filters.facets.qualityBand = ["Not applicable"];
     filters.ranges.maxPower = [0, 50];
     filters.createdAfter = "2025-01-01";
 

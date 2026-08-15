@@ -2,6 +2,8 @@ import type { FacetKey, LibraryFilters, Range, RangeKey } from "../types/Library
 import { FACET_KEYS, RANGE_KEYS } from "../types/LibraryFilters";
 import type { PowerProfile } from "../types/PowerProfile";
 
+import { getProfileQualityBand } from "./lutQuality";
+
 export type FacetCount = {
   value: string;
   count: number;
@@ -18,6 +20,8 @@ export const getFacetValues = (profile: PowerProfile, key: FacetKey): string[] =
       return profile.deviceType ? [profile.deviceType] : [];
     case "colorMode":
       return profile.colorModes ?? [];
+    case "qualityBand":
+      return [getProfileQualityBand(profile)];
     case "calculationStrategy":
       return profile.calculationStrategy ? [profile.calculationStrategy] : [];
     case "measureMethod":

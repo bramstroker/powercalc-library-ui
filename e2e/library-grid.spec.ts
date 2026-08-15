@@ -119,6 +119,25 @@ test("collapses a facet from the keyboard", async ({ page }) => {
   await expect(page.getByTestId("facet-deviceType").getByRole("checkbox")).toHaveCount(0);
 });
 
+test("filters on the LUT quality band", async ({ page }) => {
+  await page.goto("/");
+
+  const qualityBand = page.getByTestId("facet-qualityBand");
+  await qualityBand.getByRole("checkbox", { name: /Poor/ }).click();
+
+  await expect(page).toHaveURL(/qualityBand=Poor/);
+  await expect(page.getByRole("gridcell", { name: "LCT010" })).toBeVisible();
+  await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeHidden();
+  await expect(page.getByRole("gridcell", { name: "S31" })).toBeHidden();
+});
+
+test("groups profiles without a LUT under the not applicable band", async ({ page }) => {
+  await page.goto("/?qualityBand=Not+applicable");
+
+  await expect(page.getByRole("gridcell", { name: "S31" })).toBeVisible();
+  await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeHidden();
+});
+
 test("opens a profile when its row is clicked", async ({ page }) => {
   await page.goto("/");
 

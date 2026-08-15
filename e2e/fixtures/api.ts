@@ -34,6 +34,7 @@ export const library = {
           measure_device_firmware: "ESPHome 2026.4.2",
           discovery_by: "device",
           linked_profile: "ikea/LED1836G9",
+          lut_quality: { score: 96.1, brightness: 97.9, color_temp: 96.1 },
         },
         {
           id: "LCT010",
@@ -50,6 +51,7 @@ export const library = {
           calculation_strategy: "lut",
           standby_power: 0.3,
           sub_profile_count: 0,
+          lut_quality: { score: 62.4, brightness: 62.4 },
         },
       ],
     },
@@ -72,6 +74,7 @@ export const library = {
           calculation_strategy: "lut",
           standby_power: 0.2,
           sub_profile_count: 0,
+          lut_quality: { score: 88, brightness: 88 },
         },
       ],
     },

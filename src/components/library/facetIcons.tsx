@@ -1,5 +1,6 @@
 import type { SvgIconComponent } from "@mui/icons-material";
 import AirIcon from "@mui/icons-material/Air";
+import AutoGraphIcon from "@mui/icons-material/AutoGraph";
 import BatteryChargingFullIcon from "@mui/icons-material/BatteryChargingFull";
 import BedtimeIcon from "@mui/icons-material/Bedtime";
 import BlindsIcon from "@mui/icons-material/Blinds";
@@ -37,6 +38,7 @@ import { ColorModeIcons } from "./ColorModeIcons";
 export const FACET_ICONS: Record<FacetKey, SvgIconComponent> = {
   deviceType: DevicesOtherIcon,
   colorMode: PaletteIcon,
+  qualityBand: AutoGraphIcon,
   calculationStrategy: CalculateIcon,
   measureMethod: StraightenIcon,
   manufacturer: FactoryIcon,
