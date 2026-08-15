@@ -28,12 +28,21 @@ const fetchJson = async <T>(url: string, errorMessage: string): Promise<T> => {
 }
 
 const toPlots = (downloadLinks: DownloadLink[]): PlotLink[] => {
-  return downloadLinks
-      .filter((l) => l.url.endsWith(".png"))
-      .map((l) => ({
-        url: l.url,
-        label: l.path.split(".")[0],
-      }));
+  // Prefer the vector version of a plot, fall back to the bitmap when no SVG was rendered.
+  const byLabel = new Map<string, PlotLink & { isVector: boolean }>();
+
+  for (const link of downloadLinks) {
+    const isVector = link.url.endsWith(".svg");
+    if (!isVector && !link.url.endsWith(".png")) continue;
+
+    const label = link.path.split(".")[0];
+    const existing = byLabel.get(label);
+    if (existing && (existing.isVector || !isVector)) continue;
+
+    byLabel.set(label, { url: link.url, label, isVector });
+  }
+
+  return [...byLabel.values()].map(({ url, label }) => ({ url, label }));
 }
 
 const toSubProfiles = async (downloadLinks: DownloadLink[]): Promise<SubProfile[]> => {
