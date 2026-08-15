@@ -70,6 +70,7 @@ test("keeps every profile tab reachable", async ({ page }) => {
       body: JSON.stringify([
         { url: "https://api.powercalc.nl/x/sub/model.json", path: "brightness/model.json" },
         { url: "https://api.powercalc.nl/x/plot.png", path: "plot_brightness.png" },
+        { url: "https://api.powercalc.nl/x/plot.svg", path: "plot_brightness.svg" },
       ]),
     }),
   );
