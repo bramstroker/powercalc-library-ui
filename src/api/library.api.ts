@@ -32,6 +32,15 @@ export interface LibraryModel {
   only_self_usage?: boolean;
   /** "<manufacturer>/<model>" of the profile whose measurements this one reuses. */
   linked_profile?: string;
+  /**
+   * Smoothness scores of the model's LUT files, 0-100. `score` is the worst over every LUT file,
+   * sub profiles included. Absent for models that do not use the LUT calculation strategy.
+   */
+  lut_quality?: {
+    score: number;
+    brightness?: number;
+    color_temp?: number;
+  };
 }
 
 export type LibraryJson = {

@@ -35,6 +35,7 @@ const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => (
   subProfileCount: 0,
   minVersion: null,
   compatibleIntegrations: [],
+  lutQuality: { score: 98.3, brightness: 98.3, colorTemp: 96.1 },
   usageStats: { installationCount: 12, deviceCount: 34, percentage: 1.5 },
   ...overrides,
 });
@@ -54,6 +55,7 @@ const ikeaLight = createProfile({
   maxPower: 11,
   createdAt: new Date("2025-03-01T00:00:00Z"),
   updatedAt: null,
+  lutQuality: { score: 25.5, brightness: 25.5 },
   usageStats: { installationCount: 400, deviceCount: 800, percentage: 20 },
 });
 
@@ -71,6 +73,7 @@ const sonoffSwitch = createProfile({
   maxPower: null,
   author: { name: "Bram", githubUsername: "bramstroker" },
   createdAt: new Date("2023-01-01T00:00:00Z"),
+  lutQuality: null,
   usageStats: { installationCount: 5, deviceCount: 5, percentage: 0.1 },
   updatedAt: new Date("2023-02-01T00:00:00Z"),
 });
@@ -128,6 +131,18 @@ describe("applyFilters", () => {
     const result = applyFilters(profiles, withFilters({ facets: { colorMode: ["color_temp"] } }));
 
     expect(modelIds(result)).toEqual(["LCA001"]);
+  });
+
+  it("filters on the LUT quality band", () => {
+    expect(
+      modelIds(applyFilters(profiles, withFilters({ facets: { qualityBand: ["Poor"] } }))),
+    ).toEqual(["LED1836G9"]);
+  });
+
+  it("keeps profiles without a LUT under the not applicable band", () => {
+    expect(
+      modelIds(applyFilters(profiles, withFilters({ facets: { qualityBand: ["Not applicable"] } }))),
+    ).toEqual(["S31"]);
   });
 
   it("matches an author by display name or by github username", () => {
@@ -224,6 +239,14 @@ describe("computeFacetCounts", () => {
     expect(computeFacetCounts(profiles, "colorMode")).toEqual([
       { value: "brightness", count: 2 },
       { value: "color_temp", count: 1 },
+    ]);
+  });
+
+  it("buckets every profile into exactly one LUT quality band", () => {
+    expect(computeFacetCounts(profiles, "qualityBand")).toEqual([
+      { value: "Excellent", count: 1 },
+      { value: "Not applicable", count: 1 },
+      { value: "Poor", count: 1 },
     ]);
   });
 

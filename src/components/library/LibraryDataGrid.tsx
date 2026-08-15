@@ -18,6 +18,7 @@ import { AliasChips } from "../AliasChips";
 import { ColorModeIcons } from "./ColorModeIcons";
 import { DeviceTypeIcon } from "./facetIcons";
 import { NewBadge } from "./NewBadge";
+import { QualityBadge } from "./QualityBadge";
 
 const COLUMN_VISIBILITY_STORAGE_KEY = "libraryGridColumnVisibility";
 
@@ -34,6 +35,7 @@ const DEFAULT_COLUMN_VISIBILITY: GridColumnVisibilityModel = {
   updatedAt: false,
   createdAt: false,
   installationCount: false,
+  lutQualityScore: false,
 };
 
 export const profileRowId = (profile: PowerProfile) =>
@@ -172,6 +174,21 @@ const columns: GridColDef<PowerProfile>[] = [
     type: "number",
     width: 130,
     valueGetter: (_value, row) => row.usageStats?.installationCount,
+  },
+  {
+    field: "lutQualityScore",
+    headerName: "LUT quality",
+    type: "number",
+    width: 130,
+    align: "center",
+    headerAlign: "center",
+    // Numeric so sorting ranks the rough profiles together; the chip only colours the readout.
+    valueGetter: (_value, row) => row.lutQuality?.score,
+    renderCell: ({ value }: GridRenderCellParams<PowerProfile, number>) => (
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+        <QualityBadge score={value} />
+      </Box>
+    ),
   },
 ];
 

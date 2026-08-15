@@ -7,6 +7,7 @@
 export const FACET_KEYS = [
   "deviceType",
   "colorMode",
+  "qualityBand",
   "calculationStrategy",
   "measureMethod",
   "manufacturer",
@@ -36,6 +37,7 @@ export const CREATED_AFTER_PARAM = "createdAfter";
 export const FACET_LABELS: Record<FacetKey, string> = {
   deviceType: "Device type",
   colorMode: "Color modes",
+  qualityBand: "LUT quality",
   calculationStrategy: "Calculation strategy",
   measureMethod: "Measure method",
   manufacturer: "Manufacturer",
@@ -59,6 +61,7 @@ export const createEmptyFilters = (): LibraryFilters => ({
   facets: {
     deviceType: [],
     colorMode: [],
+    qualityBand: [],
     calculationStrategy: [],
     measureMethod: [],
     manufacturer: [],

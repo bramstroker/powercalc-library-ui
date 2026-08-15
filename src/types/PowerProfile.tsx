@@ -13,6 +13,16 @@ export type UsageStats = {
   percentage: number;
 }
 
+/**
+ * Smoothness of the measured curves, 0-100. `score` is the worst over every LUT file of the
+ * profile, sub profiles included; the per-mode entries tell which curve pulls it down.
+ */
+export type LutQuality = {
+  score: number;
+  brightness?: number;
+  colorTemp?: number;
+}
+
 export type PowerProfile = {
   manufacturer: Manufacturer;
   modelId: string;
@@ -41,6 +51,8 @@ export type PowerProfile = {
   onlySelfUsage?: boolean;
   /** "<manufacturer>/<model>" of the profile this one reuses measurements from. */
   linkedProfile?: string | null;
+  /** Only set for LUT profiles. */
+  lutQuality?: LutQuality | null;
   usageStats: UsageStats;
 };
 

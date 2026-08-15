@@ -16,6 +16,7 @@ import {
 } from "../../types/LibraryFilters";
 import type { PowerProfile } from "../../types/PowerProfile";
 import { applyFiltersExcept, computeFacetCounts, computeRanges } from "../../utils/libraryFiltering";
+import { sortByQualityBand } from "../../utils/lutQuality";
 
 import type { AuthorOption } from "./AuthorFacet";
 import { AuthorFacet } from "./AuthorFacet";
@@ -38,6 +39,7 @@ const panelSurface = (theme: Theme) => ({
 const CHECKBOX_FACETS: { key: FacetKey; searchable: boolean }[] = [
   { key: "deviceType", searchable: false },
   { key: "colorMode", searchable: false },
+  { key: "qualityBand", searchable: false },
   { key: "calculationStrategy", searchable: false },
   { key: "measureMethod", searchable: false },
   { key: "manufacturer", searchable: true },
@@ -73,10 +75,10 @@ export const FilterPanel = ({
   // Each facet is counted against everything *except* its own selection, so ticking a second box
   // in the same list widens the results instead of collapsing them to zero.
   const facetCounts = useMemo(() => {
-    const entries = [...CHECKBOX_FACETS.map((facet) => facet.key), "author" as const].map((key) => [
-      key,
-      computeFacetCounts(applyFiltersExcept(profiles, filters, key), key),
-    ]);
+    const entries = [...CHECKBOX_FACETS.map((facet) => facet.key), "author" as const].map((key) => {
+      const counts = computeFacetCounts(applyFiltersExcept(profiles, filters, key), key);
+      return [key, key === "qualityBand" ? sortByQualityBand(counts) : counts];
+    });
     return Object.fromEntries(entries) as Record<FacetKey, ReturnType<typeof computeFacetCounts>>;
   }, [profiles, filters]);
 

@@ -1,7 +1,12 @@
 import type { LibraryModel } from "../api/library.api";
 import type { ColorMode } from "../types/ColorMode";
 import type { DeviceType } from "../types/DeviceType";
-import type {Manufacturer, PowerProfile, UsageStats} from "../types/PowerProfile";
+import type {LutQuality, Manufacturer, PowerProfile, UsageStats} from "../types/PowerProfile";
+
+const mapLutQuality = (quality: LibraryModel["lut_quality"]): LutQuality | null =>
+  quality
+    ? {score: quality.score, brightness: quality.brightness, colorTemp: quality.color_temp}
+    : null;
 
 /**
  * Maps library model data to a PowerProfile object
@@ -41,6 +46,7 @@ export const mapToBasePowerProfile = (
     discoveryBy: model.discovery_by ?? null,
     onlySelfUsage: model.only_self_usage ?? false,
     linkedProfile: model.linked_profile ?? null,
+    lutQuality: mapLutQuality(model.lut_quality),
     usageStats: usageStats
   };
 }
