@@ -13,6 +13,8 @@ import {
   Paper,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useMemo } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
@@ -27,6 +29,8 @@ import { ManufacturerLogo } from "./ManufacturerLogo";
 export const Manufacturer = () => {
   const { manufacturerName } = useParams<{ manufacturerName: string }>();
   const { powerProfiles, manufacturers } = useLibrary();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const manufacturer = manufacturerName ? manufacturers[manufacturerName] : undefined;
 
@@ -66,13 +70,16 @@ export const Manufacturer = () => {
   return (
     <>
       <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 } }}>
+        {/*
+          * The mark sits opposite the name, letterhead style, so it fills the empty half of a card
+          * this wide instead of crowding the title. `column-reverse` keeps it above the name on a
+          * phone, where there is no empty half to fill and stacking it below would bury it.
+          */}
         <Stack
-          direction={{ xs: "column", sm: "row" }}
+          direction={{ xs: "column-reverse", sm: "row" }}
           spacing={{ xs: 1.5, sm: 2 }}
           sx={{ alignItems: { xs: "flex-start", sm: "center" }, mb: { xs: 1.5, sm: 2 } }}
         >
-          <ManufacturerLogo manufacturer={manufacturer} size={72} variant="wide" />
-
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography
               variant="h4"
@@ -92,6 +99,12 @@ export const Manufacturer = () => {
               </Typography>
             )}
           </Box>
+
+          <ManufacturerLogo
+            manufacturer={manufacturer}
+            size={isMobile ? 48 : 80}
+            variant="wide"
+          />
         </Stack>
 
         <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: { xs: 1.5, sm: 2 } }}>

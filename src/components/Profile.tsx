@@ -667,7 +667,7 @@ export const Profile = () => {
             </Box>
 
             <Stack direction="row" spacing={2} sx={{alignItems: "flex-start", minWidth: 0}}>
-              <ManufacturerLogo manufacturer={profile.manufacturer} size={56}/>
+              <ManufacturerLogo manufacturer={profile.manufacturer} size={44} plate/>
 
               <Box sx={{minWidth: 0}}>
                 <Typography variant="h4" component="h1" sx={{overflowWrap: "anywhere"}}>
