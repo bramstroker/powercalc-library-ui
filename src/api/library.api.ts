@@ -52,6 +52,8 @@ export type LibraryJson = {
   manufacturers: Array<{
     full_name: string;
     dir_name: string;
+    /** Other brand names the same manufacturer is known by. */
+    aliases?: string[];
     models: LibraryModel[];
   }>;
 };

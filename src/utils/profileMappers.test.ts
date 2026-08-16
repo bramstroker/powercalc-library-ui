@@ -5,7 +5,7 @@ import type { Manufacturer, UsageStats } from "../types/PowerProfile";
 
 import { mapToBasePowerProfile } from "./profileMappers";
 
-const manufacturer: Manufacturer = { dirName: "signify", fullName: "Signify" };
+const manufacturer: Manufacturer = { dirName: "signify", fullName: "Signify", aliases: [] };
 
 const usageStats: UsageStats = {
   installationCount: 12,

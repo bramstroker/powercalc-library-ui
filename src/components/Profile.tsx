@@ -49,6 +49,7 @@ import {AliasChips} from "./AliasChips";
 import {getDeviceTypeIcon} from "./library/facetIcons";
 import {ProfileSetup} from "./library/ProfileSetup";
 import {QualityBadge} from "./library/QualityBadge";
+import {ManufacturerLogo} from "./ManufacturerLogo";
 import {Plot} from "./Plot";
 
 interface TabPanelProps {
@@ -665,14 +666,28 @@ export const Profile = () => {
               </Button>
             </Box>
 
-            <Typography variant="h4" component="h1" sx={{overflowWrap: "anywhere"}}>
-              {profile.manufacturer.fullName} {profile.modelId}
-            </Typography>
-            {profile.name && (
-              <Typography variant="h6" component="h2" sx={{ mt: 1 }}>
-                {profile.name}
-              </Typography>
-            )}
+            <Stack direction="row" spacing={2} sx={{alignItems: "flex-start", minWidth: 0}}>
+              <ManufacturerLogo manufacturer={profile.manufacturer} size={56}/>
+
+              <Box sx={{minWidth: 0}}>
+                <Typography variant="h4" component="h1" sx={{overflowWrap: "anywhere"}}>
+                  <Link
+                      component={RouterLink}
+                      to={`/manufacturer/${encodeURIComponent(profile.manufacturer.dirName)}`}
+                      color="inherit"
+                      underline="hover"
+                  >
+                    {profile.manufacturer.fullName}
+                  </Link>{" "}
+                  {profile.modelId}
+                </Typography>
+                {profile.name && (
+                  <Typography variant="h6" component="h2" sx={{ mt: 1 }}>
+                    {profile.name}
+                  </Typography>
+                )}
+              </Box>
+            </Stack>
 
             <Stack direction="row" sx={{flexWrap: "wrap", gap: 1, mt: 2}}>
               <HeadlineFact

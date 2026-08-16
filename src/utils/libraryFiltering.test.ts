@@ -15,7 +15,7 @@ import {
 } from "./libraryFiltering";
 
 const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => ({
-  manufacturer: { dirName: "signify", fullName: "Signify" },
+  manufacturer: { dirName: "signify", fullName: "Signify", aliases: [] },
   modelId: "LCA001",
   name: "Hue White A60",
   aliases: ["LWB010", "LWB014"],
@@ -43,7 +43,7 @@ const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => (
 const hueLight = createProfile();
 
 const ikeaLight = createProfile({
-  manufacturer: { dirName: "ikea", fullName: "IKEA" },
+  manufacturer: { dirName: "ikea", fullName: "IKEA", aliases: [] },
   modelId: "LED1836G9",
   name: "TRADFRI bulb E27",
   aliases: [],
@@ -60,7 +60,7 @@ const ikeaLight = createProfile({
 });
 
 const sonoffSwitch = createProfile({
-  manufacturer: { dirName: "sonoff", fullName: "Sonoff" },
+  manufacturer: { dirName: "sonoff", fullName: "Sonoff", aliases: [] },
   modelId: "S31",
   name: "Smart plug",
   aliases: [],
@@ -194,7 +194,7 @@ describe("matchesSearch", () => {
   it("matches words spread across different fields", () => {
     // The real "amazon echo" case: manufacturer holds one word, the name the other.
     const echoDot = createProfile({
-      manufacturer: { dirName: "amazon", fullName: "Amazon" },
+      manufacturer: { dirName: "amazon", fullName: "Amazon", aliases: [] },
       modelId: "B7W644",
       name: "Echo Dot (Gen4) with clock",
       aliases: ["A2H4LV5GIZ1JFT"],

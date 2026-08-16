@@ -74,8 +74,11 @@ test("navigates back to the library", async ({ page }) => {
 test("links the filterable attributes back into the library", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 
-  // The link keeps its own accessible name; the tooltip only describes it.
-  const manufacturer = page.getByRole("link", { name: "Signify", exact: true });
+  // The link keeps its own accessible name; the tooltip only describes it. Scoped to the
+  // attributes, because the heading links the same name to the manufacturer page instead.
+  const manufacturer = page
+    .getByTestId("profile-attribute")
+    .getByRole("link", { name: "Signify", exact: true });
   await expect(manufacturer).toBeVisible();
 
   await manufacturer.click();

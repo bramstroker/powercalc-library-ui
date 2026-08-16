@@ -19,11 +19,43 @@ import {
   MenuItem,
   Avatar
 } from "@mui/material";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+import { useLibrary } from "../../context/LibraryContext";
+import { ManufacturerLogo } from "../ManufacturerLogo";
 
 type StatItem = {
   name: string;
   count: number;
+};
+
+/**
+ * Aggregation keys manufacturers by full name, but the logo and the manufacturer page are both
+ * keyed by directory name, so the row has to look the manufacturer back up.
+ */
+const ManufacturerCell = ({ fullName }: { fullName: string }) => {
+  const { manufacturers } = useLibrary();
+  const manufacturer = useMemo(
+    () => Object.values(manufacturers).find((entry) => entry.fullName === fullName),
+    [manufacturers, fullName],
+  );
+
+  if (!manufacturer) {
+    return (
+      <Link href={`/?manufacturer=${encodeURIComponent(fullName)}`}>
+        {fullName}
+      </Link>
+    );
+  }
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <ManufacturerLogo manufacturer={manufacturer} size={24} />
+      <Link href={`/manufacturer/${encodeURIComponent(manufacturer.dirName)}`}>
+        {fullName}
+      </Link>
+    </Box>
+  );
 };
 
 type StatisticsDisplayProps = {
@@ -102,8 +134,8 @@ export const StatisticsDisplay = ({
                   <TableCell>
                     {filterQueryParam === 'author' ? (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar 
-                          src={`https://github.com/${item.name}.png`} 
+                        <Avatar
+                          src={`https://github.com/${item.name}.png`}
                           alt={item.name}
                           sx={{ width: 24, height: 24 }}
                         />
@@ -111,6 +143,8 @@ export const StatisticsDisplay = ({
                           {item.name}
                         </Link>
                       </Box>
+                    ) : filterQueryParam === 'manufacturer' ? (
+                      <ManufacturerCell fullName={item.name} />
                     ) : (
                       <Link href={`/?${encodeURIComponent(filterQueryParam)}=${encodeURIComponent(item.name)}`}>
                         {item.name}

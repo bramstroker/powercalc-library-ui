@@ -106,6 +106,14 @@ const router = createBrowserRouter([
         path: "/author/:authorName",
         lazy: lazyRoute(() => import("./components/Author"), "Author"),
       },
+      {
+        path: "/manufacturers",
+        lazy: lazyRoute(() => import("./components/Manufacturers"), "Manufacturers"),
+      },
+      {
+        path: "/manufacturer/:manufacturerName",
+        lazy: lazyRoute(() => import("./components/Manufacturer"), "Manufacturer"),
+      },
     ],
   },
 ]);
