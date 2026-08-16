@@ -15,11 +15,11 @@ export const manufacturerLogoSlug = (dirName: string) =>
     .replace(/^-|-$/g, "");
 
 /**
- * Enumerated at build time rather than by pointing an `<img>` at a conventional URL: only half of
- * the 121 manufacturers have a logo, and the index page would otherwise fire a 404 for every one
- * that does not. The glob is deliberately *not* eager — bundling all 68 files inline costs ~75kB
- * gzipped, which the profile page would pay to show a single mark. Each logo is its own chunk,
- * fetched when something actually renders it.
+ * Enumerated at build time rather than by pointing an `<img>` at a conventional URL: not every
+ * manufacturer has a logo, and the index page would otherwise fire a 404 for every one that does
+ * not. The glob is deliberately *not* eager — bundling every file inline costs ~75kB gzipped,
+ * which the profile page would pay to show a single mark. Each logo is its own chunk, fetched
+ * when something actually renders it.
  *
  * Source rather than URL because monochrome marks are inlined so they can inherit a colour.
  */

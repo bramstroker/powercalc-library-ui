@@ -109,12 +109,12 @@ undefined once the DOCTYPE goes). Replace `rgb(…%)` fills with hex, and set `r
 
 ## Coverage
 
-118 of the 121 manufacturers have a logo. The remaining 3 have no usable artwork at all and render
+119 of the 122 manufacturers have a logo. The remaining 3 have no usable artwork at all and render
 a monogram instead. Never approximate a mark by hand — a wrong logo is worse than a monogram.
 
 Sources worth trying, roughly in yield order for this domain:
 
-- **Wikimedia Commons** has SVG logos for anything with a Wikipedia article (23). Search the file
+- **Wikimedia Commons** has SVG logos for anything with a Wikipedia article (24). Search the file
   namespace directly rather than relying on Wikidata's `P154` property, which is often unset — but
   require the brand name in the *filename*, or "Free" matches half of Commons.
 - **The manufacturer's own site** is the biggest source for smart-home brands (17). Most serve
