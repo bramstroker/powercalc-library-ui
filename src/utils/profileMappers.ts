@@ -47,6 +47,7 @@ export const mapToBasePowerProfile = (
     onlySelfUsage: model.only_self_usage ?? false,
     linkedProfile: model.linked_profile ?? null,
     lutQuality: mapLutQuality(model.lut_quality),
+    voltageRange: model.voltage_range ?? null,
     usageStats: usageStats
   };
 }

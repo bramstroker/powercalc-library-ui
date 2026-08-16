@@ -124,4 +124,18 @@ describe("mapToBasePowerProfile", () => {
 
     expect(profile.lutQuality).toBeNull();
   });
+
+  it("maps the voltage range", () => {
+    const model = createModel({ voltage_range: { min: 224.2, max: 229.3 } });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.voltageRange).toEqual({ min: 224.2, max: 229.3 });
+  });
+
+  it("leaves the voltage range null when the measurement did not record it", () => {
+    const profile = mapToBasePowerProfile(createModel(), manufacturer, usageStats);
+
+    expect(profile.voltageRange).toBeNull();
+  });
 });

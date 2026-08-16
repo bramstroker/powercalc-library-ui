@@ -50,6 +50,18 @@ test("omits the LUT quality for a profile without measured curves", async ({ pag
   await expect(page.getByText("LUT quality")).toBeHidden();
 });
 
+test("shows the voltage range the profile was measured at", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  await expect(page.getByText("224.2 – 229.3 V")).toBeVisible();
+});
+
+test("omits the voltage range for a profile that did not record it", async ({ page }) => {
+  await page.goto("/profiles/sonoff/S31");
+
+  await expect(page.getByText("Voltage range")).toBeHidden();
+});
+
 test("navigates back to the library", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 

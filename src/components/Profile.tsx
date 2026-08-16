@@ -3,6 +3,7 @@ import BedtimeIcon from "@mui/icons-material/Bedtime";
 import BoltIcon from "@mui/icons-material/Bolt";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
 import ElectricMeterIcon from "@mui/icons-material/ElectricMeter";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -83,6 +84,7 @@ type ItemValueType = string | number | boolean | undefined | null | string[] | R
 
 /** Power figures are watts; the unit belongs next to the number, not only in the headline. */
 const watts = (value: ItemValueType) => `${String(value)} W`;
+const volts = (value: ItemValueType) => `${String(value)} V`;
 const humanizeIdentifier = (value: string) =>
   value
     .split("_")
@@ -549,6 +551,21 @@ export const Profile = () => {
             )}
         </Stack>
       ),
+    },
+    {
+      label: "Voltage range",
+      value: profile.voltageRange?.min,
+      icon: ElectricalServicesIcon,
+      group: "measurement",
+      // Two identical bounds read as a spurious range, so collapse them to a single figure.
+      renderFn: () =>
+        profile.voltageRange
+          ? volts(
+              profile.voltageRange.min === profile.voltageRange.max
+                ? String(profile.voltageRange.min)
+                : `${profile.voltageRange.min} – ${profile.voltageRange.max}`,
+            )
+          : null,
     },
     {label: "Max power", value: profile.maxPower, icon: BoltIcon, group: "power", renderFn: watts},
     {label: "Standby power", value: profile.standbyPower, icon: BoltIcon, group: "power", renderFn: watts},

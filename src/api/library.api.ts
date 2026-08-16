@@ -41,6 +41,11 @@ export interface LibraryModel {
     brightness?: number;
     color_temp?: number;
   };
+  /** Mains voltage in volts observed while the measurements were taken. */
+  voltage_range?: {
+    min: number;
+    max: number;
+  };
 }
 
 export type LibraryJson = {

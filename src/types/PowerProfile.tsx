@@ -23,6 +23,12 @@ export type LutQuality = {
   colorTemp?: number;
 }
 
+/** Mains voltage in volts observed while the measurements were taken. */
+export type VoltageRange = {
+  min: number;
+  max: number;
+}
+
 export type PowerProfile = {
   manufacturer: Manufacturer;
   modelId: string;
@@ -53,6 +59,8 @@ export type PowerProfile = {
   linkedProfile?: string | null;
   /** Only set for LUT profiles. */
   lutQuality?: LutQuality | null;
+  /** Only set for profiles measured with a device that reports voltage. */
+  voltageRange?: VoltageRange | null;
   usageStats: UsageStats;
 };
 

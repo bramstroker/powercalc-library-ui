@@ -35,6 +35,7 @@ export const library = {
           discovery_by: "device",
           linked_profile: "ikea/LED1836G9",
           lut_quality: { score: 96.1, brightness: 97.9, color_temp: 96.1 },
+          voltage_range: { min: 224.2, max: 229.3 },
         },
         {
           id: "LCT010",
