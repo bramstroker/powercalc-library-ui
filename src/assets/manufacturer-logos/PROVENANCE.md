@@ -116,9 +116,15 @@ trademark of each manufacturer
 | `sylvania.svg` | sylvania | two-tone | square + wide | trademark of the manufacturer |
 | `zipato.svg` | zipato | monochrome | square | trademark of the manufacturer |
 
-## Simple Icons (19)
+## Simple Icons (19) — no longer a source
 
 Source: <https://simpleicons.org> — CC0-1.0 (collection)
+
+**Do not add logos from here.** Simple Icons ships one-colour silhouettes, and this directory wants
+full-colour artwork. The 19 files below predate that decision and are listed only to keep their
+attribution and licence on record; replace them with the brand's own artwork when it turns up.
+Several are genuinely single-ink brands (Apple, Bose, Sonos, Sony, Denon, LIFX, Netgear), so for
+those a silhouette is the real logo and a replacement would change nothing.
 
 | File | Manufacturer | Rendering | Shapes | Licence |
 | --- | --- | --- | --- | --- |

@@ -12,6 +12,12 @@ const manufacturer = (overrides: Partial<Manufacturer> = {}): Manufacturer => ({
   ...overrides,
 });
 
+/**
+ * A directory name no logo will ever be collected for. Naming a real manufacturer here makes the
+ * monogram tests fail the day someone adds its logo, which is exactly what happened to Lumiman.
+ */
+const NO_LOGO = "no such manufacturer";
+
 describe("manufacturerLogoSlug", () => {
   it("collapses spaces and punctuation into single dashes", () => {
     expect(manufacturerLogoSlug("paulmann licht")).toBe("paulmann-licht");
@@ -28,7 +34,7 @@ describe("hasManufacturerLogo", () => {
   });
 
   it("is false for a manufacturer no logo has been collected for", () => {
-    expect(hasManufacturerLogo("lumiman")).toBe(false);
+    expect(hasManufacturerLogo(NO_LOGO)).toBe(false);
   });
 });
 
@@ -87,15 +93,19 @@ describe("ManufacturerLogo", () => {
   });
 
   it("falls back to a monogram of the first two words", () => {
-    render(<ManufacturerLogo manufacturer={manufacturer({ dirName: "lumiman", fullName: "Lumi Man" })} />);
+    render(
+      <ManufacturerLogo manufacturer={manufacturer({ dirName: NO_LOGO, fullName: "Lumi Man" })} />,
+    );
 
     expect(screen.getByText("LM")).toBeInTheDocument();
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 
   it("uses a single letter for a one-word manufacturer", () => {
-    render(<ManufacturerLogo manufacturer={manufacturer({ dirName: "lumiman" })} />);
+    render(
+      <ManufacturerLogo manufacturer={manufacturer({ dirName: NO_LOGO, fullName: "Kauf" })} />,
+    );
 
-    expect(screen.getByText("S")).toBeInTheDocument();
+    expect(screen.getByText("K")).toBeInTheDocument();
   });
 });

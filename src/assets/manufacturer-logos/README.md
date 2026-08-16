@@ -78,13 +78,17 @@ Use the **mark** rather than the full lockup where the brand has one. Every slot
 in already prints the manufacturer's name beside it, and at 24–48px the wordmark half of a lockup
 is unreadable. Paulmann's press kit ships block-plus-wordmark; only the block is checked in here.
 
+**Prefer full-colour artwork.** A logo should arrive with the brand's own inks, not as a one-colour
+silhouette — so do not source from monochrome icon collections such as Simple Icons, even though
+they are convenient and carry an official brand hex. A silhouette throws away every colour but one,
+which is exactly what makes Gledopto's red mark, IKEA's blue-and-yellow or Lidl's three inks
+recognisable.
+
 Good sources, in rough order of preference:
 
-1. [Simple Icons](https://simpleicons.org) (`npm i simple-icons`) — CC0 collection, already
-   monochrome and square. Carries the official brand hex, which goes straight into `data-brand`.
-2. [Wikimedia Commons](https://commons.wikimedia.org) — many brand logos are there as SVG under
+1. [Wikimedia Commons](https://commons.wikimedia.org) — many brand logos are there as SVG under
    `PD-textlogo`. Check the licence on the file page and record it in `PROVENANCE.md`.
-3. The manufacturer's own press kit. To convert an EPS or AI file:
+2. The manufacturer's own site or press kit. To convert an EPS or AI file:
 
 ```sh
 gs -q -dNOPAUSE -dBATCH -dEPSCrop -sDEVICE=pdfwrite -o logo.pdf logo.eps
@@ -110,7 +114,6 @@ a monogram instead. Never approximate a mark by hand — a wrong logo is worse t
 
 Sources worth trying, roughly in yield order for this domain:
 
-- **Simple Icons** covers the well-known tech brands only (19 of ours).
 - **Wikimedia Commons** has SVG logos for anything with a Wikipedia article (23). Search the file
   namespace directly rather than relying on Wikidata's `P154` property, which is often unset — but
   require the brand name in the *filename*, or "Free" matches half of Commons.
@@ -123,6 +126,10 @@ Sources worth trying, roughly in yield order for this domain:
   developer tooling, not consumer hardware.
 - **Home Assistant's `brands` repo** covers almost every one of the missing names, but it is PNG
   only, so nothing there can be used as-is.
+- **Social media** is where a brand survives once its website is gone — 3A Smart Home's mark only
+  exists on its Facebook page now that the domain has been sold on. Note that the page's *profile
+  picture* may be empty (`is_silhouette: true` from the Graph API) while the logo sits in the photos
+  section, so an API check alone will wrongly report nothing.
 
 ## Tracing a raster
 
