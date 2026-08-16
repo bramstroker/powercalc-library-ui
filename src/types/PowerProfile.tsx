@@ -67,6 +67,8 @@ export type PowerProfile = {
 export interface Manufacturer {
   dirName: string;
   fullName: string;
+  /** Other names the brand ships under, e.g. "Leedarson" for Linkind. Often empty. */
+  aliases: string[];
 }
 
 export type SubProfile = {

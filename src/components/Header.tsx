@@ -199,6 +199,12 @@ export const Header = ({
 
               <Divider sx={{my: 1}}/>
 
+              {/* "All manufacturers" rather than "Manufacturers": the Library stats section
+                  below already has a "Top Manufacturers" entry to be told apart from. */}
+              <MenuItem onClick={() => handleMenuItemClick('/manufacturers')}>
+                All manufacturers
+              </MenuItem>
+
               <MenuItem onClick={() => handleMenuItemClick('/whats-new')}>
                 What&apos;s new
               </MenuItem>

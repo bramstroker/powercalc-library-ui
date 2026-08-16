@@ -9,6 +9,7 @@ export const library = {
     {
       full_name: "Signify",
       dir_name: "signify",
+      aliases: ["Philips"],
       models: [
         {
           id: "LCA001",

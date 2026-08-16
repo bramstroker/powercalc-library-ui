@@ -9,7 +9,7 @@ import { isRecentlyAdded, recentlyAdded } from "./recency";
 const NOW = new Date("2026-08-08T00:00:00Z");
 
 const createProfile = (createdAt: string, modelId = "M1"): PowerProfile => ({
-  manufacturer: { dirName: "signify", fullName: "Signify" },
+  manufacturer: { dirName: "signify", fullName: "Signify", aliases: [] },
   modelId,
   name: "A light",
   aliases: [],
