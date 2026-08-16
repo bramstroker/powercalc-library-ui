@@ -3,7 +3,6 @@ import {
   Box,
   Card,
   CardActionArea,
-  Container,
   InputAdornment,
   Stack,
   TextField,
@@ -85,7 +84,7 @@ export const Manufacturers = () => {
   }, [summaries, search, sort]);
 
   return (
-    <Container>
+    <>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Manufacturers
@@ -173,6 +172,6 @@ export const Manufacturers = () => {
           ))}
         </Grid>
       )}
-    </Container>
+    </>
   );
 };

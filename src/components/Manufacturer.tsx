@@ -5,7 +5,6 @@ import {
   Box,
   Button,
   Chip,
-  Container,
   Divider,
   List,
   ListItem,
@@ -55,17 +54,17 @@ export const Manufacturer = () => {
 
   if (!manufacturer) {
     return (
-      <Container>
+      <>
         <Typography variant="h5">Manufacturer not found</Typography>
         <Button component={RouterLink} to="/manufacturers" sx={{ mt: 2 }}>
           Back to all manufacturers
         </Button>
-      </Container>
+      </>
     );
   }
 
   return (
-    <Container>
+    <>
       <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 } }}>
         <Stack
           direction={{ xs: "column", sm: "row" }}
@@ -213,6 +212,6 @@ export const Manufacturer = () => {
           </Paper>
         );
       })}
-    </Container>
+    </>
   );
 };

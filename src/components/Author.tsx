@@ -5,7 +5,6 @@ import {
   Typography,
   Box,
   Paper,
-  Container,
   Button,
   List,
   ListItem,
@@ -56,7 +55,7 @@ export const Author = () => {
   }
 
   return (
-      <Container>
+      <>
         <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 } }}>
           {/* Header */}
           <Stack
@@ -232,6 +231,6 @@ export const Author = () => {
               </List>
             </Paper>
         ))}
-      </Container>
+      </>
   );
 };
