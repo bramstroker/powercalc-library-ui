@@ -3,7 +3,7 @@
 Every file in this directory, where it came from and under what terms. Update this by hand
 when adding a logo.
 
-119 of the 122 manufacturers have a logo; the rest fall back to a monogram.
+120 of the 123 manufacturers have a logo; the rest fall back to a monogram.
 
 `Rendering` is `monochrome` when the file is flattened to `currentColor` and tinted by the
 theme, `full colour` when it keeps its own fills, and `two-tone` when only its near-black,
@@ -12,8 +12,8 @@ near-neutral ink is themed so a coloured mark survives.
 Traced entries were vectorised from a bitmap. Those marked `single ink` carry one colour, so
 any second colour in the original is lost; the rest were traced once per ink and keep both.
 
-21 ship a `<slug>.wide.svg` with the full lockup, because their square file is either
-cropped to the mark or a different file entirely: `apc`, `bang-olufsen`, `belkin`, `everspring`, `ewelink`, `fibaro`, `gledopto`, `ledvance`, `lumiman`, `mercator-ikuu`, `mueller-licht`, `nanoleaf`, `netatmo`, `philips`, `reolink`, `roborock`, `signify`, `sylvania`, `third-reality`, `tp-link`, `zengge`.
+22 ship a `<slug>.wide.svg` with the full lockup, because their square file is either
+cropped to the mark or a different file entirely: `apc`, `bang-olufsen`, `belkin`, `everspring`, `ewelink`, `fibaro`, `gledopto`, `hornbach`, `ledvance`, `lumiman`, `mercator-ikuu`, `mueller-licht`, `nanoleaf`, `netatmo`, `philips`, `reolink`, `roborock`, `signify`, `sylvania`, `third-reality`, `tp-link`, `zengge`.
 
 ## Traced from a raster (38)
 
@@ -60,7 +60,7 @@ trademark of each manufacturer; vectorised with potrace
 | `zemismart.svg` | zemismart | monochrome, single ink | square | trademark of the manufacturer |
 | `zengge.svg` | zengge | full colour | square + wide (square from `zengge-mark`) | trademark of the manufacturer |
 
-## Wikimedia Commons (23)
+## Wikimedia Commons (24)
 
 Source: <https://commons.wikimedia.org> — per file, below
 
@@ -75,6 +75,7 @@ Source: <https://commons.wikimedia.org> — per file, below
 | `eve.svg` | eve | monochrome | square | Public domain |
 | `google.svg` | google | full colour | square | Public domain |
 | `harman-kardon.svg` | harman kardon | monochrome | square | Public domain |
+| `hornbach.svg` | hornbach | full colour | square + wide | Public domain |
 | `ikea.svg` | ikea | full colour | square | Public domain |
 | `intelbras.svg` | intelbras | monochrome | square | Public domain |
 | `ledvance.svg` | ledvance | full colour | square + wide | Public domain |
