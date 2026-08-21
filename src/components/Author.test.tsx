@@ -154,6 +154,20 @@ describe("Author", () => {
     expect(
       screen.getByRole("link", { name: "Open in library" }),
     ).toHaveAttribute("href", "/?author=alice");
+
+    const graph = JSON.parse(
+      document.getElementById("page-structured-data")?.textContent ?? "",
+    )["@graph"];
+    expect(graph.map((item: { "@type": string }) => item["@type"])).toEqual([
+      "BreadcrumbList",
+      "ProfilePage",
+    ]);
+    expect(graph[1].mainEntity).toMatchObject({
+      "@type": "Person",
+      name: "Alice Example",
+      sameAs: "https://github.com/alice",
+    });
+    expect(graph[1].hasPart.numberOfItems).toBe(3);
   });
 
   it("sorts profile cards by popularity and newest date", () => {

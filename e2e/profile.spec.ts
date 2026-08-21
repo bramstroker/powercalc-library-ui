@@ -14,6 +14,27 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
     page.getByRole("heading", { name: "Hue White and Color Ambiance A60", level: 2 }),
   ).toBeVisible();
   await expect(page.getByText("Shelly Plug S")).toBeVisible();
+  const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
+  await expect(breadcrumb.getByText("LCA001", { exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(breadcrumb.getByRole("link", { name: "Signify", exact: true })).toHaveAttribute(
+    "href",
+    "/manufacturer/signify",
+  );
+
+  const structuredData = await page
+    .locator("#page-structured-data")
+    .evaluate((element) => JSON.parse(element.textContent ?? ""));
+  expect(structuredData["@graph"].map((item: { "@type": string }) => item["@type"])).toEqual([
+    "BreadcrumbList",
+    "Dataset",
+  ]);
+  expect(structuredData["@graph"][1]).toMatchObject({
+    name: "Signify LCA001 power profile",
+    url: "https://library.powercalc.nl/profiles/signify/LCA001",
+  });
 });
 
 test("shows the usage stats loaded from the analytics endpoint", async ({ page }) => {

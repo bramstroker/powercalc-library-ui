@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 
-export const SITE_NAME = "Powercalc profile library";
-export const SITE_URL = "https://library.powercalc.nl";
+import { SITE_NAME, SITE_URL } from "../config/site";
+
+export { SITE_NAME, SITE_URL } from "../config/site";
 
 const DEFAULT_DESCRIPTION =
   "Browse the Powercalc device library: power measurement profiles for smart lights, plugs, " +

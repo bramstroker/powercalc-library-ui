@@ -23,8 +23,10 @@ import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 
+import { SITE_URL } from "../config/site";
 import { useLibrary } from "../context/LibraryContext";
 import { usePageMeta } from "../hooks/usePageMeta";
+import { useStructuredData } from "../hooks/useStructuredData";
 import type { Manufacturer } from "../types/PowerProfile";
 import { humanizeIdentifier } from "../utils/profilePresentation";
 
@@ -32,6 +34,11 @@ import { AuthorContributionsChart } from "./AuthorContributionsChart";
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ProfileCard } from "./library/ProfileCard";
 import { ManufacturerLogo } from "./ManufacturerLogo";
+import {
+  breadcrumbStructuredData,
+  PageBreadcrumbs,
+  type BreadcrumbItem,
+} from "./PageBreadcrumbs";
 
 type Counted<T> = T & { count: number };
 type ProfileSort = "popular" | "newest" | "name";
@@ -144,10 +151,17 @@ export const Author = () => {
 
   const contributionCount = authorProfiles.length;
   const authorDetails = authorName ? authors[authorName] : undefined;
+  const displayName = authorDetails?.name || authorName || "Contributor";
+  const authorPath = `/author/${encodeURIComponent(authorName ?? "")}`;
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: "Library", to: "/" },
+    { label: "Contributors", to: "/statistics/top-contributors" },
+    { label: displayName },
+  ];
 
   usePageMeta({
-    title: authorDetails?.name || authorName,
-    description: `${contributionCount} Powercalc device profiles contributed by ${authorDetails?.name || authorName}.`,
+    title: displayName,
+    description: `${contributionCount} Powercalc device profiles contributed by ${displayName}.`,
     noIndex: !authorDetails,
   });
 
@@ -236,6 +250,44 @@ export const Author = () => {
     });
   }, [authorProfiles, profileSort]);
 
+  useStructuredData(
+    authorDetails && authorName
+      ? [
+          breadcrumbStructuredData(breadcrumbItems),
+          {
+            "@type": "ProfilePage",
+            "@id": `${SITE_URL}${authorPath}#profile-page`,
+            name: `${displayName} — Powercalc contributor`,
+            description: `${contributionCount} Powercalc device profiles contributed by ${displayName}.`,
+            url: `${SITE_URL}${authorPath}`,
+            mainEntity: {
+              "@type": "Person",
+              "@id": `${SITE_URL}${authorPath}#person`,
+              name: displayName,
+              alternateName: `@${authorName}`,
+              url: `${SITE_URL}${authorPath}`,
+              image: `https://github.com/${encodeURIComponent(authorName)}.png`,
+              sameAs: `https://github.com/${encodeURIComponent(authorName)}`,
+              knowsAbout: [
+                ...manufacturers.map((entry) => entry.manufacturer.fullName),
+                ...deviceTypes.map((entry) => humanizeIdentifier(entry.key)),
+              ],
+            },
+            hasPart: {
+              "@type": "ItemList",
+              numberOfItems: contributionCount,
+              itemListElement: authorProfiles.map((profile, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                name: `${profile.manufacturer.fullName} ${profile.modelId}`,
+                url: `${SITE_URL}/profiles/${encodeURIComponent(profile.manufacturer.dirName)}/${encodeURIComponent(profile.modelId)}`,
+              })),
+            },
+          },
+        ]
+      : undefined,
+  );
+
   if (!authorName || !authorDetails) {
     return (
       <Paper variant="outlined" sx={{ p: 4, textAlign: "center" }}>
@@ -265,6 +317,7 @@ export const Author = () => {
 
   return (
     <Stack sx={{ gap: { xs: 2, sm: 3 } }}>
+      <PageBreadcrumbs items={breadcrumbItems} />
       <Paper
         component="section"
         elevation={0}

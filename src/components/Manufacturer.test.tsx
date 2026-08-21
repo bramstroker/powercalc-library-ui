@@ -81,6 +81,15 @@ describe("Manufacturer", () => {
     expect(screen.getByLabelText("3 profiles")).toBeInTheDocument();
     expect(screen.getByLabelText("21 known installs")).toBeInTheDocument();
     expect(screen.getByLabelText("2 device types")).toBeInTheDocument();
+
+    const graph = JSON.parse(
+      document.getElementById("page-structured-data")?.textContent ?? "",
+    )["@graph"];
+    expect(graph.map((item: { "@type": string }) => item["@type"])).toEqual([
+      "BreadcrumbList",
+      "CollectionPage",
+    ]);
+    expect(graph[1].mainEntity.numberOfItems).toBe(3);
   });
 
   it("omits the alias line for a manufacturer without aliases", () => {

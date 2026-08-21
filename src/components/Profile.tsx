@@ -41,7 +41,9 @@ import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useLoaderData, useNavigate, Link as RouterLink} from "react-router-dom";
 
+import {SITE_URL} from "../config/site";
 import {usePageMeta} from "../hooks/usePageMeta";
+import {useStructuredData} from "../hooks/useStructuredData";
 import {useSummary} from "../hooks/useSummary";
 import type {FullPowerProfile} from "../types/PowerProfile";
 
@@ -50,6 +52,7 @@ import {getDeviceTypeIcon} from "./library/facetIcons";
 import {ProfileSetup} from "./library/ProfileSetup";
 import {QualityBadge} from "./library/QualityBadge";
 import {ManufacturerLogo} from "./ManufacturerLogo";
+import {breadcrumbStructuredData, PageBreadcrumbs, type BreadcrumbItem} from "./PageBreadcrumbs";
 import {Plot} from "./Plot";
 
 interface TabPanelProps {
@@ -154,18 +157,86 @@ const MeasureDescription = ({description}: { description: string }) => {
 export const Profile = () => {
   const profile = useLoaderData() as FullPowerProfile;
   const [expandedSubProfiles, setExpandedSubProfiles] = useState<Record<string, boolean>>({});
+  const profilePath = `/profiles/${encodeURIComponent(profile.manufacturer.dirName)}/${encodeURIComponent(profile.modelId)}`;
+  const profileUrl = `${SITE_URL}${profilePath}`;
+  const pageDescription = [
+    profile.name,
+    `${profile.deviceType} power profile measured with ${profile.measureDevice || "an unknown device"}.`,
+    profile.maxPower ? `Max power ${profile.maxPower} W,` : null,
+    `standby power ${profile.standbyPower} W.`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const breadcrumbItems: BreadcrumbItem[] = [
+    {label: "Library", to: "/"},
+    {label: "Manufacturers", to: "/manufacturers"},
+    {
+      label: profile.manufacturer.fullName,
+      to: `/manufacturer/${encodeURIComponent(profile.manufacturer.dirName)}`,
+    },
+    {label: profile.modelId},
+  ];
 
   usePageMeta({
     title: `${profile.manufacturer.fullName} ${profile.modelId}`,
-    description: [
-      profile.name,
-      `${profile.deviceType} power profile measured with ${profile.measureDevice || "an unknown device"}.`,
-      profile.maxPower ? `Max power ${profile.maxPower} W,` : null,
-      `standby power ${profile.standbyPower} W.`,
-    ]
-      .filter(Boolean)
-      .join(" "),
+    description: pageDescription,
   });
+  useStructuredData([
+    breadcrumbStructuredData(breadcrumbItems),
+    {
+      "@type": "Dataset",
+      "@id": `${profileUrl}#profile`,
+      name: `${profile.manufacturer.fullName} ${profile.modelId} power profile`,
+      description: pageDescription,
+      url: profileUrl,
+      dateCreated: profile.createdAt.toISOString(),
+      dateModified: profile.updatedAt?.toISOString(),
+      measurementTechnique: [profile.calculationStrategy, profile.measureMethod].filter(Boolean),
+      keywords: [
+        "Powercalc",
+        profile.deviceType,
+        profile.calculationStrategy,
+        profile.manufacturer.fullName,
+      ],
+      creator: profile.authors.map((author) => ({
+        "@type": "Person",
+        name: author.name,
+        url: `${SITE_URL}/author/${encodeURIComponent(author.githubUsername)}`,
+        sameAs: `https://github.com/${encodeURIComponent(author.githubUsername)}`,
+      })),
+      about: {
+        "@type": "Product",
+        name: profile.name || `${profile.manufacturer.fullName} ${profile.modelId}`,
+        model: profile.modelId,
+        manufacturer: {
+          "@type": "Organization",
+          name: profile.manufacturer.fullName,
+          url: `${SITE_URL}/manufacturer/${encodeURIComponent(profile.manufacturer.dirName)}`,
+        },
+      },
+      variableMeasured: [
+        {
+          "@type": "PropertyValue",
+          name: "Standby power",
+          value: profile.standbyPower,
+          unitText: "W",
+        },
+        profile.maxPower == null
+          ? null
+          : {
+              "@type": "PropertyValue",
+              name: "Maximum power",
+              value: profile.maxPower,
+              unitText: "W",
+            },
+      ].filter(Boolean),
+      isPartOf: {
+        "@type": "Dataset",
+        name: "Powercalc profile library",
+        url: SITE_URL,
+      },
+    },
+  ]);
 
   const toggleSubProfile = (name: string) => {
     setExpandedSubProfiles(prev => ({
@@ -692,6 +763,7 @@ export const Profile = () => {
 
   return (
       <>
+        <PageBreadcrumbs items={breadcrumbItems}/>
         <Grid container spacing={2} sx={{mb: 3}}>
           <Grid size={{xs: 12, md: 8, lg: 9}}>
             <Box sx={{display: "flex", flexWrap: "wrap", mb: 2, gap: 2}}>

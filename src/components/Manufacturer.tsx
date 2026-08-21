@@ -7,13 +7,20 @@ import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 
+import { SITE_URL } from "../config/site";
 import { useLibrary } from "../context/LibraryContext";
 import { usePageMeta } from "../hooks/usePageMeta";
+import { useStructuredData } from "../hooks/useStructuredData";
 import type { PowerProfile } from "../types/PowerProfile";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ProfileCard } from "./library/ProfileCard";
 import { ManufacturerLogo } from "./ManufacturerLogo";
+import {
+  breadcrumbStructuredData,
+  PageBreadcrumbs,
+  type BreadcrumbItem,
+} from "./PageBreadcrumbs";
 
 const numberFormat = new Intl.NumberFormat("en-US");
 
@@ -72,12 +79,47 @@ export const Manufacturer = () => {
 
   const profileCount = profiles.length;
   const displayName = manufacturer?.fullName ?? manufacturerName ?? "";
+  const manufacturerPath = `/manufacturer/${encodeURIComponent(manufacturerName ?? "")}`;
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: "Library", to: "/" },
+    { label: "Manufacturers", to: "/manufacturers" },
+    { label: displayName },
+  ];
 
   usePageMeta({
     title: displayName,
     description: `${profileCount} Powercalc device profiles for ${displayName}.`,
     noIndex: !manufacturer,
   });
+  useStructuredData(
+    manufacturer
+      ? [
+          breadcrumbStructuredData(breadcrumbItems),
+          {
+            "@type": "CollectionPage",
+            "@id": `${SITE_URL}${manufacturerPath}#collection`,
+            name: `${manufacturer.fullName} Powercalc profiles`,
+            description: `${profileCount} Powercalc device profiles for ${manufacturer.fullName}.`,
+            url: `${SITE_URL}${manufacturerPath}`,
+            about: {
+              "@type": "Organization",
+              name: manufacturer.fullName,
+              alternateName: manufacturer.aliases,
+            },
+            mainEntity: {
+              "@type": "ItemList",
+              numberOfItems: profileCount,
+              itemListElement: profiles.map((profile, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                name: `${profile.manufacturer.fullName} ${profile.modelId}`,
+                url: `${SITE_URL}/profiles/${encodeURIComponent(profile.manufacturer.dirName)}/${encodeURIComponent(profile.modelId)}`,
+              })),
+            },
+          },
+        ]
+      : undefined,
+  );
 
   const profilesByDeviceType = useMemo(() => {
     const grouped: Record<string, PowerProfile[]> = {};
@@ -106,6 +148,7 @@ export const Manufacturer = () => {
 
   return (
     <>
+      <PageBreadcrumbs items={breadcrumbItems} />
       <Paper
         component="section"
         elevation={0}
