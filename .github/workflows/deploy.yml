@@ -93,7 +93,7 @@ jobs:
       - name: Purge cloudflare cache
         uses: jakejarvis/cloudflare-purge-action@master
         env:
+          # Deliberately omit PURGE_URLS: every SPA deep link is a separate Cloudflare cache key.
           CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
           CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
           CLOUDFLARE_KEY: ${{ secrets.CLOUDFLARE_KEY }}
-          PURGE_URLS: '["https://library.powercalc.nl"]'
