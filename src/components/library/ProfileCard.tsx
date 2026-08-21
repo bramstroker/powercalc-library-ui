@@ -33,7 +33,9 @@ export const ProfileCard = ({
   const power =
     profile.maxPower != null
       ? `${profile.maxPower} W max`
-      : `${profile.standbyPower} W standby`;
+      : profile.standbyPower != null
+        ? `${profile.standbyPower} W standby`
+        : null;
 
   return (
     <Card variant="outlined" sx={{ height: "100%", borderRadius: 2.5 }}>
@@ -108,7 +110,7 @@ export const ProfileCard = ({
               variant="outlined"
               label={humanizeIdentifier(profile.calculationStrategy)}
             />
-            <Chip size="small" variant="outlined" label={power} />
+            {power && <Chip size="small" variant="outlined" label={power} />}
           </Stack>
 
           <Stack

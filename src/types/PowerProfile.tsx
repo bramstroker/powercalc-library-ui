@@ -43,7 +43,7 @@ export type PowerProfile = {
   measureMethod: string;
   measureDescription: string;
   calculationStrategy: string;
-  standbyPower: number;
+  standbyPower: number | null;
   standbyPowerOn?: number;
   maxPower?: number | null;
   authors: Author[];

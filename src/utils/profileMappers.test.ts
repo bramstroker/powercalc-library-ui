@@ -92,6 +92,7 @@ describe("mapToBasePowerProfile", () => {
       aliases: undefined,
       color_modes: undefined,
       max_power: undefined,
+      standby_power: undefined,
       min_version: undefined,
       sub_profile_count: 0,
       compatible_integrations: undefined,
@@ -103,6 +104,7 @@ describe("mapToBasePowerProfile", () => {
     expect(profile.aliases).toEqual([]);
     expect(profile.colorModes).toEqual([]);
     expect(profile.maxPower).toBeNull();
+    expect(profile.standbyPower).toBeNull();
     expect(profile.minVersion).toBeNull();
     expect(profile.subProfileCount).toBe(0);
     expect(profile.compatibleIntegrations).toEqual([]);

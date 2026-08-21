@@ -31,7 +31,7 @@ export const mapToBasePowerProfile = (
     measureDescription: model.measure_description,
     calculationStrategy: model.calculation_strategy,
     maxPower: model.max_power !== undefined && model.max_power > 0 ? model.max_power : null,
-    standbyPower: model.standby_power,
+    standbyPower: model.standby_power ?? null,
     standbyPowerOn: model.standby_power_on,
     authors: (model.authors ?? []).map((author) => ({
       name: author.name,

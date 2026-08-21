@@ -162,8 +162,8 @@ export const Profile = () => {
   const pageDescription = [
     profile.name,
     `${profile.deviceType} power profile measured with ${profile.measureDevice || "an unknown device"}.`,
-    profile.maxPower ? `Max power ${profile.maxPower} W,` : null,
-    `standby power ${profile.standbyPower} W.`,
+    profile.maxPower != null ? `Max power ${profile.maxPower} W.` : null,
+    profile.standbyPower != null ? `Standby power ${profile.standbyPower} W.` : null,
   ]
     .filter(Boolean)
     .join(" ");
@@ -215,12 +215,14 @@ export const Profile = () => {
         },
       },
       variableMeasured: [
-        {
-          "@type": "PropertyValue",
-          name: "Standby power",
-          value: profile.standbyPower,
-          unitText: "W",
-        },
+        profile.standbyPower == null
+          ? null
+          : {
+              "@type": "PropertyValue",
+              name: "Standby power",
+              value: profile.standbyPower,
+              unitText: "W",
+            },
         profile.maxPower == null
           ? null
           : {

@@ -19,7 +19,7 @@ export interface LibraryModel {
   measure_description: string;
   calculation_strategy: string;
   max_power?: number;
-  standby_power: number;
+  standby_power?: number;
   standby_power_on?: number;
   sub_profile_count: number;
   min_version?: string;
