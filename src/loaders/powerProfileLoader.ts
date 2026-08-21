@@ -64,7 +64,12 @@ export const powerProfileLoader = async ({ params }: LoaderFunctionArgs): Promis
   const derived = await queryClient.ensureQueryData(libraryQuery());
 
   const powerProfile = derived.powerProfilesByKey.get(`${manufacturer}/${model}`);
-  if (!powerProfile) throw new Error(`Unknown profile ${manufacturer}/${model}`);
+  if (!powerProfile) {
+    throw new Response(`Unknown profile ${manufacturer}/${model}`, {
+      status: 404,
+      statusText: "Not Found",
+    });
+  }
 
   const profileUrl = `${API_ENDPOINTS.PROFILE}/${manufacturer}/${model}`;
   const downloadUrl = `${API_ENDPOINTS.DOWNLOAD}/${manufacturer}/${model}?includePlots=1`;

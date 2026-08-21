@@ -148,6 +148,7 @@ export const Author = () => {
   usePageMeta({
     title: authorDetails?.name || authorName,
     description: `${contributionCount} Powercalc device profiles contributed by ${authorDetails?.name || authorName}.`,
+    noIndex: !authorDetails,
   });
 
   const deviceTypes = useMemo(

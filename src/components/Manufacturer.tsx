@@ -76,6 +76,7 @@ export const Manufacturer = () => {
   usePageMeta({
     title: displayName,
     description: `${profileCount} Powercalc device profiles for ${displayName}.`,
+    noIndex: !manufacturer,
   });
 
   const profilesByDeviceType = useMemo(() => {

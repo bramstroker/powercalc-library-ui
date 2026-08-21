@@ -145,6 +145,7 @@ test("shows the fields the API publishes beyond the basics", async ({ page }) =>
 test("renders an error page for an unknown profile", async ({ page }) => {
   await page.goto("/profiles/signify/does-not-exist");
 
-  await expect(page.getByText("Something went wrong")).toBeVisible();
-  await expect(page.getByText("Unknown profile signify/does-not-exist")).toBeVisible();
+  await expect(page.getByText("Page not found")).toBeVisible();
+  await expect(page.getByText("404 Not Found")).toBeVisible();
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, follow");
 });
