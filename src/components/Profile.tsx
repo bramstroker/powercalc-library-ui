@@ -112,6 +112,45 @@ interface PropertyItem {
   renderFn?: (value: ItemValueType) => React.ReactNode;
 }
 
+const MEASURE_DESCRIPTION_COLLAPSED_LINES = 4;
+const MEASURE_DESCRIPTION_TOGGLE_THRESHOLD = 300;
+
+const MeasureDescription = ({description}: { description: string }) => {
+  const [expanded, setExpanded] = useState(false);
+  const canCollapse = description.length > MEASURE_DESCRIPTION_TOGGLE_THRESHOLD;
+
+  return (
+      <>
+        <Typography
+            component="div"
+            variant="body2"
+            sx={
+              canCollapse && !expanded
+                ? {
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: MEASURE_DESCRIPTION_COLLAPSED_LINES,
+                    overflow: "hidden",
+                  }
+                : undefined
+            }
+        >
+          {description}
+        </Typography>
+        {canCollapse && (
+            <Button
+                size="small"
+                onClick={() => setExpanded((isExpanded) => !isExpanded)}
+                aria-expanded={expanded}
+                sx={{mt: 0.5, px: 0, minWidth: 0}}
+            >
+              {expanded ? "Show less" : "Show more"}
+            </Button>
+        )}
+      </>
+  );
+};
+
 export const Profile = () => {
   const profile = useLoaderData() as FullPowerProfile;
   const [expandedSubProfiles, setExpandedSubProfiles] = useState<Record<string, boolean>>({});
@@ -537,7 +576,13 @@ export const Profile = () => {
     {label: "Aliases", value: profile.aliases, icon: MediationIcon, group: "device"},
     {label: "Measure device", value: profile.measureDevice, icon: ElectricMeterIcon, group: "measurement", filterKey: "measureDevice"},
     {label: "Measure method", value: profile.measureMethod, icon: ElectricMeterIcon, group: "measurement", filterKey: "measureMethod"},
-    {label: "Measure description", value: profile.measureDescription, icon: ElectricMeterIcon, group: "measurement"},
+    {
+      label: "Measure description",
+      value: profile.measureDescription,
+      icon: ElectricMeterIcon,
+      group: "measurement",
+      renderFn: (value) => <MeasureDescription description={String(value)}/>,
+    },
     {
       label: "LUT quality",
       value: profile.lutQuality?.score,
