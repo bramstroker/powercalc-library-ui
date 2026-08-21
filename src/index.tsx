@@ -13,6 +13,7 @@ import { DefaultPageLayout } from "./layouts/DefaultPageLayout";
 import { LibraryGridPageLayout } from "./layouts/LibraryGridPageLayout";
 import { powerProfileLoader } from "./loaders/powerProfileLoader";
 import { queryClient } from "./queryClient";
+import { NotFound } from "./routes/NotFound";
 import { RouteError } from "./routes/RouteError";
 import { theme } from "./theme";
 
@@ -113,6 +114,10 @@ const router = createBrowserRouter([
       {
         path: "/manufacturer/:manufacturerName",
         lazy: lazyRoute(() => import("./components/Manufacturer"), "Manufacturer"),
+      },
+      {
+        path: "*",
+        element: <NotFound />,
       },
     ],
   },

@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import { useRouteError, isRouteErrorResponse } from "react-router-dom";
 
 import {Header} from "../components/Header";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 const getErrorMessage = (err: unknown): string => {
   if (err instanceof Error) return err.message;
@@ -12,6 +13,15 @@ const getErrorMessage = (err: unknown): string => {
 
 export const RouteError = () => {
   const err = useRouteError();
+  const isNotFound = isRouteErrorResponse(err) && err.status === 404;
+
+  usePageMeta({
+    title: isNotFound ? "Page not found" : "Something went wrong",
+    description: isNotFound
+      ? "The requested Powercalc library page could not be found."
+      : "The Powercalc library page could not be loaded.",
+    noIndex: true,
+  });
 
   const message = isRouteErrorResponse(err)
       ? `${err.status} ${err.statusText}`
@@ -23,7 +33,7 @@ export const RouteError = () => {
 
         <Container maxWidth="lg" sx={{ mt: 4, mb: 8, flex: 1 }}>
           <Typography variant="h6" color="error" gutterBottom>
-            Something went wrong
+            {isNotFound ? "Page not found" : "Something went wrong"}
           </Typography>
           <Typography color="text.secondary">{message}</Typography>
         </Container>
