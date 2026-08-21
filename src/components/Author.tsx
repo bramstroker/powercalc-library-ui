@@ -22,6 +22,8 @@ import { useLibrary } from '../context/LibraryContext';
 import { usePageMeta } from '../hooks/usePageMeta';
 import type { PowerProfile } from '../types/PowerProfile';
 
+import { AuthorContributionsChart } from './AuthorContributionsChart';
+
 export const Author = () => {
   const { authorName } = useParams<{ authorName: string }>();
   const { powerProfiles, authors } = useLibrary();
@@ -107,6 +109,8 @@ export const Author = () => {
               {contributionCount} contribution{contributionCount !== 1 ? 's' : ''}
             </Typography>
           </Stack>
+
+          <AuthorContributionsChart profiles={authorProfiles} />
 
           {/* Actions */}
           <Stack
