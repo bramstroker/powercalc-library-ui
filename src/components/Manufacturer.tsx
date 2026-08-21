@@ -1,21 +1,9 @@
+import DevicesOtherIcon from "@mui/icons-material/DevicesOther";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import HomeIcon from "@mui/icons-material/Home";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import PeopleIcon from "@mui/icons-material/People";
-import {
-  Box,
-  Button,
-  Chip,
-  Divider,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Paper,
-  Stack,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Button, Paper, Stack, Tooltip, Typography } from "@mui/material";
+import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 
@@ -24,19 +12,62 @@ import { usePageMeta } from "../hooks/usePageMeta";
 import type { PowerProfile } from "../types/PowerProfile";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
+import { ProfileCard } from "./library/ProfileCard";
 import { ManufacturerLogo } from "./ManufacturerLogo";
+
+const numberFormat = new Intl.NumberFormat("en-US");
+
+const HeroStat = ({
+  icon,
+  value,
+  label,
+}: {
+  icon: ReactNode;
+  value: number;
+  label: string;
+}) => (
+  <Box
+    aria-label={`${numberFormat.format(value)} ${(value === 1 ? label.replace(/s$/, "") : label).toLowerCase()}`}
+    sx={{
+      minWidth: 0,
+      p: { xs: 1.25, sm: 1.5 },
+      border: 1,
+      borderColor: "divider",
+      borderRadius: 2,
+      bgcolor: "action.hover",
+    }}
+  >
+    <Stack
+      direction="row"
+      sx={{ alignItems: "center", gap: 0.75, color: "text.secondary" }}
+    >
+      {icon}
+      <Typography
+        variant="caption"
+        sx={{ fontWeight: 700, textTransform: "uppercase" }}
+      >
+        {label}
+      </Typography>
+    </Stack>
+    <Typography variant="h5" sx={{ mt: 0.5, fontWeight: 800, lineHeight: 1.1 }}>
+      {numberFormat.format(value)}
+    </Typography>
+  </Box>
+);
 
 export const Manufacturer = () => {
   const { manufacturerName } = useParams<{ manufacturerName: string }>();
   const { powerProfiles, manufacturers } = useLibrary();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const manufacturer = manufacturerName ? manufacturers[manufacturerName] : undefined;
+  const manufacturer = manufacturerName
+    ? manufacturers[manufacturerName]
+    : undefined;
 
   const profiles = useMemo(() => {
     if (!manufacturerName) return [];
-    return powerProfiles.filter((profile) => profile.manufacturer.dirName === manufacturerName);
+    return powerProfiles.filter(
+      (profile) => profile.manufacturer.dirName === manufacturerName,
+    );
   }, [powerProfiles, manufacturerName]);
 
   const profileCount = profiles.length;
@@ -56,6 +87,11 @@ export const Manufacturer = () => {
     return Object.entries(grouped).sort(([, a], [, b]) => b.length - a.length);
   }, [profiles]);
 
+  const knownProfileInstallations = profiles.reduce(
+    (total, profile) => total + profile.usageStats.installationCount,
+    0,
+  );
+
   if (!manufacturer) {
     return (
       <>
@@ -69,24 +105,53 @@ export const Manufacturer = () => {
 
   return (
     <>
-      <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 } }}>
-        {/*
-          * The mark sits opposite the name, letterhead style, so it fills the empty half of a card
-          * this wide instead of crowding the title. `column-reverse` keeps it above the name on a
-          * phone, where there is no empty half to fill and stacking it below would bury it.
-          */}
+      <Paper
+        component="section"
+        elevation={0}
+        sx={[
+          {
+            position: "relative",
+            overflow: "hidden",
+            p: { xs: 2, sm: 3.5 },
+            mb: { xs: 3, sm: 4 },
+            border: 1,
+            borderColor: "divider",
+            borderRadius: 3,
+            backgroundImage:
+              "radial-gradient(circle at 90% 0%, rgba(121, 134, 203, 0.22), transparent 42%)",
+          },
+          (theme) =>
+            theme.applyStyles("light", {
+              backgroundImage:
+                "radial-gradient(circle at 90% 0%, rgba(63, 81, 181, 0.13), transparent 42%)",
+            }),
+        ]}
+      >
         <Stack
-          direction={{ xs: "column-reverse", sm: "row" }}
-          spacing={{ xs: 1.5, sm: 2 }}
-          sx={{ alignItems: { xs: "flex-start", sm: "center" }, mb: { xs: 1.5, sm: 2 } }}
+          direction={{ xs: "column", sm: "row" }}
+          sx={{
+            alignItems: { xs: "flex-start", sm: "center" },
+            gap: { xs: 2, sm: 2.5 },
+          }}
         >
+          <ManufacturerLogo manufacturer={manufacturer} size={64} plate />
+
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography
-              variant="h4"
+              variant="overline"
+              color="primary"
+              sx={{ fontWeight: 800, lineHeight: 1.2 }}
+            >
+              Powercalc profile library
+            </Typography>
+            <Typography
+              variant="h3"
               component="h1"
               sx={{
-                fontSize: { xs: "1.5rem", sm: "2.125rem" },
-                lineHeight: 1.2,
+                mt: 0.25,
+                fontSize: { xs: "1.75rem", sm: "2.5rem" },
+                fontWeight: 800,
+                lineHeight: 1.1,
                 wordBreak: "break-word",
               }}
             >
@@ -94,57 +159,87 @@ export const Manufacturer = () => {
             </Typography>
 
             {manufacturer.aliases.length > 0 && (
-              <Typography variant="body2" color="text.secondary" sx={{ wordBreak: "break-word" }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ wordBreak: "break-word" }}
+              >
                 Also known as: {manufacturer.aliases.join(", ")}
               </Typography>
             )}
           </Box>
 
-          <ManufacturerLogo
-            manufacturer={manufacturer}
-            size={isMobile ? 48 : 80}
-            variant="wide"
+          <Stack
+            direction={{ xs: "row", sm: "column" }}
+            sx={{ width: { xs: "100%", sm: "auto" }, gap: 1 }}
+          >
+            <Button
+              variant="contained"
+              component={RouterLink}
+              to={`/?manufacturer=${encodeURIComponent(manufacturer.fullName)}`}
+              sx={{ flex: { xs: 1, sm: "initial" } }}
+            >
+              Browse profiles
+            </Button>
+
+            <Button
+              variant="outlined"
+              startIcon={<GitHubIcon />}
+              href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${manufacturer.dirName}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ flex: { xs: 1, sm: "initial" } }}
+            >
+              Library source
+            </Button>
+          </Stack>
+        </Stack>
+
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "repeat(2, minmax(0, 1fr))",
+              sm: "repeat(3, minmax(0, 1fr))",
+            },
+            gap: 1.25,
+            mt: 3,
+          }}
+        >
+          <HeroStat
+            icon={<LibraryBooksIcon fontSize="small" />}
+            value={profileCount}
+            label="Profiles"
           />
-        </Stack>
-
-        <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: { xs: 1.5, sm: 2 } }}>
-          <LibraryBooksIcon fontSize="small" />
-          <Typography variant="body2">
-            {profileCount} profile{profileCount !== 1 ? "s" : ""}
-          </Typography>
-        </Stack>
-
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ mt: 1 }}>
-          <Button
-            size="small"
-            fullWidth
-            variant="contained"
-            component={RouterLink}
-            to={`/?manufacturer=${encodeURIComponent(manufacturer.fullName)}`}
-            sx={{ width: { sm: "auto" }, whiteSpace: "normal", textAlign: "center" }}
+          <Tooltip
+            title="The same Home Assistant installation may report more than one profile."
+            arrow
           >
-            View all profiles by this manufacturer
-          </Button>
-
-          <Button
-            size="small"
-            fullWidth
-            variant="outlined"
-            startIcon={<GitHubIcon />}
-            href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${manufacturer.dirName}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ width: { sm: "auto" }, whiteSpace: "normal" }}
-          >
-            Library source
-          </Button>
-        </Stack>
+            <Box>
+              <HeroStat
+                icon={<HomeIcon fontSize="small" />}
+                value={knownProfileInstallations}
+                label="Known installs"
+              />
+            </Box>
+          </Tooltip>
+          <Box sx={{ gridColumn: { xs: "1 / -1", sm: "auto" } }}>
+            <HeroStat
+              icon={<DevicesOtherIcon fontSize="small" />}
+              value={profilesByDeviceType.length}
+              label="Device types"
+            />
+          </Box>
+        </Box>
       </Paper>
 
       <Typography
         variant="h5"
         component="h2"
-        sx={{ mb: { xs: 1.5, sm: 2 }, fontSize: { xs: "1.25rem", sm: "1.5rem" } }}
+        sx={{
+          mb: { xs: 1.5, sm: 2 },
+          fontSize: { xs: "1.25rem", sm: "1.5rem" },
+        }}
       >
         Profiles by Device Type
       </Typography>
@@ -152,18 +247,30 @@ export const Manufacturer = () => {
       {profilesByDeviceType.map(([deviceType, deviceProfiles]) => {
         const DeviceIcon = getDeviceTypeIcon(deviceType);
         return (
-          <Paper key={deviceType} elevation={2} sx={{ mb: { xs: 0, sm: 3 }, p: { xs: 1, sm: 2 } }}>
+          <Box
+            component="section"
+            key={deviceType}
+            sx={{ mb: { xs: 3, sm: 4 } }}
+          >
             <Stack
               direction="row"
               sx={{
                 alignItems: "center",
                 justifyContent: "space-between",
-                px: { xs: 1, sm: 0 },
-                mb: 1,
+                mb: 1.5,
               }}
             >
-              <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 0 }}>
-                {DeviceIcon && <DeviceIcon fontSize="small" sx={{ color: "text.secondary" }} />}
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ alignItems: "center", minWidth: 0 }}
+              >
+                {DeviceIcon && (
+                  <DeviceIcon
+                    fontSize="small"
+                    sx={{ color: "text.secondary" }}
+                  />
+                )}
                 <Typography
                   variant="h6"
                   component="h3"
@@ -173,56 +280,31 @@ export const Manufacturer = () => {
                 </Typography>
               </Stack>
               <Typography variant="body2" color="text.secondary">
-                {deviceProfiles.length}
+                {deviceProfiles.length} profile
+                {deviceProfiles.length !== 1 ? "s" : ""}
               </Typography>
             </Stack>
 
-            <Divider sx={{ mb: 0.5 }} />
-
-            <List disablePadding>
+            <Box
+              data-testid={`manufacturer-profile-list-${deviceType}`}
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  md: "repeat(2, minmax(0, 1fr))",
+                },
+                gap: 2,
+              }}
+            >
               {deviceProfiles.map((profile) => (
-                <ListItem key={profile.modelId} disablePadding divider>
-                  <ListItemButton
-                    component={RouterLink}
-                    to={`/profiles/${profile.manufacturer.dirName}/${profile.modelId}`}
-                    sx={{ py: { xs: 1, sm: 1.25 }, px: { xs: 1, sm: 1.5 }, gap: 1 }}
-                  >
-                    <ListItemText
-                      primary={profile.modelId}
-                      secondary={profile.name}
-                      sx={{ my: 0, minWidth: 0 }}
-                      slotProps={{
-                        primary: {
-                          sx: {
-                            fontSize: { xs: "0.95rem", sm: "1rem" },
-                            lineHeight: 1.2,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          },
-                        },
-                        secondary: {
-                          sx: {
-                            fontSize: "0.8rem",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          },
-                        },
-                      }}
-                    />
-
-                    <Chip
-                      icon={<PeopleIcon />}
-                      label={profile.usageStats.installationCount}
-                      size="small"
-                      sx={{ display: { xs: "none", sm: "inline-flex" }, flexShrink: 0 }}
-                    />
-                  </ListItemButton>
-                </ListItem>
+                <ProfileCard
+                  key={profile.modelId}
+                  profile={profile}
+                  headingComponent="h4"
+                />
               ))}
-            </List>
-          </Paper>
+            </Box>
+          </Box>
         );
       })}
     </>

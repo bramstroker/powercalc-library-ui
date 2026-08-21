@@ -1,32 +1,139 @@
-import GitHubIcon from '@mui/icons-material/GitHub';
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import PeopleIcon from '@mui/icons-material/People';
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import DevicesOtherIcon from "@mui/icons-material/DevicesOther";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
+import FactoryIcon from "@mui/icons-material/Factory";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import HomeIcon from "@mui/icons-material/Home";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import SortIcon from "@mui/icons-material/Sort";
 import {
-  Typography,
-  Box,
-  Paper,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  Chip,
   Avatar,
+  Box,
+  Button,
+  Chip,
+  LinearProgress,
+  Paper,
   Stack,
-  Divider,
-  ListItemButton,
-} from '@mui/material';
-import { useMemo } from 'react';
-import { useParams, Link as RouterLink } from 'react-router-dom';
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import type { ReactNode } from "react";
+import { useMemo, useState } from "react";
+import { Link as RouterLink, useParams } from "react-router-dom";
 
-import { useLibrary } from '../context/LibraryContext';
-import { usePageMeta } from '../hooks/usePageMeta';
-import type { PowerProfile } from '../types/PowerProfile';
+import { useLibrary } from "../context/LibraryContext";
+import { usePageMeta } from "../hooks/usePageMeta";
+import type { Manufacturer } from "../types/PowerProfile";
+import { humanizeIdentifier } from "../utils/profilePresentation";
 
-import { AuthorContributionsChart } from './AuthorContributionsChart';
+import { AuthorContributionsChart } from "./AuthorContributionsChart";
+import { getDeviceTypeIcon } from "./library/facetIcons";
+import { ProfileCard } from "./library/ProfileCard";
+import { ManufacturerLogo } from "./ManufacturerLogo";
+
+type Counted<T> = T & { count: number };
+type ProfileSort = "popular" | "newest" | "name";
+
+const numberFormat = new Intl.NumberFormat("en-US");
+
+const countBy = <T,>(
+  items: T[],
+  keyOf: (item: T) => string,
+): Counted<{ key: string }>[] => {
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    const key = keyOf(item);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([key, count]) => ({ key, count }))
+    .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
+};
+
+const contributorTier = (profileCount: number) => {
+  if (profileCount >= 50) return "Library legend";
+  if (profileCount >= 20) return "Power contributor";
+  if (profileCount >= 5) return "Active contributor";
+  return "Contributor";
+};
+
+const Stat = ({
+  icon,
+  value,
+  label,
+}: {
+  icon: ReactNode;
+  value: string;
+  label: string;
+}) => (
+  <Box
+    sx={{
+      minWidth: 0,
+      p: { xs: 1.25, sm: 1.5 },
+      border: 1,
+      borderColor: "divider",
+      borderRadius: 2,
+      bgcolor: "action.hover",
+    }}
+  >
+    <Stack
+      direction="row"
+      sx={{ alignItems: "center", gap: 0.75, color: "text.secondary" }}
+    >
+      {icon}
+      <Typography
+        variant="caption"
+        sx={{ fontWeight: 700, textTransform: "uppercase" }}
+      >
+        {label}
+      </Typography>
+    </Stack>
+    <Typography variant="h5" sx={{ mt: 0.5, fontWeight: 800, lineHeight: 1.1 }}>
+      {value}
+    </Typography>
+  </Box>
+);
+
+const BreakdownRow = ({
+  label,
+  count,
+  total,
+  icon,
+}: {
+  label: ReactNode;
+  count: number;
+  total: number;
+  icon?: ReactNode;
+}) => (
+  <Box>
+    <Stack direction="row" sx={{ alignItems: "center", gap: 1, mb: 0.75 }}>
+      {icon && (
+        <Box sx={{ display: "flex", color: "text.secondary" }}>{icon}</Box>
+      )}
+      <Typography
+        variant="body2"
+        sx={{ minWidth: 0, flex: 1, fontWeight: 600 }}
+      >
+        {label}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {count}
+      </Typography>
+    </Stack>
+    <LinearProgress
+      variant="determinate"
+      value={total === 0 ? 0 : (count / total) * 100}
+      sx={{ height: 6, borderRadius: 999 }}
+    />
+  </Box>
+);
 
 export const Author = () => {
   const { authorName } = useParams<{ authorName: string }>();
   const { powerProfiles, authors } = useLibrary();
+  const [profileSort, setProfileSort] = useState<ProfileSort>("popular");
 
   const authorProfiles = useMemo(() => {
     if (!authorName) return [];
@@ -36,207 +143,469 @@ export const Author = () => {
   }, [powerProfiles, authorName]);
 
   const contributionCount = authorProfiles.length;
-  const authorDetails = authorName ? authors[authorName] : null;
+  const authorDetails = authorName ? authors[authorName] : undefined;
 
   usePageMeta({
     title: authorDetails?.name || authorName,
     description: `${contributionCount} Powercalc device profiles contributed by ${authorDetails?.name || authorName}.`,
   });
 
-  const profilesByDeviceType = useMemo(() => {
-    const grouped: Record<string, PowerProfile[]> = {};
+  const deviceTypes = useMemo(
+    () => countBy(authorProfiles, (profile) => profile.deviceType),
+    [authorProfiles],
+  );
+
+  const manufacturers = useMemo(() => {
+    const byName = new Map<string, Manufacturer>();
     for (const profile of authorProfiles) {
-      const deviceType = profile.deviceType;
-      (grouped[deviceType] ||= []).push(profile);
+      byName.set(profile.manufacturer.dirName, profile.manufacturer);
     }
-    return grouped;
+    return countBy(
+      authorProfiles,
+      (profile) => profile.manufacturer.dirName,
+    ).map((entry) => ({
+      ...entry,
+      manufacturer: byName.get(entry.key)!,
+    }));
   }, [authorProfiles]);
 
-  if (!authorName) {
+  const contributorSince = useMemo(() => {
+    if (authorProfiles.length === 0) return null;
+    return Math.min(
+      ...authorProfiles.map((profile) => profile.createdAt.getFullYear()),
+    );
+  }, [authorProfiles]);
+
+  const authorRank = useMemo(() => {
+    if (!authorName) return null;
+    const counts = new Map<string, number>();
+    for (const profile of powerProfiles) {
+      for (const author of profile.authors) {
+        if (author.githubUsername) {
+          counts.set(
+            author.githubUsername,
+            (counts.get(author.githubUsername) ?? 0) + 1,
+          );
+        }
+      }
+    }
+    const ownCount = counts.get(authorName);
+    return ownCount == null
+      ? null
+      : {
+          rank:
+            1 + [...counts.values()].filter((count) => count > ownCount).length,
+          total: counts.size,
+        };
+  }, [authorName, powerProfiles]);
+
+  const achievements = useMemo(() => {
+    const labels = [contributorTier(contributionCount)];
+    if (manufacturers.length >= 5)
+      labels.push(`${manufacturers.length} manufacturers`);
+    const primaryType = deviceTypes[0];
+    if (
+      primaryType &&
+      contributionCount >= 5 &&
+      primaryType.count / contributionCount >= 0.5
+    ) {
+      labels.push(`${humanizeIdentifier(primaryType.key)} specialist`);
+    }
+    if (
+      authorProfiles.filter((profile) => profile.calculationStrategy === "lut")
+        .length >= 5
+    ) {
+      labels.push("LUT contributor");
+    }
+    return labels.slice(0, 3);
+  }, [authorProfiles, contributionCount, deviceTypes, manufacturers.length]);
+
+  const sortedProfiles = useMemo(() => {
+    return [...authorProfiles].sort((a, b) => {
+      if (profileSort === "popular") {
+        return (
+          b.usageStats.installationCount - a.usageStats.installationCount ||
+          a.name.localeCompare(b.name)
+        );
+      }
+      if (profileSort === "newest") {
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      }
+      return a.name.localeCompare(b.name);
+    });
+  }, [authorProfiles, profileSort]);
+
+  if (!authorName || !authorDetails) {
     return (
+      <Paper variant="outlined" sx={{ p: 4, textAlign: "center" }}>
         <Typography variant="h5">Author not found</Typography>
+        <Typography color="text.secondary" sx={{ mt: 1 }}>
+          This contributor does not exist in the current Powercalc library.
+        </Typography>
+        <Button
+          component={RouterLink}
+          to="/statistics/top-contributors"
+          sx={{ mt: 2 }}
+        >
+          View contributors
+        </Button>
+      </Paper>
     );
   }
 
+  const knownDevices = authorProfiles.reduce(
+    (total, profile) => total + profile.usageStats.deviceCount,
+    0,
+  );
+  const knownProfileInstallations = authorProfiles.reduce(
+    (total, profile) => total + profile.usageStats.installationCount,
+    0,
+  );
+
   return (
-      <>
-        <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 } }}>
-          {/* Header */}
-          <Stack
-              direction={{ xs: 'column', sm: 'row' }}
-              spacing={{ xs: 1.5, sm: 2 }}
-              sx={{ alignItems: { xs: 'flex-start', sm: 'center' }, mb: { xs: 1.5, sm: 2 } }}
+    <Stack sx={{ gap: { xs: 2, sm: 3 } }}>
+      <Paper
+        component="section"
+        elevation={0}
+        sx={[
+          {
+            position: "relative",
+            overflow: "hidden",
+            p: { xs: 2, sm: 3.5 },
+            border: 1,
+            borderColor: "divider",
+            borderRadius: 3,
+            backgroundImage:
+              "radial-gradient(circle at 90% 0%, rgba(121, 134, 203, 0.22), transparent 42%)",
+          },
+          (theme) =>
+            theme.applyStyles("light", {
+              backgroundImage:
+                "radial-gradient(circle at 90% 0%, rgba(63, 81, 181, 0.13), transparent 42%)",
+            }),
+        ]}
+      >
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          sx={{ alignItems: { xs: "flex-start", sm: "center" }, gap: 2.5 }}
+        >
+          <Avatar
+            src={`https://github.com/${authorName}.png`}
+            alt={authorDetails.name || authorName}
+            sx={{
+              width: { xs: 80, sm: 96 },
+              height: { xs: 80, sm: 96 },
+              border: 3,
+              borderColor: "primary.main",
+              boxShadow: 3,
+            }}
           >
-            <Avatar
-                src={`https://github.com/${authorName}.png`}
-                alt={authorDetails?.name || authorName}
-                sx={{ width: { xs: 52, sm: 64 }, height: { xs: 52, sm: 64 } }}
-            />
+            {(authorDetails.name || authorName).slice(0, 2).toUpperCase()}
+          </Avatar>
 
-            <Box sx={{ minWidth: 0, flex: 1 }}>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="h3"
+              component="h1"
+              sx={{
+                fontSize: { xs: "1.75rem", sm: "2.5rem" },
+                fontWeight: 800,
+                lineHeight: 1.1,
+                wordBreak: "break-word",
+              }}
+            >
+              {authorDetails.name || authorName}
+            </Typography>
+            <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+              @{authorName} · Powercalc Library Contributor
+            </Typography>
+            {contributorSince && (
               <Typography
-                  variant="h4"
-                  component="h1"
-                  sx={{
-                    fontSize: { xs: '1.5rem', sm: '2.125rem' },
-                    lineHeight: 1.2,
-                    wordBreak: 'break-word',
-                  }}
+                variant="body2"
+                color="text.secondary"
+                sx={{ mt: 0.5 }}
               >
-                {authorDetails?.name || authorName}
+                Contributing since {contributorSince}
               </Typography>
+            )}
 
-              {authorDetails?.email && (
-                  <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ wordBreak: 'break-word' }}
-                  >
-                    {authorDetails.email}
-                  </Typography>
+            <Stack
+              direction="row"
+              useFlexGap
+              sx={{ flexWrap: "wrap", gap: 0.75, mt: 1.5 }}
+            >
+              {achievements.map((achievement, index) => (
+                <Chip
+                  key={achievement}
+                  size="small"
+                  color={index === 0 ? "primary" : "default"}
+                  variant={index === 0 ? "filled" : "outlined"}
+                  icon={index === 0 ? <EmojiEventsOutlinedIcon /> : undefined}
+                  label={achievement}
+                />
+              ))}
+              {authorRank && (
+                <Chip
+                  size="small"
+                  variant="outlined"
+                  label={`#${authorRank.rank} of ${authorRank.total} contributors`}
+                />
               )}
+            </Stack>
+          </Box>
 
-              <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-word' }}>
-                GitHub: {authorName}
-              </Typography>
-            </Box>
+          <Stack
+            direction={{ xs: "row", sm: "column" }}
+            sx={{ width: { xs: "100%", sm: "auto" }, gap: 1 }}
+          >
+            <Button
+              variant="contained"
+              component={RouterLink}
+              to={`/?author=${encodeURIComponent(authorName)}`}
+              sx={{ flex: { xs: 1, sm: "initial" } }}
+            >
+              Open in library
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<GitHubIcon />}
+              href={`https://github.com/${authorName}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ flex: { xs: 1, sm: "initial" } }}
+            >
+              GitHub
+            </Button>
           </Stack>
+        </Stack>
 
-          {/* Contribution count */}
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: { xs: 1.5, sm: 2 } }}>
-            <LibraryBooksIcon fontSize="small" />
-            <Typography variant="body2">
-              {contributionCount} contribution{contributionCount !== 1 ? 's' : ''}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "repeat(2, minmax(0, 1fr))",
+              md: "repeat(4, minmax(0, 1fr))",
+            },
+            gap: 1.25,
+            mt: 3,
+          }}
+        >
+          <Stat
+            icon={<LibraryBooksIcon fontSize="small" />}
+            value={numberFormat.format(contributionCount)}
+            label="Profiles"
+          />
+          <Stat
+            icon={<FactoryIcon fontSize="small" />}
+            value={numberFormat.format(manufacturers.length)}
+            label="Manufacturers"
+          />
+          <Stat
+            icon={<DevicesOtherIcon fontSize="small" />}
+            value={numberFormat.format(deviceTypes.length)}
+            label="Device types"
+          />
+          <Stat
+            icon={<CalendarMonthIcon fontSize="small" />}
+            value={String(contributorSince)}
+            label="Since"
+          />
+        </Box>
+      </Paper>
+
+      <Paper
+        component="section"
+        variant="outlined"
+        sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}
+      >
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          sx={{ alignItems: { sm: "center" }, gap: 2 }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Typography
+              variant="overline"
+              color="primary"
+              sx={{ fontWeight: 800 }}
+            >
+              Community impact
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 800 }}>
+              {numberFormat.format(knownDevices)} known devices
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Powered by profiles contributed by{" "}
+              {authorDetails.name || authorName}.
+            </Typography>
+          </Box>
+          <Tooltip
+            title="The same Home Assistant installation may report more than one contributed profile."
+            arrow
+          >
+            <Box
+              sx={{
+                px: 2,
+                py: 1.5,
+                borderRadius: 2,
+                bgcolor: "action.hover",
+                minWidth: { sm: 210 },
+              }}
+            >
+              <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
+                <HomeIcon color="primary" />
+                <Box>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 800, lineHeight: 1.1 }}
+                  >
+                    {numberFormat.format(knownProfileInstallations)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    known profile installations
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+          </Tooltip>
+        </Stack>
+      </Paper>
+
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "repeat(2, minmax(0, 1fr))" },
+          gap: { xs: 2, sm: 3 },
+        }}
+      >
+        <Paper
+          component="section"
+          variant="outlined"
+          sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}
+        >
+          <Stack direction="row" sx={{ alignItems: "center", gap: 1, mb: 2 }}>
+            <DevicesOtherIcon color="primary" />
+            <Typography variant="h6" component="h2" sx={{ fontWeight: 800 }}>
+              Device mix
             </Typography>
           </Stack>
-
-          <AuthorContributionsChart profiles={authorProfiles} />
-
-          {/* Actions */}
-          <Stack
-              direction={{ xs: 'column', sm: 'row' }}
-              spacing={1}
-              sx={{
-                mt: 1,
-              }}
-          >
-            <Button
-                size="small"
-                fullWidth
-                variant="contained"
-                component={RouterLink}
-                to={`/?author=${encodeURIComponent(authorName)}`}
-                sx={{
-                  width: { sm: 'auto' },
-                  whiteSpace: 'normal',
-                  textAlign: 'center',
-                }}
-            >
-              View all profiles by this author
-            </Button>
-
-            <Button
-                size="small"
-                fullWidth
-                variant="outlined"
-                startIcon={<GitHubIcon />}
-                href={`https://github.com/${authorName}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  width: { sm: 'auto' },
-                  whiteSpace: 'normal',
-                }}
-            >
-              GitHub Profile
-            </Button>
+          <Stack sx={{ gap: 2 }}>
+            {deviceTypes.map(({ key, count }) => {
+              const DeviceIcon = getDeviceTypeIcon(key);
+              return (
+                <BreakdownRow
+                  key={key}
+                  label={humanizeIdentifier(key)}
+                  count={count}
+                  total={contributionCount}
+                  icon={
+                    DeviceIcon ? <DeviceIcon fontSize="small" /> : undefined
+                  }
+                />
+              );
+            })}
           </Stack>
         </Paper>
 
-        <Typography
-            variant="h5"
-            component="h2"
-            sx={{ mb: { xs: 1.5, sm: 2 }, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
+        <Paper
+          component="section"
+          variant="outlined"
+          sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}
         >
-          Contributions by Device Type
-        </Typography>
+          <Stack direction="row" sx={{ alignItems: "center", gap: 1, mb: 2 }}>
+            <FactoryIcon color="primary" />
+            <Typography variant="h6" component="h2" sx={{ fontWeight: 800 }}>
+              Top manufacturers
+            </Typography>
+          </Stack>
+          <Stack sx={{ gap: 2 }}>
+            {manufacturers.slice(0, 5).map(({ manufacturer, count }) => (
+              <BreakdownRow
+                key={manufacturer.dirName}
+                label={
+                  <Typography
+                    component={RouterLink}
+                    to={`/manufacturer/${manufacturer.dirName}`}
+                    color="inherit"
+                    sx={{
+                      fontSize: "inherit",
+                      fontWeight: "inherit",
+                      textDecoration: "none",
+                      "&:hover": { color: "primary.main" },
+                    }}
+                  >
+                    {manufacturer.fullName}
+                  </Typography>
+                }
+                count={count}
+                total={contributionCount}
+                icon={
+                  <ManufacturerLogo manufacturer={manufacturer} size={24} />
+                }
+              />
+            ))}
+          </Stack>
+          {manufacturers.length > 5 && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: "block", mt: 2 }}
+            >
+              And {manufacturers.length - 5} more manufacturers
+            </Typography>
+          )}
+        </Paper>
+      </Box>
 
-        {Object.entries(profilesByDeviceType).map(([deviceType, profiles]) => (
-            <Paper key={deviceType} elevation={2} sx={{ mb: { xs: 0, sm: 3 }, p: { xs: 1, sm: 2 } }}>
-              <Stack
-                  direction="row"
-                  sx={{ alignItems: 'baseline', justifyContent: 'space-between', px: { xs: 1, sm: 0 }, mb: 1 }}
-              >
-                <Typography
-                    variant="h6"
-                    component="h3"
-                    sx={{ fontSize: { xs: '1.05rem', sm: '1.25rem' } }}
-                >
-                  {deviceType}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {profiles.length}
-                </Typography>
-              </Stack>
+      <AuthorContributionsChart profiles={authorProfiles} />
 
-              <Divider sx={{ mb: 0.5 }} />
+      <Box component="section">
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          sx={{ alignItems: { sm: "center" }, gap: 1.5, mb: 2 }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h5" component="h2" sx={{ fontWeight: 800 }}>
+              Contributed profiles
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {contributionCount} profiles across {manufacturers.length}{" "}
+              manufacturers
+            </Typography>
+          </Box>
+          <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
+            <SortIcon fontSize="small" sx={{ color: "text.secondary" }} />
+            <ToggleButtonGroup
+              size="small"
+              exclusive
+              value={profileSort}
+              aria-label="Sort contributed profiles"
+              onChange={(_event, next: ProfileSort | null) => {
+                if (next) setProfileSort(next);
+              }}
+            >
+              <ToggleButton value="popular">Popular</ToggleButton>
+              <ToggleButton value="newest">Newest</ToggleButton>
+              <ToggleButton value="name">Name</ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+        </Stack>
 
-              <List disablePadding>
-                {profiles.map((profile) => (
-                    <ListItem
-                        key={`${profile.manufacturer.dirName}-${profile.modelId}`}
-                        disablePadding
-                        divider
-                    >
-                      <ListItemButton
-                          component={RouterLink}
-                          to={`/profiles/${profile.manufacturer.dirName}/${profile.modelId}`}
-                          sx={{
-                            py: { xs: 1, sm: 1.25 },
-                            px: { xs: 1, sm: 1.5 },
-                            gap: 1,
-                          }}
-                      >
-                        <ListItemText
-                            primary={profile.name}
-                            secondary={`${profile.manufacturer.fullName} • Created: ${profile.createdAt.toLocaleDateString()}`}
-                            sx={{ my: 0, minWidth: 0 }}
-                            slotProps={{
-                              primary: {
-                                sx: {
-                                  fontSize: { xs: '0.95rem', sm: '1rem' },
-                                  lineHeight: 1.2,
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                },
-                              },
-                              secondary: {
-                                sx: {
-                                  fontSize: '0.8rem',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                },
-                              }
-                            }}
-                        />
-
-                        <Chip
-                            icon={<PeopleIcon />}
-                            label={profile.usageStats.installationCount}
-                            size="small"
-                            sx={{
-                              display: { xs: 'none', sm: 'inline-flex' },
-                              flexShrink: 0,
-                            }}
-                        />
-                      </ListItemButton>
-                    </ListItem>
-                ))}
-              </List>
-            </Paper>
-        ))}
-      </>
+        <Box
+          data-testid="author-profile-list"
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "repeat(2, minmax(0, 1fr))" },
+            gap: 2,
+          }}
+        >
+          {sortedProfiles.map((profile) => (
+            <ProfileCard
+              key={`${profile.manufacturer.dirName}-${profile.modelId}`}
+              profile={profile}
+            />
+          ))}
+        </Box>
+      </Box>
+    </Stack>
   );
 };
