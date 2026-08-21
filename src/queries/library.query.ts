@@ -70,8 +70,10 @@ export const libraryQuery = () => ({
         powerProfiles.push(profile);
         powerProfilesByKey.set(key, profile);
 
-        if (profile.author.githubUsername) {
-          authors[profile.author.githubUsername] ??= profile.author;
+        for (const author of profile.authors) {
+          if (author.githubUsername) {
+            authors[author.githubUsername] ??= author;
+          }
         }
       }
     }

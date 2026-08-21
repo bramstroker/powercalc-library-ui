@@ -46,7 +46,7 @@ export type PowerProfile = {
   standbyPower: number;
   standbyPowerOn?: number;
   maxPower?: number | null;
-  author: Author;
+  authors: Author[];
   subProfileCount: number;
   minVersion?: string | null;
   compatibleIntegrations: string[];

@@ -31,7 +31,7 @@ const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => (
   standbyPower: 0.4,
   standbyPowerOn: 0.5,
   maxPower: 9,
-  author: { name: "Bram", githubUsername: "bramstroker" },
+  authors: [{ name: "Bram", githubUsername: "bramstroker" }],
   subProfileCount: 0,
   minVersion: null,
   compatibleIntegrations: [],
@@ -50,7 +50,7 @@ const ikeaLight = createProfile({
   colorModes: [ColorMode.BRIGHTNESS],
   measureDevice: "Tapo P110",
   calculationStrategy: "lut",
-  author: { name: "Ruben", githubUsername: "RubenKelevra" },
+  authors: [{ name: "Ruben", githubUsername: "RubenKelevra" }],
   standbyPower: 0.2,
   maxPower: 11,
   createdAt: new Date("2025-03-01T00:00:00Z"),
@@ -71,7 +71,7 @@ const sonoffSwitch = createProfile({
   calculationStrategy: "fixed",
   standbyPower: 0.9,
   maxPower: null,
-  author: { name: "Bram", githubUsername: "bramstroker" },
+  authors: [{ name: "Bram", githubUsername: "bramstroker" }],
   createdAt: new Date("2023-01-01T00:00:00Z"),
   lutQuality: null,
   usageStats: { installationCount: 5, deviceCount: 5, percentage: 0.1 },
@@ -153,6 +153,19 @@ describe("applyFilters", () => {
     expect(
       modelIds(applyFilters(profiles, withFilters({ facets: { author: ["bramstroker"] } }))),
     ).toEqual(["LCA001", "S31"]);
+  });
+
+  it("matches each author on a multi-author profile", () => {
+    const profile = createProfile({
+      authors: [
+        { name: "Bram", githubUsername: "bramstroker" },
+        { name: "Contributor Two", githubUsername: "contributor-two" },
+      ],
+    });
+
+    expect(
+      modelIds(applyFilters([profile], withFilters({ facets: { author: ["contributor-two"] } }))),
+    ).toEqual(["LCA001"]);
   });
 
   it("filters on a numeric range", () => {

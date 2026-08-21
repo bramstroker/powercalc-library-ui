@@ -16,7 +16,7 @@ type StatisticsAggregatorProps = {
   nameColumnLabel: string;
   propertyPath: string | string[];
   filterQueryParam?: string;
-  valueExtractor?: (profile: PowerProfile) => string | undefined;
+  valueExtractor?: (profile: PowerProfile) => string | string[] | undefined;
 };
 
 export const StatisticsAggregator = ({
@@ -39,7 +39,7 @@ export const StatisticsAggregator = ({
       const counts: Record<string, number> = {};
 
       powerProfiles.forEach(profile => {
-        let value: string | undefined;
+        let value: string | string[] | undefined;
 
         if (valueExtractor) {
           value = valueExtractor(profile);
@@ -58,8 +58,10 @@ export const StatisticsAggregator = ({
           value = current as string | undefined;
         }
 
-        if (value) {
-          counts[value] = (counts[value] || 0) + 1;
+        for (const entry of (Array.isArray(value) ? value : [value])) {
+          if (entry) {
+            counts[entry] = (counts[entry] || 0) + 1;
+          }
         }
       });
 

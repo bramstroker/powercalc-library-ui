@@ -28,7 +28,9 @@ export const Author = () => {
 
   const authorProfiles = useMemo(() => {
     if (!authorName) return [];
-    return powerProfiles.filter((profile) => profile.author.githubUsername === authorName);
+    return powerProfiles.filter((profile) =>
+      profile.authors.some((author) => author.githubUsername === authorName),
+    );
   }, [powerProfiles, authorName]);
 
   const contributionCount = authorProfiles.length;

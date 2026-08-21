@@ -23,7 +23,7 @@ import { QualityBadge } from "./QualityBadge";
 const COLUMN_VISIBILITY_STORAGE_KEY = "libraryGridColumnVisibility";
 
 const DEFAULT_COLUMN_VISIBILITY: GridColumnVisibilityModel = {
-  author: false,
+  authors: false,
   colorModes: false,
   measureDevice: false,
   measureMethod: false,
@@ -100,21 +100,26 @@ const columns: GridColDef<PowerProfile>[] = [
     ),
   },
   {
-    field: "author",
-    headerName: "Author",
+    field: "authors",
+    headerName: "Authors",
     width: 160,
-    valueGetter: (value: Author) => value?.name ?? "",
+    valueGetter: (value: Author[]) => value?.map((author) => author.name).join(", ") ?? "",
     renderCell: ({ row }: GridRenderCellParams<PowerProfile>) => (
-      <Link
-        component={RouterLink}
-        to={`/author/${encodeURIComponent(row.author.githubUsername)}`}
-        onClick={(event) => {
-          // Keep the row click from navigating to the profile instead.
-          event.stopPropagation();
-        }}
-      >
-        {row.author.name}
-      </Link>
+      <Stack direction="row" sx={{ alignItems: "center", gap: 0.5, height: "100%", overflow: "hidden" }}>
+        {row.authors.map((author, index) => (
+          <Link
+            key={author.githubUsername || `${author.name}-${index}`}
+            component={RouterLink}
+            to={`/author/${encodeURIComponent(author.githubUsername)}`}
+            onClick={(event) => {
+              // Keep the row click from navigating to the profile instead.
+              event.stopPropagation();
+            }}
+          >
+            {author.name}
+          </Link>
+        ))}
+      </Stack>
     ),
   },
   {
@@ -202,9 +207,10 @@ const readStoredVisibility = (): GridColumnVisibilityModel => {
     }
     const parsed = JSON.parse(stored) as GridColumnVisibilityModel;
     // Drop anything that is no longer a column, e.g. ids left behind by an older grid version.
-    return Object.fromEntries(
-      Object.entries(parsed).filter(([field]) => knownFields.has(field)),
-    ) as GridColumnVisibilityModel;
+    return {
+      ...DEFAULT_COLUMN_VISIBILITY,
+      ...Object.fromEntries(Object.entries(parsed).filter(([field]) => knownFields.has(field))),
+    } as GridColumnVisibilityModel;
   } catch {
     return DEFAULT_COLUMN_VISIBILITY;
   }

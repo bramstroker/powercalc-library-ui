@@ -33,11 +33,11 @@ export const mapToBasePowerProfile = (
     maxPower: model.max_power !== undefined && model.max_power > 0 ? model.max_power : null,
     standbyPower: model.standby_power,
     standbyPowerOn: model.standby_power_on,
-    author: {
-      name: model.author_info?.name ?? '',
-      email: model.author_info?.email,
-      githubUsername: model.author_info?.github ?? '',
-    },
+    authors: (model.authors ?? []).map((author) => ({
+      name: author.name,
+      email: author.email,
+      githubUsername: author.github,
+    })),
     subProfileCount: model.sub_profile_count || 0,
     minVersion: model.min_version || null,
     compatibleIntegrations: model.compatible_integrations || [],

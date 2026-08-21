@@ -503,23 +503,27 @@ export const Profile = () => {
     {label: "Created", value: profile.createdAt.toLocaleString(), icon: HistoryIcon, group: "library"},
     {label: "Updated", value: profile.updatedAt?.toLocaleString(), icon: HistoryIcon, group: "library"},
     {
-      label: "Author", 
-      value: profile.author.name,
+      label: "Authors",
+      value: profile.authors.map((author) => author.name),
       icon: PersonIcon,
       group: "library",
       filterKey: "author",
       renderFn: () => (
-        <Tooltip title="View this author's profiles" describeChild arrow placement="top">
-          <Link
-            component={RouterLink}
-            to={`/author/${profile.author.githubUsername}`}
-            underline="always"
-            color="primary"
-            sx={{textDecorationStyle: "dotted"}}
-          >
-            {profile.author.name}
-          </Link>
-        </Tooltip>
+        <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
+          {profile.authors.map((author, index) => (
+            <Tooltip key={author.githubUsername || `${author.name}-${index}`} title="View this author's profiles" describeChild arrow placement="top">
+              <Link
+                component={RouterLink}
+                to={`/author/${author.githubUsername}`}
+                underline="always"
+                color="primary"
+                sx={{textDecorationStyle: "dotted"}}
+              >
+                {author.name}
+              </Link>
+            </Tooltip>
+          ))}
+        </Stack>
       )
     },
     {

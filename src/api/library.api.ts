@@ -6,11 +6,11 @@ export interface LibraryModel {
   device_type: string;
   color_modes?: string[];
   aliases?: string[];
-  author_info: {
+  authors?: Array<{
     name: string;
     email?: string;
     github: string;
-  };
+  }>;
   updated_at: string;
   created_at: string;
   description: string;

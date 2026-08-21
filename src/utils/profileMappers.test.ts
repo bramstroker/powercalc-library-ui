@@ -19,7 +19,7 @@ const createModel = (overrides: Partial<LibraryModel> = {}): LibraryModel => ({
   device_type: "light",
   color_modes: ["brightness", "color_temp"],
   aliases: ["LWB010", "LWB014"],
-  author_info: { name: "Bram", email: "bram@example.com", github: "bramstroker" },
+  authors: [{ name: "Bram", email: "bram@example.com", github: "bramstroker" }],
   updated_at: "2025-01-02T03:04:05Z",
   created_at: "2024-01-02T03:04:05Z",
   description: "A light bulb",
@@ -73,14 +73,18 @@ describe("mapToBasePowerProfile", () => {
     expect(profile.updatedAt?.toISOString()).toBe("2025-01-02T03:04:05.000Z");
   });
 
-  it("maps the author info", () => {
-    const profile = mapToBasePowerProfile(createModel(), manufacturer, usageStats);
+  it("maps every author", () => {
+    const profile = mapToBasePowerProfile(createModel({
+      authors: [
+        { name: "Bram", email: "bram@example.com", github: "bramstroker" },
+        { name: "Contributor Two", github: "contributor-two" },
+      ],
+    }), manufacturer, usageStats);
 
-    expect(profile.author).toEqual({
-      name: "Bram",
-      email: "bram@example.com",
-      githubUsername: "bramstroker",
-    });
+    expect(profile.authors).toEqual([
+      { name: "Bram", email: "bram@example.com", githubUsername: "bramstroker" },
+      { name: "Contributor Two", githubUsername: "contributor-two" },
+    ]);
   });
 
   it("falls back to empty defaults when optional fields are missing", () => {
@@ -91,7 +95,7 @@ describe("mapToBasePowerProfile", () => {
       min_version: undefined,
       sub_profile_count: 0,
       compatible_integrations: undefined,
-      author_info: undefined as unknown as LibraryModel["author_info"],
+      authors: undefined,
     });
 
     const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
@@ -102,7 +106,7 @@ describe("mapToBasePowerProfile", () => {
     expect(profile.minVersion).toBeNull();
     expect(profile.subProfileCount).toBe(0);
     expect(profile.compatibleIntegrations).toEqual([]);
-    expect(profile.author).toEqual({ name: "", email: undefined, githubUsername: "" });
+    expect(profile.authors).toEqual([]);
   });
 
   it("treats a max power of zero as unknown", () => {

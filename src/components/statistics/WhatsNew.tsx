@@ -97,7 +97,7 @@ export const WhatsNew = () => {
                       </Box>
                     )}
                     <Typography variant="caption" color="text.secondary">
-                      by {profile.author.name}
+                      by {profile.authors.map((author) => author.name).filter(Boolean).join(", ")}
                     </Typography>
                   </Box>
                 </ListItemButton>

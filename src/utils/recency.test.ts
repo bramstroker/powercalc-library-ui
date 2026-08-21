@@ -24,7 +24,7 @@ const createProfile = (createdAt: string, modelId = "M1"): PowerProfile => ({
   calculationStrategy: "lut",
   standbyPower: 0.4,
   maxPower: 9,
-  author: { name: "Bram", githubUsername: "bramstroker" },
+  authors: [{ name: "Bram", githubUsername: "bramstroker" }],
   subProfileCount: 0,
   minVersion: null,
   compatibleIntegrations: [],

@@ -17,7 +17,7 @@ const createModel = (overrides: Partial<LibraryModel> = {}): LibraryModel => ({
   id: "LCA001",
   name: "Hue White A60",
   device_type: "light",
-  author_info: { name: "Bram", github: "bramstroker" },
+  authors: [{ name: "Bram", github: "bramstroker" }],
   updated_at: "2025-01-02T03:04:05Z",
   created_at: "2024-01-02T03:04:05Z",
   description: "",
@@ -44,7 +44,7 @@ const library: LibraryJson = {
         createModel({
           id: "LED1836G9",
           name: "TRADFRI bulb",
-          author_info: { name: "Someone Else", github: "someone" },
+          authors: [{ name: "Someone Else", github: "someone" }],
         }),
       ],
     },
@@ -111,6 +111,25 @@ describe("libraryQuery", () => {
       ikea: { dirName: "ikea", fullName: "IKEA", aliases: [] },
     });
     expect(Object.keys(data.authors)).toEqual(["bramstroker", "someone"]);
+  });
+
+  it("collects every author from a profile with multiple authors", async () => {
+    fetchLibraryMock.mockResolvedValue({
+      manufacturers: [{
+        full_name: "Signify",
+        dir_name: "signify",
+        models: [createModel({
+          authors: [
+            { name: "Bram", github: "bramstroker" },
+            { name: "Contributor Two", github: "contributor-two" },
+          ],
+        })],
+      }],
+    });
+
+    const data = await runQuery();
+
+    expect(Object.keys(data.authors)).toEqual(["bramstroker", "contributor-two"]);
   });
 
   it("returns an empty result set when the library is empty", async () => {

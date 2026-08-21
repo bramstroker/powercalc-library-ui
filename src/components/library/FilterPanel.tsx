@@ -83,7 +83,11 @@ export const FilterPanel = ({
   }, [profiles, filters]);
 
   const authorOptions = useMemo<AuthorOption[]>(() => {
-    const usernames = new Map(profiles.map((profile) => [profile.author.name, profile.author.githubUsername]));
+    const usernames = new Map(
+      profiles.flatMap((profile) =>
+        profile.authors.map((author) => [author.name, author.githubUsername] as const),
+      ),
+    );
     return facetCounts.author.map((option) => ({
       ...option,
       githubUsername: usernames.get(option.value) ?? "",

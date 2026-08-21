@@ -11,7 +11,7 @@ export type FacetCount = {
 
 /**
  * The values of a profile that a facet can match on. Multi-valued for `colorMode`, which is an
- * array on the profile, and for `author`, where we accept either the display name or the GitHub
+ * array on the profile, and for `author`, where we accept each author's display name or GitHub
  * username so older `?author=` links keep resolving.
  */
 export const getFacetValues = (profile: PowerProfile, key: FacetKey): string[] => {
@@ -31,7 +31,7 @@ export const getFacetValues = (profile: PowerProfile, key: FacetKey): string[] =
     case "measureDevice":
       return profile.measureDevice ? [profile.measureDevice] : [];
     case "author":
-      return [profile.author.name, profile.author.githubUsername].filter(Boolean);
+      return profile.authors.flatMap((author) => [author.name, author.githubUsername]).filter(Boolean);
   }
 };
 
@@ -41,7 +41,7 @@ export const getFacetValues = (profile: PowerProfile, key: FacetKey): string[] =
  */
 const getFacetLabelValue = (profile: PowerProfile, key: FacetKey): string[] => {
   if (key === "author") {
-    return profile.author.name ? [profile.author.name] : [];
+    return profile.authors.map((author) => author.name).filter(Boolean);
   }
   return getFacetValues(profile, key);
 };
