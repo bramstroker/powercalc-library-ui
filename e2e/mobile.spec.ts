@@ -44,6 +44,20 @@ test("keeps the profile within the phone viewport", async ({ page }) => {
   expect(scrollWidth).toBe(clientWidth);
 });
 
+test("starts a newly navigated page at the top", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  const authorLink = page.getByRole("link", { name: "Bram Gerritsen" });
+  await authorLink.scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+
+  await authorLink.click();
+
+  await expect(page).toHaveURL("/author/bramstroker");
+  await expect(page.getByRole("heading", { level: 1, name: "Bram Gerritsen" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+});
+
 test("groups the profile attributes into sections", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 

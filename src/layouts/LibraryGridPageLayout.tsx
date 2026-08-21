@@ -3,6 +3,7 @@ import * as React from "react";
 import {Outlet} from "react-router-dom";
 
 import { Footer } from "../components/Footer";
+import { ScrollToTop } from "../components/ScrollToTop";
 
 const PageSpinner = () => {
   return (
@@ -32,6 +33,7 @@ export const LibraryGridPageLayout = () => {
             overflow: { xs: "visible", md: "hidden" },
           }}
       >
+        <ScrollToTop />
         <React.Suspense fallback={<PageSpinner />}>
           <Outlet />
         </React.Suspense>
