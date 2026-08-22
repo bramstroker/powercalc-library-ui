@@ -147,6 +147,25 @@ export const sensors = [
   ].map((k, i) => sensorEntry("by_source_domain", k, 900 - i * 70)),
 ];
 
+export const timeseries = {
+  query: {
+    metric: "install_date",
+    bucket: "day",
+    timezone: "UTC",
+    from: "2026-05-22",
+    to: "2026-08-22",
+  },
+  series: [
+    {
+      name: "install_date",
+      points: [
+        { ts: "2026-08-20", value: 12 },
+        { ts: "2026-08-21", value: 15 },
+      ],
+    },
+  ],
+};
+
 export const modelJson = {
   name: "Hue White and Color Ambiance A60",
   measure_description: "Measured with the powercalc measure tool",
@@ -227,6 +246,9 @@ export const mockApi = async (page: Page): Promise<void> => {
     }
     if (pathname === "/analytics/sensors") {
       return route.fulfill(json(sensors));
+    }
+    if (pathname === "/analytics/timeseries") {
+      return route.fulfill(json(timeseries));
     }
     if (pathname.startsWith("/profile/")) {
       return route.fulfill(json(modelJson));

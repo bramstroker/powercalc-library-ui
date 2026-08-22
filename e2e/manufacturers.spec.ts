@@ -6,11 +6,11 @@ test.beforeEach(async ({ page }) => {
   await mockApi(page);
 });
 
-test("browses from the insights menu to a manufacturer and into a profile", async ({ page }) => {
+test("browses from the Explore menu to a manufacturer and into a profile", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "Insights" }).click();
-  await page.getByRole("menuitem", { name: "All manufacturers" }).click();
+  await page.getByRole("button", { name: "Explore" }).click();
+  await page.getByRole("menuitem", { name: "Manufacturers" }).click();
 
   await expect(page).toHaveURL("/manufacturers");
   await expect(page.getByText("3 manufacturers, 4 profiles")).toBeVisible();

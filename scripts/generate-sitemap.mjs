@@ -126,6 +126,7 @@ export const collectSitemapEntries = (library) => {
   add("/whats-new", libraryModified);
 
   for (const path of [
+    "/statistics",
     "/statistics/top-measure-devices",
     "/statistics/top-contributors",
     "/statistics/top-manufacturers",

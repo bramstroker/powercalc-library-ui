@@ -6,6 +6,7 @@ export default [
   ]),
   layout("./route-modules/layouts/default.tsx", [
     route("profiles/:manufacturer/:model", "./route-modules/profile.tsx"),
+    route("statistics", "./route-modules/statistics-overview.tsx"),
     route("statistics/top-measure-devices", "./route-modules/top-measure-devices.tsx"),
     route("statistics/top-contributors", "./route-modules/top-contributors.tsx"),
     route("statistics/top-manufacturers", "./route-modules/top-manufacturers.tsx"),

@@ -1,17 +1,24 @@
+import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
+import FactoryOutlinedIcon from "@mui/icons-material/FactoryOutlined";
+import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {Divider, Tooltip} from "@mui/material";
+import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
+import NewReleasesOutlinedIcon from "@mui/icons-material/NewReleasesOutlined";
+import { Tooltip } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import {indigo} from "@mui/material/colors";
 import Container from "@mui/material/Container";
-import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import MenuList from "@mui/material/MenuList";
+import Popover from "@mui/material/Popover";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import React from "react";
-import {Link as RouterLink, useNavigate} from "react-router";
+import { Link as RouterLink, useLocation } from "react-router";
 
 import {ColorModeToggle} from "./ColorModeToggle";
 import {Logo} from "./Logo";
@@ -31,22 +38,26 @@ export const Header = ({
                          resultCount,
                          totalCount,
                        }: HeaderProps) => {
-  const navigate = useNavigate();
-  const [statsAnchorEl, setStatsAnchorEl] = React.useState<null | HTMLElement>(null);
-  const statsOpen = Boolean(statsAnchorEl);
+  const location = useLocation();
+  const [exploreAnchorEl, setExploreAnchorEl] = React.useState<null | HTMLElement>(null);
+  const exploreOpen = Boolean(exploreAnchorEl);
 
-  const handleStatsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setStatsAnchorEl(event.currentTarget);
+  const handleExploreClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setExploreAnchorEl(event.currentTarget);
   };
 
-  const handleStatsClose = () => {
-    setStatsAnchorEl(null);
+  const handleExploreClose = () => {
+    setExploreAnchorEl(null);
   };
 
-  const handleMenuItemClick = (path: string) => {
-    void navigate(path);
-    handleStatsClose();
-  };
+  const isCurrent = (path: string) => location.pathname === path;
+
+  const menuItemSx = (path: string) => ({
+    borderRadius: 1,
+    mb: 0.5,
+    fontWeight: isCurrent(path) ? 700 : 400,
+    bgcolor: isCurrent(path) ? "action.selected" : undefined,
+  });
 
   return (
       <AppBar
@@ -141,16 +152,16 @@ export const Header = ({
                 </Typography>
             )}
 
-            <Tooltip title="Statistics">
+            <Tooltip title="Explore">
                 <Button
                     color="inherit"
-                    onClick={handleStatsClick}
-                    startIcon={<BarChartIcon/>}
-                    id="statistics-button"
-                    aria-controls={statsOpen ? "statistics-menu" : undefined}
+                    onClick={handleExploreClick}
+                    startIcon={<ExploreOutlinedIcon/>}
+                    id="explore-button"
+                    aria-controls={exploreOpen ? "explore-menu" : undefined}
                     aria-haspopup="true"
-                    aria-expanded={statsOpen ? "true" : undefined}
-                    aria-label="Insights"
+                    aria-expanded={exploreOpen ? "true" : undefined}
+                    aria-label="Explore"
                     sx={{
                       minWidth: {xs: 40, sm: 64},
                       px: {xs: 1, sm: 2},
@@ -160,69 +171,147 @@ export const Header = ({
                     }}
                 >
                   <Box component="span" sx={{display: {xs: "none", sm: "inline"}}}>
-                    Insights
+                    Explore
                   </Box>
                   <KeyboardArrowDownIcon sx={{display: {xs: "none", sm: "block"}, ml: 0.5}}/>
                 </Button>
             </Tooltip>
 
-            <Menu
-                id="statistics-menu"
-                anchorEl={statsAnchorEl}
-                open={statsOpen}
-                onClose={handleStatsClose}
-                slotProps={{list: {'aria-labelledby': 'statistics-button'}}}
+            <Popover
+                id="explore-menu"
+                anchorEl={exploreAnchorEl}
+                open={exploreOpen}
+                onClose={handleExploreClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      mt: 1,
+                      width: { xs: "calc(100vw - 16px)", sm: 680 },
+                      maxWidth: "calc(100vw - 16px)",
+                      maxHeight: "calc(100vh - 80px)",
+                    },
+                  },
+                }}
             >
-              <Typography
-                  variant="subtitle2"
-                  sx={{px: 2, py: 1, fontWeight: 'bold', cursor: 'pointer'}}
-                  onClick={() => handleMenuItemClick('/analytics')}
+              <Box
+                  component="nav"
+                  aria-label="Explore Powercalc"
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: { xs: "1fr", sm: "1.35fr 1fr 1fr" },
+                    gap: { xs: 1, sm: 2 },
+                    p: 2,
+                  }}
               >
-                Usage stats
-              </Typography>
-              <MenuItem onClick={() => handleMenuItemClick('/analytics/sensor-dimensions')}>
-                Sensor usage
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/analytics/installations')}>
-                Installation statistics
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/analytics/profiles')}>
-                Profile usage
-              </MenuItem>
+                <Box>
+                  <Typography variant="overline" color="text.secondary" sx={{ px: 1 }}>
+                    Library
+                  </Typography>
+                  <MenuList disablePadding aria-labelledby="explore-button">
+                    <MenuItem
+                        component={RouterLink}
+                        to="/"
+                        onClick={handleExploreClose}
+                        aria-current={isCurrent("/") ? "page" : undefined}
+                        sx={menuItemSx("/")}
+                    >
+                      <LibraryBooksOutlinedIcon fontSize="small" sx={{ mr: 1.25 }} />
+                      Browse profiles
+                    </MenuItem>
+                    <MenuItem
+                        component={RouterLink}
+                        to="/manufacturers"
+                        onClick={handleExploreClose}
+                        aria-current={isCurrent("/manufacturers") ? "page" : undefined}
+                        sx={menuItemSx("/manufacturers")}
+                    >
+                      <FactoryOutlinedIcon fontSize="small" sx={{ mr: 1.25 }} />
+                      Manufacturers
+                    </MenuItem>
+                    <MenuItem
+                        component={RouterLink}
+                        to="/statistics/top-contributors"
+                        onClick={handleExploreClose}
+                        aria-current={isCurrent("/statistics/top-contributors") ? "page" : undefined}
+                        sx={menuItemSx("/statistics/top-contributors")}
+                    >
+                      <GroupOutlinedIcon fontSize="small" sx={{ mr: 1.25 }} />
+                      Contributors
+                    </MenuItem>
+                    <MenuItem
+                        component={RouterLink}
+                        to="/whats-new"
+                        onClick={handleExploreClose}
+                        aria-current={isCurrent("/whats-new") ? "page" : undefined}
+                        sx={menuItemSx("/whats-new")}
+                    >
+                      <NewReleasesOutlinedIcon fontSize="small" sx={{ mr: 1.25 }} />
+                      What&apos;s new
+                    </MenuItem>
+                  </MenuList>
+                </Box>
 
-              <Divider sx={{my: 1}}/>
+                <Box
+                    sx={{
+                      borderTop: { xs: 1, sm: 0 },
+                      borderLeft: { xs: 0, sm: 1 },
+                      borderColor: "divider",
+                      pt: { xs: 2, sm: 0 },
+                      pl: { xs: 0, sm: 2 },
+                    }}
+                >
+                  <Typography variant="overline" color="text.secondary" sx={{ px: 1 }}>
+                    Statistics
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ px: 1, mb: 1 }}>
+                    Library rankings and contribution trends.
+                  </Typography>
+                  <MenuList disablePadding aria-labelledby="explore-button">
+                    <MenuItem
+                        component={RouterLink}
+                        to="/statistics"
+                        onClick={handleExploreClose}
+                        aria-current={isCurrent("/statistics") ? "page" : undefined}
+                        sx={menuItemSx("/statistics")}
+                    >
+                      <BarChartIcon fontSize="small" sx={{ mr: 1.25 }} />
+                      View statistics
+                    </MenuItem>
+                  </MenuList>
+                </Box>
 
-              {/* "All manufacturers" rather than "Manufacturers": the Library stats section
-                  below already has a "Top Manufacturers" entry to be told apart from. */}
-              <MenuItem onClick={() => handleMenuItemClick('/manufacturers')}>
-                All manufacturers
-              </MenuItem>
-
-              <MenuItem onClick={() => handleMenuItemClick('/whats-new')}>
-                What&apos;s new
-              </MenuItem>
-
-              <Divider sx={{my: 1}}/>
-
-              <Typography variant="subtitle2" sx={{px: 2, py: 1, fontWeight: 'bold'}}>
-                Library stats
-              </Typography>
-              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-measure-devices')}>
-                Top Measure Devices
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-contributors')}>
-                Top Contributors
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-manufacturers')}>
-                Top Manufacturers
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/statistics/top-device-types')}>
-                Top Device Types
-              </MenuItem>
-              <MenuItem onClick={() => handleMenuItemClick('/statistics/weekly-contributions')}>
-                Weekly Contributions
-              </MenuItem>
-            </Menu>
+                <Box
+                    sx={{
+                      borderTop: { xs: 1, sm: 0 },
+                      borderLeft: { xs: 0, sm: 1 },
+                      borderColor: "divider",
+                      pt: { xs: 2, sm: 0 },
+                      pl: { xs: 0, sm: 2 },
+                    }}
+                >
+                  <Typography variant="overline" color="text.secondary" sx={{ px: 1 }}>
+                    Usage analytics
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ px: 1, mb: 1 }}>
+                    Opt-in installation and profile usage data.
+                  </Typography>
+                  <MenuList disablePadding aria-labelledby="explore-button">
+                    <MenuItem
+                        component={RouterLink}
+                        to="/analytics"
+                        onClick={handleExploreClose}
+                        aria-current={isCurrent("/analytics") ? "page" : undefined}
+                        sx={menuItemSx("/analytics")}
+                    >
+                      <AnalyticsOutlinedIcon fontSize="small" sx={{ mr: 1.25 }} />
+                      View analytics
+                    </MenuItem>
+                  </MenuList>
+                </Box>
+              </Box>
+            </Popover>
 
             <ColorModeToggle/>
           </Toolbar>

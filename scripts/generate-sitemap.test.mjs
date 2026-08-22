@@ -37,6 +37,7 @@ test("collects canonical profile, manufacturer, and author URLs", () => {
   assert.equal(byPath.get("/author/alice-example"), "2026-08-21");
   assert.equal(byPath.get("/author/bob"), "2026-08-21");
   assert.equal(byPath.get("/"), "2026-08-21");
+  assert.equal(byPath.has("/statistics"), true);
 });
 
 test("renders valid escaped sitemap XML", () => {
