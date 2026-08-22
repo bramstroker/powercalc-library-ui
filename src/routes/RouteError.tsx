@@ -1,6 +1,6 @@
 import { Container, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
-import { useRouteError, isRouteErrorResponse } from "react-router-dom";
+import { useRouteError, isRouteErrorResponse } from "react-router";
 
 import {Header} from "../components/Header";
 import { usePageMeta } from "../hooks/usePageMeta";

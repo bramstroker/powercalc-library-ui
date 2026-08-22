@@ -8,16 +8,18 @@ import type {
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridApiCommunity } from "@mui/x-data-grid/internals";
 import { useCallback, useState } from "react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router";
 
 import type { ColorMode } from "../../types/ColorMode";
 import type { Author, PowerProfile } from "../../types/PowerProfile";
 import { isRecentlyAdded } from "../../utils/recency";
+import { authorPath, profilePath } from "../../utils/urlSlugs.mjs";
 import { AliasChips } from "../AliasChips";
 
 import { ColorModeIcons } from "./ColorModeIcons";
 import { DeviceTypeIcon } from "./facetIcons";
 import { NewBadge } from "./NewBadge";
+import { profileRowId } from "./profileRowId";
 import { QualityBadge } from "./QualityBadge";
 
 const COLUMN_VISIBILITY_STORAGE_KEY = "libraryGridColumnVisibility";
@@ -37,9 +39,6 @@ const DEFAULT_COLUMN_VISIBILITY: GridColumnVisibilityModel = {
   installationCount: false,
   lutQualityScore: false,
 };
-
-export const profileRowId = (profile: PowerProfile) =>
-  `${profile.manufacturer.dirName}/${profile.modelId}`;
 
 const columns: GridColDef<PowerProfile>[] = [
   {
@@ -66,7 +65,16 @@ const columns: GridColDef<PowerProfile>[] = [
     minWidth: 140,
     renderCell: ({ value, row }: GridRenderCellParams<PowerProfile, string>) => (
       <Stack direction="row" sx={{ alignItems: "center", gap: 1, height: "100%" }}>
-        <span>{value}</span>
+        <Link
+          component={RouterLink}
+          to={profilePath(row.manufacturer.dirName, row.modelId)}
+          prefetch="intent"
+          underline="hover"
+          color="inherit"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {value}
+        </Link>
         {isRecentlyAdded(row) && <NewBadge />}
       </Stack>
     ),
@@ -110,7 +118,8 @@ const columns: GridColDef<PowerProfile>[] = [
           <Link
             key={author.githubUsername || `${author.name}-${index}`}
             component={RouterLink}
-            to={`/author/${encodeURIComponent(author.githubUsername)}`}
+            to={authorPath(author.githubUsername)}
+            prefetch="intent"
             onClick={(event) => {
               // Keep the row click from navigating to the profile instead.
               event.stopPropagation();
@@ -234,7 +243,7 @@ export const LibraryDataGrid = ({ rows, apiRef }: LibraryDataGridProps) => {
 
   const handleRowClick = useCallback(
     (params: GridRowParams<PowerProfile>) => {
-      void navigate(`/profiles/${params.row.manufacturer.dirName}/${params.row.modelId}`);
+      void navigate(profilePath(params.row.manufacturer.dirName, params.row.modelId));
     },
     [navigate],
   );

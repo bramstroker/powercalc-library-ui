@@ -20,8 +20,10 @@ import {
   Avatar
 } from "@mui/material";
 import { useMemo, useState } from "react";
+import { Link as RouterLink } from "react-router";
 
 import { useLibrary } from "../../context/LibraryContext";
+import { authorPath, manufacturerPath } from "../../utils/urlSlugs.mjs";
 import { ManufacturerLogo } from "../ManufacturerLogo";
 
 type StatItem = {
@@ -42,7 +44,11 @@ const ManufacturerCell = ({ fullName }: { fullName: string }) => {
 
   if (!manufacturer) {
     return (
-      <Link href={`/?manufacturer=${encodeURIComponent(fullName)}`}>
+      <Link
+        component={RouterLink}
+        to={`/?manufacturer=${encodeURIComponent(fullName)}`}
+        prefetch="intent"
+      >
         {fullName}
       </Link>
     );
@@ -51,7 +57,11 @@ const ManufacturerCell = ({ fullName }: { fullName: string }) => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <ManufacturerLogo manufacturer={manufacturer} size={24} />
-      <Link href={`/manufacturer/${encodeURIComponent(manufacturer.dirName)}`}>
+      <Link
+        component={RouterLink}
+        to={manufacturerPath(manufacturer.dirName)}
+        prefetch="intent"
+      >
         {fullName}
       </Link>
     </Box>
@@ -139,14 +149,22 @@ export const StatisticsDisplay = ({
                           alt={item.name}
                           sx={{ width: 24, height: 24 }}
                         />
-                        <Link href={`/author/${encodeURIComponent(item.name)}`}>
+                        <Link
+                          component={RouterLink}
+                          to={authorPath(item.name)}
+                          prefetch="intent"
+                        >
                           {item.name}
                         </Link>
                       </Box>
                     ) : filterQueryParam === 'manufacturer' ? (
                       <ManufacturerCell fullName={item.name} />
                     ) : (
-                      <Link href={`/?${encodeURIComponent(filterQueryParam)}=${encodeURIComponent(item.name)}`}>
+                      <Link
+                        component={RouterLink}
+                        to={`/?${encodeURIComponent(filterQueryParam)}=${encodeURIComponent(item.name)}`}
+                        prefetch="intent"
+                      >
                         {item.name}
                       </Link>
                     )}

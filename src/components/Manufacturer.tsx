@@ -5,22 +5,18 @@ import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import { Box, Button, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
-import { Link as RouterLink, useParams } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
-import { SITE_URL } from "../config/site";
-import { useLibrary } from "../context/LibraryContext";
-import { usePageMeta } from "../hooks/usePageMeta";
-import { useStructuredData } from "../hooks/useStructuredData";
-import type { PowerProfile } from "../types/PowerProfile";
+import type { BreadcrumbItem } from "../seo/breadcrumbs";
+import type {
+  Manufacturer as ManufacturerDetails,
+  PowerProfile,
+} from "../types/PowerProfile";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
-import { ProfileCard } from "./library/ProfileCard";
+import { ProfileCardGrid } from "./library/ProfileCardGrid";
 import { ManufacturerLogo } from "./ManufacturerLogo";
-import {
-  breadcrumbStructuredData,
-  PageBreadcrumbs,
-  type BreadcrumbItem,
-} from "./PageBreadcrumbs";
+import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
 const numberFormat = new Intl.NumberFormat("en-US");
 
@@ -62,64 +58,23 @@ const HeroStat = ({
   </Box>
 );
 
-export const Manufacturer = () => {
-  const { manufacturerName } = useParams<{ manufacturerName: string }>();
-  const { powerProfiles, manufacturers } = useLibrary();
+export type ManufacturerProps = {
+  manufacturer?: ManufacturerDetails;
+  profiles?: PowerProfile[];
+};
 
-  const manufacturer = manufacturerName
-    ? manufacturers[manufacturerName]
-    : undefined;
-
-  const profiles = useMemo(() => {
-    if (!manufacturerName) return [];
-    return powerProfiles.filter(
-      (profile) => profile.manufacturer.dirName === manufacturerName,
-    );
-  }, [powerProfiles, manufacturerName]);
+export const Manufacturer = ({
+  manufacturer,
+  profiles = [],
+}: ManufacturerProps) => {
 
   const profileCount = profiles.length;
-  const displayName = manufacturer?.fullName ?? manufacturerName ?? "";
-  const manufacturerPath = `/manufacturer/${encodeURIComponent(manufacturerName ?? "")}`;
+  const displayName = manufacturer?.fullName ?? "";
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: "Library", to: "/" },
     { label: "Manufacturers", to: "/manufacturers" },
     { label: displayName },
   ];
-
-  usePageMeta({
-    title: displayName,
-    description: `${profileCount} Powercalc device profiles for ${displayName}.`,
-    noIndex: !manufacturer,
-  });
-  useStructuredData(
-    manufacturer
-      ? [
-          breadcrumbStructuredData(breadcrumbItems),
-          {
-            "@type": "CollectionPage",
-            "@id": `${SITE_URL}${manufacturerPath}#collection`,
-            name: `${manufacturer.fullName} Powercalc profiles`,
-            description: `${profileCount} Powercalc device profiles for ${manufacturer.fullName}.`,
-            url: `${SITE_URL}${manufacturerPath}`,
-            about: {
-              "@type": "Organization",
-              name: manufacturer.fullName,
-              alternateName: manufacturer.aliases,
-            },
-            mainEntity: {
-              "@type": "ItemList",
-              numberOfItems: profileCount,
-              itemListElement: profiles.map((profile, index) => ({
-                "@type": "ListItem",
-                position: index + 1,
-                name: `${profile.manufacturer.fullName} ${profile.modelId}`,
-                url: `${SITE_URL}/profiles/${encodeURIComponent(profile.manufacturer.dirName)}/${encodeURIComponent(profile.modelId)}`,
-              })),
-            },
-          },
-        ]
-      : undefined,
-  );
 
   const profilesByDeviceType = useMemo(() => {
     const grouped: Record<string, PowerProfile[]> = {};
@@ -329,25 +284,11 @@ export const Manufacturer = () => {
               </Typography>
             </Stack>
 
-            <Box
+            <ProfileCardGrid
               data-testid={`manufacturer-profile-list-${deviceType}`}
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  md: "repeat(2, minmax(0, 1fr))",
-                },
-                gap: 2,
-              }}
-            >
-              {deviceProfiles.map((profile) => (
-                <ProfileCard
-                  key={profile.modelId}
-                  profile={profile}
-                  headingComponent="h4"
-                />
-              ))}
-            </Box>
+              profiles={deviceProfiles}
+              headingComponent="h4"
+            />
           </Box>
         );
       })}

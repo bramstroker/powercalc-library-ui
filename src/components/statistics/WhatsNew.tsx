@@ -1,16 +1,17 @@
 import { Box, Divider, List, ListItemButton, Stack, Typography } from "@mui/material";
 import { useMemo } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
 import { useLibrary } from "../../context/LibraryContext";
-import { usePageMeta } from "../../hooks/usePageMeta";
 import type { PowerProfile } from "../../types/PowerProfile";
 import { NEW_PROFILE_DAYS, isRecentlyAdded, recentlyAdded } from "../../utils/recency";
+import { profilePath } from "../../utils/urlSlugs.mjs";
 import { AliasChips } from "../AliasChips";
 import { DeviceTypeIcon } from "../library/facetIcons";
 import { NewBadge } from "../library/NewBadge";
 
-const WINDOW_DAYS = 90;
+/** Also drives the route module's description, so the page and its meta tag cannot disagree. */
+export const NEW_PROFILE_WINDOW_DAYS = 90;
 
 const formatDate = (date: Date) =>
   date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
@@ -31,13 +32,8 @@ const groupByDay = (profiles: PowerProfile[]) => {
 export const WhatsNew = () => {
   const { powerProfiles } = useLibrary();
 
-  usePageMeta({
-    title: "What's new",
-    description: `Power profiles added to the Powercalc library in the last ${WINDOW_DAYS} days.`,
-  });
-
   const recent = useMemo(
-    () => recentlyAdded(powerProfiles, WINDOW_DAYS),
+    () => recentlyAdded(powerProfiles, NEW_PROFILE_WINDOW_DAYS),
     [powerProfiles],
   );
   const groups = useMemo(() => groupByDay(recent), [recent]);
@@ -49,7 +45,7 @@ export const WhatsNew = () => {
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         {recent.length} power {recent.length === 1 ? "profile" : "profiles"} added in the last{" "}
-        {WINDOW_DAYS} days. Anything from the last {NEW_PROFILE_DAYS} days is flagged as new across
+        {NEW_PROFILE_WINDOW_DAYS} days. Anything from the last {NEW_PROFILE_DAYS} days is flagged as new across
         the library.
       </Typography>
 
@@ -69,7 +65,7 @@ export const WhatsNew = () => {
               <Box key={`${profile.manufacturer.dirName}/${profile.modelId}`}>
                 <ListItemButton
                   component={RouterLink}
-                  to={`/profiles/${profile.manufacturer.dirName}/${profile.modelId}`}
+                  to={profilePath(profile.manufacturer.dirName, profile.modelId)}
                   sx={{ alignItems: "flex-start", gap: 1.5, py: 1.5 }}
                 >
                   <Box sx={{ width: 24, flexShrink: 0, mt: 0.25 }}>

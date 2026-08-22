@@ -9,15 +9,16 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
 import type { PowerProfile } from "../../types/PowerProfile";
 import { isRecentlyAdded } from "../../utils/recency";
+import { profilePath } from "../../utils/urlSlugs.mjs";
 import { AliasChips } from "../AliasChips";
 
 import { DeviceTypeIcon } from "./facetIcons";
-import { profileRowId } from "./LibraryDataGrid";
 import { NewBadge } from "./NewBadge";
+import { profileRowId } from "./profileRowId";
 
 const PAGE_SIZE = 25;
 
@@ -30,7 +31,6 @@ export type LibraryCardListProps = {
  * DataGrid could only be read by scrolling sideways; one card per profile fits the width instead.
  */
 export const LibraryCardList = ({ rows }: LibraryCardListProps) => {
-  const navigate = useNavigate();
   const [page, setPage] = useState(0);
 
   // Filtering can shrink the list under the current page.
@@ -55,9 +55,9 @@ export const LibraryCardList = ({ rows }: LibraryCardListProps) => {
         {visible.map((profile) => (
           <Box key={profileRowId(profile)}>
             <ListItemButton
-              onClick={() => {
-                void navigate(`/profiles/${profile.manufacturer.dirName}/${profile.modelId}`);
-              }}
+              component={RouterLink}
+              to={profilePath(profile.manufacturer.dirName, profile.modelId)}
+              prefetch="intent"
               sx={{ alignItems: "flex-start", gap: 1.5, py: 1.5 }}
             >
               <Box sx={{ width: 24, flexShrink: 0, mt: 0.25 }}>

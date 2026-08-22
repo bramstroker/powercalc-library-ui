@@ -1,5 +1,5 @@
 import { act, render } from "@testing-library/react";
-import { MemoryRouter, useNavigate } from "react-router-dom";
+import { MemoryRouter, useNavigate } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ScrollToTop } from "./ScrollToTop";

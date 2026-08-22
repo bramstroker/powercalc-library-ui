@@ -1,7 +1,9 @@
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { SITE_URL, usePageMeta } from "./usePageMeta";
+import { SITE_URL } from "../config/site";
+
+import { usePageMeta } from "./usePageMeta";
 
 const MetaFixture = ({ noIndex = false }: { noIndex?: boolean }) => {
   usePageMeta({ title: "Example", description: "Example page", noIndex });

@@ -3,13 +3,24 @@ import { fetchProfiles } from "../api/analytics.api";
 import { fetchLibrary } from "../api/library.api";
 import type { Author, Manufacturer, PowerProfile, UsageStats } from "../types/PowerProfile";
 import { mapToBasePowerProfile } from "../utils/profileMappers";
+import { slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
 export interface LibraryData {
   powerProfiles: PowerProfile[];
-  powerProfilesByKey: Map<string, PowerProfile>;
+  powerProfilesBySlugKey: Map<string, PowerProfile>;
   total: number;
   authors: Record<string, Author>;
+  authorsBySlug: Record<string, Author>;
   manufacturers: Record<string, Manufacturer>;
+  manufacturersBySlug: Record<string, Manufacturer>;
+  /**
+   * Per-entity indexes built during the single pass that already visits every model. The entity
+   * pages are prerendered one process-wide render at a time, so filtering the full profile list per
+   * page would turn one linear pass into one per generated page.
+   */
+  profilesByManufacturerSlug: Map<string, PowerProfile[]>;
+  profilesByAuthorSlug: Map<string, PowerProfile[]>;
+  contributionCountsByAuthor: Map<string, number>;
 }
 
 const createAnalyticsMap = (analyticsData: ProfileStats[]): Map<string, ProfileStats> => {
@@ -26,6 +37,32 @@ const getUsageStats = (stat?: ProfileStats): UsageStats => ({
   percentage: stat?.percentage ?? 0,
 });
 
+const emptyLibrary = (): LibraryData => ({
+  powerProfiles: [],
+  powerProfilesBySlugKey: new Map(),
+  total: 0,
+  authors: {},
+  authorsBySlug: {},
+  manufacturers: {},
+  manufacturersBySlug: {},
+  profilesByManufacturerSlug: new Map(),
+  profilesByAuthorSlug: new Map(),
+  contributionCountsByAuthor: new Map(),
+});
+
+/** The rank of `author` among all contributors, counting ties as the same rank. */
+export const authorRank = (library: LibraryData, githubUsername: string) => {
+  const counts = library.contributionCountsByAuthor;
+  const ownCount = counts.get(githubUsername);
+  if (ownCount == null) return null;
+
+  let ahead = 0;
+  for (const count of counts.values()) {
+    if (count > ownCount) ahead += 1;
+  }
+  return { rank: ahead + 1, total: counts.size };
+};
+
 export const libraryQuery = () => ({
   queryKey: ["library"] as const,
   staleTime: Infinity,
@@ -37,29 +74,33 @@ export const libraryQuery = () => ({
     ]);
 
     if (!library.manufacturers?.length) {
-      return {
-        powerProfiles: [],
-        powerProfilesByKey: new Map(),
-        total: 0,
-        authors: {},
-        manufacturers: {},
-      };
+      return emptyLibrary();
     }
 
     const analyticsMap = createAnalyticsMap(analyticsData ?? []);
     const powerProfiles: PowerProfile[] = [];
-    const powerProfilesByKey = new Map<string, PowerProfile>();
+    const powerProfilesBySlugKey = new Map<string, PowerProfile>();
     const authors: Record<string, Author> = {};
+    const authorsBySlug: Record<string, Author> = {};
     const manufacturers: Record<string, Manufacturer> = {};
+    const manufacturersBySlug: Record<string, Manufacturer> = {};
+    const profilesByManufacturerSlug = new Map<string, PowerProfile[]>();
+    const profilesByAuthorSlug = new Map<string, PowerProfile[]>();
+    const contributionCountsByAuthor = new Map<string, number>();
 
     for (const manufacturerData of library.manufacturers) {
       const manufacturerKey = manufacturerData.dir_name;
+      const manufacturerSlug = slugifyPathSegment(manufacturerKey);
       const manufacturer: Manufacturer = {
         fullName: manufacturerData.full_name,
         dirName: manufacturerData.dir_name,
         aliases: manufacturerData.aliases ?? [],
       };
       manufacturers[manufacturerKey] = manufacturer;
+      manufacturersBySlug[manufacturerSlug] = manufacturer;
+
+      const manufacturerProfiles: PowerProfile[] = [];
+      profilesByManufacturerSlug.set(manufacturerSlug, manufacturerProfiles);
 
       for (const modelData of manufacturerData.models ?? []) {
         const key = `${manufacturerKey}/${modelData.id}`;
@@ -68,22 +109,45 @@ export const libraryQuery = () => ({
 
         const profile = mapToBasePowerProfile(modelData, manufacturer, usageStats);
         powerProfiles.push(profile);
-        powerProfilesByKey.set(key, profile);
+        manufacturerProfiles.push(profile);
+        powerProfilesBySlugKey.set(
+          `${manufacturerSlug}/${slugifyPathSegment(modelData.id)}`,
+          profile,
+        );
 
         for (const author of profile.authors) {
-          if (author.githubUsername) {
-            authors[author.githubUsername] ??= author;
+          if (!author.githubUsername) continue;
+
+          const authorSlug = slugifyPathSegment(author.githubUsername);
+          authors[author.githubUsername] ??= author;
+          authorsBySlug[authorSlug] ??= author;
+
+          const authorProfiles = profilesByAuthorSlug.get(authorSlug);
+          if (authorProfiles) {
+            authorProfiles.push(profile);
+          } else {
+            profilesByAuthorSlug.set(authorSlug, [profile]);
           }
+
+          contributionCountsByAuthor.set(
+            author.githubUsername,
+            (contributionCountsByAuthor.get(author.githubUsername) ?? 0) + 1,
+          );
         }
       }
     }
 
     return {
       powerProfiles,
-      powerProfilesByKey,
+      powerProfilesBySlugKey,
       total: powerProfiles.length,
       authors,
+      authorsBySlug,
       manufacturers,
+      manufacturersBySlug,
+      profilesByManufacturerSlug,
+      profilesByAuthorSlug,
+      contributionCountsByAuthor,
     };
   },
 });

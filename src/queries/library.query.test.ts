@@ -72,21 +72,32 @@ describe("libraryQuery", () => {
     expect(data.powerProfiles.map((p) => p.modelId)).toEqual(["LCA001", "LCT010", "LED1836G9"]);
   });
 
-  it("indexes profiles by manufacturer/model key", async () => {
+  it("indexes profiles by their slugified URL key", async () => {
     const data = await runQuery();
 
-    expect([...data.powerProfilesByKey.keys()]).toEqual([
-      "signify/LCA001",
-      "signify/LCT010",
-      "ikea/LED1836G9",
+    expect([...data.powerProfilesBySlugKey.keys()]).toEqual([
+      "signify/lca001",
+      "signify/lct010",
+      "ikea/led1836g9",
     ]);
-    expect(data.powerProfilesByKey.get("ikea/LED1836G9")?.name).toBe("TRADFRI bulb");
+    expect(data.powerProfilesBySlugKey.get("ikea/led1836g9")?.name).toBe("TRADFRI bulb");
+  });
+
+  it("groups profiles per manufacturer and per author", async () => {
+    const data = await runQuery();
+
+    expect(data.profilesByManufacturerSlug.get("signify")?.map((p) => p.modelId)).toEqual([
+      "LCA001",
+      "LCT010",
+    ]);
+    expect(data.profilesByAuthorSlug.get("bramstroker")).toHaveLength(2);
+    expect(data.contributionCountsByAuthor.get("bramstroker")).toBe(2);
   });
 
   it("attaches usage stats from the analytics endpoint", async () => {
     const data = await runQuery();
 
-    expect(data.powerProfilesByKey.get("signify/LCA001")?.usageStats).toEqual({
+    expect(data.powerProfilesBySlugKey.get("signify/lca001")?.usageStats).toEqual({
       installationCount: 40,
       deviceCount: 100,
       percentage: 2.5,
@@ -96,7 +107,7 @@ describe("libraryQuery", () => {
   it("defaults usage stats to zero when a profile has no analytics", async () => {
     const data = await runQuery();
 
-    expect(data.powerProfilesByKey.get("signify/LCT010")?.usageStats).toEqual({
+    expect(data.powerProfilesBySlugKey.get("signify/lct010")?.usageStats).toEqual({
       installationCount: 0,
       deviceCount: 0,
       percentage: 0,
@@ -139,10 +150,15 @@ describe("libraryQuery", () => {
 
     expect(data).toEqual({
       powerProfiles: [],
-      powerProfilesByKey: new Map(),
+      powerProfilesBySlugKey: new Map(),
       total: 0,
       authors: {},
+      authorsBySlug: {},
       manufacturers: {},
+      manufacturersBySlug: {},
+      profilesByManufacturerSlug: new Map(),
+      profilesByAuthorSlug: new Map(),
+      contributionCountsByAuthor: new Map(),
     });
   });
 

@@ -164,6 +164,53 @@ const json = (body: unknown) => ({
  * so the suite is deterministic and makes no outbound network calls.
  */
 export const mockApi = async (page: Page): Promise<void> => {
+  // A prerendered route initially contains production data. Make goto wait for the browser-side
+  // mocked API requests, so tests never interact with markup that React is about to replace.
+  //
+  // Settled traffic alone is not enough: routes that preload `/library` from the document head
+  // finish that request while the HTML is still parsing, long before React hydrates, so the wait
+  // below also requires the hydration marker `root.tsx` sets after its first commit.
+  let apiRequestsInFlight = 0;
+  let readyTimer: ReturnType<typeof setTimeout> | undefined;
+  const isApiRequest = (url: string) => url.startsWith("https://api.powercalc.nl/");
+
+  page.on("request", (request) => {
+    if (!isApiRequest(request.url())) return;
+    apiRequestsInFlight += 1;
+    clearTimeout(readyTimer);
+  });
+
+  const markReadyWhenSettled = (url: string) => {
+    if (!isApiRequest(url)) return;
+    apiRequestsInFlight -= 1;
+    clearTimeout(readyTimer);
+    readyTimer = setTimeout(() => {
+      if (apiRequestsInFlight !== 0 || page.isClosed()) return;
+      void page
+        .evaluate(() => {
+          document.documentElement.dataset.clientReady = "true";
+        })
+        .catch(() => undefined);
+    }, 100);
+  };
+
+  page.on("requestfinished", (request) => markReadyWhenSettled(request.url()));
+  page.on("requestfailed", (request) => markReadyWhenSettled(request.url()));
+  page.once("close", () => clearTimeout(readyTimer));
+
+  const goto = page.goto.bind(page);
+  page.goto = (async (...args: Parameters<Page["goto"]>) => {
+    const response = await goto(...args);
+    await page.waitForFunction(
+      () =>
+        document.documentElement.dataset.clientReady === "true" &&
+        document.documentElement.dataset.hydrated === "true",
+      undefined,
+      { timeout: 15_000 },
+    );
+    return response;
+  }) as Page["goto"];
+
   await page.route("**/*.sentry.io/**", (route) => route.abort());
 
   await page.route("https://api.powercalc.nl/**", async (route) => {

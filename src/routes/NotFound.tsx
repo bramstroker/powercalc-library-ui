@@ -1,15 +1,7 @@
 import { Button, Typography } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
-
-import { usePageMeta } from "../hooks/usePageMeta";
+import { Link as RouterLink } from "react-router";
 
 export const NotFound = () => {
-  usePageMeta({
-    title: "Page not found",
-    description: "The requested Powercalc library page could not be found.",
-    noIndex: true,
-  });
-
   return (
     <>
       <Typography variant="h5">Page not found</Typography>

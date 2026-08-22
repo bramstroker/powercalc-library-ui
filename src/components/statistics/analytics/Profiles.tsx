@@ -1,10 +1,11 @@
 import type { GridColDef, GridRenderCellParams} from '@mui/x-data-grid';
 import {DataGrid} from '@mui/x-data-grid';
 import {useSuspenseQuery} from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import {fetchProfiles} from "../../../api/analytics.api";
 import {useLibrary} from "../../../context/LibraryContext";
+import { profilePath } from "../../../utils/urlSlugs.mjs";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
 
@@ -37,7 +38,7 @@ export const Profiles = () => {
         const row = params.row
         return (
             <Link
-                to={`/profiles/${row.manufacturer}/${row.model}`}
+                to={profilePath(row.manufacturer, row.model)}
             >
               {params.value}
             </Link>
@@ -134,4 +135,3 @@ export const Profiles = () => {
     </>
   );
 };
-

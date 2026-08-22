@@ -45,18 +45,28 @@ const AppError = ({ error, onRetry }: { error: unknown; onRetry: () => void }) =
 );
 
 /**
- * The library is fetched above the router, so a failure there has no route `errorElement` to fall
- * back to and no Suspense boundary to show a spinner — without this the app renders a blank page
- * both while loading and when the API is down.
+ * Renders inside each layout, not at the root: a React error boundary only catches errors from
+ * below it, so at the root this sat *above* every layout route's own `ErrorBoundary` and a failing
+ * library query reached the generic route error page instead of this retryable one.
+ *
+ * Pages read the library through a suspense query, which without this shows a blank page while it
+ * loads and an unrecoverable error when the API is down.
  */
-export const AppBoundary = ({ children }: { children: ReactNode }) => (
+export const AppBoundary = ({
+  children,
+  fallback = <AppLoading />,
+}: {
+  children: ReactNode;
+  /** Layouts pass a spinner that keeps their own chrome on screen. */
+  fallback?: ReactNode;
+}) => (
   <QueryErrorResetBoundary>
     {({ reset }) => (
       <Sentry.ErrorBoundary
         onReset={reset}
         fallback={({ error, resetError }) => <AppError error={error} onRetry={resetError} />}
       >
-        <Suspense fallback={<AppLoading />}>{children}</Suspense>
+        <Suspense fallback={fallback}>{children}</Suspense>
       </Sentry.ErrorBoundary>
     )}
   </QueryErrorResetBoundary>

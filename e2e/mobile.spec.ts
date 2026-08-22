@@ -136,5 +136,5 @@ test("filters from the drawer and opens a profile", async ({ page }) => {
 
   await page.getByText("S31").click();
 
-  await expect(page).toHaveURL("/profiles/sonoff/S31");
+  await expect(page).toHaveURL("/profiles/sonoff/s31");
 });

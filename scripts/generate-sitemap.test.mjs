@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { collectSitemapEntries, renderSitemap } from "./generate-sitemap.mjs";
+import {
+  collectLegacyRedirects,
+  collectSitemapEntries,
+  renderNginxRedirectMap,
+  renderSitemap,
+} from "./generate-sitemap.mjs";
 
 const library = {
   manufacturers: [
@@ -11,12 +16,12 @@ const library = {
         {
           id: "model one",
           updated_at: "2026-08-20T12:00:00Z",
-          authors: [{ github: "alice" }],
+          authors: [{ github: "Alice Example" }],
         },
         {
           id: "model-two",
           updated_at: "2026-08-21T12:00:00Z",
-          authors: [{ github: "alice" }, { github: "bob" }],
+          authors: [{ github: "Alice Example" }, { github: "bob" }],
         },
       ],
     },
@@ -27,20 +32,55 @@ test("collects canonical profile, manufacturer, and author URLs", () => {
   const entries = collectSitemapEntries(library);
   const byPath = new Map(entries.map((entry) => [entry.path, entry.lastModified]));
 
-  assert.equal(byPath.get("/profiles/brand%20%26%20co/model%20one"), "2026-08-20");
-  assert.equal(byPath.get("/manufacturer/brand%20%26%20co"), "2026-08-21");
-  assert.equal(byPath.get("/author/alice"), "2026-08-21");
+  assert.equal(byPath.get("/profiles/brand-co/model-one"), "2026-08-20");
+  assert.equal(byPath.get("/manufacturer/brand-co"), "2026-08-21");
+  assert.equal(byPath.get("/author/alice-example"), "2026-08-21");
   assert.equal(byPath.get("/author/bob"), "2026-08-21");
   assert.equal(byPath.get("/"), "2026-08-21");
 });
 
 test("renders valid escaped sitemap XML", () => {
   const xml = renderSitemap(
-    [{ path: "/profiles/brand%20%26%20co/model", lastModified: "2026-08-21" }],
+    [{ path: "/profiles/brand-co/model", lastModified: "2026-08-21" }],
     "https://example.com/",
   );
 
-  assert.match(xml, /<loc>https:\/\/example\.com\/profiles\/brand%20%26%20co\/model<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/example\.com\/profiles\/brand-co\/model<\/loc>/);
   assert.match(xml, /<lastmod>2026-08-21<\/lastmod>/);
   assert.match(xml, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+});
+
+test("generates permanent redirect mappings for legacy entity URLs", () => {
+  const redirects = collectLegacyRedirects(library);
+
+  assert.deepEqual(
+    redirects.find(({ from }) => from === "/profiles/brand & co/model one"),
+    { from: "/profiles/brand & co/model one", to: "/profiles/brand-co/model-one" },
+  );
+  assert.deepEqual(
+    redirects.find(({ from }) => from === "/author/Alice Example"),
+    { from: "/author/Alice Example", to: "/author/alice-example" },
+  );
+  assert.equal(
+    redirects.some(({ from }) => from === "/author/bob"),
+    false,
+  );
+
+  const config = renderNginxRedirectMap(redirects);
+  assert.match(config, /map_hash_bucket_size 256;/);
+  assert.match(config, /map_hash_max_size 8192;/);
+  assert.match(
+    config,
+    /"\/manufacturer\/brand & co" "\/manufacturer\/brand-co";/,
+  );
+  assert.match(
+    config,
+    /"\/manufacturer\/brand & co\/" "\/manufacturer\/brand-co";/,
+  );
+  assert.match(config, /map \$uri \$powercalc_legacy_redirect_candidate \{/);
+  assert.match(
+    config,
+    /map "\$uri\|\$powercalc_legacy_redirect_candidate" \$powercalc_legacy_redirect \{/,
+  );
+  assert.match(config, /"~\^\(\.\+\)\\\|\\1\$" "";/);
 });

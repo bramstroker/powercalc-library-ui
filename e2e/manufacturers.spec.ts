@@ -24,7 +24,7 @@ test("browses from the insights menu to a manufacturer and into a profile", asyn
 
   await page.getByRole("link", { name: /LCA001/ }).click();
 
-  await expect(page).toHaveURL("/profiles/signify/LCA001");
+  await expect(page).toHaveURL("/profiles/signify/lca001");
 });
 
 test("filters the manufacturer index and sorts it by name", async ({ page }) => {

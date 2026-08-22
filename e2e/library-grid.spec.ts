@@ -143,6 +143,6 @@ test("opens a profile when its row is clicked", async ({ page }) => {
 
   await page.getByRole("gridcell", { name: "LCA001" }).click();
 
-  await expect(page).toHaveURL("/profiles/signify/LCA001");
+  await expect(page).toHaveURL("/profiles/signify/lca001");
   await expect(page.getByRole("heading", { name: "Signify LCA001" })).toBeVisible();
 });
