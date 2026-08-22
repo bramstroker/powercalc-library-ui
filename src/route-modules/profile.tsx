@@ -1,18 +1,31 @@
-import { useLoaderData, type MetaFunction } from "react-router";
+import { useLoaderData, type LoaderFunctionArgs, type MetaFunction } from "react-router";
 
+import type { Summary } from "../api/analytics.api";
 import { Profile } from "../components/Profile";
 import { SITE_URL } from "../config/site";
 import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
 import { powerProfileLoader } from "../loaders/powerProfileLoader";
+import { dailySummaryQuery } from "../queries/summary.query";
+import { queryClient } from "../queryClient";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { createPageMeta, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import type { PowerProfile } from "../types/PowerProfile";
 import { authorPath, manufacturerPath, profilePath } from "../utils/urlSlugs.mjs";
 
-export const loader = powerProfileLoader;
+export type ProfileLoaderData = {
+  profile: PowerProfile;
+  summary: Summary;
+};
 
-export const clientLoader = prerenderedOrLiveClientLoader(powerProfileLoader);
+export const loader = async (args: LoaderFunctionArgs): Promise<ProfileLoaderData> => {
+  const profile = await powerProfileLoader(args);
+  const summary = await queryClient.ensureQueryData(dailySummaryQuery());
+
+  return { profile, summary };
+};
+
+export const clientLoader = prerenderedOrLiveClientLoader(loader);
 
 // Loader data reaches this module as live `Date` objects during prerendering and as revived values
 // after a client navigation, so normalise both before serialising.
@@ -110,19 +123,19 @@ export const meta: MetaFunction<typeof loader> = ({ loaderData, location, error 
   }
 
   return createPageMeta({
-    path: profilePath(loaderData.manufacturer.dirName, loaderData.modelId),
-    title: `${loaderData.manufacturer.fullName} ${loaderData.modelId}`,
-    description: pageDescription(loaderData),
+    path: profilePath(loaderData.profile.manufacturer.dirName, loaderData.profile.modelId),
+    title: `${loaderData.profile.manufacturer.fullName} ${loaderData.profile.modelId}`,
+    description: pageDescription(loaderData.profile),
   });
 };
 
 const ProfileRoute = () => {
-  const profile = useLoaderData<typeof loader>();
+  const { profile, summary } = useLoaderData<typeof loader>();
 
   return (
     <>
       <StructuredDataScript graph={profileStructuredData(profile)} />
-      <Profile />
+      <Profile profile={profile} summary={summary} />
     </>
   );
 };

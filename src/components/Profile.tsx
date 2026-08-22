@@ -42,9 +42,9 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import {useQuery} from "@tanstack/react-query";
 import React, {useState} from "react";
-import {useLoaderData, useNavigate, Link as RouterLink} from "react-router";
+import {useNavigate, Link as RouterLink} from "react-router";
 
-import {useSummary} from "../hooks/useSummary";
+import type {Summary} from "../api/analytics.api";
 import {
   profileJsonQuery,
   profilePlotsQuery,
@@ -60,7 +60,6 @@ import {
 } from "../utils/urlSlugs.mjs";
 
 import {AliasChips} from "./AliasChips";
-import {ClientOnly} from "./ClientOnly";
 import {getDeviceTypeIcon} from "./library/facetIcons";
 import {ProfileSetup} from "./library/ProfileSetup";
 import {QualityBadge} from "./library/QualityBadge";
@@ -494,12 +493,7 @@ const HeadlineFact = ({label, value, icon: Icon}: HeadlineFactProps) => (
     </Paper>
 );
 
-const ProfileMetrics = ({profile}: { profile: PowerProfile }) => {
-  // Fetch summary data (will be cached by React Query)
-  const {data: summaryData} = useSummary();
-
-  if (!summaryData) return null;
-
+export const ProfileMetrics = ({profile, summary}: { profile: PowerProfile; summary: Summary }) => {
   const hasReportedUsage = profile.usageStats.installationCount > 0;
 
   return (
@@ -542,7 +536,7 @@ const ProfileMetrics = ({profile}: { profile: PowerProfile }) => {
             )}
 
             <Typography variant="body2" color="text.secondary">
-              {profile.usageStats.installationCount} out of {summaryData.sampled_installations} total{' '}
+              {profile.usageStats.installationCount} out of {summary.sampled_installations} total{' '}
               installations
               <Tooltip title="These are active installations whose users opted in to analytics." arrow>
                 <IconButton
@@ -569,8 +563,7 @@ const ProfileMetrics = ({profile}: { profile: PowerProfile }) => {
   );
 };
 
-export const Profile = () => {
-  const profile = useLoaderData() as PowerProfile;
+export const Profile = ({profile, summary}: { profile: PowerProfile; summary: Summary }) => {
   const breadcrumbItems: BreadcrumbItem[] = [
     {label: "Home", to: "/"},
     {label: "Manufacturers", to: "/manufacturers"},
@@ -818,7 +811,7 @@ export const Profile = () => {
             </Stack>
           </Grid>
           <Grid size={{xs: 12, md: 4, lg: 3}}>
-            <ClientOnly><ProfileMetrics profile={profile}/></ClientOnly>
+            <ProfileMetrics profile={profile} summary={summary}/>
           </Grid>
         </Grid>
 
