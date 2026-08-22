@@ -1,4 +1,5 @@
 import BarChartIcon from "@mui/icons-material/BarChart";
+import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import TableChartIcon from "@mui/icons-material/TableChart";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import { Grid, Card, CardContent, CardActions, Typography, Button, Box } from "@mui/material";
@@ -15,7 +16,7 @@ export const AnalyticsOverview = () => {
       />
 
       <Grid container spacing={4}>
-        <Grid size={{xs:12, md:4}}>
+        <Grid size={{xs:12, md:6, lg:3}}>
           <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <CardContent sx={{ flexGrow: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -42,7 +43,7 @@ export const AnalyticsOverview = () => {
           </Card>
         </Grid>
 
-        <Grid size={{xs:12, md:4}}>
+        <Grid size={{xs:12, md:6, lg:3}}>
           <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <CardContent sx={{ flexGrow: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -69,7 +70,7 @@ export const AnalyticsOverview = () => {
           </Card>
         </Grid>
 
-        <Grid size={{xs:12, md:4}}>
+        <Grid size={{xs:12, md:6, lg:3}}>
           <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <CardContent sx={{ flexGrow: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -95,8 +96,33 @@ export const AnalyticsOverview = () => {
             </CardActions>
           </Card>
         </Grid>
+
+        <Grid size={{xs:12, md:6, lg:3}}>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <QueryStatsIcon sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="h5" component="h2">
+                  Usage Over Time
+                </Typography>
+              </Box>
+              <Typography variant="body1" color="text.secondary">
+                Follow Powercalc opt-ins, new installations, and sensor counts over time.
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button
+                size="small"
+                component={RouterLink}
+                to="/analytics/time-series"
+                variant="contained"
+              >
+                View Dashboard
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
       </Grid>
     </>
   );
 };
-

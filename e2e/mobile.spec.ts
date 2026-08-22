@@ -32,6 +32,24 @@ test("does not scroll sideways", async ({ page }) => {
   expect(scrollWidth).toBe(clientWidth);
 });
 
+test("stacks the Explore navigation within the phone viewport", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Explore" }).click();
+
+  await expect(page.getByRole("navigation", { name: "Explore Powercalc" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Browse profiles" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "View statistics" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "View analytics" })).toBeVisible();
+
+  const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+
+  expect(scrollWidth).toBe(clientWidth);
+});
+
 test("keeps the profile within the phone viewport", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
   await expect(page.getByRole("heading", { name: "Signify LCA001", level: 1 })).toBeVisible();

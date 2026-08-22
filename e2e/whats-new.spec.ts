@@ -13,10 +13,10 @@ test("lists recently added profiles, newest first", async ({ page }) => {
   await expect(page).toHaveTitle("What's new · Powercalc profile library");
 });
 
-test("is reachable from the insights menu", async ({ page }) => {
+test("is reachable from the Explore menu", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "Insights" }).click();
+  await page.getByRole("button", { name: "Explore" }).click();
   await page.getByRole("menuitem", { name: "What's new" }).click();
 
   await expect(page).toHaveURL("/whats-new");
