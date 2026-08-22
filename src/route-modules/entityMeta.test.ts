@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 import { SITE_URL } from "../config/site";
 import type { Author, Manufacturer, PowerProfile } from "../types/PowerProfile";
 
-import { meta as authorMeta } from "./author";
-import { meta as manufacturerMeta } from "./manufacturer";
+import { authorStructuredData, meta as authorMeta } from "./author";
+import { manufacturerStructuredData, meta as manufacturerMeta } from "./manufacturer";
 
 const alice: Author = { name: "Alice Example", githubUsername: "alice" };
 
@@ -35,11 +35,6 @@ const read = (descriptors: MetaDescriptor[]) => {
     canonical: find<{ href: string }>((entry) => "rel" in entry && entry.rel === "canonical")?.href,
     robots: find<{ content: string }>((entry) => "name" in entry && entry.name === "robots")
       ?.content,
-    graph: (
-      find<{ "script:ld+json": { "@graph": Record<string, never>[] } }>(
-        (entry) => "script:ld+json" in entry,
-      )?.["script:ld+json"] as { "@graph": Record<string, string>[] } | undefined
-    )?.["@graph"],
   };
 };
 
@@ -62,12 +57,10 @@ describe("manufacturer meta", () => {
   });
 
   it("emits breadcrumb and collection structured data covering every profile", () => {
-    const { graph } = read(
-      manufacturerMeta(args({ manufacturer: linkind, profiles })) as MetaDescriptor[],
-    );
+    const graph = manufacturerStructuredData({ manufacturer: linkind, profiles });
 
-    expect(graph?.map((item) => item["@type"])).toEqual(["BreadcrumbList", "CollectionPage"]);
-    expect(graph?.[1]).toMatchObject({
+    expect(graph.map((item) => item["@type"])).toEqual(["BreadcrumbList", "CollectionPage"]);
+    expect(graph[1]).toMatchObject({
       mainEntity: { numberOfItems: 3 },
       about: { name: "Linkind", alternateName: ["lk"] },
     });
@@ -91,12 +84,13 @@ describe("author meta", () => {
   };
 
   it("describes the contributor and their profiles", () => {
-    const { title, canonical, graph } = read(authorMeta(args(loaderData)) as MetaDescriptor[]);
+    const { title, canonical } = read(authorMeta(args(loaderData)) as MetaDescriptor[]);
+    const graph = authorStructuredData(loaderData);
 
     expect(title).toBe("Alice Example · Powercalc profile library");
     expect(canonical).toBe(`${SITE_URL}/author/alice`);
-    expect(graph?.map((item) => item["@type"])).toEqual(["BreadcrumbList", "ProfilePage"]);
-    expect(graph?.[1]).toMatchObject({
+    expect(graph.map((item) => item["@type"])).toEqual(["BreadcrumbList", "ProfilePage"]);
+    expect(graph[1]).toMatchObject({
       mainEntity: {
         "@type": "Person",
         name: "Alice Example",

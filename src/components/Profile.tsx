@@ -52,6 +52,7 @@ import {
 } from "../queries/profileDetails.query";
 import type {BreadcrumbItem} from "../seo/breadcrumbs";
 import type {PowerProfile} from "../types/PowerProfile";
+import {formatTimestampUtc} from "../utils/dateFormat";
 import {
   authorPath,
   manufacturerPath,
@@ -59,6 +60,7 @@ import {
 } from "../utils/urlSlugs.mjs";
 
 import {AliasChips} from "./AliasChips";
+import {ClientOnly} from "./ClientOnly";
 import {getDeviceTypeIcon} from "./library/facetIcons";
 import {ProfileSetup} from "./library/ProfileSetup";
 import {QualityBadge} from "./library/QualityBadge";
@@ -585,8 +587,8 @@ export const Profile = () => {
     {label: "Device type", value: profile.deviceType, icon: TypeSpecimenIcon, group: "device", filterKey: "deviceType"},
     {label: "Name", value: profile.name, icon: MoreIcon, group: "device"},
     {label: "Description", value: profile.description, icon: MoreIcon, group: "device"},
-    {label: "Created", value: profile.createdAt.toLocaleString(), icon: HistoryIcon, group: "library"},
-    {label: "Updated", value: profile.updatedAt?.toLocaleString(), icon: HistoryIcon, group: "library"},
+    {label: "Created", value: formatTimestampUtc(profile.createdAt), icon: HistoryIcon, group: "library"},
+    {label: "Updated", value: profile.updatedAt && formatTimestampUtc(profile.updatedAt), icon: HistoryIcon, group: "library"},
     {
       label: "Authors",
       value: profile.authors.map((author) => author.name),
@@ -816,7 +818,7 @@ export const Profile = () => {
             </Stack>
           </Grid>
           <Grid size={{xs: 12, md: 4, lg: 3}}>
-            <ProfileMetrics profile={profile}/>
+            <ClientOnly><ProfileMetrics profile={profile}/></ClientOnly>
           </Grid>
         </Grid>
 

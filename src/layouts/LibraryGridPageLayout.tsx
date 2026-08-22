@@ -1,19 +1,10 @@
-import {Box, CircularProgress, Container} from "@mui/material";
-import {Outlet} from "react-router";
+import { Box } from "@mui/material";
+import { Outlet } from "react-router";
 
 import { AppBoundary } from "../components/AppBoundary";
 import { Footer } from "../components/Footer";
+import { PageSpinner, useIsChangingPage } from "../components/PageSpinner";
 import { ScrollToTop } from "../components/ScrollToTop";
-
-const PageSpinner = () => {
-  return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
-          <CircularProgress />
-        </Box>
-      </Container>
-  );
-}
 
 /**
  * App-shell layout for the grid: on desktop the page never scrolls, the grid scrolls internally and
@@ -23,21 +14,22 @@ const PageSpinner = () => {
  * The children rely on this being a flex column with a definite height so the grid can size itself.
  */
 export const LibraryGridPageLayout = () => {
+  // See DefaultPageLayout: a Suspense boundary here would defer the whole prerendered page.
+  const isChangingPage = useIsChangingPage();
+
   return (
-      <Box
-          sx={{
-            height: { xs: "auto", md: "100dvh" },
-            minHeight: { xs: "100dvh", md: "auto" },
-            display: "flex",
-            flexDirection: "column",
-            overflow: { xs: "visible", md: "hidden" },
-          }}
-      >
-        <ScrollToTop />
-        <AppBoundary fallback={<PageSpinner />}>
-          <Outlet />
-        </AppBoundary>
-        <Footer />
-      </Box>
+    <Box
+      sx={{
+        height: { xs: "auto", md: "100dvh" },
+        minHeight: { xs: "100dvh", md: "auto" },
+        display: "flex",
+        flexDirection: "column",
+        overflow: { xs: "visible", md: "hidden" },
+      }}
+    >
+      <ScrollToTop />
+      <AppBoundary>{isChangingPage ? <PageSpinner /> : <Outlet />}</AppBoundary>
+      <Footer />
+    </Box>
   );
-}
+};

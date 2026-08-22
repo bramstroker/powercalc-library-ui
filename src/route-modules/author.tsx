@@ -11,7 +11,8 @@ import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
 import { authorRank, libraryQuery } from "../queries/library.query";
 import { queryClient } from "../queryClient";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
-import { createPageMeta, MAX_ITEM_LIST_ENTRIES } from "../seo/meta";
+import { createPageMeta, MAX_ITEM_LIST_ENTRIES, type StructuredData } from "../seo/meta";
+import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import { humanizeIdentifier } from "../utils/profilePresentation";
 import { authorPath, profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
@@ -42,6 +43,57 @@ const loadAuthor = async ({ params }: Pick<LoaderFunctionArgs, "params">) => {
 export const loader = loadAuthor;
 export const clientLoader = prerenderedOrLiveClientLoader(loadAuthor);
 
+type AuthorData = Awaited<ReturnType<typeof loadAuthor>>;
+
+const authorDescription = ({ authorDetails, authorProfiles }: AuthorData) =>
+  `${authorProfiles.length} Powercalc device profiles contributed by ${authorDetails.name || authorDetails.githubUsername}.`;
+
+export const authorStructuredData = (data: AuthorData): StructuredData[] => {
+  const { authorDetails, authorProfiles } = data;
+  const githubUsername = authorDetails.githubUsername;
+  const displayName = authorDetails.name || githubUsername;
+  const canonicalPath = authorPath(githubUsername);
+  const description = authorDescription(data);
+
+  const knowsAbout = [
+    ...new Set(authorProfiles.map((profile) => profile.manufacturer.fullName)),
+    ...new Set(authorProfiles.map((profile) => humanizeIdentifier(profile.deviceType))),
+  ];
+
+  return [
+    breadcrumbStructuredData([
+      { label: "Library", to: "/" },
+      { label: "Contributors", to: "/statistics/top-contributors" },
+      { label: displayName },
+    ]),
+    {
+      "@type": "ProfilePage",
+      name: `${displayName} — Powercalc contributor`,
+      description,
+      url: `${SITE_URL}${canonicalPath}`,
+      mainEntity: {
+        "@type": "Person",
+        name: displayName,
+        alternateName: `@${githubUsername}`,
+        url: `${SITE_URL}${canonicalPath}`,
+        image: `https://github.com/${encodeURIComponent(githubUsername)}.png`,
+        sameAs: `https://github.com/${encodeURIComponent(githubUsername)}`,
+        knowsAbout,
+      },
+      hasPart: {
+        "@type": "ItemList",
+        numberOfItems: authorProfiles.length,
+        itemListElement: authorProfiles.slice(0, MAX_ITEM_LIST_ENTRIES).map((profile, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: `${profile.manufacturer.fullName} ${profile.modelId}`,
+          url: `${SITE_URL}${profilePath(profile.manufacturer.dirName, profile.modelId)}`,
+        })),
+      },
+    },
+  ];
+};
+
 export const meta: MetaFunction<typeof loader> = ({ loaderData, location, error }) => {
   if (error || !loaderData) {
     return createPageMeta({
@@ -52,66 +104,26 @@ export const meta: MetaFunction<typeof loader> = ({ loaderData, location, error 
     });
   }
 
-  const { authorDetails, authorProfiles } = loaderData;
-  const githubUsername = authorDetails.githubUsername;
-  const displayName = authorDetails.name || githubUsername;
-  const canonicalPath = authorPath(githubUsername);
-  const description = `${authorProfiles.length} Powercalc device profiles contributed by ${displayName}.`;
-
-  const knowsAbout = [
-    ...new Set(authorProfiles.map((profile) => profile.manufacturer.fullName)),
-    ...new Set(authorProfiles.map((profile) => humanizeIdentifier(profile.deviceType))),
-  ];
+  const { authorDetails } = loaderData;
 
   return createPageMeta({
-    path: canonicalPath,
-    title: displayName,
-    description,
-    structuredData: [
-      breadcrumbStructuredData([
-        { label: "Library", to: "/" },
-        { label: "Contributors", to: "/statistics/top-contributors" },
-        { label: displayName },
-      ]),
-      {
-        "@type": "ProfilePage",
-        name: `${displayName} — Powercalc contributor`,
-        description,
-        url: `${SITE_URL}${canonicalPath}`,
-        mainEntity: {
-          "@type": "Person",
-          name: displayName,
-          alternateName: `@${githubUsername}`,
-          url: `${SITE_URL}${canonicalPath}`,
-          image: `https://github.com/${encodeURIComponent(githubUsername)}.png`,
-          sameAs: `https://github.com/${encodeURIComponent(githubUsername)}`,
-          knowsAbout,
-        },
-        hasPart: {
-          "@type": "ItemList",
-          numberOfItems: authorProfiles.length,
-          itemListElement: authorProfiles
-            .slice(0, MAX_ITEM_LIST_ENTRIES)
-            .map((profile, index) => ({
-              "@type": "ListItem",
-              position: index + 1,
-              name: `${profile.manufacturer.fullName} ${profile.modelId}`,
-              url: `${SITE_URL}${profilePath(profile.manufacturer.dirName, profile.modelId)}`,
-            })),
-        },
-      },
-    ],
+    path: authorPath(authorDetails.githubUsername),
+    title: authorDetails.name || authorDetails.githubUsername,
+    description: authorDescription(loaderData),
   });
 };
 
 const AuthorRoute = () => {
   const data = useLoaderData<typeof loader>();
   return (
-    <Author
-      authorDetails={data.authorDetails}
-      authorProfiles={data.authorProfiles}
-      authorRank={data.authorRank}
-    />
+    <>
+      <StructuredDataScript graph={authorStructuredData(data)} />
+      <Author
+        authorDetails={data.authorDetails}
+        authorProfiles={data.authorProfiles}
+        authorRank={data.authorRank}
+      />
+    </>
   );
 };
 

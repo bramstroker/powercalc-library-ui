@@ -1,9 +1,8 @@
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { Box, Button, CircularProgress, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import * as Sentry from "@sentry/react";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { Suspense } from "react";
 
 import { Logo } from "./Logo";
 
@@ -15,13 +14,6 @@ const centred = {
   justifyContent: "center",
   gap: 2,
 } as const;
-
-const AppLoading = () => (
-  <Box sx={centred}>
-    <CircularProgress />
-    <Typography color="text.secondary">Loading the profile library…</Typography>
-  </Box>
-);
 
 const AppError = ({ error, onRetry }: { error: unknown; onRetry: () => void }) => (
   <Container maxWidth="sm" sx={centred}>
@@ -49,24 +41,18 @@ const AppError = ({ error, onRetry }: { error: unknown; onRetry: () => void }) =
  * below it, so at the root this sat *above* every layout route's own `ErrorBoundary` and a failing
  * library query reached the generic route error page instead of this retryable one.
  *
- * Pages read the library through a suspense query, which without this shows a blank page while it
- * loads and an unrecoverable error when the API is down.
+ * Error handling only — it deliberately holds no `<Suspense>`. One wrapping `<Outlet />` makes
+ * React Router's route rendering suspend against it, which pushes the whole prerendered page behind
+ * a JavaScript swap. Loading states come from `useIsChangingPage` instead.
  */
-export const AppBoundary = ({
-  children,
-  fallback = <AppLoading />,
-}: {
-  children: ReactNode;
-  /** Layouts pass a spinner that keeps their own chrome on screen. */
-  fallback?: ReactNode;
-}) => (
+export const AppBoundary = ({ children }: { children: ReactNode }) => (
   <QueryErrorResetBoundary>
     {({ reset }) => (
       <Sentry.ErrorBoundary
         onReset={reset}
         fallback={({ error, resetError }) => <AppError error={error} onRetry={resetError} />}
       >
-        <Suspense fallback={fallback}>{children}</Suspense>
+        {children}
       </Sentry.ErrorBoundary>
     )}
   </QueryErrorResetBoundary>

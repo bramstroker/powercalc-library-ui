@@ -13,6 +13,7 @@ import {
 import { Link as RouterLink } from "react-router";
 
 import type { PowerProfile } from "../../types/PowerProfile";
+import { formatDateUtc } from "../../utils/dateFormat";
 import { humanizeIdentifier } from "../../utils/profilePresentation";
 import { isRecentlyAdded } from "../../utils/recency";
 import { profilePath } from "../../utils/urlSlugs.mjs";
@@ -135,10 +136,7 @@ export const ProfileCard = ({
               sx={{ ml: "auto" }}
             >
               Added{" "}
-              {profile.createdAt.toLocaleDateString("en-US", {
-                month: "short",
-                year: "numeric",
-              })}
+              {formatDateUtc(profile.createdAt, { month: "short", year: "numeric" })}
             </Typography>
             <ChevronRightIcon
               fontSize="small"
