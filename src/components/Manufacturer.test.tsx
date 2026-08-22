@@ -1,8 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { MemoryRouter, Route, Routes } from "react-router";
+import { afterEach, describe, expect, it } from "vitest";
 
-import type { LibraryData } from "../queries/library.query";
 import type {
   Manufacturer as ManufacturerType,
   PowerProfile,
@@ -38,19 +37,12 @@ const profile = (
     usageStats: { installationCount: 7, deviceCount: 7, percentage: 1 },
   }) as PowerProfile;
 
-const libraryData = {
-  powerProfiles: [
-    profile(linkind, "ZS1100400", "smart_switch"),
-    profile(linkind, "BR30", "light"),
-    profile(linkind, "A19", "light"),
-    profile(signify, "LCA001", "light"),
-  ],
-  manufacturers: { linkind, signify },
-} as unknown as LibraryData;
-
-vi.mock("../context/LibraryContext", () => ({
-  useLibrary: () => libraryData,
-}));
+const profiles = [
+  profile(linkind, "ZS1100400", "smart_switch"),
+  profile(linkind, "BR30", "light"),
+  profile(linkind, "A19", "light"),
+  profile(signify, "LCA001", "light"),
+];
 
 const renderPage = (dirName: string) =>
   render(
@@ -60,7 +52,12 @@ const renderPage = (dirName: string) =>
       <Routes>
         <Route
           path="/manufacturer/:manufacturerName"
-          element={<Manufacturer />}
+          element={
+            <Manufacturer
+              manufacturer={dirName === "linkind" ? linkind : dirName === "signify" ? signify : undefined}
+              profiles={profiles.filter((entry) => entry.manufacturer.dirName === dirName)}
+            />
+          }
         />
       </Routes>
     </MemoryRouter>,
@@ -81,15 +78,6 @@ describe("Manufacturer", () => {
     expect(screen.getByLabelText("3 profiles")).toBeInTheDocument();
     expect(screen.getByLabelText("21 known installs")).toBeInTheDocument();
     expect(screen.getByLabelText("2 device types")).toBeInTheDocument();
-
-    const graph = JSON.parse(
-      document.getElementById("page-structured-data")?.textContent ?? "",
-    )["@graph"];
-    expect(graph.map((item: { "@type": string }) => item["@type"])).toEqual([
-      "BreadcrumbList",
-      "CollectionPage",
-    ]);
-    expect(graph[1].mainEntity.numberOfItems).toBe(3);
   });
 
   it("omits the alias line for a manufacturer without aliases", () => {
@@ -113,7 +101,7 @@ describe("Manufacturer", () => {
 
     expect(screen.getByRole("link", { name: /BR30/ })).toHaveAttribute(
       "href",
-      "/profiles/linkind/BR30",
+      "/profiles/linkind/br30",
     );
     expect(screen.queryByText("LCA001")).not.toBeInTheDocument();
   });

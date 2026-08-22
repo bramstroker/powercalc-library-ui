@@ -76,12 +76,6 @@ export type SubProfile = {
   rawJson: Record<string, unknown>
 }
 
-export type FullPowerProfile = PowerProfile & {
-  rawJson: Record<string, unknown>,
-  subProfiles: SubProfile[];
-  plots: PlotLink[];
-};
-
 export interface PlotLink {
   url: string;
   label: string;

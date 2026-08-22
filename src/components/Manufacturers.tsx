@@ -13,11 +13,12 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useMemo, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
 import { useLibrary } from "../context/LibraryContext";
 import { usePageMeta } from "../hooks/usePageMeta";
 import type { Manufacturer } from "../types/PowerProfile";
+import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ManufacturerLogo } from "./ManufacturerLogo";
@@ -142,7 +143,7 @@ export const Manufacturers = () => {
               <Card variant="outlined" sx={{ height: "100%" }}>
                 <CardActionArea
                   component={RouterLink}
-                  to={`/manufacturer/${encodeURIComponent(manufacturer.dirName)}`}
+                  to={manufacturerPath(manufacturer.dirName)}
                   sx={{ height: "100%", p: 2, display: "flex", alignItems: "center", gap: 2 }}
                 >
                   <ManufacturerLogo manufacturer={manufacturer} size={44} />

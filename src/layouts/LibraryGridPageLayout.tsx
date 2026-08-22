@@ -1,7 +1,7 @@
 import {Box, CircularProgress, Container} from "@mui/material";
-import * as React from "react";
-import {Outlet} from "react-router-dom";
+import {Outlet} from "react-router";
 
+import { AppBoundary } from "../components/AppBoundary";
 import { Footer } from "../components/Footer";
 import { ScrollToTop } from "../components/ScrollToTop";
 
@@ -34,9 +34,9 @@ export const LibraryGridPageLayout = () => {
           }}
       >
         <ScrollToTop />
-        <React.Suspense fallback={<PageSpinner />}>
+        <AppBoundary fallback={<PageSpinner />}>
           <Outlet />
-        </React.Suspense>
+        </AppBoundary>
         <Footer />
       </Box>
   );

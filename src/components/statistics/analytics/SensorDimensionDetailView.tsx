@@ -12,7 +12,7 @@ import {
 import { bluePalette } from "@mui/x-charts";
 import { BarChart } from "@mui/x-charts/BarChart";
 import React from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router";
 
 import type { SensorStats } from "../../../api/analytics.api";
 

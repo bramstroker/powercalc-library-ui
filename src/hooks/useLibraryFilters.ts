@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 
 import type { FacetKey, LibraryFilters, Range, RangeKey } from "../types/LibraryFilters";
 import {

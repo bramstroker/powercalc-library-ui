@@ -17,9 +17,12 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-import type { FullPowerProfile } from "../../types/PowerProfile";
+import { subProfileLinks } from "../../api/profileDetails.api";
+import { profileFilesQuery } from "../../queries/profileDetails.query";
+import type { PowerProfile } from "../../types/PowerProfile";
 
 /** Opens the Powercalc config flow in the reader's own Home Assistant instance. */
 export const MY_HA_CONFIG_FLOW_URL =
@@ -53,13 +56,23 @@ export const buildSensorYaml = ({
 const ENTITY_PLACEHOLDER = "light.my_light";
 
 export type ProfileSetupProps = {
-  profile: FullPowerProfile;
+  profile: PowerProfile;
 };
 
 export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
   const [subProfile, setSubProfile] = useState("");
   const [copied, setCopied] = useState(false);
+  const [manualSetupExpanded, setManualSetupExpanded] = useState(false);
   const discoveryBy = profile.discoveryBy ?? "entity";
+  const {
+    data: profileFiles = [],
+    isPending: subProfilesPending,
+    isError: subProfilesError,
+  } = useQuery({
+    ...profileFilesQuery(profile),
+    enabled: manualSetupExpanded && profile.subProfileCount > 0,
+  });
+  const subProfileNames = subProfileLinks(profileFiles).map((link) => link.path.split("/")[0]);
 
   const yaml = buildSensorYaml({
     manufacturerDir: profile.manufacturer.dirName,
@@ -132,21 +145,29 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
               <code>{ENTITY_PLACEHOLDER}</code> with your own entity.
             </Typography>
 
-            {profile.subProfiles.length > 0 && (
+            {profile.subProfileCount > 0 && (
               <TextField
                 select
                 size="small"
                 label="Sub profile"
                 value={subProfile}
+                disabled={subProfilesPending || subProfilesError}
+                helperText={
+                  subProfilesPending
+                    ? "Loading sub profiles…"
+                    : subProfilesError
+                      ? "Could not load sub profiles"
+                      : undefined
+                }
                 onChange={(event) => {
                   setSubProfile(event.target.value);
                 }}
                 sx={{ minWidth: 180 }}
               >
                 <MenuItem value="">None</MenuItem>
-                {profile.subProfiles.map((entry) => (
-                  <MenuItem key={entry.name} value={entry.name}>
-                    {entry.name}
+                {subProfileNames.map((name) => (
+                  <MenuItem key={name} value={name}>
+                    {name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -215,6 +236,8 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
       <Accordion
         disableGutters
         elevation={0}
+        expanded={manualSetupExpanded}
+        onChange={(_event, expanded) => setManualSetupExpanded(expanded)}
         sx={{ mt: 1, backgroundColor: "transparent", "&:before": { display: "none" } }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0 }}>

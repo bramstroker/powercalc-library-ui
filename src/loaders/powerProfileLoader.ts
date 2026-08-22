@@ -1,16 +1,9 @@
-import type { LoaderFunctionArgs } from "react-router-dom";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 
-import { API_ENDPOINTS } from "../config/api";
-import {libraryQuery} from "../queries/library.query";
+import { libraryQuery } from "../queries/library.query";
 import { queryClient } from "../queryClient";
-import type { FullPowerProfile, PlotLink, SubProfile } from "../types/PowerProfile";
-
-interface DownloadLink {
-  url: string;
-  path: string;
-}
-
-type ModelJson = { measure_description?: string; };
+import type { PowerProfile } from "../types/PowerProfile";
+import { profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
 const requireParams = (params: LoaderFunctionArgs["params"]) => {
   const manufacturer = params.manufacturer;
@@ -21,49 +14,13 @@ const requireParams = (params: LoaderFunctionArgs["params"]) => {
   return { manufacturer, model };
 }
 
-const fetchJson = async <T>(url: string, errorMessage: string): Promise<T> => {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`${errorMessage} (HTTP ${res.status})`);
-  return res.json() as Promise<T>;
-}
-
-const toPlots = (downloadLinks: DownloadLink[]): PlotLink[] => {
-  // Prefer the vector version of a plot, fall back to the bitmap when no SVG was rendered.
-  const byLabel = new Map<string, PlotLink & { isVector: boolean }>();
-
-  for (const link of downloadLinks) {
-    const isVector = link.url.endsWith(".svg");
-    if (!isVector && !link.url.endsWith(".png")) continue;
-
-    const label = link.path.split(".")[0];
-    const existing = byLabel.get(label);
-    if (existing && (existing.isVector || !isVector)) continue;
-
-    byLabel.set(label, { url: link.url, label, isVector });
-  }
-
-  return [...byLabel.values()].map(({ url, label }) => ({ url, label }));
-}
-
-const toSubProfiles = async (downloadLinks: DownloadLink[]): Promise<SubProfile[]> => {
-  const subProfileLinks = downloadLinks.filter(
-      (l) => l.url.endsWith("model.json") && l.path !== "model.json"
-  );
-
-  return Promise.all(
-      subProfileLinks.map(async (l) => {
-        const rawJson = await fetchJson<Record<string, unknown>>(l.url, `Failed to fetch subProfile at ${l.url}`);
-        return { name: l.path.split("/")[0], rawJson };
-      })
-  );
-}
-
-export const powerProfileLoader = async ({ params }: LoaderFunctionArgs): Promise<FullPowerProfile> => {
+export const powerProfileLoader = async ({ params }: LoaderFunctionArgs): Promise<PowerProfile> => {
   const { manufacturer, model } = requireParams(params);
 
   const derived = await queryClient.ensureQueryData(libraryQuery());
 
-  const powerProfile = derived.powerProfilesByKey.get(`${manufacturer}/${model}`);
+  const slugKey = `${slugifyPathSegment(manufacturer)}/${slugifyPathSegment(model)}`;
+  const powerProfile = derived.powerProfilesBySlugKey.get(slugKey);
   if (!powerProfile) {
     throw new Response(`Unknown profile ${manufacturer}/${model}`, {
       status: 404,
@@ -71,32 +28,10 @@ export const powerProfileLoader = async ({ params }: LoaderFunctionArgs): Promis
     });
   }
 
-  const profileUrl = `${API_ENDPOINTS.PROFILE}/${manufacturer}/${model}`;
-  const downloadUrl = `${API_ENDPOINTS.DOWNLOAD}/${manufacturer}/${model}?includePlots=1`;
+  const canonicalPath = profilePath(powerProfile.manufacturer.dirName, powerProfile.modelId);
+  if (`/profiles/${manufacturer}/${model}` !== decodeURI(canonicalPath)) {
+    throw redirect(canonicalPath, 301);
+  }
 
-  const modelPromise = fetchJson<ModelJson>(
-      profileUrl,
-      `Failed to fetch profile data for ${manufacturer}/${model}`
-  );
-
-  const downloadPromise = fetchJson<DownloadLink[]>(
-      downloadUrl,
-      `Failed to fetch download links for ${manufacturer}/${model}`
-  );
-
-  const [modelJson, downloadLinks] = await Promise.all([
-    modelPromise,
-    downloadPromise,
-  ]);
-
-  const plots = toPlots(downloadLinks);
-  const subProfiles = await toSubProfiles(downloadLinks);
-
-  return {
-    ...powerProfile,
-    measureDescription: modelJson.measure_description || '',
-    rawJson: modelJson,
-    plots,
-    subProfiles,
-  };
+  return powerProfile;
 };

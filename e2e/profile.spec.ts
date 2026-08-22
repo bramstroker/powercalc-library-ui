@@ -24,8 +24,9 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
     "/manufacturer/signify",
   );
 
+  // The route module's `meta` export renders this; there is exactly one JSON-LD block per page.
   const structuredData = await page
-    .locator("#page-structured-data")
+    .locator('script[type="application/ld+json"]')
     .evaluate((element) => JSON.parse(element.textContent ?? ""));
   expect(structuredData["@graph"].map((item: { "@type": string }) => item["@type"])).toEqual([
     "BreadcrumbList",
@@ -33,8 +34,33 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
   ]);
   expect(structuredData["@graph"][1]).toMatchObject({
     name: "Signify LCA001 power profile",
-    url: "https://library.powercalc.nl/profiles/signify/LCA001",
+    url: "https://library.powercalc.nl/profiles/signify/lca001",
   });
+});
+
+test("loads extended profile data only after opening its tab", async ({ page }) => {
+  let profileJsonRequests = 0;
+  let downloadRequests = 0;
+
+  page.on("request", (request) => {
+    const pathname = new URL(request.url()).pathname;
+    if (pathname.startsWith("/profile/")) profileJsonRequests += 1;
+    if (pathname.startsWith("/download/")) downloadRequests += 1;
+  });
+
+  await page.goto("/profiles/signify/LCA001");
+
+  expect(profileJsonRequests).toBe(0);
+  expect(downloadRequests).toBe(0);
+
+  await page.getByRole("tab", { name: "JSON" }).click();
+  await expect(page.getByRole("tabpanel").getByText(/"calculation_strategy": "lut"/)).toBeVisible();
+  expect(profileJsonRequests).toBe(1);
+  expect(downloadRequests).toBe(0);
+
+  await page.getByRole("tab", { name: "Graphs" }).click();
+  await expect(page.getByText("No graphs are available for this profile.")).toBeVisible();
+  expect(downloadRequests).toBe(1);
 });
 
 test("shows the usage stats loaded from the analytics endpoint", async ({ page }) => {
@@ -160,7 +186,8 @@ test("shows the fields the API publishes beyond the basics", async ({ page }) =>
   // linked_profile is "<manufacturer>/<model>", which is exactly the profile route.
   await page.getByRole("link", { name: "ikea/LED1836G9" }).click();
 
-  await expect(page).toHaveURL("/profiles/ikea/LED1836G9");
+  // The loader redirects a legacy-cased deep link to its slug.
+  await expect(page).toHaveURL("/profiles/ikea/led1836g9");
 });
 
 test("renders an error page for an unknown profile", async ({ page }) => {

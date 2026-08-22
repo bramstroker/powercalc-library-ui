@@ -1,12 +1,7 @@
 import { useEffect } from "react";
 
 import { SITE_NAME, SITE_URL } from "../config/site";
-
-export { SITE_NAME, SITE_URL } from "../config/site";
-
-const DEFAULT_DESCRIPTION =
-  "Browse the Powercalc device library: power measurement profiles for smart lights, plugs, " +
-  "speakers and other devices, contributed by the Home Assistant community.";
+import { DEFAULT_DESCRIPTION } from "../seo/meta";
 
 const upsertMeta = (attribute: "name" | "property", key: string, content: string) => {
   const selector = `meta[${attribute}="${key}"]`;
@@ -47,12 +42,10 @@ export type PageMeta = {
 };
 
 /**
- * Sets the document title and the description / Open Graph tags for the current page, so history,
- * bookmarks and link previews say something more useful than the site name on every route.
- *
- * Note: crawlers that do not execute JavaScript (Slack and Discord unfurls, among others) only see
- * the tags in index.html. Making these visible to them needs prerendering, which is a separate
- * change.
+ * Imperative fallback for the one case a route `meta` export cannot cover: an error boundary, which
+ * renders in place of a route whose own meta may never have run. Every ordinary page sets its title,
+ * description and canonical URL through its route module instead — doing both would emit each tag
+ * twice and let the two copies disagree.
  */
 export const usePageMeta = ({ title, description, noIndex = false }: PageMeta) => {
   useEffect(() => {

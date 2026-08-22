@@ -15,6 +15,7 @@
 # production
 /build
 /dist
+/.react-router
 
 # misc
 .DS_Store

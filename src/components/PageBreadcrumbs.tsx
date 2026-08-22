@@ -1,25 +1,9 @@
 import { Breadcrumbs, Link, Typography } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
-import { SITE_URL } from "../config/site";
-import type { StructuredData } from "../hooks/useStructuredData";
+import type { BreadcrumbItem } from "../seo/breadcrumbs";
 
-export type BreadcrumbItem = {
-  label: string;
-  to?: string;
-};
-
-export const breadcrumbStructuredData = (
-  items: BreadcrumbItem[],
-): StructuredData => ({
-  "@type": "BreadcrumbList",
-  itemListElement: items.map((item, index) => ({
-    "@type": "ListItem",
-    position: index + 1,
-    name: item.label,
-    item: item.to ? `${SITE_URL}${item.to}` : undefined,
-  })),
-});
+export type { BreadcrumbItem };
 
 export const PageBreadcrumbs = ({ items }: { items: BreadcrumbItem[] }) => (
   <Breadcrumbs aria-label="Breadcrumb" sx={{ mb: 2 }}>
@@ -29,6 +13,7 @@ export const PageBreadcrumbs = ({ items }: { items: BreadcrumbItem[] }) => (
         <Link
           component={RouterLink}
           to={item.to}
+          prefetch="intent"
           color="inherit"
           underline="hover"
           key={`${item.to}-${item.label}`}

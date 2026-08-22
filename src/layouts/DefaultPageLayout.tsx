@@ -1,7 +1,7 @@
 import {Box, CircularProgress, Container} from "@mui/material";
-import * as React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router";
 
+import { AppBoundary } from "../components/AppBoundary";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { ScrollToTop } from "../components/ScrollToTop";
@@ -31,9 +31,9 @@ export const DefaultPageLayout = () => {
               flex: 1,
             }}
         >
-          <React.Suspense fallback={<PageSpinner />}>
+          <AppBoundary fallback={<PageSpinner />}>
             <Outlet />
-          </React.Suspense>
+          </AppBoundary>
         </Container>
 
         <Footer />

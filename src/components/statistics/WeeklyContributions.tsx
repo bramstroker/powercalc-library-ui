@@ -1,8 +1,7 @@
 import { Typography, Box } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 
 import { useLibrary } from "../../context/LibraryContext";
-import { usePageMeta } from "../../hooks/usePageMeta";
 
 import {Grouping, TimeSeriesChart} from "./analytics/TimeSeriesChart";
 
@@ -12,37 +11,29 @@ type WeekData = {
 };
 
 export const WeeklyContributions = () => {
-  const [weeklyData, setWeeklyData] = useState<WeekData[]>([]);
   const { powerProfiles } = useLibrary();
 
-  usePageMeta({
-    title: "Weekly contributions",
-    description: "New Powercalc device profiles added to the library each week.",
-  });
+  // Derived during render rather than in an effect, so the prerendered document carries the chart
+  // data instead of the "no data" branch below.
+  const weeklyData = useMemo<WeekData[]>(() => {
+    const weekCounts: Record<string, number> = {};
 
-  useEffect(() => {
-    if (powerProfiles.length > 0) {
-      const weekCounts: Record<string, number> = {};
+    powerProfiles.forEach(profile => {
+      const day = profile.createdAt.getDay();
+      const diff = profile.createdAt.getDate() - day;
+      const weekStart = new Date(profile.createdAt);
+      weekStart.setDate(diff);
 
-      powerProfiles.forEach(profile => {
-        const day = profile.createdAt.getDay();
-        const diff = profile.createdAt.getDate() - day;
-        const weekStart = new Date(profile.createdAt);
-        weekStart.setDate(diff);
+      // Format as YYYY-MM-DD
+      const weekKey = weekStart.toISOString().split('T')[0];
 
-        // Format as YYYY-MM-DD
-        const weekKey = weekStart.toISOString().split('T')[0];
+      weekCounts[weekKey] = (weekCounts[weekKey] || 0) + 1;
+    });
 
-        weekCounts[weekKey] = (weekCounts[weekKey] || 0) + 1;
-      });
-
-      // Convert to array and sort by date
-      const sortedData = Object.entries(weekCounts)
-        .map(([date, count]) => ({ date, count }))
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-      setWeeklyData(sortedData);
-    }
+    // Convert to array and sort by date
+    return Object.entries(weekCounts)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [powerProfiles]);
 
   return (

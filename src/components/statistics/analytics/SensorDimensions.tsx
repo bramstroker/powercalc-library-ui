@@ -15,7 +15,7 @@ import {mangoFusionPalette} from "@mui/x-charts";
 import { PieChart, pieClasses } from "@mui/x-charts/PieChart";
 import { useSuspenseQuery} from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import type { SensorStats} from "../../../api/analytics.api";
 import {fetchSensors} from "../../../api/analytics.api";

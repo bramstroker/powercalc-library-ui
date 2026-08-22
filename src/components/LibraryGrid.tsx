@@ -9,15 +9,12 @@ import {
   Stack,
   Tooltip,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
-import { GridPreferencePanelsValue, useGridApiRef } from "@mui/x-data-grid";
-import { useCallback, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useLibrary } from "../context/LibraryContext";
+import { DESKTOP_MEDIA_QUERY, useIsDesktop } from "../hooks/useIsDesktop";
 import { useLibraryFilters } from "../hooks/useLibraryFilters";
-import { usePageMeta } from "../hooks/usePageMeta";
 import { countActiveFilters } from "../types/LibraryFilters";
 import { applyFilters } from "../utils/libraryFiltering";
 
@@ -25,45 +22,49 @@ import { Header } from "./Header";
 import { ActiveFilterChips } from "./library/ActiveFilterChips";
 import { FILTER_PANEL_WIDTH, FilterPanel } from "./library/FilterPanel";
 import { LibraryCardList } from "./library/LibraryCardList";
-import { LibraryDataGrid } from "./library/LibraryDataGrid";
 import { LibrarySearchField } from "./library/LibrarySearchField";
+
+const importDesktopGrid = () => import("./library/DesktopLibraryDataGrid");
+
+const DesktopLibraryDataGrid = lazy(() =>
+  importDesktopGrid().then((module) => ({ default: module.DesktopLibraryDataGrid })),
+);
+
+// The prerendered document is the phone layout, so a desktop visitor would otherwise only start
+// fetching the grid chunk once hydration has run — with the card list on screen in the meantime.
+// Requesting it while this module evaluates overlaps that download with hydration itself.
+if (typeof window !== "undefined" && window.matchMedia(DESKTOP_MEDIA_QUERY).matches) {
+  void importDesktopGrid();
+}
 
 const PANEL_COLLAPSED_STORAGE_KEY = "libraryFilterPanelCollapsed";
 
 export const LibraryGrid = () => {
   const { powerProfiles } = useLibrary();
   const { filters, ...actions } = useLibraryFilters();
-  const theme = useTheme();
-  const apiRef = useGridApiRef();
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const isDesktop = useIsDesktop();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(
-    () => localStorage.getItem(PANEL_COLLAPSED_STORAGE_KEY) === "true",
-  );
+  const [collapsed, setCollapsed] = useState(false);
+  const showColumnsRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    setCollapsed(window.localStorage.getItem(PANEL_COLLAPSED_STORAGE_KEY) === "true");
+  }, []);
 
   const setCollapsedPersisted = useCallback((next: boolean) => {
     setCollapsed(next);
-    localStorage.setItem(PANEL_COLLAPSED_STORAGE_KEY, String(next));
+    window.localStorage.setItem(PANEL_COLLAPSED_STORAGE_KEY, String(next));
   }, []);
 
   const rows = useMemo(() => applyFilters(powerProfiles, filters), [powerProfiles, filters]);
   const activeCount = countActiveFilters(filters);
-
-  // Puts the search term in the tab, so several filtered views stay tellable apart.
-  usePageMeta({ title: filters.search || undefined });
   const panelHidden = isDesktop ? collapsed : true;
 
   const panel = (
     <FilterPanel
       profiles={powerProfiles}
       filters={filters}
-      onCollapse={
-        isDesktop
-          ? () => {
-              setCollapsedPersisted(true);
-            }
-          : undefined
-      }
+      onCollapse={isDesktop ? () => setCollapsedPersisted(true) : undefined}
       {...actions}
     />
   );
@@ -73,6 +74,7 @@ export const LibraryGrid = () => {
       <Header
         searchSlot={<LibrarySearchField value={filters.search} onChange={actions.setSearch} />}
         resultCount={rows.length}
+        totalCount={powerProfiles.length}
       />
 
       <Box sx={{ flex: 1, display: "flex", minHeight: 0 }}>
@@ -157,9 +159,7 @@ export const LibraryGrid = () => {
                 <IconButton
                   size="small"
                   aria-label="Show/hide columns"
-                  onClick={() => {
-                    apiRef.current?.showPreferences(GridPreferencePanelsValue.columns);
-                  }}
+                  onClick={() => showColumnsRef.current?.()}
                 >
                   <ViewColumnIcon fontSize="small" />
                 </IconButton>
@@ -168,7 +168,9 @@ export const LibraryGrid = () => {
           </Stack>
 
           {isDesktop ? (
-            <LibraryDataGrid rows={rows} apiRef={apiRef} />
+            <Suspense fallback={<Box sx={{ flex: 1 }} aria-label="Loading table" />}>
+              <DesktopLibraryDataGrid rows={rows} showColumnsRef={showColumnsRef} />
+            </Suspense>
           ) : (
             <LibraryCardList rows={rows} />
           )}

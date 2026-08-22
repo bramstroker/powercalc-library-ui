@@ -1,6 +1,6 @@
 import BarChartIcon from "@mui/icons-material/BarChart";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {Divider, IconButton, Tooltip, useMediaQuery, useTheme} from "@mui/material";
+import {Divider, Tooltip} from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -11,9 +11,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import React from "react";
-import {Link as RouterLink, useNavigate} from "react-router-dom";
-
-import {useLibrary} from "../context/LibraryContext";
+import {Link as RouterLink, useNavigate} from "react-router";
 
 import {ColorModeToggle} from "./ColorModeToggle";
 import {Logo} from "./Logo";
@@ -24,16 +22,18 @@ export type HeaderProps = {
   searchSlot?: React.ReactNode;
   /** Number of profiles currently shown. Omit when the page is not showing a filtered list. */
   resultCount?: number;
+  /** Total number of profiles, supplied by pages that already have the library loaded. */
+  totalCount?: number;
 };
 
 export const Header = ({
                          searchSlot,
                          resultCount,
+                         totalCount,
                        }: HeaderProps) => {
   const navigate = useNavigate();
   const [statsAnchorEl, setStatsAnchorEl] = React.useState<null | HTMLElement>(null);
   const statsOpen = Boolean(statsAnchorEl);
-  const libraryStats = useLibrary()
 
   const handleStatsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setStatsAnchorEl(event.currentTarget);
@@ -47,9 +47,6 @@ export const Header = ({
     void navigate(path);
     handleStatsClose();
   };
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
       <AppBar
@@ -136,42 +133,38 @@ export const Header = ({
 
             <Box sx={{flexGrow: 1}}/>
 
-            {resultCount !== undefined && (
+            {resultCount !== undefined && totalCount !== undefined && (
                 <Typography noWrap sx={{display: {xs: "none", md: "block"}}}>
-                  {resultCount === libraryStats.total
-                      ? `${libraryStats.total} profiles`
-                      : `${resultCount} of ${libraryStats.total} profiles`}
+                  {resultCount === totalCount
+                      ? `${totalCount} profiles`
+                      : `${resultCount} of ${totalCount} profiles`}
                 </Typography>
             )}
 
-            {isMobile ? (
-                <Tooltip title="Statistics">
-                  <IconButton
-                      color="inherit"
-                      onClick={handleStatsClick}
-                      id="statistics-button"
-                      aria-controls={statsOpen ? "statistics-menu" : undefined}
-                      aria-haspopup="true"
-                      aria-expanded={statsOpen ? "true" : undefined}
-                      aria-label="Statistics menu"
-                  >
-                    <BarChartIcon/>
-                  </IconButton>
-                </Tooltip>
-            ) : (
+            <Tooltip title="Statistics">
                 <Button
                     color="inherit"
                     onClick={handleStatsClick}
                     startIcon={<BarChartIcon/>}
-                    endIcon={<KeyboardArrowDownIcon/>}
                     id="statistics-button"
                     aria-controls={statsOpen ? "statistics-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={statsOpen ? "true" : undefined}
+                    aria-label="Insights"
+                    sx={{
+                      minWidth: {xs: 40, sm: 64},
+                      px: {xs: 1, sm: 2},
+                      "& .MuiButton-startIcon": {
+                        m: {xs: 0, sm: "0 8px 0 -4px"},
+                      },
+                    }}
                 >
-                  Insights
+                  <Box component="span" sx={{display: {xs: "none", sm: "inline"}}}>
+                    Insights
+                  </Box>
+                  <KeyboardArrowDownIcon sx={{display: {xs: "none", sm: "block"}, ml: 0.5}}/>
                 </Button>
-            )}
+            </Tooltip>
 
             <Menu
                 id="statistics-menu"

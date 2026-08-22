@@ -20,7 +20,9 @@ import PermDeviceInformationIcon from "@mui/icons-material/PermDeviceInformation
 import PersonIcon from "@mui/icons-material/Person";
 import TypeSpecimenIcon from "@mui/icons-material/TypeSpecimen";
 import {
+  Alert,
   Button,
+  CircularProgress,
   Paper,
   Tab,
   Tabs,
@@ -38,21 +40,30 @@ import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
+import {useQuery} from "@tanstack/react-query";
 import React, {useState} from "react";
-import {useLoaderData, useNavigate, Link as RouterLink} from "react-router-dom";
+import {useLoaderData, useNavigate, Link as RouterLink} from "react-router";
 
-import {SITE_URL} from "../config/site";
-import {usePageMeta} from "../hooks/usePageMeta";
-import {useStructuredData} from "../hooks/useStructuredData";
 import {useSummary} from "../hooks/useSummary";
-import type {FullPowerProfile} from "../types/PowerProfile";
+import {
+  profileJsonQuery,
+  profilePlotsQuery,
+  subProfilesQuery,
+} from "../queries/profileDetails.query";
+import type {BreadcrumbItem} from "../seo/breadcrumbs";
+import type {PowerProfile} from "../types/PowerProfile";
+import {
+  authorPath,
+  manufacturerPath,
+  profilePath as getProfilePath,
+} from "../utils/urlSlugs.mjs";
 
 import {AliasChips} from "./AliasChips";
 import {getDeviceTypeIcon} from "./library/facetIcons";
 import {ProfileSetup} from "./library/ProfileSetup";
 import {QualityBadge} from "./library/QualityBadge";
 import {ManufacturerLogo} from "./ManufacturerLogo";
-import {breadcrumbStructuredData, PageBreadcrumbs, type BreadcrumbItem} from "./PageBreadcrumbs";
+import {PageBreadcrumbs} from "./PageBreadcrumbs";
 import {Plot} from "./Plot";
 
 interface TabPanelProps {
@@ -154,457 +165,419 @@ const MeasureDescription = ({description}: { description: string }) => {
   );
 };
 
-export const Profile = () => {
-  const profile = useLoaderData() as FullPowerProfile;
+/*
+ * Everything below renders inside `Profile` but is declared here on purpose. A component defined
+ * in a render body is a new type on every render, so React unmounts and remounts its whole subtree
+ * — losing the tab state, the copy confirmations and the "Show more" toggles every time the page
+ * re-renders, and refetching nothing only because React Query caches across the remount.
+ */
+
+type FilterLinkProps = {
+  filterKey: string;
+  value: string;
+  label: string;
+  children: React.ReactNode;
+};
+/**
+ * Coloured and underlined rather than styled as plain text — otherwise there is nothing to tell
+ * the clickable attributes apart from the inert ones sitting right next to them.
+ *
+ * `describeChild` matters: without it MUI labels the child with the tooltip, so the link would
+ * announce as "Show all profiles with this manufacturer" instead of "Signify".
+ */
+const FilterLink = ({filterKey, value, label, children}: FilterLinkProps) => {
+  return (
+      <Tooltip
+          title={`Show all profiles with this ${label.toLowerCase()}`}
+          describeChild
+          arrow
+          placement="top"
+      >
+        <Link
+            component={RouterLink}
+            to={`/?${filterKey}=${encodeURIComponent(value)}`}
+            prefetch="intent"
+            underline="always"
+            color="primary"
+            sx={{cursor: "pointer", textDecorationStyle: "dotted"}}
+        >
+          {children}
+        </Link>
+      </Tooltip>
+  );
+}
+
+const PropertyValue = ({property}: { property: PropertyItem }) => {
+  if (property.renderFn && property.value != null) {
+    return property.renderFn(property.value);
+  }
+
+  if (property.label === "Aliases" && property.value) {
+    return <AliasChips aliases={property.value as string[]} marginTop={1} wrap/>;
+  }
+
+  if (Array.isArray(property.value)) {
+    const values = property.value.map(String);
+    return (
+        <>
+          {values.map((v: string, i: number) => (
+              <React.Fragment key={`${property.filterKey ?? "v"}-${v}`}>
+                {property.filterKey ? (
+                    <FilterLink filterKey={property.filterKey} value={v} label={property.label}>{v}</FilterLink>
+                ) : (
+                    v
+                )}
+                {i < values.length - 1 && ", "}
+              </React.Fragment>
+          ))}
+        </>
+    );
+  }
+
+  if (property.filterKey && property.value != null) {
+    return (
+        <FilterLink
+            filterKey={property.filterKey}
+            value={String(property.value)}
+            label={property.label}
+        >
+          {String(property.value)}
+        </FilterLink>
+    );
+  }
+
+  if (property.value == null || typeof property.value === "object") {
+    // Objects only render through a renderFn of their own; there is nothing sensible to print.
+    return null;
+  }
+
+  return String(property.value);
+};
+
+type AttributesTabProps = { properties: PropertyItem[] };
+/**
+ * Grouped into sections so related attributes sit together. Items flow left to right within a
+ * section, which is the natural Grid order — no round-robin dealing needed.
+ */
+const AttributesTab = ({properties}: AttributesTabProps) => (
+    <Stack spacing={3}>
+      {ATTRIBUTE_GROUPS.map(({key, label}) => {
+        const items = properties.filter((property) => property.group === key);
+        if (items.length === 0) {
+          return null;
+        }
+
+        const headingId = `attribute-group-${key}`;
+
+        return (
+            <Box
+                component="section"
+                key={key}
+                data-testid="attribute-group"
+                aria-labelledby={headingId}
+            >
+              <Typography
+                  component="h2"
+                  id={headingId}
+                  variant="overline"
+                  color="text.secondary"
+                  sx={{fontWeight: 700, letterSpacing: ".08em", m: 0}}
+              >
+                {label}
+              </Typography>
+              <Divider sx={{mb: 0.5}}/>
+
+              <Grid component="dl" container spacing={1} sx={{m: 0}}>
+                {items.map((property) => (
+                    <Grid
+                        component="div"
+                        size={{xs: 12, sm: 6, md: 3}}
+                        key={`${property.label}-${property.filterKey ?? ""}`}
+                        data-testid="profile-attribute"
+                        sx={{
+                          py: 1,
+                          minWidth: 0,
+                          display: "grid",
+                          gridTemplateColumns: "34px minmax(0, 1fr)",
+                          alignContent: "start",
+                        }}
+                    >
+                      <Typography
+                          component="dt"
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{
+                            gridColumn: "1 / -1",
+                            display: "grid",
+                            gridTemplateColumns: "34px minmax(0, 1fr)",
+                            alignItems: "start",
+                          }}
+                      >
+                        <property.icon aria-hidden="true" fontSize="small"/>
+                        <Box component="span">{property.label}</Box>
+                      </Typography>
+                      <Box
+                          component="dd"
+                          sx={{
+                            gridColumn: 2,
+                            m: 0,
+                            color: "text.primary",
+                            overflowWrap: "anywhere",
+                          }}
+                      >
+                        <PropertyValue property={property}/>
+                      </Box>
+                    </Grid>
+                ))}
+              </Grid>
+            </Box>
+        );
+      })}
+    </Stack>
+);
+
+const LoadingDetails = () => (
+    <Stack direction="row" spacing={1.5} sx={{alignItems: "center", py: 2}}>
+      <CircularProgress size={22}/>
+      <Typography color="text.secondary">Loading profile details…</Typography>
+    </Stack>
+);
+
+const DetailsError = () => (
+    <Alert severity="error">The profile details could not be loaded. Please try again.</Alert>
+);
+
+type JsonTabProps = { profile: PowerProfile };
+const JsonTab = ({profile}: JsonTabProps) => {
+  const [copySuccess, setCopySuccess] = useState(false);
+  const {data: rawJson, isPending, isError} = useQuery(profileJsonQuery(profile));
+
+  if (isPending) return <LoadingDetails/>;
+  if (isError) return <DetailsError/>;
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(rawJson, null, 2));
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  return (
+      <Paper sx={{p: 2, position: 'relative'}}>
+        <Box sx={{position: 'absolute', top: 8, right: 8, zIndex: 1}}>
+          <Tooltip title={copySuccess ? "Copied!" : "Copy to clipboard"} arrow>
+            <IconButton onClick={() => void handleCopy()} size="small" color={copySuccess ? "success" : "default"}>
+              <ContentCopyIcon/>
+            </IconButton>
+          </Tooltip>
+        </Box>
+        <Box component="pre" sx={{m: 0, overflow: "auto"}}>
+          {JSON.stringify(rawJson, null, 2)}
+        </Box>
+      </Paper>
+  );
+};
+
+type SubProfilesTabProps = {
+  profile: PowerProfile;
+};
+const SubProfilesTab = ({profile}: SubProfilesTabProps) => {
+  const [copySuccessMap, setCopySuccessMap] = useState<Record<string, boolean>>({});
   const [expandedSubProfiles, setExpandedSubProfiles] = useState<Record<string, boolean>>({});
-  const profilePath = `/profiles/${encodeURIComponent(profile.manufacturer.dirName)}/${encodeURIComponent(profile.modelId)}`;
-  const profileUrl = `${SITE_URL}${profilePath}`;
-  const pageDescription = [
-    profile.name,
-    `${profile.deviceType} power profile measured with ${profile.measureDevice || "an unknown device"}.`,
-    profile.maxPower != null ? `Max power ${profile.maxPower} W.` : null,
-    profile.standbyPower != null ? `Standby power ${profile.standbyPower} W.` : null,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const {data: subProfiles, isPending, isError} = useQuery(subProfilesQuery(profile));
+
+  const toggleSubProfile = (name: string) => {
+    setExpandedSubProfiles(prev => ({...prev, [name]: !prev[name]}));
+  };
+
+  if (isPending) return <LoadingDetails/>;
+  if (isError) return <DetailsError/>;
+
+  const handleCopy = async (name: string, json: Record<string, unknown>) => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(json, null, 2));
+      setCopySuccessMap(prev => ({...prev, [name]: true}));
+      setTimeout(() => {
+        setCopySuccessMap(prev => ({...prev, [name]: false}));
+      }, 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  return (
+      <List component="nav" aria-label="sub profiles">
+        {subProfiles.map((subProfile) => (
+            <React.Fragment key={subProfile.name}>
+              <ListItemButton onClick={() => toggleSubProfile(subProfile.name)}>
+                <ListItemText primary={subProfile.name}/>
+                <IconButton edge="end" aria-label="expand">
+                  {expandedSubProfiles[subProfile.name] ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+                </IconButton>
+              </ListItemButton>
+              <Collapse in={expandedSubProfiles[subProfile.name]} timeout="auto" unmountOnExit>
+                <Paper sx={{p: 2, m: 2, position: 'relative'}}>
+                  <Box sx={{position: 'absolute', top: 8, right: 8, zIndex: 1}}>
+                    <Tooltip title={copySuccessMap[subProfile.name] ? "Copied!" : "Copy to clipboard"} arrow>
+                      <IconButton
+                          onClick={() => void handleCopy(subProfile.name, subProfile.rawJson)}
+                          size="small"
+                          color={copySuccessMap[subProfile.name] ? "success" : "default"}
+                      >
+                        <ContentCopyIcon/>
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  <Box component="pre" sx={{m: 0, overflow: "auto"}}>
+                    {JSON.stringify(subProfile.rawJson, null, 2)}
+                  </Box>
+                </Paper>
+              </Collapse>
+            </React.Fragment>
+        ))}
+      </List>
+  );
+};
+
+type PlotsTabProps = { profile: PowerProfile };
+const PlotsTab = ({profile}: PlotsTabProps) => {
+  const {data: plots, isPending, isError} = useQuery(profilePlotsQuery(profile));
+
+  if (isPending) return <LoadingDetails/>;
+  if (isError) return <DetailsError/>;
+  if (plots.length === 0) {
+    return <Typography color="text.secondary">No graphs are available for this profile.</Typography>;
+  }
+
+  return (
+      <Grid container spacing={1} sx={{width: "100%"}}>
+        {plots.map((plot) => (
+            <Plot key={plot.url} link={plot}/>
+        ))}
+      </Grid>
+  );
+};
+
+type HeadlineFactProps = {label: string; value: string; icon: React.ElementType};
+const HeadlineFact = ({label, value, icon: Icon}: HeadlineFactProps) => (
+    <Paper
+        variant="outlined"
+        // The same tinted surface the filter panel uses, so the app has one secondary surface
+        // rather than a new colour per component.
+        sx={(theme) => ({
+          px: 1.5,
+          py: 1,
+          borderRadius: 2,
+          backgroundColor: theme.palette.grey[100],
+          ...theme.applyStyles("dark", {backgroundColor: theme.palette.grey[900]}),
+        })}
+    >
+      <Stack direction="row" sx={{alignItems: "center", gap: 1.25}}>
+        <Icon sx={{fontSize: 26, color: "text.secondary"}}/>
+        <Box sx={{minWidth: 0}}>
+          <Typography variant="caption" color="text.secondary" sx={{display: "block"}}>
+            {label}
+          </Typography>
+          <Typography
+              variant="subtitle2"
+              sx={{fontWeight: 700, lineHeight: 1.3, overflowWrap: "anywhere"}}
+          >
+            {value}
+          </Typography>
+        </Box>
+      </Stack>
+    </Paper>
+);
+
+const ProfileMetrics = ({profile}: { profile: PowerProfile }) => {
+  // Fetch summary data (will be cached by React Query)
+  const {data: summaryData} = useSummary();
+
+  if (!summaryData) return null;
+
+  const hasReportedUsage = profile.usageStats.installationCount > 0;
+
+  return (
+      <Card
+          variant="outlined"
+          sx={{
+            borderRadius: 2,
+            bgcolor: "background.paper",
+            backgroundImage: "var(--mui-overlays-6)",
+            borderColor: "divider",
+          }}
+      >
+        <CardContent>
+          <Stack spacing={1.5}>
+            <Typography variant="overline" color="text.secondary">
+              Insights
+            </Typography>
+
+            <Typography variant="body2" sx={{fontWeight: 500}}>
+              {hasReportedUsage
+                  ? `Used in ${profile.usageStats.percentage}% of installations`
+                  : "No opted-in installations reported yet"}
+            </Typography>
+
+            {hasReportedUsage && (
+              <LinearProgress
+                  variant="determinate"
+                  value={profile.usageStats.percentage}
+                  aria-label="Profile usage across opted-in installations"
+                  aria-valuetext={`${profile.usageStats.percentage}%`}
+                  sx={{
+                    height: 8,
+                    borderRadius: 999,
+                    bgcolor: "action.hover",
+                    "& .MuiLinearProgress-bar": {
+                      borderRadius: 999,
+                    },
+                  }}
+              />
+            )}
+
+            <Typography variant="body2" color="text.secondary">
+              {profile.usageStats.installationCount} out of {summaryData.sampled_installations} total{' '}
+              installations
+              <Tooltip title="These are active installations whose users opted in to analytics." arrow>
+                <IconButton
+                    size="small"
+                    aria-label="About installation analytics"
+                    sx={{p: 0.25, ml: 0.25, verticalAlign: "text-bottom"}}
+                >
+                  <InfoOutlinedIcon sx={{fontSize: 16}}/>
+                </IconButton>
+              </Tooltip>
+            </Typography>
+
+            <Link
+                variant="caption"
+                href="https://docs.powercalc.nl/misc/analytics/"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+              Learn how to opt-in
+            </Link>
+          </Stack>
+        </CardContent>
+      </Card>
+  );
+};
+
+export const Profile = () => {
+  const profile = useLoaderData() as PowerProfile;
   const breadcrumbItems: BreadcrumbItem[] = [
     {label: "Library", to: "/"},
     {label: "Manufacturers", to: "/manufacturers"},
     {
       label: profile.manufacturer.fullName,
-      to: `/manufacturer/${encodeURIComponent(profile.manufacturer.dirName)}`,
+      to: manufacturerPath(profile.manufacturer.dirName),
     },
     {label: profile.modelId},
   ];
-
-  usePageMeta({
-    title: `${profile.manufacturer.fullName} ${profile.modelId}`,
-    description: pageDescription,
-  });
-  useStructuredData([
-    breadcrumbStructuredData(breadcrumbItems),
-    {
-      "@type": "Dataset",
-      "@id": `${profileUrl}#profile`,
-      name: `${profile.manufacturer.fullName} ${profile.modelId} power profile`,
-      description: pageDescription,
-      url: profileUrl,
-      dateCreated: profile.createdAt.toISOString(),
-      dateModified: profile.updatedAt?.toISOString(),
-      measurementTechnique: [profile.calculationStrategy, profile.measureMethod].filter(Boolean),
-      keywords: [
-        "Powercalc",
-        profile.deviceType,
-        profile.calculationStrategy,
-        profile.manufacturer.fullName,
-      ],
-      creator: profile.authors.map((author) => ({
-        "@type": "Person",
-        name: author.name,
-        url: `${SITE_URL}/author/${encodeURIComponent(author.githubUsername)}`,
-        sameAs: `https://github.com/${encodeURIComponent(author.githubUsername)}`,
-      })),
-      about: {
-        "@type": "Product",
-        name: profile.name || `${profile.manufacturer.fullName} ${profile.modelId}`,
-        model: profile.modelId,
-        manufacturer: {
-          "@type": "Organization",
-          name: profile.manufacturer.fullName,
-          url: `${SITE_URL}/manufacturer/${encodeURIComponent(profile.manufacturer.dirName)}`,
-        },
-      },
-      variableMeasured: [
-        profile.standbyPower == null
-          ? null
-          : {
-              "@type": "PropertyValue",
-              name: "Standby power",
-              value: profile.standbyPower,
-              unitText: "W",
-            },
-        profile.maxPower == null
-          ? null
-          : {
-              "@type": "PropertyValue",
-              name: "Maximum power",
-              value: profile.maxPower,
-              unitText: "W",
-            },
-      ].filter(Boolean),
-      isPartOf: {
-        "@type": "Dataset",
-        name: "Powercalc profile library",
-        url: SITE_URL,
-      },
-    },
-  ]);
-
-  const toggleSubProfile = (name: string) => {
-    setExpandedSubProfiles(prev => ({
-      ...prev,
-      [name]: !prev[name]
-    }));
-  };
-
-  type FilterLinkProps = {
-    filterKey: string;
-    value: string;
-    label: string;
-    children: React.ReactNode;
-  };
-  /**
-   * Coloured and underlined rather than styled as plain text — otherwise there is nothing to tell
-   * the clickable attributes apart from the inert ones sitting right next to them.
-   *
-   * `describeChild` matters: without it MUI labels the child with the tooltip, so the link would
-   * announce as "Show all profiles with this manufacturer" instead of "Signify".
-   */
-  const FilterLink = ({filterKey, value, label, children}: FilterLinkProps) => {
-    return (
-        <Tooltip
-            title={`Show all profiles with this ${label.toLowerCase()}`}
-            describeChild
-            arrow
-            placement="top"
-        >
-          <Link
-              href={`/?${filterKey}=${encodeURIComponent(value)}`}
-              underline="always"
-              color="primary"
-              sx={{cursor: "pointer", textDecorationStyle: "dotted"}}
-          >
-            {children}
-          </Link>
-        </Tooltip>
-    );
-  }
-
-  const PropertyValue = ({property}: { property: PropertyItem }) => {
-    if (property.renderFn && property.value != null) {
-      return property.renderFn(property.value);
-    }
-
-    if (property.label === "Aliases" && property.value) {
-      return <AliasChips aliases={property.value as string[]} marginTop={1} wrap/>;
-    }
-
-    if (Array.isArray(property.value)) {
-      const values = property.value.map(String);
-      return (
-          <>
-            {values.map((v: string, i: number) => (
-                <React.Fragment key={`${property.filterKey ?? "v"}-${v}`}>
-                  {property.filterKey ? (
-                      <FilterLink filterKey={property.filterKey} value={v} label={property.label}>{v}</FilterLink>
-                  ) : (
-                      v
-                  )}
-                  {i < values.length - 1 && ", "}
-                </React.Fragment>
-            ))}
-          </>
-      );
-    }
-
-    if (property.filterKey && property.value != null) {
-      return (
-          <FilterLink
-              filterKey={property.filterKey}
-              value={String(property.value)}
-              label={property.label}
-          >
-            {String(property.value)}
-          </FilterLink>
-      );
-    }
-
-    if (property.value == null || typeof property.value === "object") {
-      // Objects only render through a renderFn of their own; there is nothing sensible to print.
-      return null;
-    }
-
-    return String(property.value);
-  };
-
-  type AttributesTabProps = { properties: PropertyItem[] };
-  /**
-   * Grouped into sections so related attributes sit together. Items flow left to right within a
-   * section, which is the natural Grid order — no round-robin dealing needed.
-   */
-  const AttributesTab = ({properties}: AttributesTabProps) => (
-      <Stack spacing={3}>
-        {ATTRIBUTE_GROUPS.map(({key, label}) => {
-          const items = properties.filter((property) => property.group === key);
-          if (items.length === 0) {
-            return null;
-          }
-
-          const headingId = `attribute-group-${key}`;
-
-          return (
-              <Box
-                  component="section"
-                  key={key}
-                  data-testid="attribute-group"
-                  aria-labelledby={headingId}
-              >
-                <Typography
-                    component="h2"
-                    id={headingId}
-                    variant="overline"
-                    color="text.secondary"
-                    sx={{fontWeight: 700, letterSpacing: ".08em", m: 0}}
-                >
-                  {label}
-                </Typography>
-                <Divider sx={{mb: 0.5}}/>
-
-                <Grid component="dl" container spacing={1} sx={{m: 0}}>
-                  {items.map((property) => (
-                      <Grid
-                          component="div"
-                          size={{xs: 12, sm: 6, md: 3}}
-                          key={`${property.label}-${property.filterKey ?? ""}`}
-                          data-testid="profile-attribute"
-                          sx={{
-                            py: 1,
-                            minWidth: 0,
-                            display: "grid",
-                            gridTemplateColumns: "34px minmax(0, 1fr)",
-                            alignContent: "start",
-                          }}
-                      >
-                        <Typography
-                            component="dt"
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{
-                              gridColumn: "1 / -1",
-                              display: "grid",
-                              gridTemplateColumns: "34px minmax(0, 1fr)",
-                              alignItems: "start",
-                            }}
-                        >
-                          <property.icon aria-hidden="true" fontSize="small"/>
-                          <Box component="span">{property.label}</Box>
-                        </Typography>
-                        <Box
-                            component="dd"
-                            sx={{
-                              gridColumn: 2,
-                              m: 0,
-                              color: "text.primary",
-                              overflowWrap: "anywhere",
-                            }}
-                        >
-                          <PropertyValue property={property}/>
-                        </Box>
-                      </Grid>
-                  ))}
-                </Grid>
-              </Box>
-          );
-        })}
-      </Stack>
-  );
-
-  type JsonTabProps = { profile: FullPowerProfile };
-  const JsonTab = ({profile}: JsonTabProps) => {
-    const [copySuccess, setCopySuccess] = useState(false);
-
-    const handleCopy = async () => {
-      try {
-        await navigator.clipboard.writeText(JSON.stringify(profile.rawJson, null, 2));
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy text: ', err);
-      }
-    };
-
-    return (
-        <Paper sx={{p: 2, position: 'relative'}}>
-          <Box sx={{position: 'absolute', top: 8, right: 8, zIndex: 1}}>
-            <Tooltip title={copySuccess ? "Copied!" : "Copy to clipboard"} arrow>
-              <IconButton onClick={() => void handleCopy()} size="small" color={copySuccess ? "success" : "default"}>
-                <ContentCopyIcon/>
-              </IconButton>
-            </Tooltip>
-          </Box>
-          <Box component="pre" sx={{m: 0, overflow: "auto"}}>
-            {JSON.stringify(profile.rawJson, null, 2)}
-          </Box>
-        </Paper>
-    );
-  };
-
-  type SubProfilesTabProps = {
-    profile: FullPowerProfile;
-  };
-  const SubProfilesTab = ({profile}: SubProfilesTabProps) => {
-    const [copySuccessMap, setCopySuccessMap] = useState<Record<string, boolean>>({});
-
-    const handleCopy = async (name: string, json: Record<string, unknown>) => {
-      try {
-        await navigator.clipboard.writeText(JSON.stringify(json, null, 2));
-        setCopySuccessMap(prev => ({...prev, [name]: true}));
-        setTimeout(() => {
-          setCopySuccessMap(prev => ({...prev, [name]: false}));
-        }, 2000); // Reset after 2 seconds
-      } catch (err) {
-        console.error('Failed to copy text: ', err);
-      }
-    };
-
-    return (
-        <List component="nav" aria-label="sub profiles">
-          {profile.subProfiles.map((subProfile) => (
-              <React.Fragment key={subProfile.name}>
-                <ListItemButton onClick={() => toggleSubProfile(subProfile.name)}>
-                  <ListItemText primary={subProfile.name}/>
-                  <IconButton edge="end" aria-label="expand">
-                    {expandedSubProfiles[subProfile.name] ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
-                  </IconButton>
-                </ListItemButton>
-                <Collapse in={expandedSubProfiles[subProfile.name]} timeout="auto" unmountOnExit>
-                  <Paper sx={{p: 2, m: 2, position: 'relative'}}>
-                    <Box sx={{position: 'absolute', top: 8, right: 8, zIndex: 1}}>
-                      <Tooltip title={copySuccessMap[subProfile.name] ? "Copied!" : "Copy to clipboard"} arrow>
-                        <IconButton
-                            onClick={() => void handleCopy(subProfile.name, subProfile.rawJson)}
-                            size="small"
-                            color={copySuccessMap[subProfile.name] ? "success" : "default"}
-                        >
-                          <ContentCopyIcon/>
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                    <Box component="pre" sx={{m: 0, overflow: "auto"}}>
-                      {JSON.stringify(subProfile.rawJson, null, 2)}
-                    </Box>
-                  </Paper>
-                </Collapse>
-              </React.Fragment>
-          ))}
-        </List>
-    );
-  };
-
-  type PlotsTabProps = { profile: FullPowerProfile };
-  const PlotsTab = ({profile}: PlotsTabProps) => (
-      <Grid container spacing={1} sx={{width: "100%"}}>
-        {profile.plots.map((plot) => (
-            <Plot key={plot.url} link={plot}/>
-        ))}
-      </Grid>
-  );
-
-  type HeadlineFactProps = {label: string; value: string; icon: React.ElementType};
-  const HeadlineFact = ({label, value, icon: Icon}: HeadlineFactProps) => (
-      <Paper
-          variant="outlined"
-          // The same tinted surface the filter panel uses, so the app has one secondary surface
-          // rather than a new colour per component.
-          sx={(theme) => ({
-            px: 1.5,
-            py: 1,
-            borderRadius: 2,
-            backgroundColor: theme.palette.grey[100],
-            ...theme.applyStyles("dark", {backgroundColor: theme.palette.grey[900]}),
-          })}
-      >
-        <Stack direction="row" sx={{alignItems: "center", gap: 1.25}}>
-          <Icon sx={{fontSize: 26, color: "text.secondary"}}/>
-          <Box sx={{minWidth: 0}}>
-            <Typography variant="caption" color="text.secondary" sx={{display: "block"}}>
-              {label}
-            </Typography>
-            <Typography
-                variant="subtitle2"
-                sx={{fontWeight: 700, lineHeight: 1.3, overflowWrap: "anywhere"}}
-            >
-              {value}
-            </Typography>
-          </Box>
-        </Stack>
-      </Paper>
-  );
-
-  const ProfileMetrics = () => {
-    // Fetch summary data (will be cached by React Query)
-    const {data: summaryData} = useSummary();
-
-    if (!summaryData) return null;
-
-    const hasReportedUsage = profile.usageStats.installationCount > 0;
-
-    return (
-        <Card
-            variant="outlined"
-            sx={{
-              borderRadius: 2,
-              bgcolor: "background.paper",
-              backgroundImage: "var(--mui-overlays-6)",
-              borderColor: "divider",
-            }}
-        >
-          <CardContent>
-            <Stack spacing={1.5}>
-              <Typography variant="overline" color="text.secondary">
-                Insights
-              </Typography>
-
-              <Typography variant="body2" sx={{fontWeight: 500}}>
-                {hasReportedUsage
-                    ? `Used in ${profile.usageStats.percentage}% of installations`
-                    : "No opted-in installations reported yet"}
-              </Typography>
-
-              {hasReportedUsage && (
-                <LinearProgress
-                    variant="determinate"
-                    value={profile.usageStats.percentage}
-                    aria-label="Profile usage across opted-in installations"
-                    aria-valuetext={`${profile.usageStats.percentage}%`}
-                    sx={{
-                      height: 8,
-                      borderRadius: 999,
-                      bgcolor: "action.hover",
-                      "& .MuiLinearProgress-bar": {
-                        borderRadius: 999,
-                      },
-                    }}
-                />
-              )}
-
-              <Typography variant="body2" color="text.secondary">
-                {profile.usageStats.installationCount} out of {summaryData.sampled_installations} total{' '}
-                installations
-                <Tooltip title="These are active installations whose users opted in to analytics." arrow>
-                  <IconButton
-                      size="small"
-                      aria-label="About installation analytics"
-                      sx={{p: 0.25, ml: 0.25, verticalAlign: "text-bottom"}}
-                  >
-                    <InfoOutlinedIcon sx={{fontSize: 16}}/>
-                  </IconButton>
-                </Tooltip>
-              </Typography>
-
-              <Link
-                  variant="caption"
-                  href="https://docs.powercalc.nl/misc/analytics/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-              >
-                Learn how to opt-in
-              </Link>
-            </Stack>
-          </CardContent>
-        </Card>
-    );
-  };
 
   const properties: PropertyItem[] = [
     {label: "Manufacturer", value: profile.manufacturer.fullName, icon: FactoryIcon, group: "device", filterKey: "manufacturer"},
@@ -626,7 +599,7 @@ export const Profile = () => {
             <Tooltip key={author.githubUsername || `${author.name}-${index}`} title="View this author's profiles" describeChild arrow placement="top">
               <Link
                 component={RouterLink}
-                to={`/author/${author.githubUsername}`}
+                to={authorPath(author.githubUsername)}
                 underline="always"
                 color="primary"
                 sx={{textDecorationStyle: "dotted"}}
@@ -731,11 +704,14 @@ export const Profile = () => {
       icon: MediationIcon,
       group: "device",
       // The value is "<manufacturer>/<model>", which is exactly the profile route.
-      renderFn: (value) => (
-        <Link component={RouterLink} to={`/profiles/${String(value)}`}>
-          {String(value)}
-        </Link>
-      ),
+      renderFn: (value) => {
+        const [manufacturer, ...modelParts] = String(value).split("/");
+        return (
+          <Link component={RouterLink} to={getProfilePath(manufacturer, modelParts.join("/"))}>
+            {String(value)}
+          </Link>
+        );
+      },
     },
     {label: "Compatible integrations", value: profile.compatibleIntegrations, icon: MoreIcon, group: "library"},
   ];
@@ -746,6 +722,7 @@ export const Profile = () => {
           property.value !== "" &&
           !(Array.isArray(property.value) && property.value.length === 0),
   );
+
   const theme = useTheme();
   const isTabletUp = useMediaQuery(theme.breakpoints.up("sm"));
 
@@ -759,8 +736,8 @@ export const Profile = () => {
   const tabs = [
     {label: "Attributes", render: <AttributesTab properties={filteredProperties}/>},
     {label: "JSON", render: <JsonTab profile={profile}/>},
-    ...(profile.subProfiles.length > 0 ? [{label: "Sub Profiles", render: <SubProfilesTab profile={profile}/>}] : []),
-    ...(profile.plots.length > 0 ? [{label: "Graphs", render: <PlotsTab profile={profile}/>}] : []),
+    ...(profile.subProfileCount > 0 ? [{label: "Sub Profiles", render: <SubProfilesTab profile={profile}/>}] : []),
+    ...(profile.calculationStrategy === "lut" ? [{label: "Graphs", render: <PlotsTab profile={profile}/>}] : []),
   ];
 
   return (
@@ -796,7 +773,7 @@ export const Profile = () => {
                 <Typography variant="h4" component="h1" sx={{overflowWrap: "anywhere"}}>
                   <Link
                       component={RouterLink}
-                      to={`/manufacturer/${encodeURIComponent(profile.manufacturer.dirName)}`}
+                      to={manufacturerPath(profile.manufacturer.dirName)}
                       color="inherit"
                       underline="hover"
                   >
@@ -839,7 +816,7 @@ export const Profile = () => {
             </Stack>
           </Grid>
           <Grid size={{xs: 12, md: 4, lg: 3}}>
-            <ProfileMetrics/>
+            <ProfileMetrics profile={profile}/>
           </Grid>
         </Grid>
 

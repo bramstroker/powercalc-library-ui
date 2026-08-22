@@ -21,24 +21,22 @@ import {
 } from "@mui/material";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
-import { Link as RouterLink, useParams } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
-import { SITE_URL } from "../config/site";
-import { useLibrary } from "../context/LibraryContext";
-import { usePageMeta } from "../hooks/usePageMeta";
-import { useStructuredData } from "../hooks/useStructuredData";
-import type { Manufacturer } from "../types/PowerProfile";
+import type { BreadcrumbItem } from "../seo/breadcrumbs";
+import type {
+  Author as AuthorDetails,
+  Manufacturer,
+  PowerProfile,
+} from "../types/PowerProfile";
 import { humanizeIdentifier } from "../utils/profilePresentation";
+import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
-import { AuthorContributionsChart } from "./AuthorContributionsChart";
+import { LazyAuthorContributionsChart } from "./LazyAuthorContributionsChart";
 import { getDeviceTypeIcon } from "./library/facetIcons";
-import { ProfileCard } from "./library/ProfileCard";
+import { ProfileCardGrid } from "./library/ProfileCardGrid";
 import { ManufacturerLogo } from "./ManufacturerLogo";
-import {
-  breadcrumbStructuredData,
-  PageBreadcrumbs,
-  type BreadcrumbItem,
-} from "./PageBreadcrumbs";
+import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
 type Counted<T> = T & { count: number };
 type ProfileSort = "popular" | "newest" | "name";
@@ -137,33 +135,27 @@ const BreakdownRow = ({
   </Box>
 );
 
-export const Author = () => {
-  const { authorName } = useParams<{ authorName: string }>();
-  const { powerProfiles, authors } = useLibrary();
+export type AuthorProps = {
+  authorDetails?: AuthorDetails;
+  authorProfiles?: PowerProfile[];
+  authorRank?: { rank: number; total: number } | null;
+};
+
+export const Author = ({
+  authorDetails,
+  authorProfiles = [],
+  authorRank = null,
+}: AuthorProps) => {
+  const githubUsername = authorDetails?.githubUsername;
   const [profileSort, setProfileSort] = useState<ProfileSort>("popular");
 
-  const authorProfiles = useMemo(() => {
-    if (!authorName) return [];
-    return powerProfiles.filter((profile) =>
-      profile.authors.some((author) => author.githubUsername === authorName),
-    );
-  }, [powerProfiles, authorName]);
-
   const contributionCount = authorProfiles.length;
-  const authorDetails = authorName ? authors[authorName] : undefined;
-  const displayName = authorDetails?.name || authorName || "Contributor";
-  const authorPath = `/author/${encodeURIComponent(authorName ?? "")}`;
+  const displayName = authorDetails?.name || githubUsername || "Contributor";
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: "Library", to: "/" },
     { label: "Contributors", to: "/statistics/top-contributors" },
     { label: displayName },
   ];
-
-  usePageMeta({
-    title: displayName,
-    description: `${contributionCount} Powercalc device profiles contributed by ${displayName}.`,
-    noIndex: !authorDetails,
-  });
 
   const deviceTypes = useMemo(
     () => countBy(authorProfiles, (profile) => profile.deviceType),
@@ -190,29 +182,6 @@ export const Author = () => {
       ...authorProfiles.map((profile) => profile.createdAt.getFullYear()),
     );
   }, [authorProfiles]);
-
-  const authorRank = useMemo(() => {
-    if (!authorName) return null;
-    const counts = new Map<string, number>();
-    for (const profile of powerProfiles) {
-      for (const author of profile.authors) {
-        if (author.githubUsername) {
-          counts.set(
-            author.githubUsername,
-            (counts.get(author.githubUsername) ?? 0) + 1,
-          );
-        }
-      }
-    }
-    const ownCount = counts.get(authorName);
-    return ownCount == null
-      ? null
-      : {
-          rank:
-            1 + [...counts.values()].filter((count) => count > ownCount).length,
-          total: counts.size,
-        };
-  }, [authorName, powerProfiles]);
 
   const achievements = useMemo(() => {
     const labels = [contributorTier(contributionCount)];
@@ -250,45 +219,7 @@ export const Author = () => {
     });
   }, [authorProfiles, profileSort]);
 
-  useStructuredData(
-    authorDetails && authorName
-      ? [
-          breadcrumbStructuredData(breadcrumbItems),
-          {
-            "@type": "ProfilePage",
-            "@id": `${SITE_URL}${authorPath}#profile-page`,
-            name: `${displayName} — Powercalc contributor`,
-            description: `${contributionCount} Powercalc device profiles contributed by ${displayName}.`,
-            url: `${SITE_URL}${authorPath}`,
-            mainEntity: {
-              "@type": "Person",
-              "@id": `${SITE_URL}${authorPath}#person`,
-              name: displayName,
-              alternateName: `@${authorName}`,
-              url: `${SITE_URL}${authorPath}`,
-              image: `https://github.com/${encodeURIComponent(authorName)}.png`,
-              sameAs: `https://github.com/${encodeURIComponent(authorName)}`,
-              knowsAbout: [
-                ...manufacturers.map((entry) => entry.manufacturer.fullName),
-                ...deviceTypes.map((entry) => humanizeIdentifier(entry.key)),
-              ],
-            },
-            hasPart: {
-              "@type": "ItemList",
-              numberOfItems: contributionCount,
-              itemListElement: authorProfiles.map((profile, index) => ({
-                "@type": "ListItem",
-                position: index + 1,
-                name: `${profile.manufacturer.fullName} ${profile.modelId}`,
-                url: `${SITE_URL}/profiles/${encodeURIComponent(profile.manufacturer.dirName)}/${encodeURIComponent(profile.modelId)}`,
-              })),
-            },
-          },
-        ]
-      : undefined,
-  );
-
-  if (!authorName || !authorDetails) {
+  if (!githubUsername || !authorDetails) {
     return (
       <Paper variant="outlined" sx={{ p: 4, textAlign: "center" }}>
         <Typography variant="h5">Author not found</Typography>
@@ -344,8 +275,8 @@ export const Author = () => {
           sx={{ alignItems: { xs: "flex-start", sm: "center" }, gap: 2.5 }}
         >
           <Avatar
-            src={`https://github.com/${authorName}.png`}
-            alt={authorDetails.name || authorName}
+            src={`https://github.com/${githubUsername}.png`}
+            alt={authorDetails.name || githubUsername}
             sx={{
               width: { xs: 80, sm: 96 },
               height: { xs: 80, sm: 96 },
@@ -354,7 +285,7 @@ export const Author = () => {
               boxShadow: 3,
             }}
           >
-            {(authorDetails.name || authorName).slice(0, 2).toUpperCase()}
+            {(authorDetails.name || githubUsername).slice(0, 2).toUpperCase()}
           </Avatar>
 
           <Box sx={{ minWidth: 0, flex: 1 }}>
@@ -368,10 +299,10 @@ export const Author = () => {
                 wordBreak: "break-word",
               }}
             >
-              {authorDetails.name || authorName}
+              {authorDetails.name || githubUsername}
             </Typography>
             <Typography color="text.secondary" sx={{ mt: 0.5 }}>
-              @{authorName} · Powercalc Library Contributor
+              @{githubUsername} · Powercalc Library Contributor
             </Typography>
             {contributorSince && (
               <Typography
@@ -415,7 +346,7 @@ export const Author = () => {
             <Button
               variant="contained"
               component={RouterLink}
-              to={`/?author=${encodeURIComponent(authorName)}`}
+              to={`/?author=${encodeURIComponent(githubUsername)}`}
               sx={{ flex: { xs: 1, sm: "initial" } }}
             >
               Open in library
@@ -423,7 +354,7 @@ export const Author = () => {
             <Button
               variant="outlined"
               startIcon={<GitHubIcon />}
-              href={`https://github.com/${authorName}`}
+              href={`https://github.com/${githubUsername}`}
               target="_blank"
               rel="noopener noreferrer"
               sx={{ flex: { xs: 1, sm: "initial" } }}
@@ -489,7 +420,7 @@ export const Author = () => {
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               Powered by profiles contributed by{" "}
-              {authorDetails.name || authorName}.
+              {authorDetails.name || githubUsername}.
             </Typography>
           </Box>
           <Tooltip
@@ -578,7 +509,7 @@ export const Author = () => {
                 label={
                   <Typography
                     component={RouterLink}
-                    to={`/manufacturer/${manufacturer.dirName}`}
+                    to={manufacturerPath(manufacturer.dirName)}
                     color="inherit"
                     sx={{
                       fontSize: "inherit",
@@ -610,7 +541,7 @@ export const Author = () => {
         </Paper>
       </Box>
 
-      <AuthorContributionsChart profiles={authorProfiles} />
+      <LazyAuthorContributionsChart profiles={authorProfiles} />
 
       <Box component="section">
         <Stack
@@ -644,21 +575,7 @@ export const Author = () => {
           </Stack>
         </Stack>
 
-        <Box
-          data-testid="author-profile-list"
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "repeat(2, minmax(0, 1fr))" },
-            gap: 2,
-          }}
-        >
-          {sortedProfiles.map((profile) => (
-            <ProfileCard
-              key={`${profile.manufacturer.dirName}-${profile.modelId}`}
-              profile={profile}
-            />
-          ))}
-        </Box>
+        <ProfileCardGrid data-testid="author-profile-list" profiles={sortedProfiles} />
       </Box>
     </Stack>
   );

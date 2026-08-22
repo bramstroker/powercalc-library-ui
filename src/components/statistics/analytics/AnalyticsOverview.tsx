@@ -2,7 +2,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import TableChartIcon from "@mui/icons-material/TableChart";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import { Grid, Card, CardContent, CardActions, Typography, Button, Box } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
 

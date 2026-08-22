@@ -6,6 +6,9 @@ on:
     branches: [ master ]
   release:
     types: [ published ]
+  schedule:
+    # Refresh prerendered analytics and library data once a day (04:17 CEST / 03:17 CET).
+    - cron: '17 2 * * *'
 
 jobs:
   # Gate the deploy on the same checks that run for pull requests, so a red suite cannot ship.
@@ -97,3 +100,14 @@ jobs:
           CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
           CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
           CLOUDFLARE_KEY: ${{ secrets.CLOUDFLARE_KEY }}
+
+      - name: Setup Node.js for cache warm-up
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Warm prerendered pages in Cloudflare
+        env:
+          WARM_SITE_URL: https://library.powercalc.nl
+          WARM_CONCURRENCY: '12'
+        run: npm run cache:warm

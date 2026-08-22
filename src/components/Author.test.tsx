@@ -5,10 +5,9 @@ import {
   screen,
   within,
 } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { LibraryData } from "../queries/library.query";
 import type {
   Author as AuthorDetails,
   Manufacturer,
@@ -18,7 +17,6 @@ import type {
 import { Author } from "./Author";
 
 const alice: AuthorDetails = { name: "Alice Example", githubUsername: "alice" };
-const bob: AuthorDetails = { name: "Bob Example", githubUsername: "bob" };
 const signify: Manufacturer = {
   dirName: "signify",
   fullName: "Signify",
@@ -92,26 +90,6 @@ const aliceProfiles = [
   }),
 ];
 
-const bobProfile = profile({
-  manufacturer: ikea,
-  modelId: "B1",
-  name: "Bob profile",
-  deviceType: "light",
-  createdAt: "2024-01-01",
-  installations: 1,
-  devices: 1,
-  author: bob,
-});
-
-const completeLibraryData = {
-  powerProfiles: [...aliceProfiles, bobProfile],
-  authors: { alice, bob },
-} as unknown as LibraryData;
-
-vi.mock("../context/LibraryContext", () => ({
-  useLibrary: () => completeLibraryData,
-}));
-
 vi.mock("../hooks/usePageMeta", () => ({
   usePageMeta: vi.fn(),
 }));
@@ -120,7 +98,16 @@ const renderPage = (path = "/author/alice") =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
-        <Route path="/author/:authorName" element={<Author />} />
+        <Route
+          path="/author/:authorName"
+          element={
+            <Author
+              authorDetails={path.endsWith("/unknown") ? undefined : alice}
+              authorProfiles={path.endsWith("/unknown") ? [] : aliceProfiles}
+              authorRank={path.endsWith("/unknown") ? null : { rank: 1, total: 2 }}
+            />
+          }
+        />
       </Routes>
     </MemoryRouter>,
   );
@@ -154,20 +141,6 @@ describe("Author", () => {
     expect(
       screen.getByRole("link", { name: "Open in library" }),
     ).toHaveAttribute("href", "/?author=alice");
-
-    const graph = JSON.parse(
-      document.getElementById("page-structured-data")?.textContent ?? "",
-    )["@graph"];
-    expect(graph.map((item: { "@type": string }) => item["@type"])).toEqual([
-      "BreadcrumbList",
-      "ProfilePage",
-    ]);
-    expect(graph[1].mainEntity).toMatchObject({
-      "@type": "Person",
-      name: "Alice Example",
-      sameAs: "https://github.com/alice",
-    });
-    expect(graph[1].hasPart.numberOfItems).toBe(3);
   });
 
   it("sorts profile cards by popularity and newest date", () => {

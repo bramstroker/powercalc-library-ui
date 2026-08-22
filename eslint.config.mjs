@@ -165,4 +165,12 @@ export default [
       "@typescript-eslint/no-misused-promises": "off",
     },
   },
+
+  // React Router discovers these framework modules through their required default exports.
+  {
+    files: ["src/root.tsx", "src/routes.ts", "src/route-modules/**/*.{ts,tsx}"],
+    rules: {
+      "import/no-default-export": "off",
+    },
+  },
 ];

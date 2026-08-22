@@ -10,11 +10,12 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
 import type { PowerProfile } from "../../types/PowerProfile";
 import { humanizeIdentifier } from "../../utils/profilePresentation";
 import { isRecentlyAdded } from "../../utils/recency";
+import { profilePath } from "../../utils/urlSlugs.mjs";
 import { ManufacturerLogo } from "../ManufacturerLogo";
 
 import { getDeviceTypeIcon } from "./facetIcons";
@@ -41,7 +42,8 @@ export const ProfileCard = ({
     <Card variant="outlined" sx={{ height: "100%", borderRadius: 2.5 }}>
       <CardActionArea
         component={RouterLink}
-        to={`/profiles/${profile.manufacturer.dirName}/${profile.modelId}`}
+        to={profilePath(profile.manufacturer.dirName, profile.modelId)}
+        prefetch="intent"
         sx={{ height: "100%", alignItems: "stretch" }}
       >
         <CardContent
