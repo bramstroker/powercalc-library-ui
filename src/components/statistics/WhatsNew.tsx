@@ -10,6 +10,7 @@ import { profilePath } from "../../utils/urlSlugs.mjs";
 import { AliasChips } from "../AliasChips";
 import { DeviceTypeIcon } from "../library/facetIcons";
 import { NewBadge } from "../library/NewBadge";
+import { PageBreadcrumbs } from "../PageBreadcrumbs";
 
 /** Also drives the route module's description, so the page and its meta tag cannot disagree. */
 export const NEW_PROFILE_WINDOW_DAYS = 90;
@@ -40,6 +41,7 @@ export const WhatsNew = () => {
 
   return (
     <Box>
+      <PageBreadcrumbs items={[{ label: "Home", to: "/" }, { label: "What's new" }]} />
       <Typography variant="h4" component="h1" gutterBottom>
         What&apos;s new
       </Typography>

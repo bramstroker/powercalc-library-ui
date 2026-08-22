@@ -83,6 +83,11 @@ export const Profiles = () => {
       <AnalyticsHeader
           title={"Profile statistics"}
           description={" Overview of Home Assistant and PowerCalc versions used in installations."}
+          breadcrumbItems={[
+            { label: "Home", to: "/" },
+            { label: "Analytics", to: "/analytics" },
+            { label: "Profiles" },
+          ]}
       />
 
       <DataGrid

@@ -241,7 +241,7 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
   ).length;
 
   const structuredData: StructuredDataNode[] = [
-    breadcrumbStructuredData([{ label: "Library", to: "/" }, { label: "Contributors" }]),
+    breadcrumbStructuredData([{ label: "Home", to: "/" }, { label: "Contributors" }]),
     {
       "@type": "CollectionPage",
       name: "Powercalc contributors",
@@ -268,7 +268,10 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
   return (
     <>
       <StructuredData graph={structuredData} />
-      <PageBreadcrumbs items={[{ label: "Library", to: "/" }, { label: "Contributors" }]} />
+      <PageBreadcrumbs
+        items={[{ label: "Home", to: "/" }, { label: "Contributors" }]}
+        includeStructuredData={false}
+      />
 
       <Paper
         component="section"

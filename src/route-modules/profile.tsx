@@ -41,7 +41,7 @@ export const profileStructuredData = (profile: PowerProfile): StructuredData[] =
 
   return [
     breadcrumbStructuredData([
-      { label: "Library", to: "/" },
+      { label: "Home", to: "/" },
       { label: "Manufacturers", to: "/manufacturers" },
       { label: manufacturerName, to: manufacturerPath(dirName) },
       { label: profile.modelId },

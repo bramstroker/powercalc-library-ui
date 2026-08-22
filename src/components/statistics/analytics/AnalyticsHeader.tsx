@@ -6,17 +6,21 @@ import Link from "@mui/material/Link";
 import type {PropsWithChildren, ReactNode} from "react";
 
 import {useSummary} from "../../../hooks/useSummary";
+import type { BreadcrumbItem } from "../../../seo/breadcrumbs";
+import { PageBreadcrumbs } from "../../PageBreadcrumbs";
 
 
 interface AnalyticsHeaderProps {
   title: string;
   description: string;
+  breadcrumbItems: BreadcrumbItem[];
   filterSection?: ReactNode;
 }
 
 export const AnalyticsHeader = ({
   title,
   description,
+  breadcrumbItems,
   children,
   filterSection,
 }: PropsWithChildren<AnalyticsHeaderProps>) => {
@@ -24,6 +28,7 @@ export const AnalyticsHeader = ({
 
   return (
     <>
+      <PageBreadcrumbs items={breadcrumbItems} />
       <Box
           sx={{
             display: "flex",
@@ -67,4 +72,3 @@ export const AnalyticsHeader = ({
     </>
   );
 };
-

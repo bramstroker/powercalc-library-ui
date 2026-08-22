@@ -2,6 +2,7 @@ import { Typography, Box } from "@mui/material";
 import { useMemo } from "react";
 
 import { useLibrary } from "../../context/LibraryContext";
+import { PageBreadcrumbs } from "../PageBreadcrumbs";
 
 import {Grouping, TimeSeriesChart} from "./analytics/TimeSeriesChart";
 
@@ -38,6 +39,13 @@ export const WeeklyContributions = () => {
 
   return (
     <>
+      <PageBreadcrumbs
+        items={[
+          { label: "Home", to: "/" },
+          { label: "Statistics", to: "/statistics" },
+          { label: "Weekly contributions" },
+        ]}
+      />
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Contributions Per Week
