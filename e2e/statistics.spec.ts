@@ -21,11 +21,16 @@ test("navigates to a statistics page through the Explore menu and overview", asy
   await expect(page.getByRole("heading", { name: /Most Common Manufacturers/ })).toBeVisible();
 });
 
-test("links Contributors directly to the current top-ten ranking", async ({ page }) => {
+test("links Contributors to the overview and its top-ten ranking", async ({ page }) => {
   await page.goto("/");
 
   await page.getByRole("button", { name: "Explore" }).click();
   await page.getByRole("menuitem", { name: "Contributors" }).click();
+
+  await expect(page).toHaveURL("/contributors");
+  await expect(page.getByRole("heading", { name: "Contributors", level: 1 })).toBeVisible();
+
+  await page.getByRole("link", { name: "View top contributors" }).click();
 
   await expect(page).toHaveURL("/statistics/top-contributors");
   await expect(page.getByRole("heading", { name: /Most Active Contributors/ })).toBeVisible();

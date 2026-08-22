@@ -94,6 +94,27 @@ describe("libraryQuery", () => {
     expect(data.contributionCountsByAuthor.get("bramstroker")).toBe(2);
   });
 
+  it("builds contributor summaries with coverage and contribution dates", async () => {
+    const data = await runQuery();
+
+    expect(data.contributorSummaries).toEqual([
+      expect.objectContaining({
+        author: expect.objectContaining({ githubUsername: "bramstroker" }),
+        profileCount: 2,
+        manufacturerCount: 1,
+        deviceTypes: ["light"],
+        firstContributionAt: new Date("2024-01-02T03:04:05Z"),
+        latestContributionAt: new Date("2024-01-02T03:04:05Z"),
+        latestProfile: expect.objectContaining({ modelId: "LCA001" }),
+      }),
+      expect.objectContaining({
+        author: expect.objectContaining({ githubUsername: "someone" }),
+        profileCount: 1,
+        manufacturerCount: 1,
+      }),
+    ]);
+  });
+
   it("attaches usage stats from the analytics endpoint", async () => {
     const data = await runQuery();
 
@@ -159,6 +180,7 @@ describe("libraryQuery", () => {
       profilesByManufacturerSlug: new Map(),
       profilesByAuthorSlug: new Map(),
       contributionCountsByAuthor: new Map(),
+      contributorSummaries: [],
     });
   });
 

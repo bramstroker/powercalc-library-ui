@@ -34,7 +34,9 @@ export const collectLegacyRedirects = (library) => {
   };
 
   for (const manufacturer of library.manufacturers ?? []) {
-    add(`/manufacturer/${manufacturer.dir_name}`, manufacturerPath(manufacturer.dir_name));
+    const canonicalManufacturerPath = manufacturerPath(manufacturer.dir_name);
+    add(`/manufacturer/${manufacturer.dir_name}`, canonicalManufacturerPath);
+    add(`/manufacturers/${manufacturer.dir_name}`, canonicalManufacturerPath);
 
     for (const model of manufacturer.models ?? []) {
       add(
@@ -43,7 +45,10 @@ export const collectLegacyRedirects = (library) => {
       );
 
       for (const author of model.authors ?? []) {
-        if (author.github) add(`/author/${author.github}`, authorPath(author.github));
+        if (!author.github) continue;
+        const canonicalPath = authorPath(author.github);
+        add(`/author/${author.github}`, canonicalPath);
+        add(`/contributors/${author.github}`, canonicalPath);
       }
     }
   }
@@ -123,6 +128,7 @@ export const collectSitemapEntries = (library) => {
   const libraryModified = newestDate(allDates);
   add("/", libraryModified);
   add("/manufacturers", libraryModified);
+  add("/contributors", libraryModified);
   add("/whats-new", libraryModified);
 
   for (const path of [

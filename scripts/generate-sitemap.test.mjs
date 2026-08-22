@@ -28,15 +28,16 @@ const library = {
   ],
 };
 
-test("collects canonical profile, manufacturer, and author URLs", () => {
+test("collects canonical profile, manufacturer, and contributor URLs", () => {
   const entries = collectSitemapEntries(library);
   const byPath = new Map(entries.map((entry) => [entry.path, entry.lastModified]));
 
   assert.equal(byPath.get("/profiles/brand-co/model-one"), "2026-08-20");
-  assert.equal(byPath.get("/manufacturer/brand-co"), "2026-08-21");
-  assert.equal(byPath.get("/author/alice-example"), "2026-08-21");
-  assert.equal(byPath.get("/author/bob"), "2026-08-21");
+  assert.equal(byPath.get("/manufacturers/brand-co"), "2026-08-21");
+  assert.equal(byPath.get("/contributors/alice-example"), "2026-08-21");
+  assert.equal(byPath.get("/contributors/bob"), "2026-08-21");
   assert.equal(byPath.get("/"), "2026-08-21");
+  assert.equal(byPath.get("/contributors"), "2026-08-21");
   assert.equal(byPath.has("/statistics"), true);
 });
 
@@ -59,24 +60,33 @@ test("generates permanent redirect mappings for legacy entity URLs", () => {
     { from: "/profiles/brand & co/model one", to: "/profiles/brand-co/model-one" },
   );
   assert.deepEqual(
+    redirects.find(({ from }) => from === "/manufacturers/brand & co"),
+    { from: "/manufacturers/brand & co", to: "/manufacturers/brand-co" },
+  );
+  assert.deepEqual(
     redirects.find(({ from }) => from === "/author/Alice Example"),
-    { from: "/author/Alice Example", to: "/author/alice-example" },
+    { from: "/author/Alice Example", to: "/contributors/alice-example" },
   );
-  assert.equal(
-    redirects.some(({ from }) => from === "/author/bob"),
-    false,
+  assert.deepEqual(
+    redirects.find(({ from }) => from === "/author/bob"),
+    { from: "/author/bob", to: "/contributors/bob" },
   );
+  assert.deepEqual(
+    redirects.find(({ from }) => from === "/contributors/Alice Example"),
+    { from: "/contributors/Alice Example", to: "/contributors/alice-example" },
+  );
+  assert.equal(redirects.some(({ from }) => from === "/contributors/bob"), false);
 
   const config = renderNginxRedirectMap(redirects);
   assert.match(config, /map_hash_bucket_size 256;/);
   assert.match(config, /map_hash_max_size 8192;/);
   assert.match(
     config,
-    /"\/manufacturer\/brand & co" "\/manufacturer\/brand-co";/,
+    /"\/manufacturer\/brand & co" "\/manufacturers\/brand-co";/,
   );
   assert.match(
     config,
-    /"\/manufacturer\/brand & co\/" "\/manufacturer\/brand-co";/,
+    /"\/manufacturer\/brand & co\/" "\/manufacturers\/brand-co";/,
   );
   assert.match(config, /map \$uri \$powercalc_legacy_redirect_candidate \{/);
   assert.match(

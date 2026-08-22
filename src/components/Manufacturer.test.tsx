@@ -47,11 +47,11 @@ const profiles = [
 const renderPage = (dirName: string) =>
   render(
     <MemoryRouter
-      initialEntries={[`/manufacturer/${encodeURIComponent(dirName)}`]}
+      initialEntries={[`/manufacturers/${encodeURIComponent(dirName)}`]}
     >
       <Routes>
         <Route
-          path="/manufacturer/:manufacturerName"
+          path="/manufacturers/:manufacturerName"
           element={
             <Manufacturer
               manufacturer={dirName === "linkind" ? linkind : dirName === "signify" ? signify : undefined}

@@ -7,6 +7,16 @@ export type Author = {
   githubUsername: string;
 }
 
+export type ContributorSummary = {
+  author: Author;
+  profileCount: number;
+  manufacturerCount: number;
+  deviceTypes: DeviceType[];
+  firstContributionAt: Date | null;
+  latestContributionAt: Date | null;
+  latestProfile: PowerProfile | null;
+}
+
 export type UsageStats = {
   installationCount: number;
   deviceCount: number;

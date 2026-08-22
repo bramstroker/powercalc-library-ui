@@ -94,12 +94,12 @@ vi.mock("../hooks/usePageMeta", () => ({
   usePageMeta: vi.fn(),
 }));
 
-const renderPage = (path = "/author/alice") =>
+const renderPage = (path = "/contributors/alice") =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route
-          path="/author/:authorName"
+          path="/contributors/:authorName"
           element={
             <Author
               authorDetails={path.endsWith("/unknown") ? undefined : alice}
@@ -162,7 +162,7 @@ describe("Author", () => {
   });
 
   it("shows a proper not-found state for an unknown contributor", () => {
-    renderPage("/author/unknown");
+    renderPage("/contributors/unknown");
 
     expect(
       screen.getByRole("heading", { name: "Author not found" }),

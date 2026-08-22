@@ -17,7 +17,7 @@ test("browses from the Explore menu to a manufacturer and into a profile", async
 
   await page.getByRole("link", { name: /Signify/ }).click();
 
-  await expect(page).toHaveURL("/manufacturer/signify");
+  await expect(page).toHaveURL("/manufacturers/signify");
   await expect(page.getByRole("heading", { level: 1, name: "Signify" })).toBeVisible();
   await expect(page.getByText("Also known as: Philips")).toBeVisible();
   await expect(page.getByText("2 profiles")).toBeVisible();
@@ -44,7 +44,7 @@ test("filters the manufacturer index and sorts it by name", async ({ page }) => 
 });
 
 test("shows only that manufacturer's profiles on its page", async ({ page }) => {
-  await page.goto("/manufacturer/signify");
+  await page.goto("/manufacturers/signify");
 
   await expect(page.getByRole("link", { name: /LCA001/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /LCT010/ })).toBeVisible();
@@ -62,7 +62,7 @@ test("links from a profile heading back to its manufacturer", async ({ page }) =
 
   await page.getByRole("heading", { level: 1 }).getByRole("link", { name: "Signify" }).click();
 
-  await expect(page).toHaveURL("/manufacturer/signify");
+  await expect(page).toHaveURL("/manufacturers/signify");
 });
 
 test("links the top manufacturers table to the manufacturer pages", async ({ page }) => {
@@ -70,5 +70,5 @@ test("links the top manufacturers table to the manufacturer pages", async ({ pag
 
   await page.getByRole("link", { name: "Signify" }).click();
 
-  await expect(page).toHaveURL("/manufacturer/signify");
+  await expect(page).toHaveURL("/manufacturers/signify");
 });

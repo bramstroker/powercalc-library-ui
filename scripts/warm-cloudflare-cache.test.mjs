@@ -11,8 +11,8 @@ import {
 const sitemap = `<?xml version="1.0"?>
 <urlset>
   <url><loc>https://example.com/</loc></url>
-  <url><loc>https://example.com/author/alice</loc></url>
-  <url><loc>https://example.com/manufacturer/acme</loc></url>
+  <url><loc>https://example.com/contributors/alice</loc></url>
+  <url><loc>https://example.com/manufacturers/acme</loc></url>
   <url><loc>https://example.com/profiles/acme/model-one</loc></url>
   <url><loc>https://example.com/analytics?range=day&amp;view=all</loc></url>
 </urlset>`;
@@ -20,8 +20,8 @@ const sitemap = `<?xml version="1.0"?>
 test("extracts and decodes sitemap URLs", () => {
   assert.deepEqual(extractSitemapUrls(sitemap), [
     "https://example.com/",
-    "https://example.com/author/alice",
-    "https://example.com/manufacturer/acme",
+    "https://example.com/contributors/alice",
+    "https://example.com/manufacturers/acme",
     "https://example.com/profiles/acme/model-one",
     "https://example.com/analytics?range=day&view=all",
   ]);
@@ -36,8 +36,8 @@ test("adds data URLs only for routes with prerendered loader data", () => {
 
   const urls = collectWarmUrls(sitemap);
   assert.equal(urls.length, 8);
-  assert.ok(urls.includes("https://example.com/author/alice.data"));
-  assert.ok(urls.includes("https://example.com/manufacturer/acme.data"));
+  assert.ok(urls.includes("https://example.com/contributors/alice.data"));
+  assert.ok(urls.includes("https://example.com/manufacturers/acme.data"));
 });
 
 test("retries failed cache fills and reports cache statuses", async () => {

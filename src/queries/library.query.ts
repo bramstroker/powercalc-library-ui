@@ -1,7 +1,13 @@
 import type { ProfileStats } from "../api/analytics.api";
 import { fetchProfiles } from "../api/analytics.api";
 import { fetchLibrary } from "../api/library.api";
-import type { Author, Manufacturer, PowerProfile, UsageStats } from "../types/PowerProfile";
+import type {
+  Author,
+  ContributorSummary,
+  Manufacturer,
+  PowerProfile,
+  UsageStats,
+} from "../types/PowerProfile";
 import { mapToBasePowerProfile } from "../utils/profileMappers";
 import { slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
@@ -21,6 +27,7 @@ export interface LibraryData {
   profilesByManufacturerSlug: Map<string, PowerProfile[]>;
   profilesByAuthorSlug: Map<string, PowerProfile[]>;
   contributionCountsByAuthor: Map<string, number>;
+  contributorSummaries: ContributorSummary[];
 }
 
 const createAnalyticsMap = (analyticsData: ProfileStats[]): Map<string, ProfileStats> => {
@@ -48,6 +55,7 @@ const emptyLibrary = (): LibraryData => ({
   profilesByManufacturerSlug: new Map(),
   profilesByAuthorSlug: new Map(),
   contributionCountsByAuthor: new Map(),
+  contributorSummaries: [],
 });
 
 /** The rank of `author` among all contributors, counting ties as the same rank. */
@@ -137,6 +145,34 @@ export const libraryQuery = () => ({
       }
     }
 
+    const contributorSummaries = Object.values(authors).map((author): ContributorSummary => {
+      const authorSlug = slugifyPathSegment(author.githubUsername);
+      const profiles = profilesByAuthorSlug.get(authorSlug) ?? [];
+      const datedProfiles = profiles.filter((profile) => !Number.isNaN(profile.createdAt.getTime()));
+      const latestProfile = datedProfiles.reduce<PowerProfile | null>(
+        (latest, profile) =>
+          !latest || profile.createdAt.getTime() > latest.createdAt.getTime() ? profile : latest,
+        null,
+      );
+      const firstContributionAt = datedProfiles.reduce<Date | null>(
+        (first, profile) =>
+          !first || profile.createdAt.getTime() < first.getTime() ? profile.createdAt : first,
+        null,
+      );
+
+      return {
+        author,
+        profileCount: profiles.length,
+        manufacturerCount: new Set(profiles.map((profile) => profile.manufacturer.dirName)).size,
+        deviceTypes: [...new Set(profiles.map((profile) => profile.deviceType))].sort((a, b) =>
+          a.localeCompare(b),
+        ),
+        firstContributionAt,
+        latestContributionAt: latestProfile?.createdAt ?? null,
+        latestProfile,
+      };
+    });
+
     return {
       powerProfiles,
       powerProfilesBySlugKey,
@@ -148,6 +184,7 @@ export const libraryQuery = () => ({
       profilesByManufacturerSlug,
       profilesByAuthorSlug,
       contributionCountsByAuthor,
+      contributorSummaries,
     };
   },
 });

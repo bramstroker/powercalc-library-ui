@@ -100,7 +100,7 @@ describe("Manufacturers", () => {
 
     expect(screen.getByRole("link", { name: /Signify/ })).toHaveAttribute(
       "href",
-      "/manufacturer/signify",
+      "/manufacturers/signify",
     );
   });
 });

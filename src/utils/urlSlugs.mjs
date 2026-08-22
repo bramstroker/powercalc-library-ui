@@ -17,11 +17,11 @@ export const slugifyPathSegment = (value) =>
 const encodeSlug = (value) => encodeURIComponent(slugifyPathSegment(value));
 
 /** @param {string} author */
-export const authorPath = (author) => `/author/${encodeSlug(author)}`;
+export const authorPath = (author) => `/contributors/${encodeSlug(author)}`;
 
 /** @param {string} manufacturer */
 export const manufacturerPath = (manufacturer) =>
-  `/manufacturer/${encodeSlug(manufacturer)}`;
+  `/manufacturers/${encodeSlug(manufacturer)}`;
 
 /** @param {string} manufacturer @param {string} model */
 export const profilePath = (manufacturer, model) =>

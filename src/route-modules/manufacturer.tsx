@@ -30,7 +30,7 @@ const loadManufacturer = async ({ params }: Pick<LoaderFunctionArgs, "params">) 
   }
 
   const canonicalPath = manufacturerPath(manufacturer.dirName);
-  if (`/manufacturer/${manufacturerName}` !== decodeURI(canonicalPath)) {
+  if (`/manufacturers/${manufacturerName}` !== decodeURI(canonicalPath)) {
     throw redirect(canonicalPath, 301);
   }
 
