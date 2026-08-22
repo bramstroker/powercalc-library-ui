@@ -64,7 +64,7 @@ export const authorStructuredData = (data: AuthorData): StructuredData[] => {
 
   return [
     breadcrumbStructuredData([
-      { label: "Library", to: "/" },
+      { label: "Home", to: "/" },
       { label: "Contributors", to: "/contributors" },
       { label: displayName },
     ]),

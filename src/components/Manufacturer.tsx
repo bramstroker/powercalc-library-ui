@@ -71,7 +71,7 @@ export const Manufacturer = ({
   const profileCount = profiles.length;
   const displayName = manufacturer?.fullName ?? "";
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: "Library", to: "/" },
+    { label: "Home", to: "/" },
     { label: "Manufacturers", to: "/manufacturers" },
     { label: displayName },
   ];
@@ -103,7 +103,7 @@ export const Manufacturer = ({
 
   return (
     <>
-      <PageBreadcrumbs items={breadcrumbItems} />
+      <PageBreadcrumbs items={breadcrumbItems} includeStructuredData={false} />
       <Paper
         component="section"
         elevation={0}

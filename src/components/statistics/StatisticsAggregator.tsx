@@ -12,6 +12,7 @@ type StatItem = {
 
 type StatisticsAggregatorProps = {
   title: string;
+  breadcrumbLabel: string;
   nameColumnLabel: string;
   propertyPath: string | string[];
   filterQueryParam?: string;
@@ -20,6 +21,7 @@ type StatisticsAggregatorProps = {
 
 export const StatisticsAggregator = ({
   title,
+  breadcrumbLabel,
   nameColumnLabel,
   propertyPath,
   filterQueryParam,
@@ -71,6 +73,7 @@ export const StatisticsAggregator = ({
   return (
     <StatisticsDisplay
       title={title.replace(/Top \d+/, `Top ${resultsCount}`)}
+      breadcrumbLabel={breadcrumbLabel}
       items={items.slice(0, resultsCount)}
       totalItems={totalProfiles}
       nameColumnLabel={nameColumnLabel}

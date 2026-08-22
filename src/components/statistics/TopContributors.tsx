@@ -4,6 +4,7 @@ export const TopContributors = () => {
   return (
     <StatisticsAggregator
       title="Top 10 Most Active Contributors"
+      breadcrumbLabel="Top contributors"
       nameColumnLabel="Contributor"
       propertyPath="authors"
       valueExtractor={(profile) => profile.authors.map((author) => author.githubUsername).filter(Boolean)}

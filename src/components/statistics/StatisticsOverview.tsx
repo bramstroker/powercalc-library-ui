@@ -6,6 +6,8 @@ import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import { Box, Card, CardActionArea, CardContent, Grid, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router";
 
+import { PageBreadcrumbs } from "../PageBreadcrumbs";
+
 const reports = [
   {
     title: "Most-used measurement devices",
@@ -41,6 +43,7 @@ const reports = [
 
 export const StatisticsOverview = () => (
   <>
+    <PageBreadcrumbs items={[{ label: "Home", to: "/" }, { label: "Statistics" }]} />
     <Box sx={{ mb: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
         Library statistics

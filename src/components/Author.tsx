@@ -152,7 +152,7 @@ export const Author = ({
   const contributionCount = authorProfiles.length;
   const displayName = authorDetails?.name || githubUsername || "Contributor";
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: "Library", to: "/" },
+    { label: "Home", to: "/" },
     { label: "Contributors", to: "/contributors" },
     { label: displayName },
   ];
@@ -248,7 +248,7 @@ export const Author = ({
 
   return (
     <>
-      <PageBreadcrumbs items={breadcrumbItems} />
+      <PageBreadcrumbs items={breadcrumbItems} includeStructuredData={false} />
       <Stack sx={{ gap: { xs: 2, sm: 3 } }}>
         <Paper
           component="section"

@@ -25,6 +25,7 @@ import { useLibrary } from "../../context/LibraryContext";
 import { authorPath, manufacturerPath } from "../../utils/urlSlugs.mjs";
 import { GithubAvatar } from "../GithubAvatar";
 import { ManufacturerLogo } from "../ManufacturerLogo";
+import { PageBreadcrumbs } from "../PageBreadcrumbs";
 
 type StatItem = {
   name: string;
@@ -70,6 +71,7 @@ const ManufacturerCell = ({ fullName }: { fullName: string }) => {
 
 type StatisticsDisplayProps = {
   title: string;
+  breadcrumbLabel: string;
   items: StatItem[];
   totalItems: number;
   nameColumnLabel: string;
@@ -81,6 +83,7 @@ type StatisticsDisplayProps = {
 
 export const StatisticsDisplay = ({
   title,
+  breadcrumbLabel,
   items,
   totalItems,
   nameColumnLabel,
@@ -101,6 +104,13 @@ export const StatisticsDisplay = ({
 
   return (
     <>
+        <PageBreadcrumbs
+          items={[
+            { label: "Home", to: "/" },
+            { label: "Statistics", to: "/statistics" },
+            { label: breadcrumbLabel },
+          ]}
+        />
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Stack>
             <Typography variant="h4" component="h1" gutterBottom>
