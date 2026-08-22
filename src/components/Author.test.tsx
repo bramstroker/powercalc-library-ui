@@ -104,7 +104,9 @@ const renderPage = (path = "/contributors/alice") =>
             <Author
               authorDetails={path.endsWith("/unknown") ? undefined : alice}
               authorProfiles={path.endsWith("/unknown") ? [] : aliceProfiles}
-              authorRank={path.endsWith("/unknown") ? null : { rank: 1, total: 2 }}
+              authorRank={
+                path.endsWith("/unknown") ? null : { rank: 1, total: 2 }
+              }
             />
           }
         />
@@ -127,6 +129,9 @@ describe("Author", () => {
       screen.getByRole("heading", { name: "Alice Example", level: 1 }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole("heading", { name: "73 known devices", level: 2 }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByText("@alice · Powercalc Library Contributor"),
     ).toBeInTheDocument();
     expect(screen.getByText("Contributing since 2022")).toBeInTheDocument();
@@ -141,6 +146,18 @@ describe("Author", () => {
     expect(
       screen.getByRole("link", { name: "Open in library" }),
     ).toHaveAttribute("href", "/?author=alice");
+
+    expect(
+      screen.getByRole("progressbar", { name: "Light contribution share" }),
+    ).toHaveAttribute("aria-valuetext", "2 of 3 contributed profiles");
+    expect(
+      screen.getByRole("progressbar", {
+        name: "Signify contribution share",
+      }),
+    ).toHaveAttribute("aria-valuetext", "2 of 3 contributed profiles");
+    expect(
+      screen.queryByRole("heading", { name: "75" }),
+    ).not.toBeInTheDocument();
   });
 
   it("sorts profile cards by popularity and newest date", () => {

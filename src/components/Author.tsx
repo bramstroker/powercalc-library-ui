@@ -95,7 +95,11 @@ const Stat = ({
         {label}
       </Typography>
     </Stack>
-    <Typography variant="h5" sx={{ mt: 0.5, fontWeight: 800, lineHeight: 1.1 }}>
+    <Typography
+      component="p"
+      variant="h5"
+      sx={{ mt: 0.5, fontWeight: 800, lineHeight: 1.1 }}
+    >
       {value}
     </Typography>
   </Box>
@@ -106,11 +110,13 @@ const BreakdownRow = ({
   count,
   total,
   icon,
+  accessibleLabel,
 }: {
   label: ReactNode;
   count: number;
   total: number;
   icon?: ReactNode;
+  accessibleLabel: string;
 }) => (
   <Box>
     <Stack direction="row" sx={{ alignItems: "center", gap: 1, mb: 0.75 }}>
@@ -130,6 +136,8 @@ const BreakdownRow = ({
     <LinearProgress
       variant="determinate"
       value={total === 0 ? 0 : (count / total) * 100}
+      aria-label={accessibleLabel}
+      aria-valuetext={`${count} of ${total} contributed profiles`}
       sx={{ height: 6, borderRadius: 999 }}
     />
   </Box>
@@ -222,15 +230,13 @@ export const Author = ({
   if (!githubUsername || !authorDetails) {
     return (
       <Paper variant="outlined" sx={{ p: 4, textAlign: "center" }}>
-        <Typography variant="h5">Author not found</Typography>
+        <Typography variant="h5" component="h1">
+          Author not found
+        </Typography>
         <Typography color="text.secondary" sx={{ mt: 1 }}>
           This contributor does not exist in the current Powercalc library.
         </Typography>
-        <Button
-          component={RouterLink}
-          to="/contributors"
-          sx={{ mt: 2 }}
-        >
+        <Button component={RouterLink} to="/contributors" sx={{ mt: 2 }}>
           View contributors
         </Button>
       </Paper>
@@ -414,7 +420,7 @@ export const Author = ({
               >
                 Community impact
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 800 }}>
+              <Typography variant="h4" component="h2" sx={{ fontWeight: 800 }}>
                 {numberFormat.format(knownDevices)} known devices
               </Typography>
               <Typography
@@ -443,6 +449,7 @@ export const Author = ({
                   <HomeIcon color="primary" />
                   <Box>
                     <Typography
+                      component="p"
                       variant="h6"
                       sx={{ fontWeight: 800, lineHeight: 1.1 }}
                     >
@@ -485,6 +492,7 @@ export const Author = ({
                     label={humanizeIdentifier(key)}
                     count={count}
                     total={contributionCount}
+                    accessibleLabel={`${humanizeIdentifier(key)} contribution share`}
                     icon={
                       DeviceIcon ? <DeviceIcon fontSize="small" /> : undefined
                     }
@@ -526,6 +534,7 @@ export const Author = ({
                   }
                   count={count}
                   total={contributionCount}
+                  accessibleLabel={`${manufacturer.fullName} contribution share`}
                   icon={
                     <ManufacturerLogo manufacturer={manufacturer} size={24} />
                   }

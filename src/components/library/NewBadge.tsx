@@ -10,7 +10,14 @@ export const NewBadge = () => (
       size="small"
       color="secondary"
       variant="outlined"
-      sx={{ height: 18, fontSize: "0.6875rem" }}
+      sx={[
+        { height: 18, fontSize: "0.6875rem" },
+        (theme) =>
+          theme.applyStyles("dark", {
+            color: "secondary.light",
+            borderColor: "secondary.light",
+          }),
+      ]}
     />
   </Tooltip>
 );

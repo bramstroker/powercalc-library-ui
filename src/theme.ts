@@ -14,7 +14,8 @@ export const theme = createTheme({
   colorSchemes: {
     dark: {
       palette: {
-        primary: { main: "#7986cb" },
+        // Indigo 300 needs dark foreground content to meet WCAG AA on filled controls.
+        primary: { main: "#7986cb", contrastText: "rgba(0, 0, 0, 0.87)" },
         secondary: { main: "#f50057" },
       },
     },
