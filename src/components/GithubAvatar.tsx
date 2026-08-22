@@ -1,6 +1,11 @@
 import { Avatar, type AvatarProps } from "@mui/material";
 import { useEffect, useState } from "react";
 
+import {
+  contributorAvatarUrl,
+  fallbackContributorAvatarUrl,
+} from "../utils/avatarPaths";
+
 const initials = (name: string, username: string) => {
   const source = name.trim() || username;
   return source
@@ -17,21 +22,23 @@ type GithubAvatarProps = Omit<AvatarProps, "alt" | "src" | "slotProps"> & {
 };
 
 export const GithubAvatar = ({ username, name = "", ...avatarProps }: GithubAvatarProps) => {
-  const avatarUrl = `https://github.com/${encodeURIComponent(username)}.png`;
-  const [failedUrl, setFailedUrl] = useState<string>();
+  const primaryUrl = contributorAvatarUrl(username);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(primaryUrl);
 
-  useEffect(() => setFailedUrl(undefined), [avatarUrl]);
+  useEffect(() => setAvatarUrl(primaryUrl), [primaryUrl]);
 
   return (
     <Avatar
       {...avatarProps}
       alt={name || username}
-      src={failedUrl === avatarUrl ? undefined : avatarUrl}
+      src={avatarUrl}
       slotProps={{
         img: {
           loading: "lazy",
           onError: () => {
-            setFailedUrl(avatarUrl);
+            setAvatarUrl((failedUrl) =>
+              failedUrl ? fallbackContributorAvatarUrl(username, failedUrl) : undefined,
+            );
           },
         },
       }}

@@ -2,6 +2,7 @@
 import { reactRouter } from "@react-router/dev/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import react from "@vitejs/plugin-react";
+import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
 
 // Skip the Sentry release/telemetry work when running unit (vitest) or e2e (playwright) tests
@@ -11,8 +12,30 @@ const isTestRun = Boolean(isUnitTest || process.env.E2E);
 // is pure noise — only a real build should reach Sentry.
 const isBuild = process.argv.includes("build");
 
+const loadAvatarManifest = (): Record<string, string> => {
+  try {
+    const manifest = JSON.parse(
+      readFileSync(new URL("./public/avatars/manifest.json", import.meta.url), "utf8"),
+    ) as unknown;
+    if (!manifest || typeof manifest !== "object" || Array.isArray(manifest)) return {};
+
+    return Object.fromEntries(
+      Object.entries(manifest).filter(
+        (entry): entry is [string, string] =>
+          typeof entry[1] === "string" && entry[1].startsWith("/avatars/"),
+      ),
+    );
+  } catch {
+    // Development and unit tests work without a downloaded manifest and use GitHub as a fallback.
+    return {};
+  }
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  define: {
+    __AVATAR_PATHS__: JSON.stringify(loadAvatarManifest()),
+  },
   plugins: [
     isUnitTest ? react() : reactRouter(),
     ...(isTestRun || !isBuild
