@@ -26,8 +26,9 @@
   },
   "scripts": {
     "dev": "react-router dev",
-    "build": "react-router build && node scripts/generate-sitemap.mjs",
-    "build:prerender-all": "PRERENDER_MODE=all react-router build && node scripts/generate-sitemap.mjs",
+    "avatars:download": "node scripts/download-avatars.mjs",
+    "build": "npm run avatars:download && react-router build && node scripts/generate-sitemap.mjs",
+    "build:prerender-all": "npm run avatars:download && PRERENDER_MODE=all react-router build && node scripts/generate-sitemap.mjs",
     "cache:warm": "node scripts/warm-cloudflare-cache.mjs",
     "preview": "vite preview",
     "test": "vitest run && node --test scripts/*.test.mjs",

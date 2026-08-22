@@ -13,6 +13,7 @@ import { queryClient } from "../queryClient";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { createPageMeta, MAX_ITEM_LIST_ENTRIES, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
+import { contributorAvatarUrl } from "../utils/avatarPaths";
 import { humanizeIdentifier } from "../utils/profilePresentation";
 import { authorPath, profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
@@ -54,6 +55,7 @@ export const authorStructuredData = (data: AuthorData): StructuredData[] => {
   const displayName = authorDetails.name || githubUsername;
   const canonicalPath = authorPath(githubUsername);
   const description = authorDescription(data);
+  const avatarUrl = contributorAvatarUrl(githubUsername);
 
   const knowsAbout = [
     ...new Set(authorProfiles.map((profile) => profile.manufacturer.fullName)),
@@ -76,7 +78,7 @@ export const authorStructuredData = (data: AuthorData): StructuredData[] => {
         name: displayName,
         alternateName: `@${githubUsername}`,
         url: `${SITE_URL}${canonicalPath}`,
-        image: `https://github.com/${encodeURIComponent(githubUsername)}.png`,
+        image: avatarUrl.startsWith("/") ? `${SITE_URL}${avatarUrl}` : avatarUrl,
         sameAs: `https://github.com/${encodeURIComponent(githubUsername)}`,
         knowsAbout,
       },
