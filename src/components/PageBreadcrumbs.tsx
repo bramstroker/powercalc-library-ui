@@ -1,22 +1,12 @@
 import { Breadcrumbs, Link, Typography } from "@mui/material";
-import type { SxProps, Theme } from "@mui/material";
 import { Link as RouterLink } from "react-router";
 
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
 
 export type { BreadcrumbItem };
 
-export const PageBreadcrumbs = ({
-  items,
-  sx,
-}: {
-  items: BreadcrumbItem[];
-  sx?: SxProps<Theme>;
-}) => (
-  <Breadcrumbs
-    aria-label="Breadcrumb"
-    sx={[{ mb: 2 }, ...(Array.isArray(sx) ? sx : [sx])]}
-  >
+export const PageBreadcrumbs = ({ items }: { items: BreadcrumbItem[] }) => (
+  <Breadcrumbs aria-label="Breadcrumb" sx={{ mb: 2 }}>
     {items.map((item, index) => {
       const isCurrent = index === items.length - 1;
       return item.to && !isCurrent ? (
