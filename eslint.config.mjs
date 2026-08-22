@@ -168,7 +168,12 @@ export default [
 
   // React Router discovers these framework modules through their required default exports.
   {
-    files: ["src/root.tsx", "src/routes.ts", "src/route-modules/**/*.{ts,tsx}"],
+    files: [
+      "src/root.tsx",
+      "src/routes.ts",
+      "src/entry.server.tsx",
+      "src/route-modules/**/*.{ts,tsx}",
+    ],
     rules: {
       "import/no-default-export": "off",
     },
