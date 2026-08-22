@@ -7,7 +7,6 @@ import HomeIcon from "@mui/icons-material/Home";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import SortIcon from "@mui/icons-material/Sort";
 import {
-  Avatar,
   Box,
   Button,
   Chip,
@@ -32,6 +31,7 @@ import type {
 import { humanizeIdentifier } from "../utils/profilePresentation";
 import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
+import { GithubAvatar } from "./GithubAvatar";
 import { LazyAuthorContributionsChart } from "./LazyAuthorContributionsChart";
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ProfileCardGrid } from "./library/ProfileCardGrid";
@@ -153,7 +153,7 @@ export const Author = ({
   const displayName = authorDetails?.name || githubUsername || "Contributor";
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: "Library", to: "/" },
-    { label: "Contributors", to: "/statistics/top-contributors" },
+    { label: "Contributors", to: "/contributors" },
     { label: displayName },
   ];
 
@@ -228,7 +228,7 @@ export const Author = ({
         </Typography>
         <Button
           component={RouterLink}
-          to="/statistics/top-contributors"
+          to="/contributors"
           sx={{ mt: 2 }}
         >
           View contributors
@@ -275,9 +275,9 @@ export const Author = ({
             direction={{ xs: "column", sm: "row" }}
             sx={{ alignItems: { xs: "flex-start", sm: "center" }, gap: 2.5 }}
           >
-            <Avatar
-              src={`https://github.com/${githubUsername}.png`}
-              alt={authorDetails.name || githubUsername}
+            <GithubAvatar
+              username={githubUsername}
+              name={authorDetails.name || githubUsername}
               sx={{
                 width: { xs: 80, sm: 96 },
                 height: { xs: 80, sm: 96 },
@@ -285,9 +285,7 @@ export const Author = ({
                 borderColor: "primary.main",
                 boxShadow: 3,
               }}
-            >
-              {(authorDetails.name || githubUsername).slice(0, 2).toUpperCase()}
-            </Avatar>
+            />
 
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Typography

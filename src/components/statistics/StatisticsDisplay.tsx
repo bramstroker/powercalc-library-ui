@@ -16,14 +16,14 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem,
-  Avatar
+  MenuItem
 } from "@mui/material";
 import { useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router";
 
 import { useLibrary } from "../../context/LibraryContext";
 import { authorPath, manufacturerPath } from "../../utils/urlSlugs.mjs";
+import { GithubAvatar } from "../GithubAvatar";
 import { ManufacturerLogo } from "../ManufacturerLogo";
 
 type StatItem = {
@@ -144,9 +144,8 @@ export const StatisticsDisplay = ({
                   <TableCell>
                     {filterQueryParam === 'author' ? (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar
-                          src={`https://github.com/${item.name}.png`}
-                          alt={item.name}
+                        <GithubAvatar
+                          username={item.name}
                           sx={{ width: 24, height: 24 }}
                         />
                         <Link

@@ -29,7 +29,7 @@ const loadAuthor = async ({ params }: Pick<LoaderFunctionArgs, "params">) => {
   if (!author) throw new Response(`Unknown author ${authorName}`, { status: 404 });
 
   const canonicalPath = authorPath(author.githubUsername);
-  if (`/author/${authorName}` !== decodeURI(canonicalPath)) {
+  if (`/contributors/${authorName}` !== decodeURI(canonicalPath)) {
     throw redirect(canonicalPath, 301);
   }
 
@@ -63,7 +63,7 @@ export const authorStructuredData = (data: AuthorData): StructuredData[] => {
   return [
     breadcrumbStructuredData([
       { label: "Library", to: "/" },
-      { label: "Contributors", to: "/statistics/top-contributors" },
+      { label: "Contributors", to: "/contributors" },
       { label: displayName },
     ]),
     {

@@ -18,16 +18,16 @@ describe("usePageMeta", () => {
   });
 
   it("uses a query-free, fragment-free production canonical URL", () => {
-    window.history.replaceState({}, "", "/manufacturer/signify/?q=light#profiles");
+    window.history.replaceState({}, "", "/manufacturers/signify/?q=light#profiles");
     render(<MetaFixture />);
 
     expect(document.head.querySelector('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `${SITE_URL}/manufacturer/signify`,
+      `${SITE_URL}/manufacturers/signify`,
     );
     expect(document.head.querySelector('meta[property="og:url"]')).toHaveAttribute(
       "content",
-      `${SITE_URL}/manufacturer/signify`,
+      `${SITE_URL}/manufacturers/signify`,
     );
   });
 

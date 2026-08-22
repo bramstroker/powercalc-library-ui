@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_SITE_URL = "https://library.powercalc.nl";
-const LOADER_PATH_PREFIXES = ["/author/", "/manufacturer/", "/profiles/"];
+const LOADER_PATH_PREFIXES = ["/contributors/", "/manufacturers/", "/profiles/"];
 
 const decodeXml = (value) =>
   value

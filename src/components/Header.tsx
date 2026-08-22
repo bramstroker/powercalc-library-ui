@@ -232,10 +232,10 @@ export const Header = ({
                     </MenuItem>
                     <MenuItem
                         component={RouterLink}
-                        to="/statistics/top-contributors"
+                        to="/contributors"
                         onClick={handleExploreClose}
-                        aria-current={isCurrent("/statistics/top-contributors") ? "page" : undefined}
-                        sx={menuItemSx("/statistics/top-contributors")}
+                        aria-current={isCurrent("/contributors") ? "page" : undefined}
+                        sx={menuItemSx("/contributors")}
                     >
                       <GroupOutlinedIcon fontSize="small" sx={{ mr: 1.25 }} />
                       Contributors

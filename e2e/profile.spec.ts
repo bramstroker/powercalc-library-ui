@@ -21,7 +21,7 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
   );
   await expect(breadcrumb.getByRole("link", { name: "Signify", exact: true })).toHaveAttribute(
     "href",
-    "/manufacturer/signify",
+    "/manufacturers/signify",
   );
 
   // The route module's `meta` export renders this; there is exactly one JSON-LD block per page.

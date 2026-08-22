@@ -52,7 +52,7 @@ describe("manufacturer meta", () => {
 
     expect(title).toBe("Linkind · Powercalc profile library");
     // The dir name is `Linkind`; the canonical URL must be the lowercase slug the loader redirects to.
-    expect(canonical).toBe(`${SITE_URL}/manufacturer/linkind`);
+    expect(canonical).toBe(`${SITE_URL}/manufacturers/linkind`);
     expect(robots).toBeUndefined();
   });
 
@@ -68,7 +68,7 @@ describe("manufacturer meta", () => {
 
   it("marks an unresolvable manufacturer as noindex", () => {
     const { title, robots } = read(
-      manufacturerMeta(args(undefined, "/manufacturer/nope", new Error("boom"))) as MetaDescriptor[],
+      manufacturerMeta(args(undefined, "/manufacturers/nope", new Error("boom"))) as MetaDescriptor[],
     );
 
     expect(title).toBe("Manufacturer not found · Powercalc profile library");
@@ -88,7 +88,7 @@ describe("author meta", () => {
     const graph = authorStructuredData(loaderData);
 
     expect(title).toBe("Alice Example · Powercalc profile library");
-    expect(canonical).toBe(`${SITE_URL}/author/alice`);
+    expect(canonical).toBe(`${SITE_URL}/contributors/alice`);
     expect(graph.map((item) => item["@type"])).toEqual(["BreadcrumbList", "ProfilePage"]);
     expect(graph[1]).toMatchObject({
       mainEntity: {
@@ -103,7 +103,7 @@ describe("author meta", () => {
 
   it("marks an unknown contributor as noindex", () => {
     const { title, robots } = read(
-      authorMeta(args(undefined, "/author/nope", new Error("boom"))) as MetaDescriptor[],
+      authorMeta(args(undefined, "/contributors/nope", new Error("boom"))) as MetaDescriptor[],
     );
 
     expect(title).toBe("Author not found · Powercalc profile library");

@@ -17,13 +17,13 @@ describe("ScrollToTop", () => {
   it("scrolls to the top when the pathname changes", () => {
     const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     render(
-      <MemoryRouter initialEntries={["/manufacturer/signify"]}>
+      <MemoryRouter initialEntries={["/manufacturers/signify"]}>
         <NavigationFixture />
       </MemoryRouter>,
     );
     scrollTo.mockClear();
 
-    act(() => void navigate("/author/example"));
+    act(() => void navigate("/contributors/example"));
 
     expect(scrollTo).toHaveBeenCalledOnce();
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: "auto" });

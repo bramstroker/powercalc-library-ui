@@ -71,7 +71,7 @@ test("starts a newly navigated page at the top", async ({ page }) => {
 
   await authorLink.click();
 
-  await expect(page).toHaveURL("/author/bramstroker");
+  await expect(page).toHaveURL("/contributors/bramstroker");
   await expect(page.getByRole("heading", { level: 1, name: "Bram Gerritsen" })).toBeVisible();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
 });
