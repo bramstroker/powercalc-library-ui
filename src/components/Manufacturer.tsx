@@ -103,7 +103,7 @@ export const Manufacturer = ({
 
   return (
     <>
-      <PageBreadcrumbs items={breadcrumbItems} />
+      <PageBreadcrumbs items={breadcrumbItems} includeStructuredData={false} />
       <Paper
         component="section"
         elevation={0}

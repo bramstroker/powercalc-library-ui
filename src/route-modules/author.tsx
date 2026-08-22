@@ -10,6 +10,7 @@ import { SITE_URL } from "../config/site";
 import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
 import { authorRank, libraryQuery } from "../queries/library.query";
 import { queryClient } from "../queryClient";
+import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { createPageMeta, MAX_ITEM_LIST_ENTRIES, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import { humanizeIdentifier } from "../utils/profilePresentation";
@@ -60,6 +61,11 @@ export const authorStructuredData = (data: AuthorData): StructuredData[] => {
   ];
 
   return [
+    breadcrumbStructuredData([
+      { label: "Home", to: "/" },
+      { label: "Contributors", to: "/contributors" },
+      { label: displayName },
+    ]),
     {
       "@type": "ProfilePage",
       name: `${displayName} — Powercalc contributor`,

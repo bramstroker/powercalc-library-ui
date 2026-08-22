@@ -248,7 +248,7 @@ export const Author = ({
 
   return (
     <>
-      <PageBreadcrumbs items={breadcrumbItems} />
+      <PageBreadcrumbs items={breadcrumbItems} includeStructuredData={false} />
       <Stack sx={{ gap: { xs: 2, sm: 3 } }}>
         <Paper
           component="section"

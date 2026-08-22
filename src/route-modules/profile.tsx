@@ -4,6 +4,7 @@ import { Profile } from "../components/Profile";
 import { SITE_URL } from "../config/site";
 import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
 import { powerProfileLoader } from "../loaders/powerProfileLoader";
+import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { createPageMeta, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import type { PowerProfile } from "../types/PowerProfile";
@@ -39,6 +40,12 @@ export const profileStructuredData = (profile: PowerProfile): StructuredData[] =
   const description = pageDescription(profile);
 
   return [
+    breadcrumbStructuredData([
+      { label: "Home", to: "/" },
+      { label: "Manufacturers", to: "/manufacturers" },
+      { label: manufacturerName, to: manufacturerPath(dirName) },
+      { label: profile.modelId },
+    ]),
     {
       "@type": "Dataset",
       "@id": `${profileUrl}#profile`,

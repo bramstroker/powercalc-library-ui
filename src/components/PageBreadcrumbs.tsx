@@ -6,9 +6,17 @@ import { StructuredData } from "../seo/StructuredData";
 
 export type { BreadcrumbItem };
 
-export const PageBreadcrumbs = ({ items }: { items: BreadcrumbItem[] }) => (
+type PageBreadcrumbsProps = {
+  items: BreadcrumbItem[];
+  includeStructuredData?: boolean;
+};
+
+export const PageBreadcrumbs = ({
+  items,
+  includeStructuredData = true,
+}: PageBreadcrumbsProps) => (
   <>
-    <StructuredData graph={[breadcrumbStructuredData(items)]} />
+    {includeStructuredData && <StructuredData graph={[breadcrumbStructuredData(items)]} />}
     <Breadcrumbs
       aria-label="Breadcrumb"
       maxItems={4}

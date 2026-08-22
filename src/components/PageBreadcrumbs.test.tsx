@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
@@ -21,7 +21,7 @@ describe("PageBreadcrumbs", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
+    expect(within(container).getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
     expect(screen.getByText("Example")).toHaveAttribute("aria-current", "page");
 
@@ -53,5 +53,16 @@ describe("PageBreadcrumbs", () => {
         },
       ],
     });
+  });
+
+  it("can leave structured data to a page-level graph", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <PageBreadcrumbs items={items} includeStructuredData={false} />
+      </MemoryRouter>,
+    );
+
+    expect(within(container).getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
+    expect(container.querySelector('script[type="application/ld+json"]')).toBeNull();
   });
 });

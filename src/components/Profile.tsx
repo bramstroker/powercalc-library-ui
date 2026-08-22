@@ -744,7 +744,7 @@ export const Profile = () => {
 
   return (
       <>
-        <PageBreadcrumbs items={breadcrumbItems}/>
+        <PageBreadcrumbs items={breadcrumbItems} includeStructuredData={false}/>
         <Grid container spacing={2} sx={{mb: 3}}>
           <Grid size={{xs: 12, md: 8, lg: 9}}>
             <Box sx={{display: "flex", flexWrap: "wrap", mb: 2, gap: 2}}>

@@ -10,6 +10,7 @@ import { SITE_URL } from "../config/site";
 import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
 import { libraryQuery } from "../queries/library.query";
 import { queryClient } from "../queryClient";
+import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { createPageMeta, MAX_ITEM_LIST_ENTRIES, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import { manufacturerPath, profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
@@ -54,6 +55,11 @@ export const manufacturerStructuredData = (data: ManufacturerData): StructuredDa
   const description = manufacturerDescription(data);
 
   return [
+    breadcrumbStructuredData([
+      { label: "Home", to: "/" },
+      { label: "Manufacturers", to: "/manufacturers" },
+      { label: displayName },
+    ]),
     {
       "@type": "CollectionPage",
       name: `${displayName} Powercalc profiles`,
