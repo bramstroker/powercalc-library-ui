@@ -6,7 +6,10 @@ import {
 } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import * as React from "react";
-import ReactCountryFlag from "react-country-flag";
+// Named, not default: this package's ESM entry is CJS interop, so a default import resolves to the
+// module namespace object under Node and React rejects it as an invalid element type. That only
+// bites during prerendering — the browser bundle interops the default import fine.
+import { ReactCountryFlag } from "react-country-flag";
 
 import type {CountryStats} from "../../../api/analytics.api";
 
