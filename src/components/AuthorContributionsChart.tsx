@@ -12,6 +12,7 @@ import { BarChart } from "@mui/x-charts/BarChart";
 import { useMemo } from "react";
 
 import type { PowerProfile } from "../types/PowerProfile";
+import { formatDateUtc } from "../utils/dateFormat";
 
 type Props = {
   profiles: PowerProfile[];
@@ -24,10 +25,12 @@ const MAX_MONTHS = 120;
 /** How many x labels fit without overlapping, per screen size. */
 const MAX_TICK_LABELS = { xs: 3, sm: 6 };
 
-const monthKey = (date: Date) => date.getFullYear() * 12 + date.getMonth();
+// UTC throughout, matching how the buckets are labelled: deriving the month from local time
+// would put a profile in a different bucket on the build machine than in the reader's browser.
+const monthKey = (date: Date) => date.getUTCFullYear() * 12 + date.getUTCMonth();
 
 const monthLabel = (date: Date) =>
-  `${date.toLocaleDateString("en-US", { month: "short" })} '${String(date.getFullYear()).slice(-2)}`;
+  `${formatDateUtc(date, { month: "short" })} '${String(date.getUTCFullYear()).slice(-2)}`;
 
 /** Buckets the profiles per month, including the months without any contribution. */
 const buildBuckets = (profiles: PowerProfile[]): Bucket[] => {
@@ -45,14 +48,14 @@ const buildBuckets = (profiles: PowerProfile[]): Bucket[] => {
   }
 
   const buckets: Bucket[] = [];
-  const cursor = new Date(first.getFullYear(), first.getMonth(), 1);
-  const end = new Date(last.getFullYear(), last.getMonth(), 1);
+  const cursor = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), 1));
+  const end = new Date(Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), 1));
   while (cursor <= end) {
     buckets.push({
       start: new Date(cursor),
       count: counts.get(monthKey(cursor)) ?? 0,
     });
-    cursor.setMonth(cursor.getMonth() + 1);
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
   }
 
   return buckets.slice(-MAX_MONTHS);
@@ -93,10 +96,7 @@ export const AuthorContributionsChart = ({ profiles }: Props) => {
           <Box>
             <Typography sx={{ fontWeight: 700 }}>
               First contribution in{" "}
-              {bucket.start.toLocaleDateString("en-US", {
-                month: "long",
-                year: "numeric",
-              })}
+              {formatDateUtc(bucket.start, { month: "long", year: "numeric" })}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {bucket.count} profile{bucket.count === 1 ? "" : "s"} contributed

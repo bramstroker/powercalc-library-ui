@@ -4,6 +4,7 @@ import { Link as RouterLink } from "react-router";
 
 import { useLibrary } from "../../context/LibraryContext";
 import type { PowerProfile } from "../../types/PowerProfile";
+import { formatDateUtc } from "../../utils/dateFormat";
 import { NEW_PROFILE_DAYS, isRecentlyAdded, recentlyAdded } from "../../utils/recency";
 import { profilePath } from "../../utils/urlSlugs.mjs";
 import { AliasChips } from "../AliasChips";
@@ -13,8 +14,7 @@ import { NewBadge } from "../library/NewBadge";
 /** Also drives the route module's description, so the page and its meta tag cannot disagree. */
 export const NEW_PROFILE_WINDOW_DAYS = 90;
 
-const formatDate = (date: Date) =>
-  date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+const formatDate = (date: Date) => formatDateUtc(date);
 
 const groupByDay = (profiles: PowerProfile[]) => {
   const groups = new Map<string, PowerProfile[]>();

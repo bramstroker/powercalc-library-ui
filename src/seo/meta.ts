@@ -19,7 +19,6 @@ type PageMetaOptions = {
   description?: string;
   path: string;
   noIndex?: boolean;
-  structuredData?: StructuredData[];
 };
 
 export const createPageMeta = ({
@@ -27,7 +26,6 @@ export const createPageMeta = ({
   description = DEFAULT_DESCRIPTION,
   path,
   noIndex = false,
-  structuredData,
 }: PageMetaOptions): MetaDescriptor[] => {
   const fullTitle = title ? `${title} · ${SITE_NAME}` : SITE_NAME;
   const canonicalPath = path.replace(/\/+$/, "") || "/";
@@ -43,15 +41,5 @@ export const createPageMeta = ({
     { name: "twitter:card", content: "summary" },
     { tagName: "link", rel: "canonical", href: canonicalUrl },
     ...(noIndex ? [{ name: "robots", content: "noindex, follow" } as MetaDescriptor] : []),
-    ...(structuredData?.length
-      ? [
-          {
-            "script:ld+json": {
-              "@context": "https://schema.org",
-              "@graph": structuredData,
-            },
-          } as MetaDescriptor,
-        ]
-      : []),
   ];
 };
