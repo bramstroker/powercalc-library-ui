@@ -248,7 +248,7 @@ export const Author = ({
 
   return (
     <Stack sx={{ gap: { xs: 2, sm: 3 } }}>
-      <PageBreadcrumbs items={breadcrumbItems} />
+      <PageBreadcrumbs items={breadcrumbItems} sx={{ mb: 0 }} />
       <Paper
         component="section"
         elevation={0}
@@ -510,8 +510,8 @@ export const Author = ({
                   <Typography
                     component={RouterLink}
                     to={manufacturerPath(manufacturer.dirName)}
-                    color="inherit"
                     sx={{
+                      color: "inherit",
                       fontSize: "inherit",
                       fontWeight: "inherit",
                       textDecoration: "none",
