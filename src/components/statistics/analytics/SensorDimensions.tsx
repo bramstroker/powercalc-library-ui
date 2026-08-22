@@ -121,6 +121,11 @@ export const SensorDimensions = () => {
         <AnalyticsHeader
             title={"Sensor Statistics"}
             description={"Overview of Powercalc usage across different dimensions."}
+            breadcrumbItems={[
+              { label: "Home", to: "/" },
+              { label: "Analytics", to: "/analytics" },
+              { label: "Sensor statistics" },
+            ]}
             children={
               <Box
                   component="ul"

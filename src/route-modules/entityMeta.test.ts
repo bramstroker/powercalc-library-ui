@@ -56,11 +56,11 @@ describe("manufacturer meta", () => {
     expect(robots).toBeUndefined();
   });
 
-  it("emits breadcrumb and collection structured data covering every profile", () => {
+  it("emits collection structured data covering every profile", () => {
     const graph = manufacturerStructuredData({ manufacturer: linkind, profiles });
 
-    expect(graph.map((item) => item["@type"])).toEqual(["BreadcrumbList", "CollectionPage"]);
-    expect(graph[1]).toMatchObject({
+    expect(graph.map((item) => item["@type"])).toEqual(["CollectionPage"]);
+    expect(graph[0]).toMatchObject({
       mainEntity: { numberOfItems: 3 },
       about: { name: "Linkind", alternateName: ["lk"] },
     });
@@ -89,8 +89,8 @@ describe("author meta", () => {
 
     expect(title).toBe("Alice Example · Powercalc profile library");
     expect(canonical).toBe(`${SITE_URL}/contributors/alice`);
-    expect(graph.map((item) => item["@type"])).toEqual(["BreadcrumbList", "ProfilePage"]);
-    expect(graph[1]).toMatchObject({
+    expect(graph.map((item) => item["@type"])).toEqual(["ProfilePage"]);
+    expect(graph[0]).toMatchObject({
       mainEntity: {
         "@type": "Person",
         name: "Alice Example",

@@ -152,7 +152,7 @@ export const Author = ({
   const contributionCount = authorProfiles.length;
   const displayName = authorDetails?.name || githubUsername || "Contributor";
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: "Library", to: "/" },
+    { label: "Home", to: "/" },
     { label: "Contributors", to: "/contributors" },
     { label: displayName },
   ];

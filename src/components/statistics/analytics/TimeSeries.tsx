@@ -192,6 +192,11 @@ export const TimeSeries = () => {
       <AnalyticsHeader
         title={metricOption.label}
         description={metricOption.description ?? ""}
+        breadcrumbItems={[
+          { label: "Home", to: "/" },
+          { label: "Analytics", to: "/analytics" },
+          { label: "Usage over time" },
+        ]}
         filterSection={filterControls}
       />
 

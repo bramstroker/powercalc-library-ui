@@ -572,7 +572,7 @@ const ProfileMetrics = ({profile}: { profile: PowerProfile }) => {
 export const Profile = () => {
   const profile = useLoaderData() as PowerProfile;
   const breadcrumbItems: BreadcrumbItem[] = [
-    {label: "Library", to: "/"},
+    {label: "Home", to: "/"},
     {label: "Manufacturers", to: "/manufacturers"},
     {
       label: profile.manufacturer.fullName,

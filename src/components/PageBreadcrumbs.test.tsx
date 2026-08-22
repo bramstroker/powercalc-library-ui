@@ -8,22 +8,25 @@ import { breadcrumbStructuredData, type BreadcrumbItem } from "../seo/breadcrumb
 import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
 const items: BreadcrumbItem[] = [
-  { label: "Library", to: "/" },
+  { label: "Home", to: "/" },
   { label: "Manufacturers", to: "/manufacturers" },
   { label: "Example" },
 ];
 
 describe("PageBreadcrumbs", () => {
   it("renders crawlable links and marks the current page", () => {
-    render(
+    const { container } = render(
       <MemoryRouter>
         <PageBreadcrumbs items={items} />
       </MemoryRouter>,
     );
 
     expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Library" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
     expect(screen.getByText("Example")).toHaveAttribute("aria-current", "page");
+
+    const structuredData = container.querySelector('script[type="application/ld+json"]');
+    expect(structuredData).toHaveTextContent('"@type":"BreadcrumbList"');
   });
 
   it("creates matching absolute BreadcrumbList data", () => {
@@ -33,7 +36,7 @@ describe("PageBreadcrumbs", () => {
         {
           "@type": "ListItem",
           position: 1,
-          name: "Library",
+          name: "Home",
           item: `${SITE_URL}/`,
         },
         {

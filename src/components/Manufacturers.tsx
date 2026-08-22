@@ -22,6 +22,7 @@ import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ManufacturerLogo } from "./ManufacturerLogo";
+import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
 type ManufacturerSummary = {
   manufacturer: Manufacturer;
@@ -86,6 +87,7 @@ export const Manufacturers = () => {
 
   return (
     <>
+      <PageBreadcrumbs items={[{ label: "Home", to: "/" }, { label: "Manufacturers" }]} />
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Manufacturers

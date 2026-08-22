@@ -15,7 +15,7 @@ import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
 import type { SensorStats } from "../../../api/analytics.api";
-
+import { PageBreadcrumbs } from "../../PageBreadcrumbs";
 
 import type { MetricKey } from "./MetricsSelect";
 import { MetricsSelect } from "./MetricsSelect";
@@ -96,6 +96,14 @@ export const SensorDimensionDetailView = ({
   return (
       <>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
+          <PageBreadcrumbs
+            items={[
+              { label: "Home", to: "/" },
+              { label: "Analytics", to: "/analytics" },
+              { label: "Sensor statistics", to: "/analytics/sensor-dimensions" },
+              { label: formattedDimension },
+            ]}
+          />
           <Box
               sx={{
                 display: "flex",

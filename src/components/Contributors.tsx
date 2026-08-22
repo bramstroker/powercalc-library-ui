@@ -27,7 +27,6 @@ import { Link as RouterLink } from "react-router";
 import { SITE_URL } from "../config/site";
 import { useLibrary } from "../context/LibraryContext";
 import { usePageMeta } from "../hooks/usePageMeta";
-import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { MAX_ITEM_LIST_ENTRIES, type StructuredData as StructuredDataNode } from "../seo/meta";
 import { StructuredData } from "../seo/StructuredData";
 import type { ContributorSummary, PowerProfile } from "../types/PowerProfile";
@@ -241,7 +240,6 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
   ).length;
 
   const structuredData: StructuredDataNode[] = [
-    breadcrumbStructuredData([{ label: "Library", to: "/" }, { label: "Contributors" }]),
     {
       "@type": "CollectionPage",
       name: "Powercalc contributors",
@@ -268,7 +266,7 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
   return (
     <>
       <StructuredData graph={structuredData} />
-      <PageBreadcrumbs items={[{ label: "Library", to: "/" }, { label: "Contributors" }]} />
+      <PageBreadcrumbs items={[{ label: "Home", to: "/" }, { label: "Contributors" }]} />
 
       <Paper
         component="section"

@@ -13,6 +13,7 @@ export const AnalyticsOverview = () => {
       <AnalyticsHeader
         title="Analytics Dashboards"
         description="Overview of PowerCalc analytics dashboards providing insights into usage patterns and statistics."
+        breadcrumbItems={[{ label: "Home", to: "/" }, { label: "Analytics" }]}
       />
 
       <Grid container spacing={4}>
