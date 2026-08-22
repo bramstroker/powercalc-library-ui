@@ -732,7 +732,8 @@ export const Profile = ({profile, summary}: { profile: PowerProfile; summary: Su
     {label: "Attributes", render: <AttributesTab properties={filteredProperties}/>},
     {label: "JSON", render: <JsonTab profile={profile}/>},
     ...(profile.subProfileCount > 0 ? [{label: "Sub Profiles", render: <SubProfilesTab profile={profile}/>}] : []),
-    ...(profile.calculationStrategy === "lut" ? [{label: "Graphs", render: <PlotsTab profile={profile}/>}] : []),
+    ...(["lut", "linear", "composite"].includes(profile.calculationStrategy)
+      ? [{label: "Graphs", render: <PlotsTab profile={profile}/>}] : []),
   ];
 
   return (
