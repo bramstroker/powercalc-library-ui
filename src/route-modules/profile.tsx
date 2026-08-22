@@ -18,14 +18,17 @@ export type ProfileLoaderData = {
   summary: Summary;
 };
 
-export const loader = async (args: LoaderFunctionArgs): Promise<ProfileLoaderData> => {
+const loadProfile = async (args: LoaderFunctionArgs): Promise<ProfileLoaderData> => {
   const profile = await powerProfileLoader(args);
   const summary = await queryClient.ensureQueryData(dailySummaryQuery());
 
   return { profile, summary };
 };
 
-export const clientLoader = prerenderedOrLiveClientLoader(loader);
+// React Router strips the server-only `loader` export from the browser bundle. Keep the shared
+// implementation separately addressable so `clientLoader` never points at that removed binding.
+export const loader = loadProfile;
+export const clientLoader = prerenderedOrLiveClientLoader(loadProfile);
 
 // Loader data reaches this module as live `Date` objects during prerendering and as revived values
 // after a client navigation, so normalise both before serialising.
