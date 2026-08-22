@@ -15,14 +15,12 @@ import {
 
 import { SITE_NAME } from "./config/site";
 import { queryClient } from "./queryClient";
-import { apiPreconnectLinks } from "./seo/apiLinks";
 import { DEFAULT_DESCRIPTION } from "./seo/meta";
 import { theme } from "./theme";
 
 export const links: LinksFunction = () => [
   { rel: "icon", href: "/favicon.svg" },
   { rel: "manifest", href: "/manifest.json" },
-  ...apiPreconnectLinks,
 ];
 
 // Site-wide defaults only. Anything route-specific — canonical URL above all — belongs in the

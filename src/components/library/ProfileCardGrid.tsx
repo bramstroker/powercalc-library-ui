@@ -1,4 +1,4 @@
-import { Box, Link, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router";
 
 import type { PowerProfile } from "../../types/PowerProfile";
@@ -67,23 +67,32 @@ export const ProfileCardGrid = ({
               },
               columnGap: 2,
               rowGap: 0.5,
+              // Styled from the list rather than per item: MUI `Box`/`Link` wrappers cost an
+              // emotion style computation each at hydration, and this list holds hundreds of them.
+              "& li": { minWidth: 0 },
+              "& a": {
+                typography: "body2",
+                display: "block",
+                color: "primary.main",
+                textDecoration: "none",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                "&:hover": { textDecoration: "underline" },
+                "&:focus-visible": { textDecoration: "underline" },
+              },
             }}
           >
             {listed.map((profile) => (
-              <Box component="li" key={profileRowId(profile)} sx={{ minWidth: 0 }}>
-                <Link
-                  component={RouterLink}
+              <li key={profileRowId(profile)}>
+                <RouterLink
                   to={profilePath(profile.manufacturer.dirName, profile.modelId)}
                   prefetch="intent"
-                  variant="body2"
-                  underline="hover"
-                  noWrap
-                  sx={{ display: "block" }}
                 >
                   {profile.modelId}
                   {profile.name && profile.name !== profile.modelId ? ` — ${profile.name}` : ""}
-                </Link>
-              </Box>
+                </RouterLink>
+              </li>
             ))}
           </Box>
         </Box>

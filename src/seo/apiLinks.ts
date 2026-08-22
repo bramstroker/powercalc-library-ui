@@ -3,9 +3,11 @@ import type { LinkDescriptor } from "react-router";
 import { API_BASE_URL, API_ENDPOINTS } from "../config/api";
 
 /**
- * Warms the DNS, TCP and TLS handshake for the API host. Applied site-wide from the root: the
- * profile pages make up most of the library and still call `/analytics/summary` late, after
- * hydration, which would otherwise open that connection cold.
+ * Warms the DNS, TCP and TLS handshake for the API host.
+ *
+ * Added per route rather than site-wide: the prerendered entity pages (profile, manufacturer,
+ * contributor) carry their data in loader data and never call the API at all, so a root-level hint
+ * opened a connection they had no use for on the bulk of the site's pages.
  */
 export const apiPreconnectLinks: LinkDescriptor[] = [
   { rel: "preconnect", href: API_BASE_URL, crossOrigin: "anonymous" },

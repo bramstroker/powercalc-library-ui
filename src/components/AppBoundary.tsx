@@ -1,8 +1,9 @@
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Box, Button, Container, Typography } from "@mui/material";
-import * as Sentry from "@sentry/react";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { Component, type ErrorInfo, type ReactNode } from "react";
+
+import { reportError } from "../sentry";
 
 import { Logo } from "./Logo";
 
@@ -37,6 +38,38 @@ const AppError = ({ error, onRetry }: { error: unknown; onRetry: () => void }) =
 );
 
 /**
+ * Stands in for `Sentry.ErrorBoundary`, which would pull the SDK into the client entry and back
+ * onto the critical path. Reporting goes through `reportError`, which loads Sentry on demand.
+ */
+class ReportingErrorBoundary extends Component<
+  { children: ReactNode; onReset: () => void; fallback: (props: FallbackProps) => ReactNode },
+  { error: unknown }
+> {
+  state: { error: unknown } = { error: null };
+
+  static getDerivedStateFromError(error: unknown) {
+    return { error };
+  }
+
+  componentDidCatch(error: unknown, info: ErrorInfo) {
+    reportError(error, info.componentStack);
+  }
+
+  resetError = () => {
+    this.setState({ error: null });
+    this.props.onReset();
+  };
+
+  render() {
+    if (this.state.error === null) return this.props.children;
+
+    return this.props.fallback({ error: this.state.error, resetError: this.resetError });
+  }
+}
+
+type FallbackProps = { error: unknown; resetError: () => void };
+
+/**
  * Renders inside each layout, not at the root: a React error boundary only catches errors from
  * below it, so at the root this sat *above* every layout route's own `ErrorBoundary` and a failing
  * library query reached the generic route error page instead of this retryable one.
@@ -48,12 +81,12 @@ const AppError = ({ error, onRetry }: { error: unknown; onRetry: () => void }) =
 export const AppBoundary = ({ children }: { children: ReactNode }) => (
   <QueryErrorResetBoundary>
     {({ reset }) => (
-      <Sentry.ErrorBoundary
+      <ReportingErrorBoundary
         onReset={reset}
         fallback={({ error, resetError }) => <AppError error={error} onRetry={resetError} />}
       >
         {children}
-      </Sentry.ErrorBoundary>
+      </ReportingErrorBoundary>
     )}
   </QueryErrorResetBoundary>
 );
