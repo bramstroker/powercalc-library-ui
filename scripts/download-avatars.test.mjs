@@ -3,12 +3,9 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import sharp from "sharp";
 
-import {
-  avatarFileName,
-  collectAuthorUsernames,
-  downloadAvatars,
-} from "./download-avatars.mjs";
+import { avatarFileName, collectAuthorUsernames, downloadAvatars } from "./download-avatars.mjs";
 
 const library = {
   manufacturers: [
@@ -31,9 +28,8 @@ test("collects unique lowercase GitHub usernames", () => {
   assert.deepEqual(collectAuthorUsernames(library), ["alice-example", "bob"]);
 });
 
-test("uses the response content type as the stored extension", () => {
-  assert.equal(avatarFileName("Alice", "image/jpeg; charset=binary"), "alice.jpg");
-  assert.equal(avatarFileName("Alice", "text/html"), undefined);
+test("uses a predictable WebP file name", () => {
+  assert.equal(avatarFileName("Alice"), "alice.webp");
 });
 
 test("downloads avatars and writes a same-origin manifest", async () => {
@@ -41,10 +37,7 @@ test("downloads avatars and writes a same-origin manifest", async () => {
 
   try {
     await writeFile(join(outputDir, "old-user.png"), "old");
-    await writeFile(
-      join(outputDir, "manifest.json"),
-      `${JSON.stringify({ "old-user": "/avatars/old-user.png" })}\n`,
-    );
+    await writeFile(join(outputDir, "manifest.json"), `${JSON.stringify({ "old-user": "/avatars/old-user.png" })}\n`);
 
     const fetchImpl = async (url) => {
       if (url === "https://example.com/library") {
@@ -53,9 +46,12 @@ test("downloads avatars and writes a same-origin manifest", async () => {
         });
       }
       if (String(url).includes("alice-example")) {
-        return new Response(Uint8Array.from([1, 2, 3]), {
-          headers: { "content-type": "image/jpeg" },
-        });
+        return new Response(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="red"/></svg>',
+          {
+            headers: { "content-type": "image/svg+xml" },
+          },
+        );
       }
       return new Response("missing", { status: 404 });
     };
@@ -71,14 +67,15 @@ test("downloads avatars and writes a same-origin manifest", async () => {
     assert.equal(result.downloaded, 1);
     assert.deepEqual(result.failures, [{ username: "bob", reason: "HTTP 404" }]);
     assert.deepEqual(result.manifest, {
-      "alice-example": "/avatars/alice-example.jpg",
+      "alice-example": "/avatars/alice-example.webp",
     });
-    assert.deepEqual(
-      JSON.parse(await readFile(join(outputDir, "manifest.json"), "utf8")),
-      result.manifest,
-    );
-    assert.deepEqual([...await readFile(join(outputDir, "alice-example.jpg"))], [1, 2, 3]);
-    await assert.rejects(readFile(join(outputDir, "old-user.png")), { code: "ENOENT" });
+    assert.deepEqual(JSON.parse(await readFile(join(outputDir, "manifest.json"), "utf8")), result.manifest);
+    const avatar = await readFile(join(outputDir, "alice-example.webp"));
+    const { format, width, height } = await sharp(avatar).metadata();
+    assert.deepEqual({ format, width, height }, { format: "webp", width: 192, height: 192 });
+    await assert.rejects(readFile(join(outputDir, "old-user.png")), {
+      code: "ENOENT",
+    });
   } finally {
     await rm(outputDir, { recursive: true, force: true });
   }

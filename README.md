@@ -27,8 +27,9 @@ You will also see any lint errors in the console.
 Builds the app for production to the `build` folder.
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
-Before prerendering, contributor avatars are downloaded from GitHub into `public/avatars`. A
-generated manifest lets prerendered pages serve those images from `/avatars/` on the library domain.
+Before prerendering, contributor avatars are downloaded from GitHub, resized to 192×192, encoded as
+WebP, and written to `public/avatars`. A generated manifest lets prerendered pages serve those images
+from `/avatars/` on the library domain.
 Set `LIBRARY_API_URL`, `AVATARS_OUTPUT_DIR`, or `AVATAR_SIZE` to override the downloader defaults.
 
 The build is minified and the filenames include the hashes.

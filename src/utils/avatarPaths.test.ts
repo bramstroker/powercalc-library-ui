@@ -13,8 +13,6 @@ describe("contributor avatar URLs", () => {
   });
 
   it("falls back to GitHub when an avatar was not downloaded", () => {
-    expect(contributorAvatarUrl("missing user", avatarPaths)).toBe(
-      "https://github.com/missing%20user.png",
-    );
+    expect(contributorAvatarUrl("missing user", avatarPaths)).toBe("https://github.com/missing%20user.png?size=192");
   });
 });

@@ -1,6 +1,7 @@
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 
 const DEFAULT_API_URL = "https://api.powercalc.nl/library";
 const DEFAULT_OUTPUT_DIR = resolve("public/avatars");
@@ -9,20 +10,10 @@ const DEFAULT_CONCURRENCY = 8;
 const MANIFEST_FILE_NAME = "manifest.json";
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
-// GitHub serves whatever the user uploaded, so the stored extension follows the response instead of
-// the `.png` in the request URL. Nginx picks the MIME type from that extension (see etc/nginx.conf).
-const EXTENSION_BY_CONTENT_TYPE = {
-  "image/png": "png",
-  "image/jpeg": "jpg",
-  "image/gif": "gif",
-  "image/webp": "webp",
-};
-
 // Avatars are addressed by username, so anything that is not a valid GitHub login cannot be stored
 // as a predictable file name and is skipped rather than escaped.
 const isValidUsername = (username) => /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/iu.test(username);
-const isGeneratedAvatarFile = (fileName) =>
-  /^[a-z\d](?:[a-z\d-]{0,38})\.(?:gif|jpe?g|png|webp)$/u.test(fileName);
+const isGeneratedAvatarFile = (fileName) => /^[a-z\d](?:[a-z\d-]{0,38})\.(?:gif|jpe?g|png|webp)$/u.test(fileName);
 
 const readManifest = async (outputDir) => {
   try {
@@ -47,10 +38,7 @@ export const collectAuthorUsernames = (library) => {
   return [...usernames].sort((a, b) => a.localeCompare(b));
 };
 
-export const avatarFileName = (username, contentType) => {
-  const extension = EXTENSION_BY_CONTENT_TYPE[String(contentType).split(";")[0].trim()];
-  return extension ? `${username.toLowerCase()}.${extension}` : undefined;
-};
+export const avatarFileName = (username) => `${username.toLowerCase()}.webp`;
 
 const downloadAvatar = async (username, { fetchImpl, outputDir, size }) => {
   const response = await fetchImpl(`https://github.com/${username}.png?size=${size}`, {
@@ -59,17 +47,20 @@ const downloadAvatar = async (username, { fetchImpl, outputDir, size }) => {
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-  const fileName = avatarFileName(username, response.headers.get("content-type"));
-  if (!fileName) {
-    throw new Error(`unsupported content type ${response.headers.get("content-type")}`);
-  }
-
   const contents = Buffer.from(await response.arrayBuffer());
   if (contents.byteLength > MAX_AVATAR_BYTES) {
     throw new Error(`avatar exceeds ${MAX_AVATAR_BYTES} bytes`);
   }
 
-  await writeFile(resolve(outputDir, fileName), contents);
+  // GitHub's `size` parameter is only a hint and its response format follows the original upload.
+  // Normalize both here so a 40–64 px UI avatar never ships a multi-megapixel PNG or JPEG.
+  const optimized = await sharp(contents, { animated: true })
+    .rotate()
+    .resize(size, size, { fit: "cover" })
+    .webp({ quality: 82, effort: 4 })
+    .toBuffer();
+  const fileName = avatarFileName(username);
+  await writeFile(resolve(outputDir, fileName), optimized);
   return fileName;
 };
 
@@ -85,7 +76,9 @@ export const downloadAvatars = async ({
   concurrency = DEFAULT_CONCURRENCY,
   fetchImpl = fetch,
 } = {}) => {
-  const response = await fetchImpl(apiUrl, { signal: AbortSignal.timeout(30_000) });
+  const response = await fetchImpl(apiUrl, {
+    signal: AbortSignal.timeout(30_000),
+  });
   if (!response.ok) {
     throw new Error(`Unable to download avatars: ${apiUrl} returned HTTP ${response.status}`);
   }
@@ -102,11 +95,18 @@ export const downloadAvatars = async ({
   const worker = async () => {
     for (let username = queue.shift(); username; username = queue.shift()) {
       try {
-        const fileName = await downloadAvatar(username, { fetchImpl, outputDir, size });
+        const fileName = await downloadAvatar(username, {
+          fetchImpl,
+          outputDir,
+          size,
+        });
         manifest[username] = `/avatars/${fileName}`;
         downloaded += 1;
       } catch (error) {
-        failures.push({ username, reason: error instanceof Error ? error.message : `${error}` });
+        failures.push({
+          username,
+          reason: error instanceof Error ? error.message : `${error}`,
+        });
       }
     }
   };
@@ -118,17 +118,13 @@ export const downloadAvatars = async ({
   await Promise.all(Array.from({ length: workerCount }, worker));
 
   const sortedManifest = Object.fromEntries(
-    usernames.flatMap((username) =>
-      manifest[username] ? [[username, manifest[username]]] : [],
-    ),
+    usernames.flatMap((username) => (manifest[username] ? [[username, manifest[username]]] : [])),
   );
   const currentFiles = new Set(Object.values(sortedManifest));
   await Promise.all(
     Object.values(previousManifest).map(async (previousPath) => {
       if (typeof previousPath !== "string" || currentFiles.has(previousPath)) return;
-      const fileName = previousPath.startsWith("/avatars/")
-        ? previousPath.slice("/avatars/".length)
-        : "";
+      const fileName = previousPath.startsWith("/avatars/") ? previousPath.slice("/avatars/".length) : "";
       if (!isGeneratedAvatarFile(fileName)) return;
 
       try {
@@ -141,13 +137,14 @@ export const downloadAvatars = async ({
     }),
   );
 
-  await writeFile(
-    resolve(outputDir, MANIFEST_FILE_NAME),
-    `${JSON.stringify(sortedManifest, null, 2)}\n`,
-    "utf8",
-  );
+  await writeFile(resolve(outputDir, MANIFEST_FILE_NAME), `${JSON.stringify(sortedManifest, null, 2)}\n`, "utf8");
 
-  return { total: usernames.length, downloaded, failures, manifest: sortedManifest };
+  return {
+    total: usernames.length,
+    downloaded,
+    failures,
+    manifest: sortedManifest,
+  };
 };
 
 const isMainModule = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);

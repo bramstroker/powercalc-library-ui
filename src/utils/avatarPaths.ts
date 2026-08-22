@@ -1,5 +1,4 @@
-const githubAvatarUrl = (username: string) =>
-  `https://github.com/${encodeURIComponent(username)}.png`;
+const githubAvatarUrl = (username: string) => `https://github.com/${encodeURIComponent(username)}.png?size=192`;
 
 const downloadedAvatarPaths: Readonly<Record<string, string>> = __AVATAR_PATHS__;
 
