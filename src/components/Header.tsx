@@ -65,7 +65,10 @@ export const Header = ({
           // Without this MUI overrides the bar with its own dark-scheme background, which now wins
           // over the sx rule because it is applied through a color-scheme selector.
           enableColorOnDark
-          sx={{justifyContent: "center", backgroundColor: indigo[700]}}
+          // The bar pins its own background, so it must pin the foreground too: the dark scheme's
+          // primary.contrastText is deliberately near-black (for filled indigo 300 controls) and
+          // would otherwise paint the title and actions black on indigo.
+          sx={{justifyContent: "center", backgroundColor: indigo[700], color: "common.white"}}
       >
         <Container maxWidth="xl">
           <Toolbar
