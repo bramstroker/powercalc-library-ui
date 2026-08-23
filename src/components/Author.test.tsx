@@ -5,7 +5,7 @@ import {
   screen,
   within,
 } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type {
@@ -94,25 +94,37 @@ vi.mock("../hooks/usePageMeta", () => ({
   usePageMeta: vi.fn(),
 }));
 
-const renderPage = (path = "/contributors/alice") =>
-  render(
+let currentSearch = "";
+
+const LocationProbe = () => {
+  currentSearch = useLocation().search;
+  return null;
+};
+
+const renderPage = (path = "/contributors/alice", profiles = aliceProfiles) => {
+  currentSearch = "";
+  return render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route
           path="/contributors/:authorName"
           element={
-            <Author
-              authorDetails={path.endsWith("/unknown") ? undefined : alice}
-              authorProfiles={path.endsWith("/unknown") ? [] : aliceProfiles}
-              authorRank={
-                path.endsWith("/unknown") ? null : { rank: 1, total: 2 }
-              }
-            />
+            <>
+              <Author
+                authorDetails={path.endsWith("/unknown") ? undefined : alice}
+                authorProfiles={path.endsWith("/unknown") ? [] : profiles}
+                authorRank={
+                  path.endsWith("/unknown") ? null : { rank: 1, total: 2 }
+                }
+              />
+              <LocationProbe />
+            </>
           }
         />
       </Routes>
     </MemoryRouter>,
   );
+};
 
 const profileModels = () =>
   within(screen.getByTestId("author-profile-list"))
@@ -176,6 +188,48 @@ describe("Author", () => {
       expect.stringContaining("P2"),
       expect.stringContaining("P1"),
     ]);
+  });
+
+  it("keeps the profile sort in the URL", () => {
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: "Newest" }));
+    expect(currentSearch).toContain("sort=newest");
+
+    fireEvent.click(screen.getByRole("button", { name: "Popular" }));
+    expect(currentSearch).not.toContain("sort=");
+  });
+
+  it("restores the profile sort from the URL", () => {
+    renderPage("/contributors/alice?sort=name");
+
+    expect(profileModels()).toEqual([
+      expect.stringContaining("P3"),
+      expect.stringContaining("P1"),
+      expect.stringContaining("P2"),
+    ]);
+  });
+
+  it("drops the distribution panels, sort and rank for a single contribution", () => {
+    renderPage("/contributors/alice", [aliceProfiles[0]]);
+
+    // "1 profiles across 1 manufacturers" was the old wording.
+    expect(
+      screen.getByText("1 profile across 1 manufacturer"),
+    ).toBeInTheDocument();
+
+    // One profile has no distribution: both breakdowns would be a single bar at 100%.
+    expect(
+      screen.queryByRole("heading", { name: "Device mix" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Top manufacturers" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Sort contributed profiles"),
+    ).not.toBeInTheDocument();
+    // Rank is a mass tie among everyone holding a single profile.
+    expect(screen.queryByText(/of 2 contributors/)).not.toBeInTheDocument();
   });
 
   it("shows a proper not-found state for an unknown contributor", () => {

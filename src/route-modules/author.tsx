@@ -14,6 +14,7 @@ import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { createPageMeta, MAX_ITEM_LIST_ENTRIES, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import { contributorAvatarUrl } from "../utils/avatarPaths";
+import { plural } from "../utils/plural";
 import { humanizeIdentifier } from "../utils/profilePresentation";
 import { authorPath, profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
@@ -47,7 +48,9 @@ export const clientLoader = prerenderedOrLiveClientLoader(loadAuthor);
 type AuthorData = Awaited<ReturnType<typeof loadAuthor>>;
 
 const authorDescription = ({ authorDetails, authorProfiles }: AuthorData) =>
-  `${authorProfiles.length} Powercalc device profiles contributed by ${authorDetails.name || authorDetails.githubUsername}.`;
+  `${plural(authorProfiles.length, "Powercalc device profile")} contributed by ${
+    authorDetails.name || authorDetails.githubUsername
+  }.`;
 
 export const authorStructuredData = (data: AuthorData): StructuredData[] => {
   const { authorDetails, authorProfiles } = data;

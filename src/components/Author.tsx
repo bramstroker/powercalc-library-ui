@@ -18,8 +18,8 @@ import {
   Typography,
 } from "@mui/material";
 import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
-import { Link as RouterLink } from "react-router";
+import { useMemo } from "react";
+import { Link as RouterLink, useSearchParams } from "react-router";
 
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
 import type {
@@ -27,6 +27,8 @@ import type {
   Manufacturer,
   PowerProfile,
 } from "../types/PowerProfile";
+import { getContributorTier } from "../utils/contributorTier";
+import { numberFormat, plural } from "../utils/plural";
 import { humanizeIdentifier } from "../utils/profilePresentation";
 import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
@@ -41,7 +43,8 @@ import { PageBreadcrumbs } from "./PageBreadcrumbs";
 type Counted<T> = T & { count: number };
 type ProfileSort = "popular" | "newest" | "name";
 
-const numberFormat = new Intl.NumberFormat("en-US");
+const PROFILE_SORTS: ProfileSort[] = ["popular", "newest", "name"];
+const DEFAULT_PROFILE_SORT: ProfileSort = "popular";
 
 const countBy = <T,>(
   items: T[],
@@ -148,9 +151,19 @@ export const Author = ({
   authorRank = null,
 }: AuthorProps) => {
   const githubUsername = authorDetails?.githubUsername;
-  const [profileSort, setProfileSort] = useState<ProfileSort>("popular");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sortParam = searchParams.get("sort") as ProfileSort | null;
+  const profileSort: ProfileSort =
+    sortParam && PROFILE_SORTS.includes(sortParam) ? sortParam : DEFAULT_PROFILE_SORT;
 
   const contributionCount = authorProfiles.length;
+  const tier = getContributorTier(contributionCount);
+  /**
+   * Distribution panels need something to distribute. Below the first tier a contributor has one
+   * or two profiles, and the breakdowns become two full-width bars at 100% restating the stat
+   * tiles above them.
+   */
+  const showBreakdowns = contributionCount >= 3;
   const displayName = authorDetails?.name || githubUsername || "Contributor";
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: "Home", to: "/" },
@@ -186,8 +199,6 @@ export const Author = ({
 
   const achievements = useMemo(() => {
     const labels: string[] = [];
-    if (manufacturers.length >= 5)
-      labels.push(`${manufacturers.length} manufacturers`);
     const primaryType = deviceTypes[0];
     if (
       primaryType &&
@@ -203,7 +214,7 @@ export const Author = ({
       labels.push("LUT contributor");
     }
     return labels.slice(0, 2);
-  }, [authorProfiles, contributionCount, deviceTypes, manufacturers.length]);
+  }, [authorProfiles, contributionCount, deviceTypes]);
 
   const sortedProfiles = useMemo(() => {
     return [...authorProfiles].sort((a, b) => {
@@ -270,23 +281,38 @@ export const Author = ({
               }),
           ]}
         >
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            sx={{ alignItems: { xs: "flex-start", sm: "center" }, gap: 2.5 }}
+          <Box
+            sx={{
+              display: "grid",
+              alignItems: "center",
+              columnGap: { xs: 2, sm: 2.5 },
+              rowGap: { xs: 1.75, sm: 0.75 },
+              gridTemplateColumns: {
+                xs: "auto minmax(0, 1fr)",
+                sm: "auto minmax(0, 1fr) auto",
+              },
+              // On a narrow screen the avatar shares its row with the name instead of sitting
+              // alone above an empty half-line; everything else drops to full width beneath.
+              gridTemplateAreas: {
+                xs: `"avatar identity" "meta meta" "actions actions"`,
+                sm: `"avatar identity actions" "avatar meta actions"`,
+              },
+            }}
           >
             <GithubAvatar
               username={githubUsername}
               name={authorDetails.name || githubUsername}
               sx={{
-                width: { xs: 80, sm: 96 },
-                height: { xs: 80, sm: 96 },
+                gridArea: "avatar",
+                width: { xs: 72, sm: 96 },
+                height: { xs: 72, sm: 96 },
                 border: 3,
                 borderColor: "primary.main",
                 boxShadow: 3,
               }}
             />
 
-            <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Box sx={{ gridArea: "identity", minWidth: 0 }}>
               <Typography
                 variant="h3"
                 component="h1"
@@ -302,11 +328,14 @@ export const Author = ({
               <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                 @{githubUsername} · Powercalc Library Contributor
               </Typography>
+            </Box>
+
+            <Box sx={{ gridArea: "meta", minWidth: 0 }}>
               {contributorSince && (
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ mt: 0.5 }}
+                  sx={{ mb: 1 }}
                 >
                   Contributing since {contributorSince}
                 </Typography>
@@ -315,7 +344,7 @@ export const Author = ({
               <Stack
                 direction="row"
                 useFlexGap
-                sx={{ flexWrap: "wrap", gap: 0.75, mt: 1.5 }}
+                sx={{ flexWrap: "wrap", gap: 0.75 }}
               >
                 <ContributorTierChip profileCount={contributionCount} />
                 {achievements.map((achievement) => (
@@ -326,11 +355,14 @@ export const Author = ({
                     label={achievement}
                   />
                 ))}
-                {authorRank && (
+                {authorRank && tier && (
                   <Chip
                     size="small"
                     variant="outlined"
-                    label={`#${authorRank.rank} of ${authorRank.total} contributors`}
+                    label={`#${authorRank.rank} of ${plural(
+                      authorRank.total,
+                      "contributor",
+                    )}`}
                   />
                 )}
               </Stack>
@@ -338,13 +370,13 @@ export const Author = ({
 
             <Stack
               direction={{ xs: "row", sm: "column" }}
-              sx={{ width: { xs: "100%", sm: "auto" }, gap: 1 }}
+              sx={{ gridArea: "actions", width: { xs: "100%", sm: "auto" }, gap: 1 }}
             >
               <Button
                 variant="contained"
                 component={RouterLink}
                 to={`/?author=${encodeURIComponent(githubUsername)}`}
-                sx={{ flex: { xs: 1, sm: "initial" } }}
+                sx={{ flex: { xs: 1, sm: "initial" }, whiteSpace: "nowrap" }}
               >
                 Open in library
               </Button>
@@ -354,12 +386,12 @@ export const Author = ({
                 href={`https://github.com/${githubUsername}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                sx={{ flex: { xs: 1, sm: "initial" } }}
+                sx={{ flex: { xs: 1, sm: "initial" }, whiteSpace: "nowrap" }}
               >
                 GitHub
               </Button>
             </Stack>
-          </Stack>
+          </Box>
 
           <Box
             sx={{
@@ -389,7 +421,7 @@ export const Author = ({
             />
             <Stat
               icon={<CalendarMonthIcon fontSize="small" />}
-              value={String(contributorSince)}
+              value={contributorSince ? String(contributorSince) : "—"}
               label="Since"
             />
           </Box>
@@ -457,6 +489,7 @@ export const Author = ({
           </Stack>
         </Paper>
 
+        {showBreakdowns && (
         <Box
           sx={{
             display: "grid",
@@ -535,15 +568,24 @@ export const Author = ({
             </Stack>
             {manufacturers.length > 5 && (
               <Typography
+                component={RouterLink}
+                to={`/?author=${encodeURIComponent(githubUsername)}`}
                 variant="caption"
-                color="text.secondary"
-                sx={{ display: "block", mt: 2 }}
+                sx={{
+                  display: "block",
+                  mt: 2,
+                  color: "text.secondary",
+                  textDecoration: "none",
+                  "&:hover": { color: "primary.main", textDecoration: "underline" },
+                }}
               >
-                And {manufacturers.length - 5} more manufacturers
+                And {plural(manufacturers.length - 5, "more manufacturer")} in
+                the library
               </Typography>
             )}
           </Paper>
         </Box>
+        )}
 
         <LazyAuthorContributionsChart profiles={authorProfiles} />
 
@@ -557,10 +599,11 @@ export const Author = ({
                 Contributed profiles
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {contributionCount} profiles across {manufacturers.length}{" "}
-                manufacturers
+                {plural(contributionCount, "profile")} across{" "}
+                {plural(manufacturers.length, "manufacturer")}
               </Typography>
             </Box>
+            {contributionCount > 1 && (
             <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
               <SortIcon fontSize="small" sx={{ color: "text.secondary" }} />
               <ToggleButtonGroup
@@ -569,7 +612,19 @@ export const Author = ({
                 value={profileSort}
                 aria-label="Sort contributed profiles"
                 onChange={(_event, next: ProfileSort | null) => {
-                  if (next) setProfileSort(next);
+                  if (!next) return;
+                  setSearchParams(
+                    (current) => {
+                      const params = new URLSearchParams(current);
+                      if (next === DEFAULT_PROFILE_SORT) {
+                        params.delete("sort");
+                      } else {
+                        params.set("sort", next);
+                      }
+                      return params;
+                    },
+                    { replace: true, preventScrollReset: true },
+                  );
                 }}
               >
                 <ToggleButton value="popular">Popular</ToggleButton>
@@ -577,6 +632,7 @@ export const Author = ({
                 <ToggleButton value="name">Name</ToggleButton>
               </ToggleButtonGroup>
             </Stack>
+            )}
           </Stack>
 
           <ProfileCardGrid

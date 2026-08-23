@@ -34,7 +34,10 @@ export const LazyAuthorContributionsChart = ({ profiles }: { profiles: PowerProf
   }, []);
 
   return (
-    <Box ref={anchorRef} sx={{ minHeight: profiles.length > 0 ? 240 : 0 }}>
+    // The reservation only holds the space until the chart arrives. Keeping it afterwards leaves
+    // a gap under any activity panel shorter than the placeholder — a contributor with a single
+    // contribution renders about 166px into a 240px box.
+    <Box ref={anchorRef} sx={{ minHeight: !visible && profiles.length > 0 ? 240 : 0 }}>
       {visible ? (
         <Suspense fallback={null}>
           <AuthorContributionsChart profiles={profiles} />

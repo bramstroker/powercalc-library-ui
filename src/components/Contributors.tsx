@@ -34,6 +34,7 @@ import { StructuredData } from "../seo/StructuredData";
 import type { ContributorSummary, PowerProfile } from "../types/PowerProfile";
 import { CONTRIBUTOR_TIERS, getContributorTier } from "../utils/contributorTier";
 import { formatDateUtc } from "../utils/dateFormat";
+import { numberFormat, plural } from "../utils/plural";
 import { daysSince } from "../utils/recency";
 import { authorPath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
@@ -44,8 +45,6 @@ import { PageBreadcrumbs } from "./PageBreadcrumbs";
 const RECENT_ACTIVITY_DAYS = 90;
 const PAGE_SIZE = 24;
 const RECENT_CONTRIBUTOR_COUNT = 6;
-const numberFormat = new Intl.NumberFormat("en-US");
-
 type SortKey = "recent" | "profiles" | "name";
 
 const SORT_KEYS: SortKey[] = ["recent", "profiles", "name"];
@@ -62,9 +61,6 @@ const displayName = ({ author }: ContributorSummary) =>
   author.name.trim() || author.githubUsername;
 
 const validDateTime = (date: Date | null) => date?.getTime() ?? Number.NEGATIVE_INFINITY;
-
-const plural = (count: number, singular: string, pluralValue = `${singular}s`) =>
-  `${numberFormat.format(count)} ${count === 1 ? singular : pluralValue}`;
 
 const withinRecentWindow = (profile: PowerProfile, now: Date) => {
   const age = daysSince(profile.createdAt, now);
