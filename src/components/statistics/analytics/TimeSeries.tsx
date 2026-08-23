@@ -1,6 +1,6 @@
 import BarChartIcon from "@mui/icons-material/BarChart";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
-import type {SelectChangeEvent} from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material";
 import {
   Box,
   Button,
@@ -10,32 +10,31 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Stack,
-  TextField
+  TextField,
 } from "@mui/material";
-import {useSuspenseQuery} from "@tanstack/react-query";
-import React, {useState} from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
 
-import type {TimeseriesResponse} from "../../../api/analytics.api";
-import {fetchTimeseries} from "../../../api/analytics.api";
+import type { TimeseriesResponse } from "../../../api/analytics.api";
+import { fetchTimeseries } from "../../../api/analytics.api";
 
-import {AnalyticsHeader} from "./AnalyticsHeader";
-import type {ChartType} from "./TimeSeriesChart";
-import { Grouping, TimeSeriesChart} from "./TimeSeriesChart";
+import { AnalyticsHeader } from "./AnalyticsHeader";
+import type { ChartType } from "./TimeSeriesChart";
+import { Grouping, TimeSeriesChart } from "./TimeSeriesChart";
 
 const transformTimeseriesForLineChart = (
-    response: TimeseriesResponse
+  response: TimeseriesResponse,
 ): { date: string; count: number }[] => {
   // Find the series with the name matching the metric in the query
-  const series = response.series.find(s => s.name === response.query.metric);
+  const series = response.series.find((s) => s.name === response.query.metric);
 
   if (!series) {
     return [];
   }
 
-  return series.points.map(point => ({
+  return series.points.map((point) => ({
     date: point.ts,
-    count: point.value
+    count: point.value,
   }));
 };
 
@@ -45,17 +44,20 @@ interface MetricOption {
   description?: string;
 }
 
-const METRIC_OPTIONS : MetricOption[] = [
-  { value: "optin_date", label: "Opt-in Date", description: "Number of installations that have opted in to analytics." },
+const METRIC_OPTIONS: MetricOption[] = [
+  {
+    value: "optin_date",
+    label: "Opt-in Date",
+    description: "Number of installations that have opted in to analytics.",
+  },
   { value: "install_date", label: "Install Date", description: "Number of new installations." },
   { value: "sensors", label: "Sensors", description: "Number of sensors created." },
 ];
 
-
 export const TimeSeries = () => {
   const [selectedGrouping, setSelectedGrouping] = useState<Grouping>(Grouping.Day);
   const [selectedMetric, setSelectedMetric] = useState<string>("install_date");
-  const [chartType, setChartType] = useState<ChartType>('line');
+  const [chartType, setChartType] = useState<ChartType>("line");
 
   // Default start date is 3 months ago
   const defaultStartDate = new Date();
@@ -77,15 +79,25 @@ export const TimeSeries = () => {
   };
 
   const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setStartDate(new Date(event.target.value));
+    if (!event.target.value) return;
+    const next = new Date(`${event.target.value}T00:00:00Z`);
+    if (!Number.isNaN(next.valueOf()) && next <= endDate) setStartDate(next);
   };
 
   const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEndDate(new Date(event.target.value));
+    if (!event.target.value) return;
+    const next = new Date(`${event.target.value}T00:00:00Z`);
+    if (!Number.isNaN(next.valueOf()) && next >= startDate) setEndDate(next);
   };
 
   const { data } = useSuspenseQuery<TimeseriesResponse>({
-    queryKey: ["timeseries", selectedMetric, selectedGrouping, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]],
+    queryKey: [
+      "timeseries",
+      selectedMetric,
+      selectedGrouping,
+      startDate.toISOString().split("T")[0],
+      endDate.toISOString().split("T")[0],
+    ],
     queryFn: async () => {
       return fetchTimeseries(selectedMetric, selectedGrouping, "UTC", startDate, endDate);
     },
@@ -103,8 +115,20 @@ export const TimeSeries = () => {
   ];
 
   const filterControls = (
-    <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
-      <FormControl sx={{ minWidth: 150 }}>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "minmax(0, 1fr)",
+          sm: "repeat(2, minmax(0, 1fr))",
+          lg: "150px 110px 150px 150px auto",
+        },
+        gap: 2,
+        width: { xs: "100%", lg: "auto" },
+        alignItems: "start",
+      }}
+    >
+      <FormControl sx={{ minWidth: 0 }}>
         <InputLabel id="metric-select-label">Metric</InputLabel>
         <Select
           labelId="metric-select-label"
@@ -120,7 +144,7 @@ export const TimeSeries = () => {
         </Select>
       </FormControl>
 
-      <FormControl sx={{ minWidth: 100 }}>
+      <FormControl sx={{ minWidth: 0 }}>
         <InputLabel id="grouping-select-label">Grouping</InputLabel>
         <Select
           labelId="grouping-select-label"
@@ -139,50 +163,50 @@ export const TimeSeries = () => {
       <TextField
         label="From"
         type="date"
-        value={startDate.toISOString().split('T')[0]}
+        value={startDate.toISOString().split("T")[0]}
         onChange={handleStartDateChange}
         slotProps={{
-          inputLabel: {
-            shrink: true,
-          },
+          htmlInput: { max: endDate.toISOString().split("T")[0] },
+          inputLabel: { shrink: true },
         }}
-        sx={{ width: 150 }}
       />
 
       <TextField
         label="To"
         type="date"
-        value={endDate.toISOString().split('T')[0]}
+        value={endDate.toISOString().split("T")[0]}
         onChange={handleEndDateChange}
         slotProps={{
-          inputLabel: {
-            shrink: true,
-          },
+          htmlInput: { min: startDate.toISOString().split("T")[0] },
+          inputLabel: { shrink: true },
         }}
-        sx={{ width: 150 }}
       />
 
-      <ButtonGroup variant="outlined" aria-label="Chart type selection">
-        <Button 
-          onClick={() => handleChartTypeChange('line')}
-          variant={chartType === 'line' ? 'contained' : 'outlined'}
+      <ButtonGroup
+        variant="outlined"
+        aria-label="Chart type selection"
+        sx={{ width: { xs: "100%", lg: "auto" }, "& .MuiButton-root": { flex: 1 } }}
+      >
+        <Button
+          onClick={() => handleChartTypeChange("line")}
+          variant={chartType === "line" ? "contained" : "outlined"}
           aria-label="Line chart"
         >
           <ShowChartIcon />
         </Button>
         <Divider orientation="vertical" flexItem />
-        <Button 
-          onClick={() => handleChartTypeChange('bar')}
-          variant={chartType === 'bar' ? 'contained' : 'outlined'}
+        <Button
+          onClick={() => handleChartTypeChange("bar")}
+          variant={chartType === "bar" ? "contained" : "outlined"}
           aria-label="Bar chart"
         >
           <BarChartIcon />
         </Button>
       </ButtonGroup>
-    </Stack>
+    </Box>
   );
 
-  const metricOption = METRIC_OPTIONS.find(option => option.value === selectedMetric);
+  const metricOption = METRIC_OPTIONS.find((option) => option.value === selectedMetric);
   if (!metricOption) {
     return <Box>Invalid metric selected.</Box>;
   }
@@ -203,10 +227,10 @@ export const TimeSeries = () => {
       <Box sx={{ mt: 4, mb: 4 }}>
         {chartData.length > 0 ? (
           <TimeSeriesChart
-              series={chartData}
-              label={metricOption.label}
-              chartType={chartType}
-              grouping={selectedGrouping}
+            series={chartData}
+            label={metricOption.label}
+            chartType={chartType}
+            grouping={selectedGrouping}
           />
         ) : (
           <Box sx={{ textAlign: "center", p: 4 }}>Loading data...</Box>

@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { authorPath, manufacturerPath, profilePath } from "../src/utils/urlSlugs.mjs";
+import { SENSOR_DIMENSIONS } from "../src/config/sensorDimensions.mjs";
 
 const DEFAULT_API_URL = "https://api.powercalc.nl/library";
 const DEFAULT_SITE_URL = "https://library.powercalc.nl";
@@ -105,10 +106,7 @@ export const collectSitemapEntries = (library) => {
         allDates.push(modified);
       }
 
-      add(
-        profilePath(manufacturer.dir_name, model.id),
-        modified,
-      );
+      add(profilePath(manufacturer.dir_name, model.id), modified);
 
       for (const author of model.authors ?? []) {
         if (!author.github) continue;
@@ -117,10 +115,7 @@ export const collectSitemapEntries = (library) => {
       }
     }
 
-    add(
-      manufacturerPath(manufacturer.dir_name),
-      newestDate(manufacturerDates),
-    );
+    add(manufacturerPath(manufacturer.dir_name), newestDate(manufacturerDates));
   }
 
   for (const [path, modified] of authorDates) add(path, modified);
@@ -145,6 +140,10 @@ export const collectSitemapEntries = (library) => {
     "/analytics/time-series",
   ]) {
     add(path);
+  }
+
+  for (const dimension of Object.keys(SENSOR_DIMENSIONS)) {
+    add(`/analytics/sensor-dimensions/${dimension}`);
   }
 
   return [...entries]

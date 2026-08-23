@@ -1,13 +1,6 @@
 import AutoGraphIcon from "@mui/icons-material/AutoGraph";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import {
-  Box,
-  Paper,
-  Stack,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Paper, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { useMemo } from "react";
 
@@ -71,11 +64,7 @@ export const AuthorContributionsChart = ({ profiles }: Props) => {
   if (buckets.length === 1) {
     const bucket = buckets[0];
     return (
-      <Paper
-        component="section"
-        variant="outlined"
-        sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}
-      >
+      <Paper component="section" variant="outlined" sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}>
         <Stack direction="row" sx={{ alignItems: "center", gap: 1, mb: 2 }}>
           <AutoGraphIcon color="primary" />
           <Typography variant="h6" component="h2" sx={{ fontWeight: 800 }}>
@@ -99,8 +88,7 @@ export const AuthorContributionsChart = ({ profiles }: Props) => {
               {formatDateUtc(bucket.start, { month: "long", year: "numeric" })}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {bucket.count} profile{bucket.count === 1 ? "" : "s"} contributed
-              that month
+              {bucket.count} profile{bucket.count === 1 ? "" : "s"} contributed that month
             </Typography>
           </Box>
         </Stack>
@@ -112,11 +100,7 @@ export const AuthorContributionsChart = ({ profiles }: Props) => {
   const labelStep = Math.ceil(buckets.length / maxLabels);
 
   return (
-    <Paper
-      component="section"
-      variant="outlined"
-      sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}
-    >
+    <Paper component="section" variant="outlined" sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}>
       <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
         <AutoGraphIcon color="primary" />
         <Box>
@@ -143,13 +127,10 @@ export const AuthorContributionsChart = ({ profiles }: Props) => {
             dataKey: "label",
             disableTicks: true,
             categoryGapRatio: 0.25,
-            tickLabelInterval: (_value, index) =>
-              (buckets.length - 1 - index) % labelStep === 0,
+            tickLabelInterval: (_value, index) => (buckets.length - 1 - index) % labelStep === 0,
           },
         ]}
-        yAxis={[
-          { width: 32, tickNumber: 3, disableLine: true, disableTicks: true },
-        ]}
+        yAxis={[{ width: 32, tickNumber: 3, disableLine: true, disableTicks: true }]}
         series={[
           {
             dataKey: "count",

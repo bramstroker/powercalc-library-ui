@@ -42,7 +42,9 @@ describe("ManufacturerLogo", () => {
   afterEach(cleanup);
 
   it("renders full-colour artwork as an image", async () => {
-    render(<ManufacturerLogo manufacturer={manufacturer({ dirName: "velux", fullName: "Velux" })} />);
+    render(
+      <ManufacturerLogo manufacturer={manufacturer({ dirName: "velux", fullName: "Velux" })} />,
+    );
 
     const img = await screen.findByRole("img", { name: "Velux logo" });
     expect(img).toHaveAttribute("src", expect.stringContaining("data:image/svg+xml"));

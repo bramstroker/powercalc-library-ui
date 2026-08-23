@@ -12,7 +12,9 @@ import {
   Paper,
   IconButton,
   Typography,
-  Avatar, useMediaQuery, useTheme,
+  Avatar,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import * as React from "react";
 import ReactCountryFlag from "react-country-flag";
@@ -28,7 +30,7 @@ interface CountryListPopupProps {
 export const CountryListPopup = ({ open, onClose, data }: CountryListPopupProps) => {
   const sortedData = React.useMemo(
     () => [...data].sort((a, b) => b.percentage - a.percentage),
-    [data]
+    [data],
   );
 
   const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
@@ -38,7 +40,7 @@ export const CountryListPopup = ({ open, onClose, data }: CountryListPopupProps)
   };
 
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <Dialog
@@ -80,34 +82,28 @@ export const CountryListPopup = ({ open, onClose, data }: CountryListPopupProps)
                   <TableCell>{index + 1}</TableCell>
                   <TableCell sx={{ display: "flex", alignItems: "center" }}>
                     <Avatar
-                        sx={{
-                          width: 24,
-                          height: 24,
-                          bgcolor: "transparent",
-                          mr: 2,
-                        }}
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        bgcolor: "transparent",
+                        mr: 2,
+                      }}
                     >
                       <ReactCountryFlag
-                          svg
-                          countryCode={country.country_code.toUpperCase()}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                          }}
+                        svg
+                        countryCode={country.country_code.toUpperCase()}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                        }}
                       />
                     </Avatar>
-                    <Typography variant="body2">
-                      {getCountryName(country.country_code)}
-                    </Typography>
+                    <Typography variant="body2">{getCountryName(country.country_code)}</Typography>
                   </TableCell>
-                  <TableCell align="right">
-                    {country.installation_count.toLocaleString()}
-                  </TableCell>
-                  <TableCell align="right">
-                    {country.percentage.toFixed(2)}%
-                  </TableCell>
+                  <TableCell align="right">{country.installation_count.toLocaleString()}</TableCell>
+                  <TableCell align="right">{country.percentage.toFixed(2)}%</TableCell>
                 </TableRow>
               ))}
             </TableBody>

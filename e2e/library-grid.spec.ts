@@ -99,7 +99,9 @@ test("focuses the search box with the / shortcut", async ({ page }) => {
   await expect(page.getByPlaceholder("Search all profiles")).toBeFocused();
 
   // The shortcut must not fire while another field is being typed into.
-  const facetSearch = page.getByTestId("facet-manufacturer").getByPlaceholder("Search manufacturer");
+  const facetSearch = page
+    .getByTestId("facet-manufacturer")
+    .getByPlaceholder("Search manufacturer");
   await facetSearch.fill("a/b");
 
   await expect(facetSearch).toHaveValue("a/b");

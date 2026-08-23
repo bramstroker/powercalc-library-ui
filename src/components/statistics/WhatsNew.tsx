@@ -47,14 +47,12 @@ export const WhatsNew = () => {
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         {recent.length} power {recent.length === 1 ? "profile" : "profiles"} added in the last{" "}
-        {NEW_PROFILE_WINDOW_DAYS} days. Anything from the last {NEW_PROFILE_DAYS} days is flagged as new across
-        the library.
+        {NEW_PROFILE_WINDOW_DAYS} days. Anything from the last {NEW_PROFILE_DAYS} days is flagged as
+        new across the library.
       </Typography>
 
       {recent.length === 0 && (
-        <Typography color="text.secondary">
-          No profiles have been added in this window.
-        </Typography>
+        <Typography color="text.secondary">No profiles have been added in this window.</Typography>
       )}
 
       {groups.map(([day, profiles]) => (
@@ -95,7 +93,11 @@ export const WhatsNew = () => {
                       </Box>
                     )}
                     <Typography variant="caption" color="text.secondary">
-                      by {profile.authors.map((author) => author.name).filter(Boolean).join(", ")}
+                      by{" "}
+                      {profile.authors
+                        .map((author) => author.name)
+                        .filter(Boolean)
+                        .join(", ")}
                     </Typography>
                   </Box>
                 </ListItemButton>

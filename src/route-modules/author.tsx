@@ -1,9 +1,4 @@
-import {
-  redirect,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-  useLoaderData,
-} from "react-router";
+import { redirect, type LoaderFunctionArgs, type MetaFunction, useLoaderData } from "react-router";
 
 import { Author } from "../components/Author";
 import { SITE_URL } from "../config/site";
@@ -21,10 +16,7 @@ import { authorPath, profilePath, slugifyPathSegment } from "../utils/urlSlugs.m
 // Declared separately from the `loader` export: the React Router Vite plugin strips server-only
 // exports from the client bundle, so a `clientLoader` referencing `loader` by name would throw
 // `ReferenceError: loader is not defined` in the browser.
-const loadAuthor = async ({
-  params,
-  request,
-}: Pick<LoaderFunctionArgs, "params" | "request">) => {
+const loadAuthor = async ({ params, request }: Pick<LoaderFunctionArgs, "params" | "request">) => {
   const authorName = params.authorName;
   if (!authorName) throw new Response("Missing author", { status: 404 });
 

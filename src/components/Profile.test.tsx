@@ -24,12 +24,13 @@ describe("ProfileMetrics", () => {
       contributors: 250,
     } satisfies Summary;
 
-    const html = renderToStaticMarkup(
-      <ProfileMetrics profile={profile} summary={summary} />,
-    );
+    const html = renderToStaticMarkup(<ProfileMetrics profile={profile} summary={summary} />);
 
-    expect(html).toContain("Insights");
-    expect(html).toContain("Used in 1.2% of installations");
-    expect(html).toContain("12 out of 1000 total");
+    expect(html).toContain("Community usage");
+    expect(html).toContain("12 opted-in installations");
+    expect(html).toContain("1.2% of 1,000 reporting installations");
+    expect(html).toContain("Help improve these insights.");
+    expect(html).toContain("Opt in to anonymous analytics");
+    expect(html).toContain("https://docs.powercalc.nl/misc/analytics/");
   });
 });

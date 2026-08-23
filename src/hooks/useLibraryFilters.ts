@@ -67,9 +67,11 @@ export const serializeFilters = (filters: LibraryFilters): URLSearchParams => {
   }
 
   const searchParams = new URLSearchParams();
-  entries.sort(([a], [b]) => a.localeCompare(b)).forEach(([key, value]) => {
-    searchParams.set(key, value);
-  });
+  entries
+    .sort(([a], [b]) => a.localeCompare(b))
+    .forEach(([key, value]) => {
+      searchParams.set(key, value);
+    });
   return searchParams;
 };
 

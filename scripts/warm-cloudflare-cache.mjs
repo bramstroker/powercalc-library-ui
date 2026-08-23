@@ -115,7 +115,9 @@ if (isMainModule) {
   const statusSummary = [...result.statuses]
     .map(([status, count]) => `${status}=${count}`)
     .join(", ");
-  console.log(`Warmed ${result.total - result.failures.length}/${result.total} URLs (${statusSummary})`);
+  console.log(
+    `Warmed ${result.total - result.failures.length}/${result.total} URLs (${statusSummary})`,
+  );
 
   if (result.failures.length > 0) {
     for (const failure of result.failures.slice(0, 20)) console.error(failure.message);

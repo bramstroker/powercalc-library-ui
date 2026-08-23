@@ -1,11 +1,11 @@
 import type { LibraryModel } from "../api/library.api";
 import type { ColorMode } from "../types/ColorMode";
 import type { DeviceType } from "../types/DeviceType";
-import type {LutQuality, Manufacturer, PowerProfile, UsageStats} from "../types/PowerProfile";
+import type { LutQuality, Manufacturer, PowerProfile, UsageStats } from "../types/PowerProfile";
 
 const mapLutQuality = (quality: LibraryModel["lut_quality"]): LutQuality | null =>
   quality
-    ? {score: quality.score, brightness: quality.brightness, colorTemp: quality.color_temp}
+    ? { score: quality.score, brightness: quality.brightness, colorTemp: quality.color_temp }
     : null;
 
 /**
@@ -21,6 +21,7 @@ export const mapToBasePowerProfile = (
     modelId: model.id,
     name: model.name,
     aliases: model.aliases ?? [],
+    legacyIds: model.legacy_ids ?? [],
     deviceType: model.device_type as DeviceType,
     colorModes: (model.color_modes || []) as ColorMode[],
     updatedAt: new Date(model.updated_at),
@@ -48,6 +49,6 @@ export const mapToBasePowerProfile = (
     linkedProfile: model.linked_profile ?? null,
     lutQuality: mapLutQuality(model.lut_quality),
     voltageRange: model.voltage_range ?? null,
-    usageStats: usageStats
+    usageStats: usageStats,
   };
-}
+};

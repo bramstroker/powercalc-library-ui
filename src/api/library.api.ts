@@ -6,6 +6,8 @@ export interface LibraryModel {
   device_type: string;
   color_modes?: string[];
   aliases?: string[];
+  /** Previous model directory IDs which should redirect to `id`. */
+  legacy_ids?: string[];
   authors?: Array<{
     name: string;
     email?: string;

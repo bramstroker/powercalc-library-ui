@@ -141,15 +141,16 @@ describe("applyFilters", () => {
 
   it("keeps profiles without a LUT under the not applicable band", () => {
     expect(
-      modelIds(applyFilters(profiles, withFilters({ facets: { qualityBand: ["Not applicable"] } }))),
+      modelIds(
+        applyFilters(profiles, withFilters({ facets: { qualityBand: ["Not applicable"] } })),
+      ),
     ).toEqual(["S31"]);
   });
 
   it("matches an author by display name or by github username", () => {
-    expect(modelIds(applyFilters(profiles, withFilters({ facets: { author: ["Bram"] } })))).toEqual([
-      "LCA001",
-      "S31",
-    ]);
+    expect(modelIds(applyFilters(profiles, withFilters({ facets: { author: ["Bram"] } })))).toEqual(
+      ["LCA001", "S31"],
+    );
     expect(
       modelIds(applyFilters(profiles, withFilters({ facets: { author: ["bramstroker"] } }))),
     ).toEqual(["LCA001", "S31"]);

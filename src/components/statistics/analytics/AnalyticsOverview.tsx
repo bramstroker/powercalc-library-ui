@@ -17,24 +17,25 @@ export const AnalyticsOverview = () => {
       />
 
       <Grid container spacing={4}>
-        <Grid size={{xs:12, md:6, lg:3}}>
-          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+          <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <CardContent sx={{ flexGrow: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <BarChartIcon sx={{ mr: 1, color: 'primary.main' }} />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <BarChartIcon sx={{ mr: 1, color: "primary.main" }} />
                 <Typography variant="h5" component="h2">
                   Sensor Usage
                 </Typography>
               </Box>
               <Typography variant="body1" color="text.secondary">
-                Explore sensor usage statistics across different dimensions with interactive pie charts. 
-                See how Powercalc sensors are distributed by device_type, strategies, and other categories.
+                Explore sensor usage statistics across different dimensions with interactive pie
+                charts. See how Powercalc sensors are distributed by device_type, strategies, and
+                other categories.
               </Typography>
             </CardContent>
             <CardActions>
-              <Button 
-                size="small" 
-                component={RouterLink} 
+              <Button
+                size="small"
+                component={RouterLink}
                 to="/analytics/sensor-dimensions"
                 variant="contained"
               >
@@ -44,24 +45,24 @@ export const AnalyticsOverview = () => {
           </Card>
         </Grid>
 
-        <Grid size={{xs:12, md:6, lg:3}}>
-          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+          <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <CardContent sx={{ flexGrow: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <TimelineIcon sx={{ mr: 1, color: 'primary.main' }} />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TimelineIcon sx={{ mr: 1, color: "primary.main" }} />
                 <Typography variant="h5" component="h2">
                   Installation Statistics
                 </Typography>
               </Box>
               <Typography variant="body1" color="text.secondary">
-                View installation statistics including Home Assistant and Powercalc versions used in installations.
-                See trends in opt-ins, total sensors, and geographical distribution.
+                View installation statistics including Home Assistant and Powercalc versions used in
+                installations. See trends in opt-ins, total sensors, and geographical distribution.
               </Typography>
             </CardContent>
             <CardActions>
-              <Button 
-                size="small" 
-                component={RouterLink} 
+              <Button
+                size="small"
+                component={RouterLink}
                 to="/analytics/installations"
                 variant="contained"
               >
@@ -71,24 +72,25 @@ export const AnalyticsOverview = () => {
           </Card>
         </Grid>
 
-        <Grid size={{xs:12, md:6, lg:3}}>
-          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+          <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <CardContent sx={{ flexGrow: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <TableChartIcon sx={{ mr: 1, color: 'primary.main' }} />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TableChartIcon sx={{ mr: 1, color: "primary.main" }} />
                 <Typography variant="h5" component="h2">
                   Profile Usage
                 </Typography>
               </Box>
               <Typography variant="body1" color="text.secondary">
-                Analyze profile usage statistics with detailed data on which library profiles are most popular.
-                See the number of sensors and installations for each profile, sorted by usage percentage.
+                Analyze profile usage statistics with detailed data on which library profiles are
+                most popular. See the number of sensors and installations for each profile, sorted
+                by usage percentage.
               </Typography>
             </CardContent>
             <CardActions>
-              <Button 
-                size="small" 
-                component={RouterLink} 
+              <Button
+                size="small"
+                component={RouterLink}
                 to="/analytics/profiles"
                 variant="contained"
               >
@@ -98,11 +100,11 @@ export const AnalyticsOverview = () => {
           </Card>
         </Grid>
 
-        <Grid size={{xs:12, md:6, lg:3}}>
-          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+          <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <CardContent sx={{ flexGrow: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <QueryStatsIcon sx={{ mr: 1, color: 'primary.main' }} />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <QueryStatsIcon sx={{ mr: 1, color: "primary.main" }} />
                 <Typography variant="h5" component="h2">
                   Usage Over Time
                 </Typography>

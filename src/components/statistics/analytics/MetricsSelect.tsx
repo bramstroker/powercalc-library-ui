@@ -1,13 +1,5 @@
-import type {
-  SelectChangeEvent,
-  FormControlProps,
-  SelectProps} from "@mui/material";
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
-} from "@mui/material";
+import type { SelectChangeEvent, FormControlProps, SelectProps } from "@mui/material";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
 export type MetricKey = "installation_count" | "count" | "percentage";
 
@@ -64,4 +56,3 @@ export const MetricsSelect = ({
     </FormControl>
   );
 };
-

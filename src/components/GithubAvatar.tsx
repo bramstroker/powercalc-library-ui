@@ -1,10 +1,7 @@
 import { Avatar, type AvatarProps } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import {
-  contributorAvatarUrl,
-  fallbackContributorAvatarUrl,
-} from "../utils/avatarPaths";
+import { contributorAvatarUrl, fallbackContributorAvatarUrl } from "../utils/avatarPaths";
 
 const initials = (name: string, username: string) => {
   const source = name.trim() || username;

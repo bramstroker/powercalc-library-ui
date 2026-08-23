@@ -8,10 +8,7 @@ import { useMemo } from "react";
 import { Link as RouterLink } from "react-router";
 
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
-import type {
-  Manufacturer as ManufacturerDetails,
-  PowerProfile,
-} from "../types/PowerProfile";
+import type { Manufacturer as ManufacturerDetails, PowerProfile } from "../types/PowerProfile";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ProfileCardGrid } from "./library/ProfileCardGrid";
@@ -20,15 +17,7 @@ import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
 const numberFormat = new Intl.NumberFormat("en-US");
 
-const HeroStat = ({
-  icon,
-  value,
-  label,
-}: {
-  icon: ReactNode;
-  value: number;
-  label: string;
-}) => (
+const HeroStat = ({ icon, value, label }: { icon: ReactNode; value: number; label: string }) => (
   <Box
     aria-label={`${numberFormat.format(value)} ${(value === 1 ? label.replace(/s$/, "") : label).toLowerCase()}`}
     sx={{
@@ -40,15 +29,9 @@ const HeroStat = ({
       bgcolor: "action.hover",
     }}
   >
-    <Stack
-      direction="row"
-      sx={{ alignItems: "center", gap: 0.75, color: "text.secondary" }}
-    >
+    <Stack direction="row" sx={{ alignItems: "center", gap: 0.75, color: "text.secondary" }}>
       {icon}
-      <Typography
-        variant="caption"
-        sx={{ fontWeight: 700, textTransform: "uppercase" }}
-      >
+      <Typography variant="caption" sx={{ fontWeight: 700, textTransform: "uppercase" }}>
         {label}
       </Typography>
     </Stack>
@@ -63,11 +46,7 @@ export type ManufacturerProps = {
   profiles?: PowerProfile[];
 };
 
-export const Manufacturer = ({
-  manufacturer,
-  profiles = [],
-}: ManufacturerProps) => {
-
+export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps) => {
   const profileCount = profiles.length;
   const displayName = manufacturer?.fullName ?? "";
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -158,11 +137,7 @@ export const Manufacturer = ({
             </Typography>
 
             {manufacturer.aliases.length > 0 && (
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ wordBreak: "break-word" }}
-              >
+              <Typography variant="body2" color="text.secondary" sx={{ wordBreak: "break-word" }}>
                 Also known as: {manufacturer.aliases.join(", ")}
               </Typography>
             )}
@@ -246,11 +221,7 @@ export const Manufacturer = ({
       {profilesByDeviceType.map(([deviceType, deviceProfiles]) => {
         const DeviceIcon = getDeviceTypeIcon(deviceType);
         return (
-          <Box
-            component="section"
-            key={deviceType}
-            sx={{ mb: { xs: 3, sm: 4 } }}
-          >
+          <Box component="section" key={deviceType} sx={{ mb: { xs: 3, sm: 4 } }}>
             <Stack
               direction="row"
               sx={{
@@ -259,17 +230,8 @@ export const Manufacturer = ({
                 mb: 1.5,
               }}
             >
-              <Stack
-                direction="row"
-                spacing={1}
-                sx={{ alignItems: "center", minWidth: 0 }}
-              >
-                {DeviceIcon && (
-                  <DeviceIcon
-                    fontSize="small"
-                    sx={{ color: "text.secondary" }}
-                  />
-                )}
+              <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 0 }}>
+                {DeviceIcon && <DeviceIcon fontSize="small" sx={{ color: "text.secondary" }} />}
                 <Typography
                   variant="h6"
                   component="h3"

@@ -22,11 +22,7 @@ import { useMemo } from "react";
 import { Link as RouterLink, useSearchParams } from "react-router";
 
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
-import type {
-  Author as AuthorDetails,
-  Manufacturer,
-  PowerProfile,
-} from "../types/PowerProfile";
+import type { Author as AuthorDetails, Manufacturer, PowerProfile } from "../types/PowerProfile";
 import { getContributorTier } from "../utils/contributorTier";
 import { numberFormat, plural } from "../utils/plural";
 import { humanizeIdentifier } from "../utils/profilePresentation";
@@ -46,10 +42,7 @@ type ProfileSort = "popular" | "newest" | "name";
 const PROFILE_SORTS: ProfileSort[] = ["popular", "newest", "name"];
 const DEFAULT_PROFILE_SORT: ProfileSort = "popular";
 
-const countBy = <T,>(
-  items: T[],
-  keyOf: (item: T) => string,
-): Counted<{ key: string }>[] => {
+const countBy = <T,>(items: T[], keyOf: (item: T) => string): Counted<{ key: string }>[] => {
   const counts = new Map<string, number>();
   for (const item of items) {
     const key = keyOf(item);
@@ -60,15 +53,7 @@ const countBy = <T,>(
     .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
 };
 
-const Stat = ({
-  icon,
-  value,
-  label,
-}: {
-  icon: ReactNode;
-  value: string;
-  label: string;
-}) => (
+const Stat = ({ icon, value, label }: { icon: ReactNode; value: string; label: string }) => (
   <Box
     sx={{
       minWidth: 0,
@@ -79,23 +64,13 @@ const Stat = ({
       bgcolor: "action.hover",
     }}
   >
-    <Stack
-      direction="row"
-      sx={{ alignItems: "center", gap: 0.75, color: "text.secondary" }}
-    >
+    <Stack direction="row" sx={{ alignItems: "center", gap: 0.75, color: "text.secondary" }}>
       {icon}
-      <Typography
-        variant="caption"
-        sx={{ fontWeight: 700, textTransform: "uppercase" }}
-      >
+      <Typography variant="caption" sx={{ fontWeight: 700, textTransform: "uppercase" }}>
         {label}
       </Typography>
     </Stack>
-    <Typography
-      component="p"
-      variant="h5"
-      sx={{ mt: 0.5, fontWeight: 800, lineHeight: 1.1 }}
-    >
+    <Typography component="p" variant="h5" sx={{ mt: 0.5, fontWeight: 800, lineHeight: 1.1 }}>
       {value}
     </Typography>
   </Box>
@@ -116,13 +91,8 @@ const BreakdownRow = ({
 }) => (
   <Box>
     <Stack direction="row" sx={{ alignItems: "center", gap: 1, mb: 0.75 }}>
-      {icon && (
-        <Box sx={{ display: "flex", color: "text.secondary" }}>{icon}</Box>
-      )}
-      <Typography
-        variant="body2"
-        sx={{ minWidth: 0, flex: 1, fontWeight: 600 }}
-      >
+      {icon && <Box sx={{ display: "flex", color: "text.secondary" }}>{icon}</Box>}
+      <Typography variant="body2" sx={{ minWidth: 0, flex: 1, fontWeight: 600 }}>
         {label}
       </Typography>
       <Typography variant="body2" color="text.secondary">
@@ -145,11 +115,7 @@ export type AuthorProps = {
   authorRank?: { rank: number; total: number } | null;
 };
 
-export const Author = ({
-  authorDetails,
-  authorProfiles = [],
-  authorRank = null,
-}: AuthorProps) => {
+export const Author = ({ authorDetails, authorProfiles = [], authorRank = null }: AuthorProps) => {
   const githubUsername = authorDetails?.githubUsername;
   const [searchParams, setSearchParams] = useSearchParams();
   const sortParam = searchParams.get("sort") as ProfileSort | null;
@@ -181,10 +147,7 @@ export const Author = ({
     for (const profile of authorProfiles) {
       byName.set(profile.manufacturer.dirName, profile.manufacturer);
     }
-    return countBy(
-      authorProfiles,
-      (profile) => profile.manufacturer.dirName,
-    ).map((entry) => ({
+    return countBy(authorProfiles, (profile) => profile.manufacturer.dirName).map((entry) => ({
       ...entry,
       manufacturer: byName.get(entry.key)!,
     }));
@@ -192,25 +155,16 @@ export const Author = ({
 
   const contributorSince = useMemo(() => {
     if (authorProfiles.length === 0) return null;
-    return Math.min(
-      ...authorProfiles.map((profile) => profile.createdAt.getFullYear()),
-    );
+    return Math.min(...authorProfiles.map((profile) => profile.createdAt.getFullYear()));
   }, [authorProfiles]);
 
   const achievements = useMemo(() => {
     const labels: string[] = [];
     const primaryType = deviceTypes[0];
-    if (
-      primaryType &&
-      contributionCount >= 5 &&
-      primaryType.count / contributionCount >= 0.5
-    ) {
+    if (primaryType && contributionCount >= 5 && primaryType.count / contributionCount >= 0.5) {
       labels.push(`${humanizeIdentifier(primaryType.key)} specialist`);
     }
-    if (
-      authorProfiles.filter((profile) => profile.calculationStrategy === "lut")
-        .length >= 5
-    ) {
+    if (authorProfiles.filter((profile) => profile.calculationStrategy === "lut").length >= 5) {
       labels.push("LUT contributor");
     }
     return labels.slice(0, 2);
@@ -332,37 +286,21 @@ export const Author = ({
 
             <Box sx={{ gridArea: "meta", minWidth: 0 }}>
               {contributorSince && (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 1 }}
-                >
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                   Contributing since {contributorSince}
                 </Typography>
               )}
 
-              <Stack
-                direction="row"
-                useFlexGap
-                sx={{ flexWrap: "wrap", gap: 0.75 }}
-              >
+              <Stack direction="row" useFlexGap sx={{ flexWrap: "wrap", gap: 0.75 }}>
                 <ContributorTierChip profileCount={contributionCount} />
                 {achievements.map((achievement) => (
-                  <Chip
-                    key={achievement}
-                    size="small"
-                    variant="outlined"
-                    label={achievement}
-                  />
+                  <Chip key={achievement} size="small" variant="outlined" label={achievement} />
                 ))}
                 {authorRank && tier && (
                   <Chip
                     size="small"
                     variant="outlined"
-                    label={`#${authorRank.rank} of ${plural(
-                      authorRank.total,
-                      "contributor",
-                    )}`}
+                    label={`#${authorRank.rank} of ${plural(authorRank.total, "contributor")}`}
                   />
                 )}
               </Stack>
@@ -437,23 +375,14 @@ export const Author = ({
             sx={{ alignItems: { sm: "center" }, gap: 2 }}
           >
             <Box sx={{ flex: 1 }}>
-              <Typography
-                variant="overline"
-                color="primary"
-                sx={{ fontWeight: 800 }}
-              >
+              <Typography variant="overline" color="primary" sx={{ fontWeight: 800 }}>
                 Community impact
               </Typography>
               <Typography variant="h4" component="h2" sx={{ fontWeight: 800 }}>
                 {numberFormat.format(knownDevices)} known devices
               </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mt: 0.5 }}
-              >
-                Powered by profiles contributed by{" "}
-                {authorDetails.name || githubUsername}.
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Powered by profiles contributed by {authorDetails.name || githubUsername}.
               </Typography>
             </Box>
             <Tooltip
@@ -490,101 +419,96 @@ export const Author = ({
         </Paper>
 
         {showBreakdowns && (
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "repeat(2, minmax(0, 1fr))" },
-            gap: { xs: 2, sm: 3 },
-          }}
-        >
-          <Paper
-            component="section"
-            variant="outlined"
-            sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "repeat(2, minmax(0, 1fr))" },
+              gap: { xs: 2, sm: 3 },
+            }}
           >
-            <Stack direction="row" sx={{ alignItems: "center", gap: 1, mb: 2 }}>
-              <DevicesOtherIcon color="primary" />
-              <Typography variant="h6" component="h2" sx={{ fontWeight: 800 }}>
-                Device mix
-              </Typography>
-            </Stack>
-            <Stack sx={{ gap: 2 }}>
-              {deviceTypes.map(({ key, count }) => {
-                const DeviceIcon = getDeviceTypeIcon(key);
-                return (
+            <Paper
+              component="section"
+              variant="outlined"
+              sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}
+            >
+              <Stack direction="row" sx={{ alignItems: "center", gap: 1, mb: 2 }}>
+                <DevicesOtherIcon color="primary" />
+                <Typography variant="h6" component="h2" sx={{ fontWeight: 800 }}>
+                  Device mix
+                </Typography>
+              </Stack>
+              <Stack sx={{ gap: 2 }}>
+                {deviceTypes.map(({ key, count }) => {
+                  const DeviceIcon = getDeviceTypeIcon(key);
+                  return (
+                    <BreakdownRow
+                      key={key}
+                      label={humanizeIdentifier(key)}
+                      count={count}
+                      total={contributionCount}
+                      accessibleLabel={`${humanizeIdentifier(key)} contribution share`}
+                      icon={DeviceIcon ? <DeviceIcon fontSize="small" /> : undefined}
+                    />
+                  );
+                })}
+              </Stack>
+            </Paper>
+
+            <Paper
+              component="section"
+              variant="outlined"
+              sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}
+            >
+              <Stack direction="row" sx={{ alignItems: "center", gap: 1, mb: 2 }}>
+                <FactoryIcon color="primary" />
+                <Typography variant="h6" component="h2" sx={{ fontWeight: 800 }}>
+                  Top manufacturers
+                </Typography>
+              </Stack>
+              <Stack sx={{ gap: 2 }}>
+                {manufacturers.slice(0, 5).map(({ manufacturer, count }) => (
                   <BreakdownRow
-                    key={key}
-                    label={humanizeIdentifier(key)}
+                    key={manufacturer.dirName}
+                    label={
+                      <Typography
+                        component={RouterLink}
+                        to={manufacturerPath(manufacturer.dirName)}
+                        sx={{
+                          color: "inherit",
+                          fontSize: "inherit",
+                          fontWeight: "inherit",
+                          textDecoration: "none",
+                          "&:hover": { color: "primary.main" },
+                        }}
+                      >
+                        {manufacturer.fullName}
+                      </Typography>
+                    }
                     count={count}
                     total={contributionCount}
-                    accessibleLabel={`${humanizeIdentifier(key)} contribution share`}
-                    icon={
-                      DeviceIcon ? <DeviceIcon fontSize="small" /> : undefined
-                    }
+                    accessibleLabel={`${manufacturer.fullName} contribution share`}
+                    icon={<ManufacturerLogo manufacturer={manufacturer} size={24} />}
                   />
-                );
-              })}
-            </Stack>
-          </Paper>
-
-          <Paper
-            component="section"
-            variant="outlined"
-            sx={{ p: { xs: 2, sm: 2.5 }, borderRadius: 3 }}
-          >
-            <Stack direction="row" sx={{ alignItems: "center", gap: 1, mb: 2 }}>
-              <FactoryIcon color="primary" />
-              <Typography variant="h6" component="h2" sx={{ fontWeight: 800 }}>
-                Top manufacturers
-              </Typography>
-            </Stack>
-            <Stack sx={{ gap: 2 }}>
-              {manufacturers.slice(0, 5).map(({ manufacturer, count }) => (
-                <BreakdownRow
-                  key={manufacturer.dirName}
-                  label={
-                    <Typography
-                      component={RouterLink}
-                      to={manufacturerPath(manufacturer.dirName)}
-                      sx={{
-                        color: "inherit",
-                        fontSize: "inherit",
-                        fontWeight: "inherit",
-                        textDecoration: "none",
-                        "&:hover": { color: "primary.main" },
-                      }}
-                    >
-                      {manufacturer.fullName}
-                    </Typography>
-                  }
-                  count={count}
-                  total={contributionCount}
-                  accessibleLabel={`${manufacturer.fullName} contribution share`}
-                  icon={
-                    <ManufacturerLogo manufacturer={manufacturer} size={24} />
-                  }
-                />
-              ))}
-            </Stack>
-            {manufacturers.length > 5 && (
-              <Typography
-                component={RouterLink}
-                to={`/?author=${encodeURIComponent(githubUsername)}`}
-                variant="caption"
-                sx={{
-                  display: "block",
-                  mt: 2,
-                  color: "text.secondary",
-                  textDecoration: "none",
-                  "&:hover": { color: "primary.main", textDecoration: "underline" },
-                }}
-              >
-                And {plural(manufacturers.length - 5, "more manufacturer")} in
-                the library
-              </Typography>
-            )}
-          </Paper>
-        </Box>
+                ))}
+              </Stack>
+              {manufacturers.length > 5 && (
+                <Typography
+                  component={RouterLink}
+                  to={`/?author=${encodeURIComponent(githubUsername)}`}
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    mt: 2,
+                    color: "text.secondary",
+                    textDecoration: "none",
+                    "&:hover": { color: "primary.main", textDecoration: "underline" },
+                  }}
+                >
+                  And {plural(manufacturers.length - 5, "more manufacturer")} in the library
+                </Typography>
+              )}
+            </Paper>
+          </Box>
         )}
 
         <LazyAuthorContributionsChart profiles={authorProfiles} />
@@ -604,41 +528,38 @@ export const Author = ({
               </Typography>
             </Box>
             {contributionCount > 1 && (
-            <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
-              <SortIcon fontSize="small" sx={{ color: "text.secondary" }} />
-              <ToggleButtonGroup
-                size="small"
-                exclusive
-                value={profileSort}
-                aria-label="Sort contributed profiles"
-                onChange={(_event, next: ProfileSort | null) => {
-                  if (!next) return;
-                  setSearchParams(
-                    (current) => {
-                      const params = new URLSearchParams(current);
-                      if (next === DEFAULT_PROFILE_SORT) {
-                        params.delete("sort");
-                      } else {
-                        params.set("sort", next);
-                      }
-                      return params;
-                    },
-                    { replace: true, preventScrollReset: true },
-                  );
-                }}
-              >
-                <ToggleButton value="popular">Popular</ToggleButton>
-                <ToggleButton value="newest">Newest</ToggleButton>
-                <ToggleButton value="name">Name</ToggleButton>
-              </ToggleButtonGroup>
-            </Stack>
+              <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
+                <SortIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                <ToggleButtonGroup
+                  size="small"
+                  exclusive
+                  value={profileSort}
+                  aria-label="Sort contributed profiles"
+                  onChange={(_event, next: ProfileSort | null) => {
+                    if (!next) return;
+                    setSearchParams(
+                      (current) => {
+                        const params = new URLSearchParams(current);
+                        if (next === DEFAULT_PROFILE_SORT) {
+                          params.delete("sort");
+                        } else {
+                          params.set("sort", next);
+                        }
+                        return params;
+                      },
+                      { replace: true, preventScrollReset: true },
+                    );
+                  }}
+                >
+                  <ToggleButton value="popular">Popular</ToggleButton>
+                  <ToggleButton value="newest">Newest</ToggleButton>
+                  <ToggleButton value="name">Name</ToggleButton>
+                </ToggleButtonGroup>
+              </Stack>
             )}
           </Stack>
 
-          <ProfileCardGrid
-            data-testid="author-profile-list"
-            profiles={sortedProfiles}
-          />
+          <ProfileCardGrid data-testid="author-profile-list" profiles={sortedProfiles} />
         </Box>
       </Stack>
     </>

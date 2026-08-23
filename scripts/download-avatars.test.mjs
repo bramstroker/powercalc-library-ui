@@ -37,7 +37,10 @@ test("downloads avatars and writes a same-origin manifest", async () => {
 
   try {
     await writeFile(join(outputDir, "old-user.png"), "old");
-    await writeFile(join(outputDir, "manifest.json"), `${JSON.stringify({ "old-user": "/avatars/old-user.png" })}\n`);
+    await writeFile(
+      join(outputDir, "manifest.json"),
+      `${JSON.stringify({ "old-user": "/avatars/old-user.png" })}\n`,
+    );
 
     const fetchImpl = async (url) => {
       if (url === "https://example.com/library") {
@@ -69,7 +72,10 @@ test("downloads avatars and writes a same-origin manifest", async () => {
     assert.deepEqual(result.manifest, {
       "alice-example": "/avatars/alice-example.webp",
     });
-    assert.deepEqual(JSON.parse(await readFile(join(outputDir, "manifest.json"), "utf8")), result.manifest);
+    assert.deepEqual(
+      JSON.parse(await readFile(join(outputDir, "manifest.json"), "utf8")),
+      result.manifest,
+    );
     const avatar = await readFile(join(outputDir, "alice-example.webp"));
     const { format, width, height } = await sharp(avatar).metadata();
     assert.deepEqual({ format, width, height }, { format: "webp", width: 192, height: 192 });

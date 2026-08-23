@@ -1,4 +1,4 @@
-import {StatisticsAggregator} from "./StatisticsAggregator";
+import { StatisticsAggregator } from "./StatisticsAggregator";
 
 export const TopManufacturers = () => {
   return (

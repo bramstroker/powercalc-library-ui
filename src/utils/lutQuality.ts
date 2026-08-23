@@ -39,7 +39,10 @@ export const sortByQualityBand = <T extends { value: string }>(options: T[]): T[
 };
 
 /** MUI palette colour per band, for chips and the grid cell. */
-export const QUALITY_BAND_COLORS: Record<QualityBand, "success" | "info" | "warning" | "error" | "default"> = {
+export const QUALITY_BAND_COLORS: Record<
+  QualityBand,
+  "success" | "info" | "warning" | "error" | "default"
+> = {
   Excellent: "success",
   Good: "info",
   Fair: "warning",

@@ -5,7 +5,7 @@ export type Author = {
   name: string;
   email?: string | null;
   githubUsername: string;
-}
+};
 
 export type ContributorSummary = {
   author: Author;
@@ -15,13 +15,13 @@ export type ContributorSummary = {
   firstContributionAt: Date | null;
   latestContributionAt: Date | null;
   latestProfile: PowerProfile | null;
-}
+};
 
 export type UsageStats = {
   installationCount: number;
   deviceCount: number;
   percentage: number;
-}
+};
 
 /**
  * Smoothness of the measured curves, 0-100. `score` is the worst over every LUT file of the
@@ -31,19 +31,21 @@ export type LutQuality = {
   score: number;
   brightness?: number;
   colorTemp?: number;
-}
+};
 
 /** Mains voltage in volts observed while the measurements were taken. */
 export type VoltageRange = {
   min: number;
   max: number;
-}
+};
 
 export type PowerProfile = {
   manufacturer: Manufacturer;
   modelId: string;
   name: string;
   aliases: string[];
+  /** Previous model directory IDs retained for canonical URL redirects. */
+  legacyIds?: string[];
   deviceType: DeviceType;
   colorModes: ColorMode[];
   updatedAt?: Date | null;
@@ -83,8 +85,8 @@ export interface Manufacturer {
 
 export type SubProfile = {
   name: string;
-  rawJson: Record<string, unknown>
-}
+  rawJson: Record<string, unknown>;
+};
 
 export interface PlotLink {
   url: string;

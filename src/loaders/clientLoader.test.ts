@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { loadPrerenderedOrLive } from "./clientLoader";
 
 const args = (serverLoader: () => Promise<unknown>) =>
-  ({ serverLoader } as Parameters<typeof loadPrerenderedOrLive>[0]);
+  ({ serverLoader }) as Parameters<typeof loadPrerenderedOrLive>[0];
 
 describe("loadPrerenderedOrLive", () => {
   it("uses generated route data when it exists", async () => {
@@ -11,7 +11,10 @@ describe("loadPrerenderedOrLive", () => {
     const generated = { modelId: "existing" };
 
     await expect(
-      loadPrerenderedOrLive(args(async () => generated), liveLoader),
+      loadPrerenderedOrLive(
+        args(async () => generated),
+        liveLoader,
+      ),
     ).resolves.toBe(generated);
     expect(liveLoader).not.toHaveBeenCalled();
   });

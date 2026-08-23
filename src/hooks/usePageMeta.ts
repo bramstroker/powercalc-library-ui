@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { SITE_NAME, SITE_URL } from "../config/site";
+import { SITE_NAME, SITE_URL, SOCIAL_IMAGE_URL } from "../config/site";
 import { DEFAULT_DESCRIPTION } from "../seo/meta";
 
 const upsertMeta = (attribute: "name" | "property", key: string, content: string) => {
@@ -59,7 +59,16 @@ export const usePageMeta = ({ title, description, noIndex = false }: PageMeta) =
     upsertMeta("property", "og:description", resolvedDescription);
     upsertMeta("property", "og:type", "website");
     upsertMeta("property", "og:url", resolvedCanonicalUrl);
-    upsertMeta("name", "twitter:card", "summary");
+    upsertMeta("property", "og:site_name", SITE_NAME);
+    upsertMeta("property", "og:image", SOCIAL_IMAGE_URL);
+    upsertMeta("property", "og:image:width", "1200");
+    upsertMeta("property", "og:image:height", "630");
+    upsertMeta("property", "og:image:alt", "Powercalc profile library");
+    upsertMeta("name", "twitter:card", "summary_large_image");
+    upsertMeta("name", "twitter:title", fullTitle);
+    upsertMeta("name", "twitter:description", resolvedDescription);
+    upsertMeta("name", "twitter:image", SOCIAL_IMAGE_URL);
+    upsertMeta("name", "twitter:image:alt", "Powercalc profile library");
     upsertCanonical(resolvedCanonicalUrl);
     if (noIndex) {
       upsertMeta("name", "robots", "noindex, follow");

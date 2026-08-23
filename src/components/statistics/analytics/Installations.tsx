@@ -3,15 +3,8 @@ import Grid from "@mui/material/Grid";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import React from "react";
 
-import type {
-  CountryStats,
-  TimeseriesResponse,
-  VersionStats} from "../../../api/analytics.api";
-import {
-  fetchCountries,
-  fetchTimeseries,
-  fetchVersions
-} from "../../../api/analytics.api";
+import type { CountryStats, TimeseriesResponse, VersionStats } from "../../../api/analytics.api";
+import { fetchCountries, fetchTimeseries, fetchVersions } from "../../../api/analytics.api";
 import { useSummary } from "../../../hooks/useSummary";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
@@ -46,11 +39,11 @@ const formatUTCDateKey = (d: Date) => {
 };
 
 const buildSparklineData = (
-    response: TimeseriesResponse,
-    metric: string,
-    fromUTC: Date,
-    toUTC: Date,
-    locale = "en-US"
+  response: TimeseriesResponse,
+  metric: string,
+  fromUTC: Date,
+  toUTC: Date,
+  locale = "en-US",
 ): SparkPoint[] => {
   const points = response.series.find((s) => s.name === metric)?.points ?? [];
 
@@ -93,20 +86,23 @@ export const Installations = () => {
     },
   });
 
-  const haVersions = React.useMemo(() => data.versionsData.ha_versions.slice(0, 10), [data.versionsData]);
+  const haVersions = React.useMemo(
+    () => data.versionsData.ha_versions.slice(0, 10),
+    [data.versionsData],
+  );
   const pcVersions = React.useMemo(
-      () => data.versionsData.powercalc_versions.slice(0, 10),
-      [data.versionsData]
+    () => data.versionsData.powercalc_versions.slice(0, 10),
+    [data.versionsData],
   );
 
   const optinsSeries = React.useMemo(
-      () => buildSparklineData(data.optinsData, "optin_date", fromUTC, toUTC),
-      [data.optinsData, fromUTC, toUTC]
+    () => buildSparklineData(data.optinsData, "optin_date", fromUTC, toUTC),
+    [data.optinsData, fromUTC, toUTC],
   );
 
   const sensorsSeries = React.useMemo(
-      () => buildSparklineData(data.sensorsData, "sensors", fromUTC, toUTC),
-      [data.sensorsData, fromUTC, toUTC]
+    () => buildSparklineData(data.sensorsData, "sensors", fromUTC, toUTC),
+    [data.sensorsData, fromUTC, toUTC],
   );
 
   const avgSensorsPerInstallation = React.useMemo(() => {
@@ -121,65 +117,69 @@ export const Installations = () => {
   }, [optinsSeries]);
 
   return (
-      <>
-        <AnalyticsHeader
-            title="Installation statistics"
-            description="Overview of Home Assistant and PowerCalc versions used in installations."
-            breadcrumbItems={[
-              { label: "Home", to: "/" },
-              { label: "Analytics", to: "/analytics" },
-              { label: "Installations" },
-            ]}
-        />
+    <>
+      <AnalyticsHeader
+        title="Installation statistics"
+        description="Overview of Home Assistant and PowerCalc versions used in installations."
+        breadcrumbItems={[
+          { label: "Home", to: "/" },
+          { label: "Analytics", to: "/analytics" },
+          { label: "Installations" },
+        ]}
+      />
 
-        <Grid container spacing={4} sx={{ alignItems: 'stretch' }}>
-          <Grid size={{ xs: 12, md: 8 }}>
-            <Stack spacing={4}>
-              <VersionChart title="Home Assistant Versions" data={haVersions} color="#7986cb" />
-              <VersionChart title="PowerCalc Versions" data={pcVersions} color="#f50057" />
-            </Stack>
-          </Grid>
+      <Grid container spacing={4} sx={{ alignItems: "stretch" }}>
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Stack spacing={4}>
+            <VersionChart title="Home Assistant Versions" data={haVersions} color="#7986cb" />
+            <VersionChart title="PowerCalc Versions" data={pcVersions} color="#f50057" />
+          </Stack>
+        </Grid>
 
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Stack spacing={4}>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <StatCard
-                      title="Opt-ins"
-                      value={
-                        summaryData.sampled_installations != null
-                            ? new Intl.NumberFormat("en", { notation: "compact" }).format(summaryData.sampled_installations)
-                            : "0"
-                      }
-                      interval={`${optinsLastMonth} in last 30 days`}
-                      trend="up"
-                      hideTrendIcon
-                      tooltip="Number of users who have opted in for analytics"
-                      data={optinsSeries}
-                  />
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <StatCard
-                      title="Total sensors"
-                      value={
-                        summaryData.total_sensors != null
-                            ? new Intl.NumberFormat("en", { notation: "compact", }).format(summaryData.total_sensors)
-                            : "0"
-                      }
-                      interval={`avg ${avgSensorsPerInstallation.toFixed(0)} per installation`}
-                      trend="up"
-                      hideTrendIcon
-                      tooltip="Total number of PowerCalc sensors created across all installations"
-                      data={sensorsSeries}
-                  />
-                </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Stack spacing={4}>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <StatCard
+                  title="Opt-ins"
+                  value={
+                    summaryData.sampled_installations != null
+                      ? new Intl.NumberFormat("en", { notation: "compact" }).format(
+                          summaryData.sampled_installations,
+                        )
+                      : "0"
+                  }
+                  interval={`${optinsLastMonth} in last 30 days`}
+                  trend="up"
+                  hideTrendIcon
+                  tooltip="Number of users who have opted in for analytics"
+                  data={optinsSeries}
+                />
               </Grid>
 
-              <TopCountriesList data={data.countriesData ?? []} limit={10} />
-            </Stack>
-          </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <StatCard
+                  title="Total sensors"
+                  value={
+                    summaryData.total_sensors != null
+                      ? new Intl.NumberFormat("en", { notation: "compact" }).format(
+                          summaryData.total_sensors,
+                        )
+                      : "0"
+                  }
+                  interval={`avg ${avgSensorsPerInstallation.toFixed(0)} per installation`}
+                  trend="up"
+                  hideTrendIcon
+                  tooltip="Total number of PowerCalc sensors created across all installations"
+                  data={sensorsSeries}
+                />
+              </Grid>
+            </Grid>
+
+            <TopCountriesList data={data.countriesData ?? []} limit={10} />
+          </Stack>
         </Grid>
-      </>
+      </Grid>
+    </>
   );
 };

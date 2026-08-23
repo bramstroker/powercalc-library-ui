@@ -20,10 +20,8 @@ export const DefaultPageLayout = () => {
 
       <Header />
 
-      <Container component="main" maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>
-        <AppBoundary>
-          {isChangingPage ? <PageSpinner /> : <Outlet />}
-        </AppBoundary>
+      <Container id="main-content" component="main" maxWidth="lg" sx={{ mt: 4, mb: 4, flex: 1 }}>
+        <AppBoundary>{isChangingPage ? <PageSpinner /> : <Outlet />}</AppBoundary>
       </Container>
 
       <Footer />

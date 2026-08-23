@@ -43,15 +43,15 @@ it wants:
 
 - **Monochrome** — the file paints everything with `fill="currentColor"`. It is inlined into the
   page so it can inherit a colour. Add `data-brand="#rrggbb"` to the root `<svg>` to name the brand
-  ink. Where that ink lacks contrast against a scheme the component *darkens or lightens it, keeping
-  the hue*, rather than discarding it — TP-Link's cyan turning black on the light theme reads as the
+  ink. Where that ink lacks contrast against a scheme the component _darkens or lightens it, keeping
+  the hue_, rather than discarding it — TP-Link's cyan turning black on the light theme reads as the
   wrong logo, where a deeper cyan still reads as TP-Link. A colour with no hue to preserve (Sonos'
   black, Sony's white) or one pinned to either end of the lightness range (Denon's near-black
   `#0B131A`) is dropped for the theme's text colour instead, which is crisper than a muddy grey.
   **Always set `data-brand` for a coloured mark** — without it the logo silently renders in plain
   black and white.
 - **Full colour** — the file keeps its own fills and is rendered as an `<img>`. Use it when the
-  artwork needs more than one ink to be recognisable *and* reads on both a white and a near-black
+  artwork needs more than one ink to be recognisable _and_ reads on both a white and a near-black
   background: IKEA's blue-and-yellow, Lidl, Google's four-colour G, Velux.
 - **Two-tone** — a file may mix the two: Amazon paints its wordmark with `currentColor` and keeps
   `#f90` on the smile, so the type follows the theme while the brand colour stays put. That is
@@ -97,7 +97,7 @@ inkscape --pdf-poppler --export-type=svg --export-plain-svg --export-filename=lo
 
 Keep the result small. If you shorten coordinates, be
 careful: path data packs numbers without separators and relies on the leading `.` to delimit them,
-so `.0004.1285` is *two* numbers. Rounding them to `0` and `.129` and writing them back adjacent
+so `.0004.1285` is _two_ numbers. Rounding them to `0` and `.129` and writing them back adjacent
 gives `00.129`, which reads as one number and shifts every coordinate after it — the glyphs quietly
 fall apart. Round with a tokeniser, keep the compact `.5` form, and scale the precision to the
 viewBox (2 decimals is generous at 2000 units and destroys a 24-unit Simple Icon).
@@ -116,7 +116,7 @@ Sources worth trying, roughly in yield order for this domain:
 
 - **Wikimedia Commons** has SVG logos for anything with a Wikipedia article (24). Search the file
   namespace directly rather than relying on Wikidata's `P154` property, which is often unset — but
-  require the brand name in the *filename*, or "Free" matches half of Commons.
+  require the brand name in the _filename_, or "Free" matches half of Commons.
 - **The manufacturer's own site** is the biggest source for smart-home brands (17). Most serve
   their header logo as SVG. Sweep them with a headless browser and pick candidates from `<img>`
   elements inside a header or with "logo" in the URL, plus inline `<svg>` near the top of the page.
@@ -127,8 +127,8 @@ Sources worth trying, roughly in yield order for this domain:
 - **Home Assistant's `brands` repo** covers almost every one of the missing names, but it is PNG
   only, so nothing there can be used as-is.
 - **Social media** is where a brand survives once its website is gone — 3A Smart Home's mark only
-  exists on its Facebook page now that the domain has been sold on. Note that the page's *profile
-  picture* may be empty (`is_silhouette: true` from the Graph API) while the logo sits in the photos
+  exists on its Facebook page now that the domain has been sold on. Note that the page's _profile
+  picture_ may be empty (`is_silhouette: true` from the Graph API) while the logo sits in the photos
   section, so an API check alone will wrongly report nothing.
 
 ## Tracing a raster
@@ -147,7 +147,7 @@ magick flat.png -alpha off -fuzz 22% -transparent "$bg" -alpha extract -threshol
 potrace --svg --turdsize 4 --alphamax 1.0 --opttolerance 0.2 -o logo.svg mask.pbm
 ```
 
-potrace paints every trace `#000000`, so sample the brand ink separately — from the *interior* of
+potrace paints every trace `#000000`, so sample the brand ink separately — from the _interior_ of
 the mask (erode it a few pixels first), or antialiased edge pixels drag the average toward the
 background and a black wordmark comes out near-white. Where the ink samples as white, record no
 `data-brand` at all and let the theme colour it; asserting white makes the logo vanish on the light
@@ -189,7 +189,7 @@ Exports carry shapes that are not part of the logo, and they bite in specific wa
 
 - **White artboard rects.** A full-canvas white rectangle is invisible on a white page and a white
   block on the dark theme. Strip them — but only plain rectangles: Lidl's white keyline is also
-  full-canvas and *is* part of the logo, and a `<rect>` inside a `<clipPath>` is geometry, not
+  full-canvas and _is_ part of the logo, and a `<rect>` inside a `<clipPath>` is geometry, not
   paint, so removing it empties the clip and hides everything the clip applies to.
 - **`<style>` blocks live inside `<defs>`.** Deleting `<defs>` wholesale to drop gradients also
   deletes the stylesheet, at which point class-based rules vanish and a shape styled
@@ -201,7 +201,7 @@ Exports carry shapes that are not part of the logo, and they bite in specific wa
 - **A `<style>` block is global once a logo is inlined.** Illustrator emits `.st0`, `.cls-1` and
   friends in every file it exports, so two inlined logos defining the same class fight and whichever
   rendered last wins for both — NodOn's orange disappeared whenever Linkind loaded after it.
-  Scoping the class names would only fix collisions *between classes*; a file containing
+  Scoping the class names would only fix collisions _between classes_; a file containing
   `path { fill: #000 }` would still repaint every other logo on the page. So no file here keeps a
   stylesheet at all: the build flattens each `<style>` block into presentation attributes and drops
   the now-dead `class` attributes, leaving nothing that can escape the file. Resolve the cascade

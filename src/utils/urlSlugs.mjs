@@ -20,8 +20,7 @@ const encodeSlug = (value) => encodeURIComponent(slugifyPathSegment(value));
 export const authorPath = (author) => `/contributors/${encodeSlug(author)}`;
 
 /** @param {string} manufacturer */
-export const manufacturerPath = (manufacturer) =>
-  `/manufacturers/${encodeSlug(manufacturer)}`;
+export const manufacturerPath = (manufacturer) => `/manufacturers/${encodeSlug(manufacturer)}`;
 
 /** @param {string} manufacturer @param {string} model */
 export const profilePath = (manufacturer, model) =>

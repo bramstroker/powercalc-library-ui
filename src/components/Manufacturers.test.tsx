@@ -37,7 +37,9 @@ const renderPage = () =>
   );
 
 const search = (text: string) => {
-  fireEvent.change(screen.getByPlaceholderText("Search manufacturers"), { target: { value: text } });
+  fireEvent.change(screen.getByPlaceholderText("Search manufacturers"), {
+    target: { value: text },
+  });
 };
 
 const cardNames = () =>

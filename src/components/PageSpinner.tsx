@@ -19,7 +19,11 @@ export const useIsChangingPage = () => {
 
 export const PageSpinner = () => (
   <Container maxWidth="lg" sx={{ mt: 4 }}>
-    <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }} role="status" aria-label="Loading page">
+    <Box
+      sx={{ display: "flex", justifyContent: "center", mt: 8 }}
+      role="status"
+      aria-label="Loading page"
+    >
       <CircularProgress />
     </Box>
   </Container>

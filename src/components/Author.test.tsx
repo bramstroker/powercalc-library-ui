@@ -1,18 +1,8 @@
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  within,
-} from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type {
-  Author as AuthorDetails,
-  Manufacturer,
-  PowerProfile,
-} from "../types/PowerProfile";
+import type { Author as AuthorDetails, Manufacturer, PowerProfile } from "../types/PowerProfile";
 
 import { Author } from "./Author";
 
@@ -113,9 +103,7 @@ const renderPage = (path = "/contributors/alice", profiles = aliceProfiles) => {
               <Author
                 authorDetails={path.endsWith("/unknown") ? undefined : alice}
                 authorProfiles={path.endsWith("/unknown") ? [] : profiles}
-                authorRank={
-                  path.endsWith("/unknown") ? null : { rank: 1, total: 2 }
-                }
+                authorRank={path.endsWith("/unknown") ? null : { rank: 1, total: 2 }}
               />
               <LocationProbe />
             </>
@@ -137,39 +125,31 @@ describe("Author", () => {
   it("renders contributor identity, impact, breakdowns and human-readable labels", () => {
     renderPage();
 
-    expect(
-      screen.getByRole("heading", { name: "Alice Example", level: 1 }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "73 known devices", level: 2 }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("@alice · Powercalc Library Contributor"),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Alice Example", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "73 known devices", level: 2 })).toBeInTheDocument();
+    expect(screen.getByText("@alice · Powercalc Library Contributor")).toBeInTheDocument();
     expect(screen.getByText("Contributing since 2022")).toBeInTheDocument();
     expect(screen.getByText("73 known devices")).toBeInTheDocument();
     expect(screen.getByText("75")).toBeInTheDocument();
     expect(screen.getByText("known profile installations")).toBeInTheDocument();
     expect(screen.getAllByText("Smart Switch").length).toBeGreaterThan(0);
-    expect(
-      screen.getByText("3 profiles across 2 manufacturers"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("3 profiles across 2 manufacturers")).toBeInTheDocument();
     expect(screen.getByText("#1 of 2 contributors")).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Open in library" }),
-    ).toHaveAttribute("href", "/?author=alice");
+    expect(screen.getByRole("link", { name: "Open in library" })).toHaveAttribute(
+      "href",
+      "/?author=alice",
+    );
 
-    expect(
-      screen.getByRole("progressbar", { name: "Light contribution share" }),
-    ).toHaveAttribute("aria-valuetext", "2 of 3 contributed profiles");
+    expect(screen.getByRole("progressbar", { name: "Light contribution share" })).toHaveAttribute(
+      "aria-valuetext",
+      "2 of 3 contributed profiles",
+    );
     expect(
       screen.getByRole("progressbar", {
         name: "Signify contribution share",
       }),
     ).toHaveAttribute("aria-valuetext", "2 of 3 contributed profiles");
-    expect(
-      screen.queryByRole("heading", { name: "75" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "75" })).not.toBeInTheDocument();
   });
 
   it("sorts profile cards by popularity and newest date", () => {
@@ -214,20 +194,12 @@ describe("Author", () => {
     renderPage("/contributors/alice", [aliceProfiles[0]]);
 
     // "1 profiles across 1 manufacturers" was the old wording.
-    expect(
-      screen.getByText("1 profile across 1 manufacturer"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("1 profile across 1 manufacturer")).toBeInTheDocument();
 
     // One profile has no distribution: both breakdowns would be a single bar at 100%.
-    expect(
-      screen.queryByRole("heading", { name: "Device mix" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("heading", { name: "Top manufacturers" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByLabelText("Sort contributed profiles"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Device mix" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Top manufacturers" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Sort contributed profiles")).not.toBeInTheDocument();
     // Rank is a mass tie among everyone holding a single profile.
     expect(screen.queryByText(/of 2 contributors/)).not.toBeInTheDocument();
   });
@@ -235,9 +207,7 @@ describe("Author", () => {
   it("shows a proper not-found state for an unknown contributor", () => {
     renderPage("/contributors/unknown");
 
-    expect(
-      screen.getByRole("heading", { name: "Author not found" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Author not found" })).toBeInTheDocument();
     expect(screen.queryByTestId("author-profile-list")).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,6 @@
 import type { MetaDescriptor } from "react-router";
 
-import { SITE_NAME, SITE_URL } from "../config/site";
+import { SITE_NAME, SITE_URL, SOCIAL_IMAGE_URL } from "../config/site";
 
 export const DEFAULT_DESCRIPTION =
   "Browse the Powercalc device library: power measurement profiles for smart lights, plugs, " +
@@ -38,7 +38,16 @@ export const createPageMeta = ({
     { property: "og:description", content: description },
     { property: "og:type", content: "website" },
     { property: "og:url", content: canonicalUrl },
-    { name: "twitter:card", content: "summary" },
+    { property: "og:site_name", content: SITE_NAME },
+    { property: "og:image", content: SOCIAL_IMAGE_URL },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:image:alt", content: "Powercalc profile library" },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: fullTitle },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: SOCIAL_IMAGE_URL },
+    { name: "twitter:image:alt", content: "Powercalc profile library" },
     { tagName: "link", rel: "canonical", href: canonicalUrl },
     ...(noIndex ? [{ name: "robots", content: "noindex, follow" } as MetaDescriptor] : []),
   ];

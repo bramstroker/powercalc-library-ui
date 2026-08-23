@@ -1,4 +1,8 @@
-export const API_BASE_URL = "https://api.powercalc.nl";
+const configuredApiUrl =
+  (typeof process !== "undefined" ? process.env.VITE_API_BASE_URL : undefined) ??
+  import.meta.env.VITE_API_BASE_URL;
+
+export const API_BASE_URL = (configuredApiUrl || "https://api.powercalc.nl").replace(/\/+$/, "");
 
 export const API_ENDPOINTS = {
   LIBRARY: `${API_BASE_URL}/library`,

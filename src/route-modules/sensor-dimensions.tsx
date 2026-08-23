@@ -1,19 +1,32 @@
 import type { LinksFunction, MetaFunction } from "react-router";
 
 import { SensorDimensions } from "../components/statistics/analytics/SensorDimensions";
+import { getSensorDimension, sensorDimensionTitle } from "../config/sensorDimensions.mjs";
 import { apiPreconnectLinks } from "../seo/apiLinks";
 import { createPageMeta } from "../seo/meta";
 
-// Also serves `/analytics/sensor-dimensions/:dimension`: the component reads the optional route
-// param itself and swaps the overview for that dimension's detail chart. The detail view has no
-// fixed set of URLs, so it points its canonical at the overview rather than at itself.
 export const links: LinksFunction = () => apiPreconnectLinks;
 
-export const meta: MetaFunction = () =>
-  createPageMeta({
-    path: "/analytics/sensor-dimensions",
-    title: "Sensor Statistics",
-    description: "Overview of Powercalc usage across different dimensions.",
+export const meta: MetaFunction = ({ params }) => {
+  const dimension = params.dimension;
+  if (!dimension) {
+    return createPageMeta({
+      path: "/analytics/sensor-dimensions",
+      title: "Sensor Statistics",
+      description: "Overview of Powercalc usage across different dimensions.",
+    });
+  }
+
+  const knownDimension = getSensorDimension(dimension);
+  const title = sensorDimensionTitle(dimension);
+  return createPageMeta({
+    path: `/analytics/sensor-dimensions/${encodeURIComponent(dimension)}`,
+    title: `${title} Sensor Statistics`,
+    description: knownDimension
+      ? `${knownDimension.description}. Explore Powercalc usage by ${title.toLowerCase()}.`
+      : "The requested Powercalc sensor statistics dimension could not be found.",
+    noIndex: !knownDimension,
   });
+};
 
 export default SensorDimensions;

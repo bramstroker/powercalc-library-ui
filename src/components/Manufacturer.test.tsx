@@ -2,10 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it } from "vitest";
 
-import type {
-  Manufacturer as ManufacturerType,
-  PowerProfile,
-} from "../types/PowerProfile";
+import type { Manufacturer as ManufacturerType, PowerProfile } from "../types/PowerProfile";
 
 import { Manufacturer } from "./Manufacturer";
 
@@ -20,11 +17,7 @@ const signify: ManufacturerType = {
   aliases: [],
 };
 
-const profile = (
-  manufacturer: ManufacturerType,
-  modelId: string,
-  deviceType: string,
-) =>
+const profile = (manufacturer: ManufacturerType, modelId: string, deviceType: string) =>
   ({
     manufacturer,
     modelId,
@@ -46,15 +39,15 @@ const profiles = [
 
 const renderPage = (dirName: string) =>
   render(
-    <MemoryRouter
-      initialEntries={[`/manufacturers/${encodeURIComponent(dirName)}`]}
-    >
+    <MemoryRouter initialEntries={[`/manufacturers/${encodeURIComponent(dirName)}`]}>
       <Routes>
         <Route
           path="/manufacturers/:manufacturerName"
           element={
             <Manufacturer
-              manufacturer={dirName === "linkind" ? linkind : dirName === "signify" ? signify : undefined}
+              manufacturer={
+                dirName === "linkind" ? linkind : dirName === "signify" ? signify : undefined
+              }
               profiles={profiles.filter((entry) => entry.manufacturer.dirName === dirName)}
             />
           }
@@ -69,12 +62,8 @@ describe("Manufacturer", () => {
   it("shows the manufacturer with its aliases and profile count", () => {
     renderPage("linkind");
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: "Linkind" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Also known as: lk, Leedarson"),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Linkind" })).toBeInTheDocument();
+    expect(screen.getByText("Also known as: lk, Leedarson")).toBeInTheDocument();
     expect(screen.getByLabelText("3 profiles")).toBeInTheDocument();
     expect(screen.getByLabelText("21 known installs")).toBeInTheDocument();
     expect(screen.getByLabelText("2 device types")).toBeInTheDocument();
@@ -91,9 +80,10 @@ describe("Manufacturer", () => {
   it("groups profiles by device type, largest group first", () => {
     renderPage("linkind");
 
-    expect(
-      screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent),
-    ).toEqual(["light", "smart_switch"]);
+    expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
+      "light",
+      "smart_switch",
+    ]);
   });
 
   it("lists only that manufacturer's profiles, linking each to its profile page", () => {
@@ -112,17 +102,16 @@ describe("Manufacturer", () => {
     expect(screen.getAllByText("Fixed")).toHaveLength(3);
     expect(screen.getAllByText("0.5 W standby")).toHaveLength(3);
     expect(screen.getAllByText("7 installs")).toHaveLength(3);
-    expect(
-      screen.getByTestId("manufacturer-profile-list-light"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("manufacturer-profile-list-light")).toBeInTheDocument();
   });
 
   it("links to the filtered library grid by full name", () => {
     renderPage("linkind");
 
-    expect(
-      screen.getByRole("link", { name: "Browse profiles" }),
-    ).toHaveAttribute("href", "/?manufacturer=Linkind");
+    expect(screen.getByRole("link", { name: "Browse profiles" })).toHaveAttribute(
+      "href",
+      "/?manufacturer=Linkind",
+    );
   });
 
   it("shows a not-found message for an unknown manufacturer", () => {

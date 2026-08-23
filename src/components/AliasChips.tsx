@@ -13,7 +13,7 @@ export const AliasChips = ({
   aliases,
   maxVisible = 1,
   marginTop = 0,
-  wrap = false
+  wrap = false,
 }: AliasChipsProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -53,31 +53,25 @@ export const AliasChips = ({
 
   return (
     <>
-      <Stack 
-        direction="row" 
-        spacing={1} 
-        sx={{ 
-          overflowX: "hidden", 
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          overflowX: "hidden",
           flexWrap: "nowrap",
           maxWidth: "100%",
-          mt: marginTop
+          mt: marginTop,
         }}
       >
         {visibleAliases.map((alias, index) => (
-          <Chip 
-            key={index} 
-            label={alias} 
-            size="small" 
-            variant="outlined" 
-            color="primary"
-          />
+          <Chip key={index} label={alias} size="small" variant="outlined" color="primary" />
         ))}
         {remainingCount > 0 && (
           <Tooltip title={tooltipContent} arrow placement="top">
-            <Chip 
-              label={`+${remainingCount} more`} 
-              size="small" 
-              variant="outlined" 
+            <Chip
+              label={`+${remainingCount} more`}
+              size="small"
+              variant="outlined"
               color="secondary"
               onClick={handleClick}
               sx={{ cursor: "pointer" }}
@@ -90,27 +84,21 @@ export const AliasChips = ({
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
+          vertical: "bottom",
+          horizontal: "left",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
+          vertical: "top",
+          horizontal: "left",
         }}
       >
         <Box sx={{ p: 2, maxWidth: 300 }}>
           <Typography variant="subtitle1" gutterBottom>
             All Aliases
           </Typography>
-          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
             {aliasArray.map((alias, index) => (
-              <Chip 
-                key={index} 
-                label={alias} 
-                size="small" 
-                variant="outlined" 
-                color="primary"
-              />
+              <Chip key={index} label={alias} size="small" variant="outlined" color="primary" />
             ))}
           </Stack>
         </Box>

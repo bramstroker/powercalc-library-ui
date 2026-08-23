@@ -16,7 +16,6 @@ import { useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router";
 
 import { useLibrary } from "../context/LibraryContext";
-import { usePageMeta } from "../hooks/usePageMeta";
 import type { Manufacturer } from "../types/PowerProfile";
 import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
@@ -36,13 +35,6 @@ export const Manufacturers = () => {
   const { powerProfiles, manufacturers } = useLibrary();
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortKey>("profiles");
-
-  usePageMeta({
-    title: "Manufacturers",
-    description:
-      "Every manufacturer with device profiles in the Powercalc library, with the number of " +
-      "profiles and device types each one covers.",
-  });
 
   const summaries = useMemo<ManufacturerSummary[]>(() => {
     const counts = new Map<string, { profileCount: number; deviceTypes: Set<string> }>();
@@ -105,6 +97,7 @@ export const Manufacturers = () => {
         <TextField
           value={search}
           onChange={(event) => setSearch(event.target.value)}
+          aria-label="Search manufacturers"
           placeholder="Search manufacturers"
           size="small"
           fullWidth

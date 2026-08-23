@@ -38,10 +38,7 @@ export const RangeFacet = ({
   const suffix = unit ? ` ${unit}` : "";
 
   return (
-    <Box
-      data-testid={testId}
-      sx={{ pb: 1, mb: 1, borderBottom: 1, borderColor: "divider" }}
-    >
+    <Box data-testid={testId} sx={{ pb: 1, mb: 1, borderBottom: 1, borderColor: "divider" }}>
       <Stack direction="row" sx={{ alignItems: "center", gap: 1, py: 0.75 }}>
         <Icon fontSize="small" sx={{ color: "text.secondary" }} />
         <Typography variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1 }}>
