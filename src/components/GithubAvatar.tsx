@@ -2,6 +2,7 @@ import { Avatar, type AvatarProps } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import { contributorAvatarUrl, fallbackContributorAvatarUrl } from "../utils/avatarPaths";
+import type { AvatarResolution } from "../utils/avatarPaths";
 
 const initials = (name: string, username: string) => {
   const source = name.trim() || username;
@@ -16,10 +17,16 @@ const initials = (name: string, username: string) => {
 type GithubAvatarProps = Omit<AvatarProps, "alt" | "src" | "slotProps"> & {
   username: string;
   name?: string;
+  resolution?: AvatarResolution;
 };
 
-export const GithubAvatar = ({ username, name = "", ...avatarProps }: GithubAvatarProps) => {
-  const primaryUrl = contributorAvatarUrl(username);
+export const GithubAvatar = ({
+  username,
+  name = "",
+  resolution = 96,
+  ...avatarProps
+}: GithubAvatarProps) => {
+  const primaryUrl = contributorAvatarUrl(username, resolution);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(primaryUrl);
 
   useEffect(() => setAvatarUrl(primaryUrl), [primaryUrl]);
@@ -34,7 +41,7 @@ export const GithubAvatar = ({ username, name = "", ...avatarProps }: GithubAvat
           loading: "lazy",
           onError: () => {
             setAvatarUrl((failedUrl) =>
-              failedUrl ? fallbackContributorAvatarUrl(username, failedUrl) : undefined,
+              failedUrl ? fallbackContributorAvatarUrl(username, failedUrl, resolution) : undefined,
             );
           },
         },

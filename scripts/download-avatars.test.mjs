@@ -28,8 +28,8 @@ test("collects unique lowercase GitHub usernames", () => {
   assert.deepEqual(collectAuthorUsernames(library), ["alice-example", "bob"]);
 });
 
-test("uses a predictable WebP file name", () => {
-  assert.equal(avatarFileName("Alice"), "alice.webp");
+test("uses a fingerprinted, size-specific WebP file name", () => {
+  assert.equal(avatarFileName("Alice", "a1b2c3d4e5f6", 96), "alice-a1b2c3d4e5f6-96.webp");
 });
 
 test("downloads avatars and writes a same-origin manifest", async () => {
@@ -69,16 +69,19 @@ test("downloads avatars and writes a same-origin manifest", async () => {
     assert.equal(result.total, 2);
     assert.equal(result.downloaded, 1);
     assert.deepEqual(result.failures, [{ username: "bob", reason: "HTTP 404" }]);
-    assert.deepEqual(result.manifest, {
-      "alice-example": "/avatars/alice-example.webp",
-    });
+    const avatarBase = result.manifest["alice-example"];
+    assert.match(avatarBase, /^\/avatars\/alice-example-[a-f\d]{12}$/u);
     assert.deepEqual(
       JSON.parse(await readFile(join(outputDir, "manifest.json"), "utf8")),
       result.manifest,
     );
-    const avatar = await readFile(join(outputDir, "alice-example.webp"));
-    const { format, width, height } = await sharp(avatar).metadata();
-    assert.deepEqual({ format, width, height }, { format: "webp", width: 192, height: 192 });
+    for (const size of [96, 192]) {
+      const avatar = await readFile(
+        join(outputDir, `${avatarBase.slice("/avatars/".length)}-${size}.webp`),
+      );
+      const { format, width, height } = await sharp(avatar).metadata();
+      assert.deepEqual({ format, width, height }, { format: "webp", width: size, height: size });
+    }
     await assert.rejects(readFile(join(outputDir, "old-user.png")), {
       code: "ENOENT",
     });

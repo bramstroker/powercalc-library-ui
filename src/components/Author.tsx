@@ -260,6 +260,7 @@ export const Author = ({ authorDetails, authorProfiles = [], authorRank = null }
             <GithubAvatar
               username={githubUsername}
               name={authorDetails.name || githubUsername}
+              resolution={192}
               sx={{
                 gridArea: "avatar",
                 width: { xs: 72, sm: 96 },

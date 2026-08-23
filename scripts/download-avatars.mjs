@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -6,6 +7,7 @@ import sharp from "sharp";
 const DEFAULT_API_URL = "https://api.powercalc.nl/library";
 const DEFAULT_OUTPUT_DIR = resolve("public/avatars");
 const DEFAULT_SIZE = 192;
+const OUTPUT_SIZES = [96, 192];
 const DEFAULT_CONCURRENCY = 8;
 const MANIFEST_FILE_NAME = "manifest.json";
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
@@ -13,8 +15,15 @@ const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 // Avatars are addressed by username, so anything that is not a valid GitHub login cannot be stored
 // as a predictable file name and is skipped rather than escaped.
 const isValidUsername = (username) => /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/iu.test(username);
-const isGeneratedAvatarFile = (fileName) =>
-  /^[a-z\d](?:[a-z\d-]{0,38})\.(?:gif|jpe?g|png|webp)$/u.test(fileName);
+const generatedAvatarFiles = (avatarPath) => {
+  if (typeof avatarPath !== "string" || !avatarPath.startsWith("/avatars/")) return [];
+  const fileName = avatarPath.slice("/avatars/".length);
+  if (/^[a-z\d](?:[a-z\d-]{0,38})\.(?:gif|jpe?g|png|webp)$/u.test(fileName)) {
+    return [fileName];
+  }
+  if (!/^[a-z\d](?:[a-z\d-]{0,38})-[a-f\d]{12}$/u.test(fileName)) return [];
+  return OUTPUT_SIZES.map((size) => `${fileName}-${size}.webp`);
+};
 
 const readManifest = async (outputDir) => {
   try {
@@ -40,7 +49,8 @@ export const collectAuthorUsernames = (library) => {
   return [...usernames].sort((a, b) => a.localeCompare(b));
 };
 
-export const avatarFileName = (username) => `${username.toLowerCase()}.webp`;
+export const avatarFileName = (username, fingerprint, size) =>
+  `${username.toLowerCase()}-${fingerprint}-${size}.webp`;
 
 const downloadAvatar = async (username, { fetchImpl, outputDir, size }) => {
   const response = await fetchImpl(`https://github.com/${username}.png?size=${size}`, {
@@ -56,14 +66,31 @@ const downloadAvatar = async (username, { fetchImpl, outputDir, size }) => {
 
   // GitHub's `size` parameter is only a hint and its response format follows the original upload.
   // Normalize both here so a 40–64 px UI avatar never ships a multi-megapixel PNG or JPEG.
-  const optimized = await sharp(contents, { animated: true })
+  const largest = await sharp(contents, { animated: true })
     .rotate()
     .resize(size, size, { fit: "cover" })
     .webp({ quality: 82, effort: 4 })
     .toBuffer();
-  const fileName = avatarFileName(username);
-  await writeFile(resolve(outputDir, fileName), optimized);
-  return fileName;
+  const fingerprint = createHash("sha256").update(largest).digest("hex").slice(0, 12);
+  const baseName = `${username.toLowerCase()}-${fingerprint}`;
+
+  await Promise.all(
+    OUTPUT_SIZES.map(async (outputSize) => {
+      const optimized =
+        outputSize === size
+          ? largest
+          : await sharp(contents, { animated: true })
+              .rotate()
+              .resize(outputSize, outputSize, { fit: "cover" })
+              .webp({ quality: 82, effort: 4 })
+              .toBuffer();
+      await writeFile(
+        resolve(outputDir, avatarFileName(username, fingerprint, outputSize)),
+        optimized,
+      );
+    }),
+  );
+  return baseName;
 };
 
 /**
@@ -97,12 +124,12 @@ export const downloadAvatars = async ({
   const worker = async () => {
     for (let username = queue.shift(); username; username = queue.shift()) {
       try {
-        const fileName = await downloadAvatar(username, {
+        const baseName = await downloadAvatar(username, {
           fetchImpl,
           outputDir,
           size,
         });
-        manifest[username] = `/avatars/${fileName}`;
+        manifest[username] = `/avatars/${baseName}`;
         downloaded += 1;
       } catch (error) {
         failures.push({
@@ -126,18 +153,22 @@ export const downloadAvatars = async ({
   await Promise.all(
     Object.values(previousManifest).map(async (previousPath) => {
       if (typeof previousPath !== "string" || currentFiles.has(previousPath)) return;
-      const fileName = previousPath.startsWith("/avatars/")
-        ? previousPath.slice("/avatars/".length)
-        : "";
-      if (!isGeneratedAvatarFile(fileName)) return;
-
-      try {
-        await unlink(resolve(outputDir, fileName));
-      } catch (error) {
-        if (!(error && typeof error === "object" && "code" in error && error.code === "ENOENT")) {
-          throw error;
-        }
-      }
+      await Promise.all(
+        generatedAvatarFiles(previousPath).map(async (fileName) => {
+          try {
+            await unlink(resolve(outputDir, fileName));
+          } catch (error) {
+            if (!(
+              error &&
+              typeof error === "object" &&
+              "code" in error &&
+              error.code === "ENOENT"
+            )) {
+              throw error;
+            }
+          }
+        }),
+      );
     }),
   );
 

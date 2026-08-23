@@ -22,7 +22,7 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useId, useMemo, useRef } from "react";
 import { Link as RouterLink, useSearchParams } from "react-router";
 
 import { SITE_URL } from "../config/site";
@@ -31,7 +31,7 @@ import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { MAX_ITEM_LIST_ENTRIES, type StructuredData as StructuredDataNode } from "../seo/meta";
 import { StructuredData } from "../seo/StructuredData";
 import type { ContributorSummary, PowerProfile } from "../types/PowerProfile";
-import { CONTRIBUTOR_TIERS, getContributorTier } from "../utils/contributorTier";
+import { CONTRIBUTOR_TIERS } from "../utils/contributorTier";
 import { formatDateUtc } from "../utils/dateFormat";
 import { numberFormat, plural } from "../utils/plural";
 import { daysSince } from "../utils/recency";
@@ -65,28 +65,12 @@ const withinRecentWindow = (profile: PowerProfile, now: Date) => {
   return age !== null && age >= 0 && age <= RECENT_ACTIVITY_DAYS;
 };
 
-/**
- * Every card is a single link, so without a label its accessible name is the whole card read as
- * one run-on sentence. Name it after what a reader is choosing between: who, and how much.
- */
-const contributorCardLabel = (summary: ContributorSummary) => {
-  const tier = getContributorTier(summary.profileCount);
-  return [
-    displayName(summary),
-    tier ? `${tier.tier} contributor` : null,
-    plural(summary.profileCount, "profile"),
-  ]
-    .filter(Boolean)
-    .join(", ");
-};
-
 const ContributorCard = ({ summary }: { summary: ContributorSummary }) => (
   <Card variant="outlined" sx={{ height: "100%" }}>
     <CardActionArea
       component={RouterLink}
       to={authorPath(summary.author.githubUsername)}
       prefetch="intent"
-      aria-label={contributorCardLabel(summary)}
       sx={{ height: "100%", p: 2.25, alignItems: "stretch" }}
     >
       <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
@@ -98,7 +82,7 @@ const ContributorCard = ({ summary }: { summary: ContributorSummary }) => (
           />
         </ContributorTierAvatar>
         <Box sx={{ minWidth: 0 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700 }} noWrap>
+          <Typography component="h3" variant="subtitle1" sx={{ fontWeight: 700 }} noWrap>
             {displayName(summary)}
           </Typography>
           <Typography variant="body2" color="text.secondary" noWrap>
@@ -132,10 +116,6 @@ const RecentContributorCard = ({ summary }: { summary: RecentContributor }) => (
       component={RouterLink}
       to={authorPath(summary.author.githubUsername)}
       prefetch="intent"
-      aria-label={`${displayName(summary)}, ${plural(
-        summary.recentProfileCount,
-        "profile",
-      )} in the last ${RECENT_ACTIVITY_DAYS} days`}
       sx={{ height: "100%", p: 2 }}
     >
       <Stack direction="row" spacing={1.25} sx={{ alignItems: "center" }}>
@@ -147,7 +127,7 @@ const RecentContributorCard = ({ summary }: { summary: RecentContributor }) => (
           />
         </ContributorTierAvatar>
         <Box sx={{ minWidth: 0 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
+          <Typography component="h3" variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
             {displayName(summary)}
           </Typography>
           <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block" }}>
@@ -189,39 +169,56 @@ const ActivityMetric = ({
   /** Turns the tile into a button — used to open the matching directory filter. */
   onClick?: () => void;
   actionLabel?: string;
-}) => (
-  <Paper
-    variant="outlined"
-    component={onClick ? ButtonBase : "div"}
-    onClick={onClick}
-    aria-label={
-      onClick
-        ? `${numberFormat.format(value)} ${label}, ${actionLabel ?? ""}`.trim()
-        : `${numberFormat.format(value)} ${label}`
-    }
-    sx={[
-      { p: 2, height: "100%", width: "100%" },
-      Boolean(onClick) && {
-        textAlign: "left",
-        justifyContent: "flex-start",
-        transition: "border-color 150ms, background-color 150ms",
-        "&:hover": { borderColor: "primary.main", bgcolor: "action.hover" },
-      },
-    ]}
-  >
-    <Stack direction="row" spacing={1.25} sx={{ alignItems: "center", width: "100%" }}>
-      <Box sx={{ display: "flex", color: "primary.main" }}>{icon}</Box>
-      <Box sx={{ textAlign: "left" }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
-          {numberFormat.format(value)}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {label}
-        </Typography>
-      </Box>
-    </Stack>
-  </Paper>
-);
+}) => {
+  const actionDescriptionId = useId();
+
+  return (
+    <>
+      <Paper
+        variant="outlined"
+        component={onClick ? ButtonBase : "div"}
+        onClick={onClick}
+        aria-describedby={onClick && actionLabel ? actionDescriptionId : undefined}
+        sx={[
+          { p: 2, height: "100%", width: "100%" },
+          Boolean(onClick) && {
+            textAlign: "left",
+            justifyContent: "flex-start",
+            transition: "border-color 150ms, background-color 150ms",
+            "&:hover": { borderColor: "primary.main", bgcolor: "action.hover" },
+          },
+        ]}
+      >
+        <Stack direction="row" spacing={1.25} sx={{ alignItems: "center", width: "100%" }}>
+          <Box sx={{ display: "flex", color: "primary.main" }}>{icon}</Box>
+          <Box sx={{ textAlign: "left" }}>
+            <Typography component="div" variant="h5" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
+              {numberFormat.format(value)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {label}
+            </Typography>
+          </Box>
+        </Stack>
+      </Paper>
+      {onClick && actionLabel && (
+        <Box
+          id={actionDescriptionId}
+          sx={{
+            position: "absolute",
+            width: 1,
+            height: 1,
+            overflow: "hidden",
+            clipPath: "inset(50%)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {actionLabel}
+        </Box>
+      )}
+    </>
+  );
+};
 
 export const Contributors = ({ now = new Date() }: { now?: Date }) => {
   const { contributorSummaries, powerProfiles, profilesByAuthorSlug } = useLibrary();
@@ -424,7 +421,12 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
           sx={{ alignItems: { sm: "end" }, justifyContent: "space-between", mb: 2 }}
         >
           <Box>
-            <Typography id="recent-activity-heading" variant="h4" sx={{ fontWeight: 750 }}>
+            <Typography
+              id="recent-activity-heading"
+              component="h2"
+              variant="h4"
+              sx={{ fontWeight: 750 }}
+            >
               Recent activity
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -484,7 +486,12 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
       </Box>
 
       <Box component="section" aria-labelledby="all-contributors-heading">
-        <Typography id="all-contributors-heading" variant="h4" sx={{ fontWeight: 750 }}>
+        <Typography
+          id="all-contributors-heading"
+          component="h2"
+          variant="h4"
+          sx={{ fontWeight: 750 }}
+        >
           All contributors
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2.5 }}>
@@ -576,7 +583,9 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
 
         {sortedMatches.length === 0 ? (
           <Paper variant="outlined" sx={{ p: 4, textAlign: "center" }}>
-            <Typography variant="h6">No contributors found</Typography>
+            <Typography component="h3" variant="h6">
+              No contributors found
+            </Typography>
             <Typography color="text.secondary" sx={{ mt: 0.5 }}>
               No names or GitHub handles match &quot;{search}&quot;.
             </Typography>

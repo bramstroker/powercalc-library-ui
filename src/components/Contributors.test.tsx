@@ -113,10 +113,10 @@ describe("Contributors", () => {
   it("leads with deduplicated recent activity and community actions", () => {
     renderPage();
 
-    expect(screen.getByLabelText("3 profiles added")).toBeInTheDocument();
+    expect(screen.getByText("profiles added")).toBeInTheDocument();
     expect(
-      screen.getByLabelText("2 active contributors, show them all in the directory"),
-    ).toBeInTheDocument();
+      screen.getByRole("button", { name: "2 active contributors" }),
+    ).toHaveAccessibleDescription("show them all in the directory");
     expect(screen.getByRole("link", { name: "Contribute a profile" })).toHaveAttribute(
       "href",
       "https://docs.powercalc.nl/contributing/",
@@ -128,6 +128,15 @@ describe("Contributors", () => {
     expect(within(screen.getByTestId("recent-contributor-list")).getAllByRole("link")).toHaveLength(
       2,
     );
+  });
+
+  it("uses a sequential heading structure", () => {
+    renderPage();
+
+    expect(screen.getByRole("heading", { level: 1, name: "Contributors" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Recent activity" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "All contributors" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(5);
   });
 
   it("orders the directory by profile count by default, not by recency", () => {
@@ -235,7 +244,7 @@ describe("Contributors", () => {
   it("opens the directory on the active contributors behind the metric tile", () => {
     renderPage();
 
-    fireEvent.click(screen.getByLabelText("2 active contributors, show them all in the directory"));
+    fireEvent.click(screen.getByRole("button", { name: "2 active contributors" }));
 
     expect(currentSearch).toContain("active=1");
     expect(screen.getByText("2 contributors")).toBeInTheDocument();
