@@ -100,6 +100,7 @@ export const library = {
           calculation_strategy: "fixed",
           standby_power: 0.9,
           sub_profile_count: 0,
+          discovery_by: "entity",
         },
       ],
     },

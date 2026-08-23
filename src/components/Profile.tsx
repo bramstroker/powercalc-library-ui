@@ -1021,7 +1021,7 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
         </Grid>
       </Grid>
 
-      <ProfileSetup profile={profile} />
+      {profile.discoveryBy === "entity" && <ProfileSetup profile={profile} />}
 
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs

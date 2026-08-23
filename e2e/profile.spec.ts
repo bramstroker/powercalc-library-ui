@@ -200,8 +200,8 @@ test("top-aligns attribute labels and values in a consistent text column", async
   expect(Math.max(...valueTops) - Math.min(...valueTops)).toBeLessThan(1);
 });
 
-test("offers both the GUI and YAML ways to use the profile", async ({ page }) => {
-  await page.goto("/profiles/signify/LCA001");
+test("offers manual setup for a profile discovered by entity", async ({ page }) => {
+  await page.goto("/profiles/sonoff/S31");
 
   const setup = page.getByTestId("profile-setup");
 
@@ -219,27 +219,20 @@ test("offers both the GUI and YAML ways to use the profile", async ({ page }) =>
 
   await setup.getByText("Or configure with YAML").click();
 
-  await expect(setup.getByText("manufacturer: signify")).toBeVisible();
-  await expect(setup.getByText("model: LCA001")).toBeVisible();
+  await expect(setup.getByText("manufacturer: sonoff")).toBeVisible();
+  await expect(setup.getByText("model: S31")).toBeVisible();
 });
 
-test("shows setup instructions directly when automatic discovery is unavailable", async ({
-  page,
-}) => {
+test("hides manual setup for profiles not discovered by entity", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  await expect(page.getByText("Automatic, by device")).toBeVisible();
+  await expect(page.getByTestId("profile-setup")).toBeHidden();
+
   await page.goto("/profiles/signify/LCT010");
 
   await expect(page.getByText("Not available (manual setup only)")).toBeVisible();
-
-  const setup = page.getByTestId("profile-setup");
-  await setup.getByRole("button", { name: "Use this profile" }).click();
-
-  await expect(
-    setup.getByText("Automatic discovery is not available for this profile."),
-  ).toBeVisible();
-  await expect(setup.getByText(/Look for a discovery prompt/)).toBeHidden();
-  await expect(setup.getByText("Set up manually instead")).toBeHidden();
-  await expect(setup.getByRole("link", { name: "Open in Home Assistant" })).toBeVisible();
-  await expect(setup.getByText("Virtual power (library)")).toBeVisible();
+  await expect(page.getByTestId("profile-setup")).toBeHidden();
 });
 
 test("shows the fields the API publishes beyond the basics", async ({ page }) => {
