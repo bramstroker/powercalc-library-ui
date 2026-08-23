@@ -78,7 +78,6 @@ export const Header = ({ searchSlot, resultCount, totalCount }: HeaderProps) => 
           <Box
             component={RouterLink}
             to="/"
-            aria-label="Powercalc profile library home"
             sx={{
               my: { xs: 1, sm: 2 },
               display: "flex",

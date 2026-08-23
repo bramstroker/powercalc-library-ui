@@ -13,6 +13,10 @@ test("browses from the Explore menu to a manufacturer and into a profile", async
   await page.getByRole("menuitem", { name: "Manufacturers" }).click();
 
   await expect(page).toHaveURL("/manufacturers");
+  await expect(page.getByRole("link", { name: "Powercalc Profile Library" })).toHaveAttribute(
+    "href",
+    "/",
+  );
   await expect(page.getByText("3 manufacturers, 4 profiles")).toBeVisible();
 
   await page.getByRole("link", { name: /Signify/ }).click();

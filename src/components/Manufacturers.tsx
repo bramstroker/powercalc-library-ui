@@ -144,7 +144,12 @@ export const Manufacturers = () => {
                   <ManufacturerLogo manufacturer={manufacturer} size={44} />
 
                   <Box sx={{ minWidth: 0, flex: 1 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }} noWrap>
+                    <Typography
+                      component="h2"
+                      variant="subtitle1"
+                      sx={{ fontWeight: 600 }}
+                      noWrap
+                    >
                       {manufacturer.fullName}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" noWrap>

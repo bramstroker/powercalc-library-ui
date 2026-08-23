@@ -56,6 +56,8 @@ describe("Manufacturers", () => {
     expect(screen.getByText("3 manufacturers, 5 profiles")).toBeInTheDocument();
     expect(screen.getByText("3 profiles")).toBeInTheDocument();
     expect(screen.getAllByText("1 profile")).toHaveLength(2);
+    expect(screen.getByRole("heading", { level: 1, name: "Manufacturers" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(3);
   });
 
   it("orders by profile count first, breaking ties by name", () => {
