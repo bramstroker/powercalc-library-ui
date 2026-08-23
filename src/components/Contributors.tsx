@@ -6,6 +6,7 @@ import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
 import {
   Box,
   Button,
+  ButtonBase,
   Card,
   CardActionArea,
   Chip,
@@ -21,8 +22,8 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import { useMemo, useState } from "react";
-import { Link as RouterLink } from "react-router";
+import { useCallback, useMemo, useRef } from "react";
+import { Link as RouterLink, useSearchParams } from "react-router";
 
 import { SITE_URL } from "../config/site";
 import { useLibrary } from "../context/LibraryContext";
@@ -31,6 +32,7 @@ import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { MAX_ITEM_LIST_ENTRIES, type StructuredData as StructuredDataNode } from "../seo/meta";
 import { StructuredData } from "../seo/StructuredData";
 import type { ContributorSummary, PowerProfile } from "../types/PowerProfile";
+import { CONTRIBUTOR_TIERS, getContributorTier } from "../utils/contributorTier";
 import { formatDateUtc } from "../utils/dateFormat";
 import { daysSince } from "../utils/recency";
 import { authorPath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
@@ -45,6 +47,12 @@ const RECENT_CONTRIBUTOR_COUNT = 6;
 const numberFormat = new Intl.NumberFormat("en-US");
 
 type SortKey = "recent" | "profiles" | "name";
+
+const SORT_KEYS: SortKey[] = ["recent", "profiles", "name"];
+const DEFAULT_SORT: SortKey = "profiles";
+
+/** Query-string keys, so the directory survives a share, a reload and a trip to an author page. */
+const PARAM = { search: "q", sort: "sort", tier: "tier", active: "active", show: "show" } as const;
 
 type RecentContributor = ContributorSummary & {
   recentProfileCount: number;
@@ -63,12 +71,28 @@ const withinRecentWindow = (profile: PowerProfile, now: Date) => {
   return age !== null && age >= 0 && age <= RECENT_ACTIVITY_DAYS;
 };
 
+/**
+ * Every card is a single link, so without a label its accessible name is the whole card read as
+ * one run-on sentence. Name it after what a reader is choosing between: who, and how much.
+ */
+const contributorCardLabel = (summary: ContributorSummary) => {
+  const tier = getContributorTier(summary.profileCount);
+  return [
+    displayName(summary),
+    tier ? `${tier.tier} contributor` : null,
+    plural(summary.profileCount, "profile"),
+  ]
+    .filter(Boolean)
+    .join(", ");
+};
+
 const ContributorCard = ({ summary }: { summary: ContributorSummary }) => (
   <Card variant="outlined" sx={{ height: "100%" }}>
     <CardActionArea
       component={RouterLink}
       to={authorPath(summary.author.githubUsername)}
       prefetch="intent"
+      aria-label={contributorCardLabel(summary)}
       sx={{ height: "100%", p: 2.25, alignItems: "stretch" }}
     >
       <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
@@ -114,6 +138,10 @@ const RecentContributorCard = ({ summary }: { summary: RecentContributor }) => (
       component={RouterLink}
       to={authorPath(summary.author.githubUsername)}
       prefetch="intent"
+      aria-label={`${displayName(summary)}, ${plural(
+        summary.recentProfileCount,
+        "profile",
+      )} in the last ${RECENT_ACTIVITY_DAYS} days`}
       sx={{ height: "100%", p: 2 }}
     >
       <Stack direction="row" spacing={1.25} sx={{ alignItems: "center" }}>
@@ -158,19 +186,38 @@ const ActivityMetric = ({
   icon,
   value,
   label,
+  onClick,
+  actionLabel,
 }: {
   icon: React.ReactNode;
   value: number;
   label: string;
+  /** Turns the tile into a button — used to open the matching directory filter. */
+  onClick?: () => void;
+  actionLabel?: string;
 }) => (
   <Paper
     variant="outlined"
-    aria-label={`${numberFormat.format(value)} ${label}`}
-    sx={{ p: 2, height: "100%" }}
+    component={onClick ? ButtonBase : "div"}
+    onClick={onClick}
+    aria-label={
+      onClick
+        ? `${numberFormat.format(value)} ${label}, ${actionLabel ?? ""}`.trim()
+        : `${numberFormat.format(value)} ${label}`
+    }
+    sx={[
+      { p: 2, height: "100%", width: "100%" },
+      Boolean(onClick) && {
+        textAlign: "left",
+        justifyContent: "flex-start",
+        transition: "border-color 150ms, background-color 150ms",
+        "&:hover": { borderColor: "primary.main", bgcolor: "action.hover" },
+      },
+    ]}
   >
-    <Stack direction="row" spacing={1.25} sx={{ alignItems: "center" }}>
+    <Stack direction="row" spacing={1.25} sx={{ alignItems: "center", width: "100%" }}>
       <Box sx={{ display: "flex", color: "primary.main" }}>{icon}</Box>
-      <Box>
+      <Box sx={{ textAlign: "left" }}>
         <Typography variant="h5" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
           {numberFormat.format(value)}
         </Typography>
@@ -184,9 +231,47 @@ const ActivityMetric = ({
 
 export const Contributors = ({ now = new Date() }: { now?: Date }) => {
   const { contributorSummaries, powerProfiles, profilesByAuthorSlug } = useLibrary();
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<SortKey>("recent");
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const directoryRef = useRef<HTMLDivElement>(null);
+
+  const search = searchParams.get(PARAM.search) ?? "";
+  const sortParam = searchParams.get(PARAM.sort) as SortKey | null;
+  const sort: SortKey = sortParam && SORT_KEYS.includes(sortParam) ? sortParam : DEFAULT_SORT;
+  const tierParam = searchParams.get(PARAM.tier);
+  const tierFilter = CONTRIBUTOR_TIERS.find((definition) => definition.tier === tierParam) ?? null;
+  const activeOnly = searchParams.get(PARAM.active) === "1";
+  const visibleCount = Math.max(PAGE_SIZE, Number(searchParams.get(PARAM.show)) || PAGE_SIZE);
+
+  /**
+   * Every change replaces the current history entry rather than pushing a new one: paging through
+   * the directory should not bury the previous page under a stack of back steps, and replacing
+   * still means a click into an author page returns to the directory exactly as it was left.
+   */
+  const updateParams = useCallback(
+    (changes: Record<string, string | null>) => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          for (const [key, value] of Object.entries(changes)) {
+            if (value === null) {
+              next.delete(key);
+            } else {
+              next.set(key, value);
+            }
+          }
+          return next;
+        },
+        { replace: true, preventScrollReset: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  /** Any change to what is being listed starts the directory over at the first page. */
+  const updateFilters = useCallback(
+    (changes: Record<string, string | null>) => updateParams({ ...changes, [PARAM.show]: null }),
+    [updateParams],
+  );
 
   usePageMeta({
     title: "Contributors",
@@ -217,15 +302,26 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
       );
   }, [contributorSummaries, now, profilesByAuthorSlug]);
 
+  const activeUsernames = useMemo(
+    () => new Set(recentContributors.map((summary) => summary.author.githubUsername)),
+    [recentContributors],
+  );
+
   const sortedMatches = useMemo(() => {
     const term = search.trim().toLocaleLowerCase("en-US");
-    const matches = term
-      ? contributorSummaries.filter(
-          (summary) =>
-            displayName(summary).toLocaleLowerCase("en-US").includes(term) ||
-            summary.author.githubUsername.toLocaleLowerCase("en-US").includes(term),
-        )
-      : contributorSummaries;
+    const matches = contributorSummaries.filter((summary) => {
+      if (
+        term &&
+        !displayName(summary).toLocaleLowerCase("en-US").includes(term) &&
+        !summary.author.githubUsername.toLocaleLowerCase("en-US").includes(term)
+      ) {
+        return false;
+      }
+      if (tierFilter && summary.profileCount < tierFilter.min) {
+        return false;
+      }
+      return !activeOnly || activeUsernames.has(summary.author.githubUsername);
+    });
 
     return [...matches].sort((a, b) => {
       if (sort === "name") return displayName(a).localeCompare(displayName(b));
@@ -237,7 +333,7 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
         displayName(a).localeCompare(displayName(b))
       );
     });
-  }, [contributorSummaries, search, sort]);
+  }, [activeOnly, activeUsernames, contributorSummaries, search, sort, tierFilter]);
 
   const activeContributorCount = recentContributors.length;
   const visibleContributors = sortedMatches.slice(0, visibleCount);
@@ -282,8 +378,8 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
         component="section"
         elevation={0}
         sx={{
-          p: { xs: 2.5, sm: 4 },
-          mb: 4,
+          p: { xs: 2, sm: 4 },
+          mb: { xs: 3, sm: 4 },
           border: 1,
           borderColor: "divider",
           background: (theme) =>
@@ -292,14 +388,18 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
       >
         <Grid container spacing={3} sx={{ alignItems: "center" }}>
           <Grid size={{ xs: 12, md: 8 }}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 800 }}>
+            <Typography
+              variant="h3"
+              component="h1"
+              sx={{ fontWeight: 800, fontSize: { xs: "2.25rem", sm: "3rem" } }}
+            >
               Contributors
             </Typography>
             <Typography color="text.secondary" sx={{ mt: 1, maxWidth: 720 }}>
               Powercalc grows through community measurements. Meet the people expanding the device
               library and see who has contributed recently.
             </Typography>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 3 }}>
+            <Stack direction="row" spacing={1.5} useFlexGap sx={{ flexWrap: "wrap", mt: 3 }}>
               <Button
                 variant="contained"
                 startIcon={<LibraryAddOutlinedIcon />}
@@ -349,18 +449,31 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
         </Stack>
 
         <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid size={{ xs: 6 }}>
             <ActivityMetric
               icon={<TrendingUpOutlinedIcon />}
               value={recentProfiles.length}
               label="profiles added"
             />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid size={{ xs: 6 }}>
             <ActivityMetric
               icon={<CalendarMonthOutlinedIcon />}
               value={activeContributorCount}
               label="active contributors"
+              actionLabel="show them all in the directory"
+              onClick={
+                activeContributorCount > 0
+                  ? () => {
+                      updateFilters({ [PARAM.active]: "1", [PARAM.sort]: "recent" });
+                      // Optional call: jsdom and older engines do not implement it.
+                      directoryRef.current?.scrollIntoView?.({
+                        behavior: "smooth",
+                        block: "start",
+                      });
+                    }
+                  : undefined
+              }
             />
           </Grid>
         </Grid>
@@ -387,7 +500,7 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
           All contributors
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2.5 }}>
-          Search the community or browse by recent activity, profile count, or name.
+          Search the community, or browse by tier, profile count, recent activity, or name.
         </Typography>
 
         <Stack
@@ -397,10 +510,7 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
         >
           <TextField
             value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setVisibleCount(PAGE_SIZE);
-            }}
+            onChange={(event) => updateFilters({ [PARAM.search]: event.target.value || null })}
             placeholder="Search contributors"
             size="small"
             fullWidth
@@ -421,21 +531,59 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
               labelId="contributor-sort-label"
               value={sort}
               label="Sort by"
-              onChange={(event) => {
-                setSort(event.target.value as SortKey);
-                setVisibleCount(PAGE_SIZE);
-              }}
+              onChange={(event) =>
+                updateFilters({
+                  [PARAM.sort]: event.target.value === DEFAULT_SORT ? null : event.target.value,
+                })
+              }
             >
-              <MenuItem value="recent">Recently active</MenuItem>
               <MenuItem value="profiles">Most profiles</MenuItem>
+              <MenuItem value="recent">Recently active</MenuItem>
               <MenuItem value="name">Name A–Z</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: { sm: 160 } }}>
+            <InputLabel id="contributor-tier-label">Tier</InputLabel>
+            <Select
+              labelId="contributor-tier-label"
+              value={tierFilter?.tier ?? "all"}
+              label="Tier"
+              onChange={(event) =>
+                updateFilters({
+                  [PARAM.tier]: event.target.value === "all" ? null : event.target.value,
+                })
+              }
+            >
+              <MenuItem value="all">All tiers</MenuItem>
+              {CONTRIBUTOR_TIERS.map((definition) => (
+                <MenuItem key={definition.tier} value={definition.tier}>
+                  {definition.tier}
+                  {definition === CONTRIBUTOR_TIERS[0] ? "" : " and up"}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Stack>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }} aria-live="polite">
-          {plural(sortedMatches.length, "contributor")}
-        </Typography>
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          sx={{ alignItems: "center", flexWrap: "wrap", mb: 2 }}
+        >
+          <Typography variant="body2" color="text.secondary" aria-live="polite">
+            {plural(sortedMatches.length, "contributor")}
+          </Typography>
+          {activeOnly && (
+            <Chip
+              size="small"
+              color="primary"
+              variant="outlined"
+              label={`Active in the last ${RECENT_ACTIVITY_DAYS} days`}
+              onDelete={() => updateFilters({ [PARAM.active]: null })}
+            />
+          )}
+        </Stack>
 
         {sortedMatches.length === 0 ? (
           <Paper variant="outlined" sx={{ p: 4, textAlign: "center" }}>
@@ -446,7 +594,7 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
           </Paper>
         ) : (
           <>
-            <Grid container spacing={2} data-testid="contributor-directory">
+            <Grid container spacing={2} ref={directoryRef} data-testid="contributor-directory">
               {visibleContributors.map((summary) => (
                 <Grid
                   key={summary.author.githubUsername}
@@ -461,9 +609,9 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
               <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
                 <Button
                   variant="outlined"
-                  onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+                  onClick={() => updateParams({ [PARAM.show]: String(visibleCount + PAGE_SIZE) })}
                 >
-                  Load more contributors
+                  Load more ({numberFormat.format(sortedMatches.length - visibleCount)} to go)
                 </Button>
               </Box>
             )}

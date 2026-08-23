@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, useLocation } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { LibraryData } from "../queries/library.query";
@@ -63,12 +63,22 @@ const setLibrary = (entries: Array<{ contributor: Author; profiles: PowerProfile
   } as LibraryData;
 };
 
-const renderPage = () =>
-  render(
-    <MemoryRouter>
+let currentSearch = "";
+
+const LocationProbe = () => {
+  currentSearch = useLocation().search;
+  return null;
+};
+
+const renderPage = (initialEntry = "/contributors") => {
+  currentSearch = "";
+  return render(
+    <MemoryRouter initialEntries={[initialEntry]}>
       <Contributors now={NOW} />
+      <LocationProbe />
     </MemoryRouter>,
   );
+};
 
 const directoryNames = () =>
   within(screen.getByTestId("contributor-directory"))
@@ -104,7 +114,9 @@ describe("Contributors", () => {
     renderPage();
 
     expect(screen.getByLabelText("3 profiles added")).toBeInTheDocument();
-    expect(screen.getByLabelText("2 active contributors")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("2 active contributors, show them all in the directory"),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contribute a profile" })).toHaveAttribute(
       "href",
       "https://docs.powercalc.nl/contributing/",
@@ -118,12 +130,14 @@ describe("Contributors", () => {
     );
   });
 
-  it("orders the directory by latest contribution by default", () => {
+  it("orders the directory by profile count by default, not by recency", () => {
     renderPage();
 
+    // Recent activity already answers "who contributed lately"; repeating that order here made
+    // the first directory cards a copy of the section above them.
     expect(directoryNames()).toEqual([
-      expect.stringContaining("Bob Builder"),
       expect.stringContaining("Ada Lovelace"),
+      expect.stringContaining("Bob Builder"),
       expect.stringContaining("Charlie"),
     ]);
   });
@@ -139,13 +153,13 @@ describe("Contributors", () => {
     expect(directoryNames()).toEqual([expect.stringContaining("Charlie")]);
   });
 
-  it("sorts by profile count", () => {
+  it("sorts by recent activity on request", () => {
     renderPage();
 
     fireEvent.mouseDown(screen.getByLabelText("Sort by"));
-    fireEvent.click(screen.getByRole("option", { name: "Most profiles" }));
+    fireEvent.click(screen.getByRole("option", { name: "Recently active" }));
 
-    expect(directoryNames()[0]).toEqual(expect.stringContaining("Ada Lovelace"));
+    expect(directoryNames()[0]).toEqual(expect.stringContaining("Bob Builder"));
   });
 
   it("shows 24 directory cards at a time", () => {
@@ -163,7 +177,7 @@ describe("Contributors", () => {
       24,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Load more contributors" }));
+    fireEvent.click(screen.getByRole("button", { name: "Load more (1 to go)" }));
 
     expect(within(screen.getByTestId("contributor-directory")).getAllByRole("link")).toHaveLength(
       25,
@@ -190,6 +204,64 @@ describe("Contributors", () => {
       within(screen.getByTestId("contributor-directory")).getByRole("link", { name: /Erin/ })
         .textContent,
     ).not.toMatch(/contributor ·/);
+  });
+
+  it("keeps search, sort and paging in the URL so the directory can be restored", () => {
+    renderPage();
+
+    fireEvent.change(screen.getByPlaceholderText("Search contributors"), {
+      target: { value: "bob" },
+    });
+    expect(currentSearch).toContain("q=bob");
+
+    fireEvent.mouseDown(screen.getByLabelText("Sort by"));
+    fireEvent.click(screen.getByRole("option", { name: "Name A–Z" }));
+    expect(currentSearch).toContain("sort=name");
+  });
+
+  it("restores a directory rendered from URL state", () => {
+    renderPage("/contributors?q=charlie&sort=name");
+
+    expect(screen.getByPlaceholderText("Search contributors")).toHaveValue("charlie");
+    expect(directoryNames()).toEqual([expect.stringContaining("Charlie")]);
+  });
+
+  it("opens the directory on the active contributors behind the metric tile", () => {
+    renderPage();
+
+    fireEvent.click(
+      screen.getByLabelText("2 active contributors, show them all in the directory"),
+    );
+
+    expect(currentSearch).toContain("active=1");
+    expect(screen.getByText("2 contributors")).toBeInTheDocument();
+    expect(directoryNames()).toEqual([
+      expect.stringContaining("Bob Builder"),
+      expect.stringContaining("Ada Lovelace"),
+    ]);
+
+    fireEvent.click(screen.getByRole("button", { name: /Active in the last 90 days/ }));
+    expect(screen.getByText("3 contributors")).toBeInTheDocument();
+  });
+
+  it("filters the directory by tier", () => {
+    const dana = author("Dana", "dana");
+    setLibrary([
+      {
+        contributor: dana,
+        profiles: Array.from({ length: 3 }, (_, index) =>
+          profile(dana, `DANA-${index}`, "2026-08-20T10:00:00Z"),
+        ),
+      },
+      { contributor: author("Erin", "erin"), profiles: [profile(author("Erin", "erin"), "ERIN-1", "2026-08-19T10:00:00Z")] },
+    ]);
+    renderPage();
+
+    fireEvent.mouseDown(screen.getByLabelText("Tier"));
+    fireEvent.click(screen.getByRole("option", { name: "Watt and up" }));
+
+    expect(currentSearch).toContain("tier=Watt");
+    expect(directoryNames()).toEqual([expect.stringContaining("Dana")]);
   });
 
   it("shows an empty state when no contributor matches", () => {

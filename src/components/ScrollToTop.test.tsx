@@ -29,6 +29,20 @@ describe("ScrollToTop", () => {
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: "auto" });
   });
 
+  it("leaves back navigation to the browser's own scroll restoration", () => {
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    render(
+      <MemoryRouter initialEntries={["/contributors", "/contributors/example"]} initialIndex={1}>
+        <NavigationFixture />
+      </MemoryRouter>,
+    );
+    scrollTo.mockClear();
+
+    act(() => void navigate(-1));
+
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
   it("keeps the scroll position when only search parameters change", () => {
     const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
     render(
