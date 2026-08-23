@@ -79,9 +79,13 @@ test("uses a readable device type and a clear empty usage state", async ({ page 
   await page.goto("/profiles/sonoff/S31");
 
   // Summary values are not repeated in the attributes tab, and the raw identifier never surfaces.
-  await expect(page.getByText("Smart Switch", { exact: true })).toHaveCount(1);
+  const deviceType = page.getByText("Smart Switch", { exact: true });
+  await expect(deviceType).toHaveCount(1);
+  await expect(deviceType).not.toHaveRole("heading");
   await expect(page.getByText("smart_switch", { exact: true })).toHaveCount(0);
-  await expect(page.getByText("No opted-in usage yet")).toBeVisible();
+  const usage = page.getByText("No opted-in usage yet");
+  await expect(usage).toBeVisible();
+  await expect(usage).not.toHaveRole("heading");
   await expect(page.getByRole("progressbar")).toBeHidden();
   await page.getByTestId("profile-setup").getByRole("button", { name: "Use this profile" }).click();
   await expect(

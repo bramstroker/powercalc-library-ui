@@ -541,6 +541,7 @@ const HeadlineFact = ({ label, value, icon: Icon }: HeadlineFactProps) => (
           {label}
         </Typography>
         <Typography
+          component="div"
           variant="subtitle2"
           sx={{ fontWeight: 700, lineHeight: 1.3, overflowWrap: "anywhere" }}
         >
@@ -580,7 +581,7 @@ export const ProfileMetrics = ({
             Community usage
           </Typography>
 
-          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+          <Typography component="div" variant="subtitle2" sx={{ fontWeight: 700 }}>
             {hasReportedUsage
               ? `${installationCount} opted-in ${profile.usageStats.installationCount === 1 ? "installation" : "installations"}`
               : "No opted-in usage yet"}
