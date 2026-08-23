@@ -77,6 +77,9 @@ export const TopCountriesList = ({ data, limit }: Props) => {
                 <ReactCountryFlag
                   svg
                   countryCode={country.country_code.toUpperCase()}
+                  loading="lazy"
+                  decoding="async"
+                  fetchPriority="low"
                   style={{
                     width: "100%",
                     height: "100%",

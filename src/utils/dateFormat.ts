@@ -22,22 +22,3 @@ export const formatDateUtc = (
   date: Date,
   options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" },
 ) => date.toLocaleDateString(LOCALE, { ...options, timeZone: "UTC" });
-
-const relativeTime = new Intl.RelativeTimeFormat(LOCALE, { numeric: "auto" });
-
-/** Human-friendly age for client-rendered freshness labels. */
-export const formatRelativeDate = (date: Date, now: Date = new Date()) => {
-  const seconds = (date.getTime() - now.getTime()) / 1000;
-  const absoluteSeconds = Math.abs(seconds);
-
-  if (absoluteSeconds < 60) return "just now";
-  if (absoluteSeconds < 60 * 60) return relativeTime.format(Math.round(seconds / 60), "minute");
-  if (absoluteSeconds < 60 * 60 * 24)
-    return relativeTime.format(Math.round(seconds / (60 * 60)), "hour");
-  if (absoluteSeconds < 60 * 60 * 24 * 30)
-    return relativeTime.format(Math.round(seconds / (60 * 60 * 24)), "day");
-  if (absoluteSeconds < 60 * 60 * 24 * 365)
-    return relativeTime.format(Math.round(seconds / (60 * 60 * 24 * 30)), "month");
-
-  return relativeTime.format(Math.round(seconds / (60 * 60 * 24 * 365)), "year");
-};

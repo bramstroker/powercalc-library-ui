@@ -1,5 +1,11 @@
 import { createTheme } from "@mui/material";
 
+declare module "@mui/material/styles" {
+  interface CssThemeVariables {
+    enabled: true;
+  }
+}
+
 /**
  * Both color schemes are defined so the toggle can switch between them at runtime; MUI persists the
  * choice itself. `dark` stays the default (see `defaultMode` on the ThemeProvider in index.tsx).

@@ -42,7 +42,7 @@ import Link from "@mui/material/Link";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import { useQuery } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate, useSearchParams, Link as RouterLink } from "react-router";
 
 import type { Summary } from "../api/analytics.api";
@@ -53,7 +53,7 @@ import {
 } from "../queries/profileDetails.query";
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
 import type { PowerProfile } from "../types/PowerProfile";
-import { formatRelativeDate, formatTimestampUtc } from "../utils/dateFormat";
+import { formatTimestampUtc } from "../utils/dateFormat";
 import { colorModeLabel, humanizeIdentifier } from "../utils/profilePresentation";
 import { authorPath, manufacturerPath, profilePath as getProfilePath } from "../utils/urlSlugs.mjs";
 
@@ -175,24 +175,11 @@ const MeasureDescription = ({ description }: { description: string }) => {
   );
 };
 
-const FriendlyTimestamp = ({ date }: { date: Date }) => {
-  // The exact value is identical in the static HTML and the first browser render. Relative time is
-  // applied after hydration so a build crossing midnight can never invalidate the whole page.
-  const [relative, setRelative] = useState<string | null>(null);
-  const exact = formatTimestampUtc(date);
-
-  useEffect(() => {
-    setRelative(formatRelativeDate(date));
-  }, [date]);
-
-  return (
-    <Tooltip title={exact} arrow describeChild>
-      <Box component="time" dateTime={date.toISOString()}>
-        {relative ?? exact}
-      </Box>
-    </Tooltip>
-  );
-};
+const Timestamp = ({ date }: { date: Date }) => (
+  <Box component="time" dateTime={date.toISOString()}>
+    {formatTimestampUtc(date)}
+  </Box>
+);
 
 /*
  * Everything below renders inside `Profile` but is declared here on purpose. A component defined
@@ -693,7 +680,7 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
       value: profile.updatedAt && formatTimestampUtc(profile.updatedAt),
       icon: HistoryIcon,
       group: "library",
-      renderFn: () => (profile.updatedAt ? <FriendlyTimestamp date={profile.updatedAt} /> : null),
+      renderFn: () => (profile.updatedAt ? <Timestamp date={profile.updatedAt} /> : null),
     },
     {
       label: "Authors",

@@ -259,11 +259,11 @@ test("redirects a legacy model ID to the current canonical profile URL", async (
   await expect(page.getByRole("tab", { name: "JSON" })).toHaveAttribute("aria-selected", "true");
 });
 
-test("shows a friendly updated age with the exact timestamp available", async ({ page }) => {
+test("shows a stable UTC updated timestamp", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 
   const updated = page.locator('time[datetime="2025-01-02T03:04:05.000Z"]');
-  await expect(updated).toContainText(/ago$/);
+  await expect(updated).toHaveText("Jan 2, 2025, 3:04 AM UTC");
 });
 
 test("renders an error page for an unknown profile", async ({ page }) => {

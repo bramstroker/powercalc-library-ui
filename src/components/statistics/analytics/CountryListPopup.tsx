@@ -92,6 +92,9 @@ export const CountryListPopup = ({ open, onClose, data }: CountryListPopupProps)
                       <ReactCountryFlag
                         svg
                         countryCode={country.country_code.toUpperCase()}
+                        loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
                         style={{
                           width: "100%",
                           height: "100%",

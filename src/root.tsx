@@ -1,4 +1,5 @@
 import CssBaseline from "@mui/material/CssBaseline";
+import GlobalStyles from "@mui/material/GlobalStyles";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { ThemeProvider } from "@mui/material/styles";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -52,6 +53,12 @@ export const Layout = ({ children }: { children: ReactNode }) => {
       </head>
       <body>
         <InitColorSchemeScript attribute="data-mui-color-scheme" defaultMode="dark" />
+        {/*
+         * CssVarsProvider normally emits these after its children. On a prerendered page that puts
+         * --mui-spacing and the palette variables after all visible markup, so spacing-dependent
+         * rules become valid only near the end of HTML parsing and shift the whole page.
+         */}
+        <GlobalStyles styles={theme.generateStyleSheets()} />
         <SkipLink />
         <noscript>You need to enable JavaScript to use the interactive library.</noscript>
         {children}
@@ -71,7 +78,7 @@ const Root = () => {
   }, []);
 
   return (
-    <ThemeProvider theme={theme} defaultMode="dark">
+    <ThemeProvider theme={theme} defaultMode="dark" disableStyleSheetGeneration>
       <CssBaseline enableColorScheme />
       <QueryClientProvider client={queryClient}>
         <Outlet />
