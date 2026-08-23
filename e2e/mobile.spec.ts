@@ -134,8 +134,10 @@ test("groups the profile attributes into sections", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Device", level: 2 })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Power", level: 2 })).toBeVisible();
 
-  // Power figures belong to the Power section, not scattered through the list.
-  await expect(groups.filter({ hasText: "Power" }).first().getByText("Max power")).toBeVisible();
+  // Extended power values belong here; headline figures are intentionally not repeated.
+  await expect(
+    groups.filter({ hasText: "Power" }).first().getByText("Standby power on"),
+  ).toBeVisible();
 });
 
 test("keeps every profile tab reachable", async ({ page }) => {
