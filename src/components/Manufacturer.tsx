@@ -106,13 +106,13 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
         ]}
       >
         <Stack
-          direction={{ xs: "column", sm: "row" }}
+          direction={{ xs: "column", md: "row" }}
           sx={{
-            alignItems: { xs: "flex-start", sm: "center" },
+            alignItems: { xs: "flex-start", md: "center" },
             gap: { xs: 2, sm: 2.5 },
           }}
         >
-          <ManufacturerLogo manufacturer={manufacturer} size={64} plate />
+          <ManufacturerLogo manufacturer={manufacturer} size={64} variant="wide" plate />
 
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography
@@ -144,14 +144,14 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
           </Box>
 
           <Stack
-            direction={{ xs: "row", sm: "column" }}
-            sx={{ width: { xs: "100%", sm: "auto" }, gap: 1 }}
+            direction={{ xs: "row", md: "column" }}
+            sx={{ width: { xs: "100%", md: "auto" }, gap: 1 }}
           >
             <Button
               variant="contained"
               component={RouterLink}
               to={`/?manufacturer=${encodeURIComponent(manufacturer.fullName)}`}
-              sx={{ flex: { xs: 1, sm: "initial" } }}
+              sx={{ flex: { xs: 1, md: "initial" } }}
             >
               Browse profiles
             </Button>
@@ -162,7 +162,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
               href={`https://github.com/bramstroker/homeassistant-powercalc/tree/master/profile_library/${manufacturer.dirName}`}
               target="_blank"
               rel="noopener noreferrer"
-              sx={{ flex: { xs: 1, sm: "initial" } }}
+              sx={{ flex: { xs: 1, md: "initial" } }}
             >
               Library source
             </Button>
