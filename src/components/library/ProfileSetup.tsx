@@ -66,6 +66,7 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
   const [setupExpanded, setSetupExpanded] = useState(false);
   const [manualSetupExpanded, setManualSetupExpanded] = useState(false);
   const discoveryBy = profile.discoveryBy ?? "entity";
+  const isManualOnly = discoveryBy === "manual";
   const {
     data: profileFiles = [],
     isPending: subProfilesPending,
@@ -232,32 +233,44 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
 
       <Collapse in={setupExpanded} timeout="auto">
         <Paper id="profile-setup-details" variant="outlined" sx={{ p: 2, mt: 1 }}>
-          <Alert severity="success" variant="outlined">
-            Powercalc can discover this model automatically (by {discoveryBy}). Look for a discovery
-            prompt in Home Assistant and accept it to create the sensors.{" "}
-            <Link
-              href="https://docs.powercalc.nl/library/discovery/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              About discovery
-            </Link>
-          </Alert>
+          {isManualOnly ? (
+            <>
+              <Alert severity="info" variant="outlined" sx={{ mb: 2 }}>
+                Automatic discovery is not available for this profile. Set it up manually using one
+                of the options below.
+              </Alert>
+              {manualSetup}
+            </>
+          ) : (
+            <>
+              <Alert severity="success" variant="outlined">
+                Powercalc can discover this model automatically (by {discoveryBy}). Look for a
+                discovery prompt in Home Assistant and accept it to create the sensors.{" "}
+                <Link
+                  href="https://docs.powercalc.nl/library/discovery/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  About discovery
+                </Link>
+              </Alert>
 
-          <Accordion
-            disableGutters
-            elevation={0}
-            expanded={manualSetupExpanded}
-            onChange={(_event, expanded) => setManualSetupExpanded(expanded)}
-            sx={{ mt: 1, backgroundColor: "transparent", "&:before": { display: "none" } }}
-          >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0 }}>
-              <Typography component="h3" variant="subtitle2" sx={{ fontWeight: 700 }}>
-                Set up manually instead
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ px: 0, pt: 0 }}>{manualSetup}</AccordionDetails>
-          </Accordion>
+              <Accordion
+                disableGutters
+                elevation={0}
+                expanded={manualSetupExpanded}
+                onChange={(_event, expanded) => setManualSetupExpanded(expanded)}
+                sx={{ mt: 1, backgroundColor: "transparent", "&:before": { display: "none" } }}
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0 }}>
+                  <Typography component="h3" variant="subtitle2" sx={{ fontWeight: 700 }}>
+                    Set up manually instead
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ px: 0, pt: 0 }}>{manualSetup}</AccordionDetails>
+              </Accordion>
+            </>
+          )}
         </Paper>
       </Collapse>
     </Box>

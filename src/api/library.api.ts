@@ -30,7 +30,7 @@ export interface LibraryModel {
   /** Settings the measurement was taken with, e.g. sample count and tooling version. */
   measure_settings?: Record<string, unknown>;
   measure_device_firmware?: string;
-  /** "device" or "entity" when Powercalc can auto-discover this model. */
+  /** How the profile is selected: automatically by "device"/"entity", or "manual" only. */
   discovery_by?: string;
   only_self_usage?: boolean;
   /** "<manufacturer>/<model>" of the profile whose measurements this one reuses. */

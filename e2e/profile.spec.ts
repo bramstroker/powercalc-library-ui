@@ -223,6 +223,25 @@ test("offers both the GUI and YAML ways to use the profile", async ({ page }) =>
   await expect(setup.getByText("model: LCA001")).toBeVisible();
 });
 
+test("shows setup instructions directly when automatic discovery is unavailable", async ({
+  page,
+}) => {
+  await page.goto("/profiles/signify/LCT010");
+
+  await expect(page.getByText("Not available (manual setup only)")).toBeVisible();
+
+  const setup = page.getByTestId("profile-setup");
+  await setup.getByRole("button", { name: "Use this profile" }).click();
+
+  await expect(
+    setup.getByText("Automatic discovery is not available for this profile."),
+  ).toBeVisible();
+  await expect(setup.getByText(/Look for a discovery prompt/)).toBeHidden();
+  await expect(setup.getByText("Set up manually instead")).toBeHidden();
+  await expect(setup.getByRole("link", { name: "Open in Home Assistant" })).toBeVisible();
+  await expect(setup.getByText("Virtual power (library)")).toBeVisible();
+});
+
 test("shows the fields the API publishes beyond the basics", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 

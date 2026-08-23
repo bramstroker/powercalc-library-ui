@@ -837,7 +837,10 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
     },
     {
       label: "Discovery",
-      value: `Automatic, by ${profile.discoveryBy ?? "entity"}`,
+      value:
+        profile.discoveryBy === "manual"
+          ? "Not available (manual setup only)"
+          : `Automatic, by ${profile.discoveryBy ?? "entity"}`,
       icon: PermDeviceInformationIcon,
       group: "library",
     },

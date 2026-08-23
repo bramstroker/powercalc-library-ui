@@ -54,6 +54,7 @@ export const library = {
           calculation_strategy: "lut",
           standby_power: 0.3,
           sub_profile_count: 0,
+          discovery_by: "manual",
           lut_quality: { score: 62.4, brightness: 62.4 },
         },
       ],
