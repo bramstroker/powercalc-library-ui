@@ -170,6 +170,28 @@ describe("Contributors", () => {
     );
   });
 
+  it("medals a tiered contributor and leaves an untiered one bare", () => {
+    const dana = author("Dana", "dana");
+    const erin = author("Erin", "erin");
+    setLibrary([
+      {
+        contributor: dana,
+        profiles: Array.from({ length: 3 }, (_, index) =>
+          profile(dana, `DANA-${index}`, "2026-08-20T10:00:00Z"),
+        ),
+      },
+      { contributor: erin, profiles: [profile(erin, "ERIN-1", "2026-08-19T10:00:00Z")] },
+    ]);
+    renderPage();
+
+    expect(screen.getAllByText("Watt contributor · 3–7 profiles").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Kilowatt contributor/)).not.toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("contributor-directory")).getByRole("link", { name: /Erin/ })
+        .textContent,
+    ).not.toMatch(/contributor ·/);
+  });
+
   it("shows an empty state when no contributor matches", () => {
     renderPage();
 

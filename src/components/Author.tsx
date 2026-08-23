@@ -1,6 +1,5 @@
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DevicesOtherIcon from "@mui/icons-material/DevicesOther";
-import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import FactoryIcon from "@mui/icons-material/Factory";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import HomeIcon from "@mui/icons-material/Home";
@@ -31,6 +30,7 @@ import type {
 import { humanizeIdentifier } from "../utils/profilePresentation";
 import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
+import { ContributorTierChip } from "./ContributorTierBadge";
 import { GithubAvatar } from "./GithubAvatar";
 import { LazyAuthorContributionsChart } from "./LazyAuthorContributionsChart";
 import { getDeviceTypeIcon } from "./library/facetIcons";
@@ -55,13 +55,6 @@ const countBy = <T,>(
   return [...counts.entries()]
     .map(([key, count]) => ({ key, count }))
     .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
-};
-
-const contributorTier = (profileCount: number) => {
-  if (profileCount >= 50) return "Library legend";
-  if (profileCount >= 20) return "Power contributor";
-  if (profileCount >= 5) return "Active contributor";
-  return "Contributor";
 };
 
 const Stat = ({
@@ -192,7 +185,7 @@ export const Author = ({
   }, [authorProfiles]);
 
   const achievements = useMemo(() => {
-    const labels = [contributorTier(contributionCount)];
+    const labels: string[] = [];
     if (manufacturers.length >= 5)
       labels.push(`${manufacturers.length} manufacturers`);
     const primaryType = deviceTypes[0];
@@ -209,7 +202,7 @@ export const Author = ({
     ) {
       labels.push("LUT contributor");
     }
-    return labels.slice(0, 3);
+    return labels.slice(0, 2);
   }, [authorProfiles, contributionCount, deviceTypes, manufacturers.length]);
 
   const sortedProfiles = useMemo(() => {
@@ -324,13 +317,12 @@ export const Author = ({
                 useFlexGap
                 sx={{ flexWrap: "wrap", gap: 0.75, mt: 1.5 }}
               >
-                {achievements.map((achievement, index) => (
+                <ContributorTierChip profileCount={contributionCount} />
+                {achievements.map((achievement) => (
                   <Chip
                     key={achievement}
                     size="small"
-                    color={index === 0 ? "primary" : "default"}
-                    variant={index === 0 ? "filled" : "outlined"}
-                    icon={index === 0 ? <EmojiEventsOutlinedIcon /> : undefined}
+                    variant="outlined"
                     label={achievement}
                   />
                 ))}

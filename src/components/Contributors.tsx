@@ -35,6 +35,7 @@ import { formatDateUtc } from "../utils/dateFormat";
 import { daysSince } from "../utils/recency";
 import { authorPath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
+import { ContributorTierAvatar } from "./ContributorTierBadge";
 import { GithubAvatar } from "./GithubAvatar";
 import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
@@ -71,11 +72,13 @@ const ContributorCard = ({ summary }: { summary: ContributorSummary }) => (
       sx={{ height: "100%", p: 2.25, alignItems: "stretch" }}
     >
       <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
-        <GithubAvatar
-          username={summary.author.githubUsername}
-          name={displayName(summary)}
-          sx={{ width: 48, height: 48 }}
-        />
+        <ContributorTierAvatar profileCount={summary.profileCount} size={20}>
+          <GithubAvatar
+            username={summary.author.githubUsername}
+            name={displayName(summary)}
+            sx={{ width: 48, height: 48 }}
+          />
+        </ContributorTierAvatar>
         <Box sx={{ minWidth: 0 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }} noWrap>
             {displayName(summary)}
@@ -114,11 +117,13 @@ const RecentContributorCard = ({ summary }: { summary: RecentContributor }) => (
       sx={{ height: "100%", p: 2 }}
     >
       <Stack direction="row" spacing={1.25} sx={{ alignItems: "center" }}>
-        <GithubAvatar
-          username={summary.author.githubUsername}
-          name={displayName(summary)}
-          sx={{ width: 42, height: 42 }}
-        />
+        <ContributorTierAvatar profileCount={summary.profileCount} size={18}>
+          <GithubAvatar
+            username={summary.author.githubUsername}
+            name={displayName(summary)}
+            sx={{ width: 42, height: 42 }}
+          />
+        </ContributorTierAvatar>
         <Box sx={{ minWidth: 0 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
             {displayName(summary)}
