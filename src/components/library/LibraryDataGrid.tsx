@@ -8,7 +8,7 @@ import type {
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridApiCommunity } from "@mui/x-data-grid/internals";
 import { useCallback, useState } from "react";
-import { Link as RouterLink, useNavigate } from "react-router";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router";
 
 import type { ColorMode } from "../../types/ColorMode";
 import type { Author, PowerProfile } from "../../types/PowerProfile";
@@ -40,6 +40,24 @@ const DEFAULT_COLUMN_VISIBILITY: GridColumnVisibilityModel = {
   lutQualityScore: false,
 };
 
+const ProfileModelLink = ({ profile }: { profile: PowerProfile }) => {
+  const location = useLocation();
+
+  return (
+    <Link
+      component={RouterLink}
+      to={profilePath(profile.manufacturer.dirName, profile.modelId)}
+      state={{ libraryPath: `${location.pathname}${location.search}` }}
+      prefetch="intent"
+      underline="hover"
+      color="inherit"
+      onClick={(event) => event.stopPropagation()}
+    >
+      {profile.modelId}
+    </Link>
+  );
+};
+
 const columns: GridColDef<PowerProfile>[] = [
   {
     field: "deviceType",
@@ -63,18 +81,9 @@ const columns: GridColDef<PowerProfile>[] = [
     headerName: "Model",
     flex: 1,
     minWidth: 140,
-    renderCell: ({ value, row }: GridRenderCellParams<PowerProfile, string>) => (
+    renderCell: ({ row }: GridRenderCellParams<PowerProfile, string>) => (
       <Stack direction="row" sx={{ alignItems: "center", gap: 1, height: "100%" }}>
-        <Link
-          component={RouterLink}
-          to={profilePath(row.manufacturer.dirName, row.modelId)}
-          prefetch="intent"
-          underline="hover"
-          color="inherit"
-          onClick={(event) => event.stopPropagation()}
-        >
-          {value}
-        </Link>
+        <ProfileModelLink profile={row} />
         {isRecentlyAdded(row) && <NewBadge />}
       </Stack>
     ),
@@ -113,7 +122,10 @@ const columns: GridColDef<PowerProfile>[] = [
     width: 160,
     valueGetter: (value: Author[]) => value?.map((author) => author.name).join(", ") ?? "",
     renderCell: ({ row }: GridRenderCellParams<PowerProfile>) => (
-      <Stack direction="row" sx={{ alignItems: "center", gap: 0.5, height: "100%", overflow: "hidden" }}>
+      <Stack
+        direction="row"
+        sx={{ alignItems: "center", gap: 0.5, height: "100%", overflow: "hidden" }}
+      >
         {row.authors.map((author, index) => (
           <Link
             key={author.githubUsername || `${author.name}-${index}`}
@@ -233,6 +245,7 @@ export type LibraryDataGridProps = {
 
 export const LibraryDataGrid = ({ rows, apiRef }: LibraryDataGridProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [columnVisibilityModel, setColumnVisibilityModel] =
     useState<GridColumnVisibilityModel>(readStoredVisibility);
 
@@ -243,9 +256,11 @@ export const LibraryDataGrid = ({ rows, apiRef }: LibraryDataGridProps) => {
 
   const handleRowClick = useCallback(
     (params: GridRowParams<PowerProfile>) => {
-      void navigate(profilePath(params.row.manufacturer.dirName, params.row.modelId));
+      void navigate(profilePath(params.row.manufacturer.dirName, params.row.modelId), {
+        state: { libraryPath: `${location.pathname}${location.search}` },
+      });
     },
-    [navigate],
+    [location.pathname, location.search, navigate],
   );
 
   return (

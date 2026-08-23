@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router";
+import { Link as RouterLink, useLocation } from "react-router";
 
 import type { PowerProfile } from "../../types/PowerProfile";
 import { isRecentlyAdded } from "../../utils/recency";
@@ -31,6 +31,7 @@ export type LibraryCardListProps = {
  * DataGrid could only be read by scrolling sideways; one card per profile fits the width instead.
  */
 export const LibraryCardList = ({ rows }: LibraryCardListProps) => {
+  const location = useLocation();
   const [page, setPage] = useState(0);
 
   // Filtering can shrink the list under the current page.
@@ -57,6 +58,7 @@ export const LibraryCardList = ({ rows }: LibraryCardListProps) => {
             <ListItemButton
               component={RouterLink}
               to={profilePath(profile.manufacturer.dirName, profile.modelId)}
+              state={{ libraryPath: `${location.pathname}${location.search}` }}
               prefetch="intent"
               sx={{ alignItems: "flex-start", gap: 1.5, py: 1.5 }}
             >

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { mockApi } from "./fixtures/api";
+import { E2E_API_BASE_URL, mockApi } from "./fixtures/api";
 
 // A phone-sized viewport: below the md breakpoint the results become a card list, because a
 // five-column table needs roughly twice this width.
@@ -24,12 +24,56 @@ test("does not scroll sideways", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("library-card-list")).toBeVisible();
 
-  const { scrollWidth, clientWidth } = await page.evaluate(() => ({
-    scrollWidth: document.documentElement.scrollWidth,
-    clientWidth: document.documentElement.clientWidth,
-  }));
+  const layout = await page.evaluate(() => {
+    const clientWidth = document.documentElement.clientWidth;
+    const overflowing = [...document.querySelectorAll<HTMLElement>("body *")]
+      .filter((element) => element.getBoundingClientRect().right > clientWidth + 1)
+      .slice(0, 5)
+      .map((element) => ({
+        element: element.tagName.toLowerCase(),
+        className: element.className?.toString().slice(0, 120),
+        right: Math.round(element.getBoundingClientRect().right),
+        width: Math.round(element.getBoundingClientRect().width),
+      }));
 
-  expect(scrollWidth).toBe(clientWidth);
+    return {
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth,
+      overflowing,
+    };
+  });
+
+  expect(layout, JSON.stringify(layout.overflowing)).toMatchObject({
+    scrollWidth: layout.clientWidth,
+  });
+});
+
+test("keeps time-series controls and charts within the phone viewport", async ({ page }) => {
+  await page.goto("/analytics/time-series");
+  await expect(page.getByRole("heading", { name: "Install Date", level: 1 })).toBeVisible();
+
+  const layout = await page.evaluate(() => {
+    const clientWidth = document.documentElement.clientWidth;
+    const overflowing = [...document.querySelectorAll<HTMLElement>("body *")]
+      .filter((element) => element.getBoundingClientRect().right > clientWidth + 1)
+      .slice(0, 5)
+      .map((element) => ({
+        element: element.tagName.toLowerCase(),
+        className: element.className?.toString().slice(0, 120),
+        right: Math.round(element.getBoundingClientRect().right),
+        width: Math.round(element.getBoundingClientRect().width),
+      }));
+
+    return {
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth,
+      overflowing,
+    };
+  });
+
+  expect(layout, JSON.stringify(layout.overflowing)).toMatchObject({
+    scrollWidth: layout.clientWidth,
+  });
 });
 
 test("stacks the Explore navigation within the phone viewport", async ({ page }) => {
@@ -90,12 +134,14 @@ test("groups the profile attributes into sections", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Device", level: 2 })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Power", level: 2 })).toBeVisible();
 
-  // Power figures belong to the Power section, not scattered through the list.
-  await expect(groups.filter({ hasText: "Power" }).first().getByText("Max power")).toBeVisible();
+  // Extended power values belong here; headline figures are intentionally not repeated.
+  await expect(
+    groups.filter({ hasText: "Power" }).first().getByText("Standby power on"),
+  ).toBeVisible();
 });
 
 test("keeps every profile tab reachable", async ({ page }) => {
-  await page.route("https://api.powercalc.nl/download/**", (route) =>
+  await page.route(`${E2E_API_BASE_URL}/download/**`, (route) =>
     route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -123,7 +169,9 @@ test("puts the pie chart legend below the chart", async ({ page }) => {
   await expect(card).toBeVisible();
 
   const pie = await card.locator("path").first().boundingBox();
-  const legend = await card.getByText("media_player").boundingBox();
+  const legend = await card
+    .locator(".MuiChartsLegend-label", { hasText: "media_player" })
+    .boundingBox();
 
   expect(legend!.y).toBeGreaterThan(pie!.y + pie!.height);
 });
@@ -134,8 +182,8 @@ test("gives the detail bar chart room for its category labels", async ({ page })
   await expect(page.getByRole("heading", { name: "Source Domain", level: 1 })).toBeVisible();
 
   // Truncated labels render as "media_pla…" when the y axis is too narrow for them.
-  await expect(page.getByText("media_player", { exact: true })).toBeVisible();
-  await expect(page.getByText("binary_sensor", { exact: true })).toBeVisible();
+  await expect(page.locator("tspan", { hasText: /^media_player$/ })).toBeVisible();
+  await expect(page.locator("tspan", { hasText: /^binary_sensor$/ })).toBeVisible();
 });
 
 test("filters from the drawer and opens a profile", async ({ page }) => {

@@ -56,11 +56,7 @@ export const ProfileCard = ({
           }}
         >
           <Stack direction="row" sx={{ alignItems: "flex-start", gap: 1.5 }}>
-            <ManufacturerLogo
-              manufacturer={profile.manufacturer}
-              size={40}
-              plate
-            />
+            <ManufacturerLogo manufacturer={profile.manufacturer} size={40} plate />
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Stack direction="row" sx={{ alignItems: "center", gap: 0.75 }}>
                 <Typography
@@ -97,11 +93,7 @@ export const ProfileCard = ({
             </Box>
           </Stack>
 
-          <Stack
-            direction="row"
-            useFlexGap
-            sx={{ flexWrap: "wrap", gap: 0.75 }}
-          >
+          <Stack direction="row" useFlexGap sx={{ flexWrap: "wrap", gap: 0.75 }}>
             <Chip
               size="small"
               variant="outlined"
@@ -116,32 +108,18 @@ export const ProfileCard = ({
             {power && <Chip size="small" variant="outlined" label={power} />}
           </Stack>
 
-          <Stack
-            direction="row"
-            sx={{ alignItems: "center", gap: 1, mt: "auto" }}
-          >
-            <Tooltip
-              title="Known installations reporting use of this profile"
-              arrow
-            >
+          <Stack direction="row" sx={{ alignItems: "center", gap: 1, mt: "auto" }}>
+            <Tooltip title="Known installations reporting use of this profile" arrow>
               <Chip
                 size="small"
                 icon={<HomeIcon />}
                 label={`${numberFormat.format(profile.usageStats.installationCount)} installs`}
               />
             </Tooltip>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ ml: "auto" }}
-            >
-              Added{" "}
-              {formatDateUtc(profile.createdAt, { month: "short", year: "numeric" })}
+            <Typography variant="caption" color="text.secondary" sx={{ ml: "auto" }}>
+              Added {formatDateUtc(profile.createdAt, { month: "short", year: "numeric" })}
             </Typography>
-            <ChevronRightIcon
-              fontSize="small"
-              sx={{ color: "text.secondary" }}
-            />
+            <ChevronRightIcon fontSize="small" sx={{ color: "text.secondary" }} />
           </Stack>
         </CardContent>
       </CardActionArea>

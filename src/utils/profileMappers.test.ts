@@ -66,6 +66,16 @@ describe("mapToBasePowerProfile", () => {
     expect(profile.aliases).toEqual(["LWB010", "LWB014"]);
   });
 
+  it("keeps legacy directory IDs separate from product aliases", () => {
+    const profile = mapToBasePowerProfile(
+      createModel({ legacy_ids: ["Hue LCA 001"] }),
+      manufacturer,
+      usageStats,
+    );
+
+    expect(profile.legacyIds).toEqual(["Hue LCA 001"]);
+  });
+
   it("parses the timestamps into dates", () => {
     const profile = mapToBasePowerProfile(createModel(), manufacturer, usageStats);
 
@@ -74,12 +84,16 @@ describe("mapToBasePowerProfile", () => {
   });
 
   it("maps every author", () => {
-    const profile = mapToBasePowerProfile(createModel({
-      authors: [
-        { name: "Bram", email: "bram@example.com", github: "bramstroker" },
-        { name: "Contributor Two", github: "contributor-two" },
-      ],
-    }), manufacturer, usageStats);
+    const profile = mapToBasePowerProfile(
+      createModel({
+        authors: [
+          { name: "Bram", email: "bram@example.com", github: "bramstroker" },
+          { name: "Contributor Two", github: "contributor-two" },
+        ],
+      }),
+      manufacturer,
+      usageStats,
+    );
 
     expect(profile.authors).toEqual([
       { name: "Bram", email: "bram@example.com", githubUsername: "bramstroker" },
@@ -90,6 +104,7 @@ describe("mapToBasePowerProfile", () => {
   it("falls back to empty defaults when optional fields are missing", () => {
     const model = createModel({
       aliases: undefined,
+      legacy_ids: undefined,
       color_modes: undefined,
       max_power: undefined,
       standby_power: undefined,
@@ -102,6 +117,7 @@ describe("mapToBasePowerProfile", () => {
     const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
 
     expect(profile.aliases).toEqual([]);
+    expect(profile.legacyIds).toEqual([]);
     expect(profile.colorModes).toEqual([]);
     expect(profile.maxPower).toBeNull();
     expect(profile.standbyPower).toBeNull();

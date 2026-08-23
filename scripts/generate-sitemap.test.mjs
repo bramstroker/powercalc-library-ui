@@ -39,6 +39,7 @@ test("collects canonical profile, manufacturer, and contributor URLs", () => {
   assert.equal(byPath.get("/"), "2026-08-21");
   assert.equal(byPath.get("/contributors"), "2026-08-21");
   assert.equal(byPath.has("/statistics"), true);
+  assert.equal(byPath.has("/analytics/sensor-dimensions/by_strategy"), true);
 });
 
 test("renders valid escaped sitemap XML", () => {
@@ -75,19 +76,16 @@ test("generates permanent redirect mappings for legacy entity URLs", () => {
     redirects.find(({ from }) => from === "/contributors/Alice Example"),
     { from: "/contributors/Alice Example", to: "/contributors/alice-example" },
   );
-  assert.equal(redirects.some(({ from }) => from === "/contributors/bob"), false);
+  assert.equal(
+    redirects.some(({ from }) => from === "/contributors/bob"),
+    false,
+  );
 
   const config = renderNginxRedirectMap(redirects);
   assert.match(config, /map_hash_bucket_size 256;/);
   assert.match(config, /map_hash_max_size 8192;/);
-  assert.match(
-    config,
-    /"\/manufacturer\/brand & co" "\/manufacturers\/brand-co";/,
-  );
-  assert.match(
-    config,
-    /"\/manufacturer\/brand & co\/" "\/manufacturers\/brand-co";/,
-  );
+  assert.match(config, /"\/manufacturer\/brand & co" "\/manufacturers\/brand-co";/);
+  assert.match(config, /"\/manufacturer\/brand & co\/" "\/manufacturers\/brand-co";/);
   assert.match(config, /map \$uri \$powercalc_legacy_redirect_candidate \{/);
   assert.match(
     config,

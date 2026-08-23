@@ -1,9 +1,7 @@
 import { index, layout, route, type RouteConfig } from "@react-router/dev/routes";
 
 export default [
-  layout("./route-modules/layouts/library-grid.tsx", [
-    index("./route-modules/home.tsx"),
-  ]),
+  layout("./route-modules/layouts/library-grid.tsx", [index("./route-modules/home.tsx")]),
   layout("./route-modules/layouts/default.tsx", [
     route("profiles/:manufacturer/:model", "./route-modules/profile.tsx"),
     route("statistics", "./route-modules/statistics-overview.tsx"),

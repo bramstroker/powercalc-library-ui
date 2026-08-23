@@ -12,7 +12,7 @@ const requireParams = (params: LoaderFunctionArgs["params"]) => {
     throw new Error("Missing manufacturer or model in URL parameters.");
   }
   return { manufacturer, model };
-}
+};
 
 export const powerProfileLoader = async ({
   params,

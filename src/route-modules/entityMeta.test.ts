@@ -68,7 +68,9 @@ describe("manufacturer meta", () => {
 
   it("marks an unresolvable manufacturer as noindex", () => {
     const { title, robots } = read(
-      manufacturerMeta(args(undefined, "/manufacturers/nope", new Error("boom"))) as MetaDescriptor[],
+      manufacturerMeta(
+        args(undefined, "/manufacturers/nope", new Error("boom")),
+      ) as MetaDescriptor[],
     );
 
     expect(title).toBe("Manufacturer not found · Powercalc profile library");

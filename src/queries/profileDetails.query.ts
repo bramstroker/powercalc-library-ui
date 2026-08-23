@@ -8,10 +8,7 @@ import {
 } from "../api/profileDetails.api";
 import type { PowerProfile } from "../types/PowerProfile";
 
-const profileKey = (profile: PowerProfile) => [
-  profile.manufacturer.dirName,
-  profile.modelId,
-];
+const profileKey = (profile: PowerProfile) => [profile.manufacturer.dirName, profile.modelId];
 
 export const profileJsonQuery = (profile: PowerProfile) =>
   queryOptions({

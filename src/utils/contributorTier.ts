@@ -26,9 +26,7 @@ export const CONTRIBUTOR_TIERS: ContributorTierDefinition[] = [
 ];
 
 /** Null below the lowest threshold — those contributors are untiered, not bottom-tiered. */
-export const getContributorTier = (
-  profileCount: number,
-): ContributorTierDefinition | null =>
+export const getContributorTier = (profileCount: number): ContributorTierDefinition | null =>
   CONTRIBUTOR_TIERS.find((definition) => profileCount >= definition.min) ?? null;
 
 /** Human-readable range, for tooltips: "8–14 profiles", "15+ profiles". */

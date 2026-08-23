@@ -1,5 +1,13 @@
 import PersonIcon from "@mui/icons-material/Person";
-import { Autocomplete, Box, Chip, Stack, TextField, Typography, createFilterOptions } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Chip,
+  Stack,
+  TextField,
+  Typography,
+  createFilterOptions,
+} from "@mui/material";
 
 import type { FacetCount } from "../../utils/libraryFiltering";
 
@@ -25,10 +33,7 @@ export const AuthorFacet = ({ options, selected, onChange }: AuthorFacetProps) =
   );
 
   return (
-    <Box
-      data-testid="facet-author"
-      sx={{ pb: 1, mb: 1, borderBottom: 1, borderColor: "divider" }}
-    >
+    <Box data-testid="facet-author" sx={{ pb: 1, mb: 1, borderBottom: 1, borderColor: "divider" }}>
       <Stack direction="row" sx={{ alignItems: "center", gap: 1, py: 0.75 }}>
         <PersonIcon fontSize="small" sx={{ color: "text.secondary" }} />
         <Typography variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1 }}>
@@ -49,7 +54,9 @@ export const AuthorFacet = ({ options, selected, onChange }: AuthorFacetProps) =
         onChange={(_event, next) => {
           onChange(next.map((option) => option.value));
         }}
-        renderInput={(params) => <TextField {...params} placeholder="Search authors" />}
+        renderInput={(params) => (
+          <TextField {...params} aria-label="Search authors" placeholder="Search authors" />
+        )}
         renderOption={(props, option) => {
           const { key, ...optionProps } = props;
           return (

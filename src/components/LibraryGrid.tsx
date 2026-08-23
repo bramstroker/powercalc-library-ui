@@ -1,21 +1,13 @@
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
-import {
-  Badge,
-  Box,
-  Button,
-  Drawer,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Badge, Box, Button, Drawer, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useLibrary } from "../context/LibraryContext";
 import { DESKTOP_MEDIA_QUERY, useIsDesktop } from "../hooks/useIsDesktop";
 import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { countActiveFilters } from "../types/LibraryFilters";
+import { visuallyHiddenSx } from "../utils/accessibility";
 import { applyFilters } from "../utils/libraryFiltering";
 
 import { Header } from "./Header";
@@ -77,7 +69,10 @@ export const LibraryGrid = () => {
         totalCount={powerProfiles.length}
       />
 
-      <Box sx={{ flex: 1, display: "flex", minHeight: 0 }}>
+      <Box id="main-content" component="main" sx={{ flex: 1, display: "flex", minHeight: 0 }}>
+        <Typography component="h1" sx={visuallyHiddenSx}>
+          Powercalc profile library
+        </Typography>
         {isDesktop ? (
           !collapsed && (
             <Box
@@ -146,6 +141,9 @@ export const LibraryGrid = () => {
             <Typography
               variant="body2"
               color="text.secondary"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
               noWrap
               sx={{ display: { xs: "block", md: "none" } }}
             >

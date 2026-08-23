@@ -1,13 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-import { mockApi } from "./fixtures/api";
+import { E2E_API_BASE_URL, mockApi } from "./fixtures/api";
 
 test("shows a retry screen when the library API is down, and recovers", async ({ page }) => {
   await mockApi(page);
 
   // Registered after the fixtures so it wins, until we let it fall through to them.
   let failing = true;
-  await page.route("https://api.powercalc.nl/**", async (route) => {
+  await page.route(`${E2E_API_BASE_URL}/**`, async (route) => {
     if (failing) {
       return route.fulfill({ status: 500, body: "boom" });
     }

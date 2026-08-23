@@ -11,7 +11,8 @@ type LibraryJson = {
 };
 
 const fetchPrerenderPaths = async (): Promise<string[]> => {
-  const response = await fetch(API_ENDPOINTS.LIBRARY, {
+  const libraryApiUrl = process.env.LIBRARY_API_URL ?? API_ENDPOINTS.LIBRARY;
+  const response = await fetch(libraryApiUrl, {
     signal: AbortSignal.timeout(30_000),
   });
   if (!response.ok) {
@@ -30,6 +31,8 @@ export default {
   ssr: false,
   prerender: {
     paths: fetchPrerenderPaths,
-    concurrency: 4,
+    // The application query client is process-wide during static rendering. Serializing routes
+    // prevents concurrent renders from observing or mutating the same Suspense query state.
+    concurrency: 1,
   },
 } satisfies Config;

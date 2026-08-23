@@ -25,7 +25,7 @@ export const StatisticsAggregator = ({
   nameColumnLabel,
   propertyPath,
   filterQueryParam,
-  valueExtractor
+  valueExtractor,
 }: StatisticsAggregatorProps) => {
   const [resultsCount, setResultsCount] = useState<number>(10);
   const { powerProfiles, total: totalProfiles } = useLibrary();
@@ -36,17 +36,17 @@ export const StatisticsAggregator = ({
     // Count items based on the property path
     const counts: Record<string, number> = {};
 
-    powerProfiles.forEach(profile => {
+    powerProfiles.forEach((profile) => {
       let value: string | string[] | undefined;
 
       if (valueExtractor) {
         value = valueExtractor(profile);
-      } else if (typeof propertyPath === 'string') {
+      } else if (typeof propertyPath === "string") {
         value = profile[propertyPath as keyof PowerProfile] as string | undefined;
       } else if (Array.isArray(propertyPath)) {
         let current: unknown = profile;
         for (const path of propertyPath) {
-          if (current && typeof current === 'object' && path in current) {
+          if (current && typeof current === "object" && path in current) {
             current = (current as Record<string, unknown>)[path];
           } else {
             current = undefined;
@@ -56,7 +56,7 @@ export const StatisticsAggregator = ({
         value = current as string | undefined;
       }
 
-      for (const entry of (Array.isArray(value) ? value : [value])) {
+      for (const entry of Array.isArray(value) ? value : [value]) {
         if (entry) {
           counts[entry] = (counts[entry] || 0) + 1;
         }
@@ -77,7 +77,7 @@ export const StatisticsAggregator = ({
       items={items.slice(0, resultsCount)}
       totalItems={totalProfiles}
       nameColumnLabel={nameColumnLabel}
-      filterQueryParam={filterQueryParam ?? propertyPath as string}
+      filterQueryParam={filterQueryParam ?? (propertyPath as string)}
       resultsCount={resultsCount}
       aggregationsCount={items.length}
       onResultsCountChange={setResultsCount}

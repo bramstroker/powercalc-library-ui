@@ -83,6 +83,23 @@ describe("libraryQuery", () => {
     expect(data.powerProfilesBySlugKey.get("ikea/led1836g9")?.name).toBe("TRADFRI bulb");
   });
 
+  it("indexes legacy model IDs so the loader can redirect them to the current URL", async () => {
+    fetchLibraryMock.mockResolvedValue({
+      manufacturers: [
+        {
+          full_name: "Signify",
+          dir_name: "signify",
+          models: [createModel({ legacy_ids: ["Hue LCA 001", "old-lca001"] })],
+        },
+      ],
+    });
+
+    const data = await runQuery();
+
+    expect(data.powerProfilesBySlugKey.get("signify/hue-lca-001")?.modelId).toBe("LCA001");
+    expect(data.powerProfilesBySlugKey.get("signify/old-lca001")?.modelId).toBe("LCA001");
+  });
+
   it("groups profiles per manufacturer and per author", async () => {
     const data = await runQuery();
 
@@ -147,16 +164,20 @@ describe("libraryQuery", () => {
 
   it("collects every author from a profile with multiple authors", async () => {
     fetchLibraryMock.mockResolvedValue({
-      manufacturers: [{
-        full_name: "Signify",
-        dir_name: "signify",
-        models: [createModel({
-          authors: [
-            { name: "Bram", github: "bramstroker" },
-            { name: "Contributor Two", github: "contributor-two" },
+      manufacturers: [
+        {
+          full_name: "Signify",
+          dir_name: "signify",
+          models: [
+            createModel({
+              authors: [
+                { name: "Bram", github: "bramstroker" },
+                { name: "Contributor Two", github: "contributor-two" },
+              ],
+            }),
           ],
-        })],
-      }],
+        },
+      ],
     });
 
     const data = await runQuery();

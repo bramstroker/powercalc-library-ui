@@ -76,10 +76,7 @@ export const libraryQuery = () => ({
   staleTime: Infinity,
   gcTime: Infinity,
   queryFn: async (): Promise<LibraryData> => {
-    const [library, analyticsData] = await Promise.all([
-      fetchLibrary(),
-      fetchProfiles(),
-    ]);
+    const [library, analyticsData] = await Promise.all([fetchLibrary(), fetchProfiles()]);
 
     if (!library.manufacturers?.length) {
       return emptyLibrary();
@@ -122,6 +119,12 @@ export const libraryQuery = () => ({
           `${manufacturerSlug}/${slugifyPathSegment(modelData.id)}`,
           profile,
         );
+        for (const legacyId of profile.legacyIds ?? []) {
+          powerProfilesBySlugKey.set(
+            `${manufacturerSlug}/${slugifyPathSegment(legacyId)}`,
+            profile,
+          );
+        }
 
         for (const author of profile.authors) {
           if (!author.githubUsername) continue;
@@ -148,7 +151,9 @@ export const libraryQuery = () => ({
     const contributorSummaries = Object.values(authors).map((author): ContributorSummary => {
       const authorSlug = slugifyPathSegment(author.githubUsername);
       const profiles = profilesByAuthorSlug.get(authorSlug) ?? [];
-      const datedProfiles = profiles.filter((profile) => !Number.isNaN(profile.createdAt.getTime()));
+      const datedProfiles = profiles.filter(
+        (profile) => !Number.isNaN(profile.createdAt.getTime()),
+      );
       const latestProfile = datedProfiles.reduce<PowerProfile | null>(
         (latest, profile) =>
           !latest || profile.createdAt.getTime() > latest.createdAt.getTime() ? profile : latest,

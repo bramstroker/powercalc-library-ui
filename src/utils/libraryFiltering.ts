@@ -31,7 +31,9 @@ export const getFacetValues = (profile: PowerProfile, key: FacetKey): string[] =
     case "measureDevice":
       return profile.measureDevice ? [profile.measureDevice] : [];
     case "author":
-      return profile.authors.flatMap((author) => [author.name, author.githubUsername]).filter(Boolean);
+      return profile.authors
+        .flatMap((author) => [author.name, author.githubUsername])
+        .filter(Boolean);
   }
 };
 

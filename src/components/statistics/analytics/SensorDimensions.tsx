@@ -7,39 +7,24 @@ import {
   Grid,
   Button,
   Tooltip,
-  IconButton,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import {mangoFusionPalette} from "@mui/x-charts";
+import { mangoFusionPalette } from "@mui/x-charts";
 import { PieChart, pieClasses } from "@mui/x-charts/PieChart";
-import { useSuspenseQuery} from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
-import type { SensorStats} from "../../../api/analytics.api";
-import {fetchSensors} from "../../../api/analytics.api";
+import type { SensorStats } from "../../../api/analytics.api";
+import { fetchSensors } from "../../../api/analytics.api";
+import { getSensorDimension, sensorDimensionTitle } from "../../../config/sensorDimensions.mjs";
+import { visuallyHiddenSx } from "../../../utils/accessibility";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
 import type { MetricKey } from "./MetricsSelect";
 import { MetricsSelect } from "./MetricsSelect";
 import { SensorDimensionDetailView } from "./SensorDimensionDetailView";
-
-type Dimension = {
-  title: string;
-  description: string;
-}
-
-const DIMENSIONS: Record<string, Dimension> = {
-  by_config_type: { title: "Config type", description: "How the Powercalc sensor is configured" },
-  by_device_type: { title: "Device type", description: "The device type of power profile used" },
-  by_entity_type: { title: "Entity type", description: "The type of Powercalc entity (power, energy, utility_meter)" },
-  by_group_type: { title: "Group type", description: "The type of group" },
-  by_power_profile_source: { title: "PowerProfile source", description: "How the virtual power sensor is configured" },
-  by_sensor_type: { title: "Sensor type", description: "The type of Powercalc sensor" },
-  by_source_domain: { title: "Source domain", description: "The domain of the source entity" },
-  by_strategy: { title: "Calculation strategy", description: "The strategy used to calculate power" },
-}
 
 const groupByDimension = (data: SensorStats[]): Record<string, SensorStats[]> => {
   return data.reduce<Record<string, SensorStats[]>>((acc, item) => {
@@ -61,7 +46,7 @@ export const SensorDimensions = () => {
 
   const { data } = useSuspenseQuery<SensorStats[]>({
     queryKey: ["dimensionData"],
-    queryFn: fetchSensors
+    queryFn: fetchSensors,
   });
 
   const handleMetricChange = (value: MetricKey) => {
@@ -92,15 +77,9 @@ export const SensorDimensions = () => {
 
   const dimensionCounts = data ?? EMPTY_DIMENSION_COUNTS;
 
-  const groupedData = useMemo(
-      () => groupByDimension(dimensionCounts),
-      [dimensionCounts]
-  );
+  const groupedData = useMemo(() => groupByDimension(dimensionCounts), [dimensionCounts]);
 
-  const dimensions = useMemo(
-      () => Object.keys(groupedData).sort(),
-      [groupedData]
-  );
+  const dimensions = useMemo(() => Object.keys(groupedData).sort(), [groupedData]);
 
   // If a dimension is specified in the URL, show the detailed view
   if (urlDimension && groupedData[urlDimension]) {
@@ -117,161 +96,182 @@ export const SensorDimensions = () => {
 
   // Otherwise show the overview with pie charts
   return (
-      <>
-        <AnalyticsHeader
-            title={"Sensor Statistics"}
-            description={"Overview of Powercalc usage across different dimensions."}
-            breadcrumbItems={[
-              { label: "Home", to: "/" },
-              { label: "Analytics", to: "/analytics" },
-              { label: "Sensor statistics" },
-            ]}
-            children={
-              <Box
-                  component="ul"
+    <>
+      <AnalyticsHeader
+        title={"Sensor Statistics"}
+        description={"Overview of Powercalc usage across different dimensions."}
+        breadcrumbItems={[
+          { label: "Home", to: "/" },
+          { label: "Analytics", to: "/analytics" },
+          { label: "Sensor statistics" },
+        ]}
+        children={
+          <Box
+            component="ul"
+            sx={{
+              pl: 2,
+              mt: 1,
+              mb: 1,
+              color: "text.secondary",
+              "& li": { mb: 0.5 },
+            }}
+          >
+            <li>
+              <strong>Installation Count</strong> – unique Home Assistant installations
+            </li>
+            <li>
+              <strong>Total Count</strong> – total PowerCalc sensor instances
+            </li>
+            <li>
+              <strong>Percentage</strong> – percentage of installations using specific type
+            </li>
+          </Box>
+        }
+        filterSection={<MetricsSelect value={selectedMetric} onChange={handleMetricChange} />}
+      />
+
+      <Grid container spacing={4}>
+        {dimensions.map((dimension) => {
+          const dimensionData = groupedData[dimension] ?? [];
+
+          const sortedData = [...dimensionData].sort(
+            (a, b) => (b[selectedMetric] ?? 0) - (a[selectedMetric] ?? 0),
+          );
+
+          const chartData = sortedData
+            .map((item) => ({
+              id: `${dimension}:${item.key_name}`, // ensure unique
+              value: item[selectedMetric] ?? 0,
+              label: item.key_name,
+            }))
+            .filter((x) => x.value > 0);
+
+          const dimensionInfo = getSensorDimension(dimension);
+          const title = sensorDimensionTitle(dimension);
+
+          return (
+            <Grid size={{ xs: 12, md: 6 }} key={dimension}>
+              <Paper sx={{ p: { xs: 1.5, sm: 3 }, height: "100%" }}>
+                <Box
                   sx={{
-                    pl: 2,
-                    mt: 1,
-                    mb: 1,
-                    color: "text.secondary",
-                    "& li": { mb: 0.5 },
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 2,
                   }}
-              >
-                <li>
-                  <strong>Installation Count</strong> – unique Home Assistant installations
-                </li>
-                <li>
-                  <strong>Total Count</strong> – total PowerCalc sensor instances
-                </li>
-                <li>
-                  <strong>Percentage</strong> – percentage of installations using specific type
-                </li>
-              </Box>
-            }
-            filterSection={
-              <MetricsSelect
-                  value={selectedMetric}
-                  onChange={handleMetricChange}
-              />
-            }
-        />
+                >
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Typography variant="h6">{title}</Typography>
+                    {dimensionInfo?.description && (
+                      <Tooltip title={dimensionInfo.description} arrow describeChild>
+                        <Box
+                          component="span"
+                          role="img"
+                          tabIndex={0}
+                          aria-label={`${title}: ${dimensionInfo.description}`}
+                          sx={{ display: "inline-flex", ml: 0.5, color: "text.secondary" }}
+                        >
+                          <InfoOutlinedIcon aria-hidden="true" fontSize="small" />
+                        </Box>
+                      </Tooltip>
+                    )}
+                  </Box>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<BarChartIcon />}
+                    onClick={() => handleShowDetails(dimension)}
+                  >
+                    Details
+                  </Button>
+                </Box>
 
-        <Grid container spacing={4}>
-          {dimensions.map((dimension) => {
-            const dimensionData = groupedData[dimension] ?? [];
-
-            const sortedData = [...dimensionData].sort(
-                (a, b) => (b[selectedMetric] ?? 0) - (a[selectedMetric] ?? 0)
-            );
-
-            const chartData = sortedData
-                .map((item) => ({
-                  id: `${dimension}:${item.key_name}`, // ensure unique
-                  value: item[selectedMetric] ?? 0,
-                  label: item.key_name,
-                }))
-                .filter((x) => x.value > 0);
-
-            const dimensionInfo = DIMENSIONS[dimension];
-            const title = dimensionInfo?.title ?? dimension
-                .replace("by_", "")
-                .replace(/_/g, " ")
-                .replace(/\b\w/g, (l) => l.toUpperCase());
-
-            return (
-                <Grid size={{ xs: 12, md: 6 }} key={dimension}>
-                  <Paper sx={{ p: { xs: 1.5, sm: 3 }, height: "100%" }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <Typography variant="h6">
-                          {title}
-                        </Typography>
-                        {dimensionInfo?.description && (
-                          <Tooltip title={dimensionInfo.description} arrow>
-                            <IconButton size="small" sx={{ ml: 0.5, color: "text.secondary" }}>
-                              <InfoOutlinedIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </Box>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<BarChartIcon />}
-                        onClick={() => handleShowDetails(dimension)}
-                      >
-                        Details
-                      </Button>
+                <Box sx={{ position: "relative", height: isMobile ? 420 : 300 }}>
+                  {chartData.length === 0 ? (
+                    <Box
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Typography color="text.secondary">No data</Typography>
                     </Box>
-
-                    <Box sx={{ position: "relative", height: isMobile ? 420 : 300 }}>
-                      {chartData.length === 0 ? (
-                          <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Typography color="text.secondary">No data</Typography>
-                          </Box>
-                      ) : (
-                          <PieChart
-                              series={[
-                                {
-                                  data: chartData,
-                                  highlightScope: { fade: 'global', highlight: 'item' },
-                                  faded: {
-                                    innerRadius: 30,
-                                    additionalRadius: -30,
-                                    color: "gray",
-                                  },
-                                  arcLabel: (item) => {
-                                    const value = selectedMetric === "percentage"
-                                        ? `${item.value.toFixed(1)}%`
-                                        : item.value.toString();
-                                    return isMobile ? value : `${item.label ?? ""} (${value})`;
-                                  },
-                                  arcLabelMinAngle: isMobile ? 25 : 18,
-                                },
-                              ]}
-                              sx={{
-                                [`& .${pieClasses.arcLabel}`]: {
-                                  fill: "white",
-                                  fontSize: 14,
-                                },
-                                height: '100%',
-                              }}
-                              margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
-                              colors={mangoFusionPalette}
-                              slotProps={{
-                                legend: isMobile
-                                    ? {
-                                      direction: 'horizontal',
-                                      position: {
-                                        vertical: 'bottom',
-                                        horizontal: 'center'
-                                      },
-                                      sx: {
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'center',
-                                      },
-                                    }
-                                    : {
-                                      direction: 'vertical',
-                                      position: {
-                                        vertical: 'top',
-                                        horizontal: 'end'
-                                      },
-                                      sx: {
-                                        overflowY: 'scroll',
-                                        flexWrap: 'nowrap',
-                                        height: '100%',
-                                      },
-                                    },
-                              }}
-                          />
-                      )}
+                  ) : (
+                    <PieChart
+                      series={[
+                        {
+                          data: chartData,
+                          highlightScope: { fade: "global", highlight: "item" },
+                          faded: {
+                            innerRadius: 30,
+                            additionalRadius: -30,
+                            color: "gray",
+                          },
+                          arcLabel: (item) => {
+                            const value =
+                              selectedMetric === "percentage"
+                                ? `${item.value.toFixed(1)}%`
+                                : item.value.toString();
+                            return isMobile ? value : `${item.label ?? ""} (${value})`;
+                          },
+                          arcLabelMinAngle: isMobile ? 25 : 18,
+                        },
+                      ]}
+                      sx={{
+                        [`& .${pieClasses.arcLabel}`]: {
+                          fill: "white",
+                          fontSize: 14,
+                        },
+                        height: "100%",
+                      }}
+                      margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
+                      colors={mangoFusionPalette}
+                      slotProps={{
+                        legend: isMobile
+                          ? {
+                              direction: "horizontal",
+                              position: {
+                                vertical: "bottom",
+                                horizontal: "center",
+                              },
+                              sx: {
+                                flexWrap: "wrap",
+                                justifyContent: "center",
+                              },
+                            }
+                          : {
+                              direction: "vertical",
+                              position: {
+                                vertical: "top",
+                                horizontal: "end",
+                              },
+                              sx: {
+                                overflowY: "scroll",
+                                flexWrap: "nowrap",
+                                height: "100%",
+                              },
+                            },
+                      }}
+                    />
+                  )}
+                  {chartData.length > 0 && (
+                    <Box component="ul" sx={visuallyHiddenSx}>
+                      {chartData.map((item) => (
+                        <li key={item.id}>
+                          {item.label}: {item.value}
+                          {selectedMetric === "percentage" ? "%" : ""}
+                        </li>
+                      ))}
                     </Box>
-                  </Paper>
-                </Grid>
-            );
-          })}
-        </Grid>
-      </>
+                  )}
+                </Box>
+              </Paper>
+            </Grid>
+          );
+        })}
+      </Grid>
+    </>
   );
 };

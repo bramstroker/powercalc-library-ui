@@ -22,4 +22,15 @@ describe("Plot", () => {
 
     expect(screen.getByText("Rgb Ww")).toBeInTheDocument();
   });
+
+  it("explains the graph and links to the original", () => {
+    render(<Plot link={{ label: "brightness", url: "https://example.test/brightness.svg" }} />);
+
+    expect(screen.getByText("Measured power draw as brightness changes.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Enlarge" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open original" })).toHaveAttribute(
+      "href",
+      "https://example.test/brightness.svg",
+    );
+  });
 });

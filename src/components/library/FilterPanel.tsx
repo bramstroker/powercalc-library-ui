@@ -15,7 +15,11 @@ import {
   countActiveFilters,
 } from "../../types/LibraryFilters";
 import type { PowerProfile } from "../../types/PowerProfile";
-import { applyFiltersExcept, computeFacetCounts, computeRanges } from "../../utils/libraryFiltering";
+import {
+  applyFiltersExcept,
+  computeFacetCounts,
+  computeRanges,
+} from "../../utils/libraryFiltering";
 import { sortByQualityBand } from "../../utils/lutQuality";
 
 import type { AuthorOption } from "./AuthorFacet";
@@ -46,7 +50,13 @@ const CHECKBOX_FACETS: { key: FacetKey; searchable: boolean }[] = [
   { key: "measureDevice", searchable: true },
 ];
 
-const SectionHeading = ({ icon: Icon, children }: { icon: SvgIconComponent; children: ReactNode }) => (
+const SectionHeading = ({
+  icon: Icon,
+  children,
+}: {
+  icon: SvgIconComponent;
+  children: ReactNode;
+}) => (
   <Stack direction="row" sx={{ alignItems: "center", gap: 1, py: 0.75 }}>
     <Icon fontSize="small" sx={{ color: "text.secondary" }} />
     <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>

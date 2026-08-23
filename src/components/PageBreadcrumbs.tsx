@@ -11,10 +11,7 @@ type PageBreadcrumbsProps = {
   includeStructuredData?: boolean;
 };
 
-export const PageBreadcrumbs = ({
-  items,
-  includeStructuredData = true,
-}: PageBreadcrumbsProps) => (
+export const PageBreadcrumbs = ({ items, includeStructuredData = true }: PageBreadcrumbsProps) => (
   <>
     {includeStructuredData && <StructuredData graph={[breadcrumbStructuredData(items)]} />}
     <Breadcrumbs

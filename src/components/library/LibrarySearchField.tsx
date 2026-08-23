@@ -12,9 +12,7 @@ const isTypingTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) {
     return false;
   }
-  return (
-    target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)
-  );
+  return target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
 };
 
 export type LibrarySearchFieldProps = {
@@ -82,6 +80,7 @@ export const LibrarySearchField = ({ value, onChange }: LibrarySearchFieldProps)
     <TextField
       size="small"
       fullWidth
+      aria-label="Search all profiles"
       placeholder="Search all profiles"
       value={draft}
       inputRef={inputRef}

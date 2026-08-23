@@ -16,7 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 
 import type { FacetCount } from "../../utils/libraryFiltering";
 
@@ -52,6 +52,7 @@ export const CheckboxFacet = ({
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [showAll, setShowAll] = useState(false);
   const [query, setQuery] = useState("");
+  const contentId = useId();
 
   const visibleOptions = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -75,16 +76,14 @@ export const CheckboxFacet = ({
   return (
     // The rule lives on the facet rather than between facets, so one that renders nothing does not
     // leave a stray line behind.
-    <Box
-      data-testid={testId}
-      sx={{ pb: 1, mb: 1, borderBottom: 1, borderColor: "divider" }}
-    >
+    <Box data-testid={testId} sx={{ pb: 1, mb: 1, borderBottom: 1, borderColor: "divider" }}>
       {/* A real button, so the section can be collapsed from the keyboard and is announced as a
           control rather than as plain text. */}
       <Stack
         component={ButtonBase}
         direction="row"
         aria-expanded={expanded}
+        aria-controls={contentId}
         sx={{
           width: "100%",
           textAlign: "left",
@@ -108,11 +107,12 @@ export const CheckboxFacet = ({
         {expanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
       </Stack>
 
-      <Collapse in={expanded} unmountOnExit>
+      <Collapse id={contentId} in={expanded} unmountOnExit>
         {searchable && (
           <TextField
             size="small"
             fullWidth
+            aria-label={`Search ${title.toLowerCase()}`}
             placeholder={`Search ${title.toLowerCase()}`}
             value={query}
             onChange={(event) => {

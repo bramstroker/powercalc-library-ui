@@ -61,7 +61,7 @@ const hexToHsl = (hex: string): Hsl => {
   if (d === 0) return [0, 0, l];
   const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
   const h =
-    max === r ? ((g - b) / d + (g < b ? 6 : 0)) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
   return [h / 6, s, l];
 };
 
@@ -116,7 +116,11 @@ type LogoAsset = {
  */
 const aspectOf = (svg: string): number | undefined => {
   const viewBox = /viewBox="([^"]+)"/.exec(svg)?.[1];
-  const [, , width, height] = viewBox?.trim().split(/[\s,]+/).map(Number) ?? [];
+  const [, , width, height] =
+    viewBox
+      ?.trim()
+      .split(/[\s,]+/)
+      .map(Number) ?? [];
   return width && height ? width / height : undefined;
 };
 
@@ -309,9 +313,7 @@ export const ManufacturerLogo = ({
     if (load) {
       // A shrink-wrapping slot would collapse to its own padding while empty, so it holds the
       // artwork's height for the moment the fetch takes rather than popping open around it.
-      return (
-        <Box sx={[slot, { height: size + inset * 2, width: size + inset * 2 }]} aria-hidden />
-      );
+      return <Box sx={[slot, { height: size + inset * 2, width: size + inset * 2 }]} aria-hidden />;
     }
     return (
       <Box sx={[slot, { height: size + inset * 2, width: size + inset * 2 }]}>

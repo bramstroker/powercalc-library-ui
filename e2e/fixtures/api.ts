@@ -17,6 +17,7 @@ export const library = {
           device_type: "light",
           color_modes: ["brightness", "color_temp", "hs"],
           aliases: ["LWB010", "LWB014"],
+          legacy_ids: ["Hue LCA 001"],
           authors: [{ name: "Bram Gerritsen", github: "bramstroker" }],
           updated_at: "2025-01-02T03:04:05Z",
           created_at: "2024-01-02T03:04:05Z",
@@ -172,58 +173,18 @@ export const modelJson = {
   calculation_strategy: "lut",
 };
 
-const json = (body: unknown) => ({
-  status: 200,
-  contentType: "application/json",
-  body: JSON.stringify(body),
-});
+export const E2E_API_BASE_URL = "http://127.0.0.1:3101";
 
 /**
  * Serves every powercalc API call from the fixtures above and blocks Sentry ingest,
  * so the suite is deterministic and makes no outbound network calls.
  */
 export const mockApi = async (page: Page): Promise<void> => {
-  // A prerendered route initially contains production data. Make goto wait for the browser-side
-  // mocked API requests, so tests never interact with markup that React is about to replace.
-  //
-  // Settled traffic alone is not enough: routes that preload `/library` from the document head
-  // finish that request while the HTML is still parsing, long before React hydrates, so the wait
-  // below also requires the hydration marker `root.tsx` sets after its first commit.
-  let apiRequestsInFlight = 0;
-  let readyTimer: ReturnType<typeof setTimeout> | undefined;
-  const isApiRequest = (url: string) => url.startsWith("https://api.powercalc.nl/");
-
-  page.on("request", (request) => {
-    if (!isApiRequest(request.url())) return;
-    apiRequestsInFlight += 1;
-    clearTimeout(readyTimer);
-  });
-
-  const markReadyWhenSettled = (url: string) => {
-    if (!isApiRequest(url)) return;
-    apiRequestsInFlight -= 1;
-    clearTimeout(readyTimer);
-    readyTimer = setTimeout(() => {
-      if (apiRequestsInFlight !== 0 || page.isClosed()) return;
-      void page
-        .evaluate(() => {
-          document.documentElement.dataset.clientReady = "true";
-        })
-        .catch(() => undefined);
-    }, 100);
-  };
-
-  page.on("requestfinished", (request) => markReadyWhenSettled(request.url()));
-  page.on("requestfailed", (request) => markReadyWhenSettled(request.url()));
-  page.once("close", () => clearTimeout(readyTimer));
-
   const goto = page.goto.bind(page);
   page.goto = (async (...args: Parameters<Page["goto"]>) => {
     const response = await goto(...args);
     await page.waitForFunction(
-      () =>
-        document.documentElement.dataset.clientReady === "true" &&
-        document.documentElement.dataset.hydrated === "true",
+      () => document.documentElement.dataset.hydrated === "true",
       undefined,
       { timeout: 15_000 },
     );
@@ -231,32 +192,4 @@ export const mockApi = async (page: Page): Promise<void> => {
   }) as Page["goto"];
 
   await page.route("**/*.sentry.io/**", (route) => route.abort());
-
-  await page.route("https://api.powercalc.nl/**", async (route) => {
-    const { pathname } = new URL(route.request().url());
-
-    if (pathname === "/library") {
-      return route.fulfill(json(library));
-    }
-    if (pathname === "/analytics/profiles") {
-      return route.fulfill(json(profileStats));
-    }
-    if (pathname === "/analytics/summary") {
-      return route.fulfill(json(summary));
-    }
-    if (pathname === "/analytics/sensors") {
-      return route.fulfill(json(sensors));
-    }
-    if (pathname === "/analytics/timeseries") {
-      return route.fulfill(json(timeseries));
-    }
-    if (pathname.startsWith("/profile/")) {
-      return route.fulfill(json(modelJson));
-    }
-    if (pathname.startsWith("/download/")) {
-      return route.fulfill(json([]));
-    }
-
-    return route.fulfill(json([]));
-  });
 };

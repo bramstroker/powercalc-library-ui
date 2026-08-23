@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useLibrary } from "../../context/LibraryContext";
 import { PageBreadcrumbs } from "../PageBreadcrumbs";
 
-import {Grouping, TimeSeriesChart} from "./analytics/TimeSeriesChart";
+import { Grouping, TimeSeriesChart } from "./analytics/TimeSeriesChart";
 
 type WeekData = {
   date: string;
@@ -19,14 +19,14 @@ export const WeeklyContributions = () => {
   const weeklyData = useMemo<WeekData[]>(() => {
     const weekCounts: Record<string, number> = {};
 
-    powerProfiles.forEach(profile => {
+    powerProfiles.forEach((profile) => {
       const day = profile.createdAt.getDay();
       const diff = profile.createdAt.getDate() - day;
       const weekStart = new Date(profile.createdAt);
       weekStart.setDate(diff);
 
       // Format as YYYY-MM-DD
-      const weekKey = weekStart.toISOString().split('T')[0];
+      const weekKey = weekStart.toISOString().split("T")[0];
 
       weekCounts[weekKey] = (weekCounts[weekKey] || 0) + 1;
     });
@@ -56,9 +56,9 @@ export const WeeklyContributions = () => {
       </Box>
 
       {weeklyData.length > 0 ? (
-        <TimeSeriesChart 
-          series={weeklyData} 
-          label="Contributions" 
+        <TimeSeriesChart
+          series={weeklyData}
+          label="Contributions"
           chartType="bar"
           grouping={Grouping.Week}
           height={400}

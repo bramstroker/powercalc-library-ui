@@ -1,9 +1,4 @@
-import {
-  redirect,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-  useLoaderData,
-} from "react-router";
+import { redirect, type LoaderFunctionArgs, type MetaFunction, useLoaderData } from "react-router";
 
 import { Manufacturer } from "../components/Manufacturer";
 import { SITE_URL } from "../config/site";

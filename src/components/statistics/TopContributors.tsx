@@ -1,4 +1,4 @@
-import {StatisticsAggregator} from "./StatisticsAggregator";
+import { StatisticsAggregator } from "./StatisticsAggregator";
 
 export const TopContributors = () => {
   return (
@@ -7,7 +7,9 @@ export const TopContributors = () => {
       breadcrumbLabel="Top contributors"
       nameColumnLabel="Contributor"
       propertyPath="authors"
-      valueExtractor={(profile) => profile.authors.map((author) => author.githubUsername).filter(Boolean)}
+      valueExtractor={(profile) =>
+        profile.authors.map((author) => author.githubUsername).filter(Boolean)
+      }
       filterQueryParam="author"
     />
   );

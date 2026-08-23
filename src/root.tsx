@@ -13,6 +13,7 @@ import {
   type MetaFunction,
 } from "react-router";
 
+import { SkipLink } from "./components/SkipLink";
 import { SITE_NAME } from "./config/site";
 import { queryClient } from "./queryClient";
 import { DEFAULT_DESCRIPTION } from "./seo/meta";
@@ -20,6 +21,7 @@ import { theme } from "./theme";
 
 export const links: LinksFunction = () => [
   { rel: "icon", href: "/favicon.svg" },
+  { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
   { rel: "manifest", href: "/manifest.json" },
 ];
 
@@ -49,10 +51,8 @@ export const Layout = ({ children }: { children: ReactNode }) => {
         <Links />
       </head>
       <body>
-        <InitColorSchemeScript
-          attribute="data-mui-color-scheme"
-          defaultMode="dark"
-        />
+        <InitColorSchemeScript attribute="data-mui-color-scheme" defaultMode="dark" />
+        <SkipLink />
         <noscript>You need to enable JavaScript to use the interactive library.</noscript>
         {children}
         <ScrollRestoration />

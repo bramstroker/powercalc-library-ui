@@ -1,14 +1,10 @@
-import {
-  Typography,
-  Box,
-} from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import Link from "@mui/material/Link";
-import type {PropsWithChildren, ReactNode} from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 
-import {useSummary} from "../../../hooks/useSummary";
+import { useSummary } from "../../../hooks/useSummary";
 import type { BreadcrumbItem } from "../../../seo/breadcrumbs";
 import { PageBreadcrumbs } from "../../PageBreadcrumbs";
-
 
 interface AnalyticsHeaderProps {
   title: string;
@@ -30,14 +26,14 @@ export const AnalyticsHeader = ({
     <>
       <PageBreadcrumbs items={breadcrumbItems} />
       <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            justifyContent: "space-between",
-            alignItems: { xs: "flex-start", md: "flex-start" },
-            gap: 2,
-            mb: 4,
-          }}
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          justifyContent: "space-between",
+          alignItems: { xs: "flex-start", md: "flex-start" },
+          gap: 2,
+          mb: 4,
+        }}
       >
         <Box>
           {title && (
@@ -55,12 +51,12 @@ export const AnalyticsHeader = ({
           {children}
 
           <Typography variant="caption" color="text.secondary">
-            Based on {summary?.data?.sampled_installations ?? 0} active installations
-            that opted in to analytics.
+            Based on {summary?.data?.sampled_installations ?? 0} active installations that opted in
+            to analytics.
             <Link
-                href="https://docs.powercalc.nl/misc/analytics/"
-                target="_blank"
-                rel="noopener noreferrer"
+              href="https://docs.powercalc.nl/misc/analytics/"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Learn how to opt-in
             </Link>

@@ -27,7 +27,6 @@ import { Link as RouterLink, useSearchParams } from "react-router";
 
 import { SITE_URL } from "../config/site";
 import { useLibrary } from "../context/LibraryContext";
-import { usePageMeta } from "../hooks/usePageMeta";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { MAX_ITEM_LIST_ENTRIES, type StructuredData as StructuredDataNode } from "../seo/meta";
 import { StructuredData } from "../seo/StructuredData";
@@ -57,8 +56,7 @@ type RecentContributor = ContributorSummary & {
   recentProfileCount: number;
 };
 
-const displayName = ({ author }: ContributorSummary) =>
-  author.name.trim() || author.githubUsername;
+const displayName = ({ author }: ContributorSummary) => author.name.trim() || author.githubUsername;
 
 const validDateTime = (date: Date | null) => date?.getTime() ?? Number.NEGATIVE_INFINITY;
 
@@ -268,12 +266,6 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
     (changes: Record<string, string | null>) => updateParams({ ...changes, [PARAM.show]: null }),
     [updateParams],
   );
-
-  usePageMeta({
-    title: "Contributors",
-    description:
-      "Meet the people expanding the Powercalc profile library and explore their latest contributions.",
-  });
 
   const recentProfiles = useMemo(
     () => powerProfiles.filter((profile) => withinRecentWindow(profile, now)),
@@ -507,6 +499,7 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
           <TextField
             value={search}
             onChange={(event) => updateFilters({ [PARAM.search]: event.target.value || null })}
+            aria-label="Search contributors"
             placeholder="Search contributors"
             size="small"
             fullWidth
@@ -592,10 +585,7 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
           <>
             <Grid container spacing={2} ref={directoryRef} data-testid="contributor-directory">
               {visibleContributors.map((summary) => (
-                <Grid
-                  key={summary.author.githubUsername}
-                  size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                >
+                <Grid key={summary.author.githubUsername} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                   <ContributorCard summary={summary} />
                 </Grid>
               ))}

@@ -1,44 +1,62 @@
 # Powercalc Library Viewer
 
-Repository for the Powercalc library website.
-https://library.powercalc.nl/
+The public browser and analytics site for the [Powercalc profile library](https://library.powercalc.nl/).
+It is a React Router application built with React, TypeScript, Material UI, TanStack Query, and MUI
+X charts. Library and usage data come from the [Powercalc API](https://api.powercalc.nl).
 
-The website is built with React and Material-UI.
-It uses the powercalc API (https://api.powercalc.nl) to fetch the library data.
+## Requirements
 
-Uses: 
- - https://www.material-react-table.com/
- - https://mui.com/x/react-charts/
+- Node.js 22.22 or newer
+- npm
 
-## Available Scripts
+## Local development
 
-In the project directory, you can run:
+```sh
+npm install
+npm run dev
+```
 
-### `npm run dev`
+The development server prints its local URL. To use another API, set `VITE_API_BASE_URL` before
+starting the server.
 
-Runs the app in the development mode.
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Quality checks
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
+```sh
+npm run type-check
+npm run lint
+npm test
+npm run test:e2e
+npm run format:check
+npm run bundle:check # run after a production build
+```
 
-### `npm run build`
+Playwright starts both the application and a local fixture API, so end-to-end tests do not depend
+on production data or network availability.
 
-Builds the app for production to the `build` folder.
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Production build
 
-Before prerendering, contributor avatars are downloaded from GitHub, resized to 192×192, encoded as
-WebP, and written to `public/avatars`. A generated manifest lets prerendered pages serve those images
-from `/avatars/` on the library domain.
-Set `LIBRARY_API_URL`, `AVATARS_OUTPUT_DIR`, or `AVATAR_SIZE` to override the downloader defaults.
+```sh
+npm run build
+```
 
-The build is minified and the filenames include the hashes.
-Your app is ready to be deployed!
+The build downloads and optimizes contributor avatars, prerenders canonical library routes, and
+generates `sitemap.xml` plus legacy Nginx redirect mappings in `build/`. Useful overrides are:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- `LIBRARY_API_URL` — API endpoint used by build-time scripts
+- `VITE_API_BASE_URL` — API origin embedded in the application
+- `SITE_URL` — canonical origin used by the sitemap generator
+- `AVATARS_OUTPUT_DIR` and `AVATAR_SIZE` — avatar generation settings
 
-## Docker build / push
+Brand icons and the social sharing card are generated from `public/favicon.svg`:
 
-- docker build --platform=linux/amd64 -tpowercalc-library-ui .
-- docker image tag powercalc-library-ui bramgerritsen/powercalc-library-ui:latest
-- docker push bramgerritsen/powercalc-library-ui:latest
+```sh
+npm run assets:generate
+```
+
+## Container image
+
+```sh
+docker build --platform=linux/amd64 -t powercalc-library-ui .
+docker image tag powercalc-library-ui bramgerritsen/powercalc-library-ui:latest
+docker push bramgerritsen/powercalc-library-ui:latest
+```

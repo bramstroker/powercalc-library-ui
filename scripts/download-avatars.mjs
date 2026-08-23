@@ -13,7 +13,8 @@ const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 // Avatars are addressed by username, so anything that is not a valid GitHub login cannot be stored
 // as a predictable file name and is skipped rather than escaped.
 const isValidUsername = (username) => /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/iu.test(username);
-const isGeneratedAvatarFile = (fileName) => /^[a-z\d](?:[a-z\d-]{0,38})\.(?:gif|jpe?g|png|webp)$/u.test(fileName);
+const isGeneratedAvatarFile = (fileName) =>
+  /^[a-z\d](?:[a-z\d-]{0,38})\.(?:gif|jpe?g|png|webp)$/u.test(fileName);
 
 const readManifest = async (outputDir) => {
   try {
@@ -30,7 +31,8 @@ export const collectAuthorUsernames = (library) => {
   for (const manufacturer of library.manufacturers ?? []) {
     for (const model of manufacturer.models ?? []) {
       for (const author of model.authors ?? []) {
-        if (author.github && isValidUsername(author.github)) usernames.add(author.github.toLowerCase());
+        if (author.github && isValidUsername(author.github))
+          usernames.add(author.github.toLowerCase());
       }
     }
   }
@@ -124,7 +126,9 @@ export const downloadAvatars = async ({
   await Promise.all(
     Object.values(previousManifest).map(async (previousPath) => {
       if (typeof previousPath !== "string" || currentFiles.has(previousPath)) return;
-      const fileName = previousPath.startsWith("/avatars/") ? previousPath.slice("/avatars/".length) : "";
+      const fileName = previousPath.startsWith("/avatars/")
+        ? previousPath.slice("/avatars/".length)
+        : "";
       if (!isGeneratedAvatarFile(fileName)) return;
 
       try {
@@ -137,7 +141,11 @@ export const downloadAvatars = async ({
     }),
   );
 
-  await writeFile(resolve(outputDir, MANIFEST_FILE_NAME), `${JSON.stringify(sortedManifest, null, 2)}\n`, "utf8");
+  await writeFile(
+    resolve(outputDir, MANIFEST_FILE_NAME),
+    `${JSON.stringify(sortedManifest, null, 2)}\n`,
+    "utf8",
+  );
 
   return {
     total: usernames.length,

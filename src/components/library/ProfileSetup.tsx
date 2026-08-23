@@ -9,6 +9,7 @@ import {
   Alert,
   Box,
   Button,
+  Collapse,
   Link,
   MenuItem,
   Paper,
@@ -62,6 +63,7 @@ export type ProfileSetupProps = {
 export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
   const [subProfile, setSubProfile] = useState("");
   const [copied, setCopied] = useState(false);
+  const [setupExpanded, setSetupExpanded] = useState(false);
   const [manualSetupExpanded, setManualSetupExpanded] = useState(false);
   const discoveryBy = profile.discoveryBy ?? "entity";
   const {
@@ -70,7 +72,7 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
     isError: subProfilesError,
   } = useQuery({
     ...profileFilesQuery(profile),
-    enabled: manualSetupExpanded && profile.subProfileCount > 0,
+    enabled: setupExpanded && manualSetupExpanded && profile.subProfileCount > 0,
   });
   const subProfileNames = subProfileLinks(profileFiles).map((link) => link.path.split("/")[0]);
 
@@ -95,10 +97,7 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
 
   const manualSetup = (
     <>
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        sx={{ alignItems: { sm: "center" }, gap: 2 }}
-      >
+      <Stack direction={{ xs: "column", sm: "row" }} sx={{ alignItems: { sm: "center" }, gap: 2 }}>
         <Box sx={{ flexGrow: 1 }}>
           <Typography component="h3" variant="subtitle2" sx={{ fontWeight: 700 }}>
             Through the interface{" "}
@@ -216,37 +215,51 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
   );
 
   return (
-    <Paper variant="outlined" sx={{ p: 2, mb: 3 }} data-testid="profile-setup">
-      <Typography component="h2" variant="h6" sx={{ fontSize: "1rem", fontWeight: 700, mb: 1 }}>
-        Use this profile
-      </Typography>
-
-      <Alert severity="success" variant="outlined">
-        Powercalc can discover this model automatically (by {discoveryBy}). Look for a discovery
-        prompt in Home Assistant and accept it to create the sensors.{" "}
-        <Link
-          href="https://docs.powercalc.nl/library/discovery/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          About discovery
-        </Link>
-      </Alert>
-
-      <Accordion
-        disableGutters
-        elevation={0}
-        expanded={manualSetupExpanded}
-        onChange={(_event, expanded) => setManualSetupExpanded(expanded)}
-        sx={{ mt: 1, backgroundColor: "transparent", "&:before": { display: "none" } }}
+    <Box sx={{ mb: 3 }} data-testid="profile-setup">
+      <Button
+        variant="outlined"
+        aria-expanded={setupExpanded}
+        aria-controls="profile-setup-details"
+        endIcon={
+          <ExpandMoreIcon
+            sx={{ transform: setupExpanded ? "rotate(180deg)" : "none", transition: "0.2s" }}
+          />
+        }
+        onClick={() => setSetupExpanded((expanded) => !expanded)}
       >
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0 }}>
-          <Typography component="h3" variant="subtitle2" sx={{ fontWeight: 700 }}>
-            Set up manually instead
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ px: 0, pt: 0 }}>{manualSetup}</AccordionDetails>
-      </Accordion>
-    </Paper>
+        Use this profile
+      </Button>
+
+      <Collapse in={setupExpanded} timeout="auto">
+        <Paper id="profile-setup-details" variant="outlined" sx={{ p: 2, mt: 1 }}>
+          <Alert severity="success" variant="outlined">
+            Powercalc can discover this model automatically (by {discoveryBy}). Look for a discovery
+            prompt in Home Assistant and accept it to create the sensors.{" "}
+            <Link
+              href="https://docs.powercalc.nl/library/discovery/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              About discovery
+            </Link>
+          </Alert>
+
+          <Accordion
+            disableGutters
+            elevation={0}
+            expanded={manualSetupExpanded}
+            onChange={(_event, expanded) => setManualSetupExpanded(expanded)}
+            sx={{ mt: 1, backgroundColor: "transparent", "&:before": { display: "none" } }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0 }}>
+              <Typography component="h3" variant="subtitle2" sx={{ fontWeight: 700 }}>
+                Set up manually instead
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ px: 0, pt: 0 }}>{manualSetup}</AccordionDetails>
+          </Accordion>
+        </Paper>
+      </Collapse>
+    </Box>
   );
 };

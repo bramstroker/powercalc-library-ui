@@ -62,16 +62,16 @@ export const fetchProfile = async (manufacturer: string, model: string): Promise
   return {
     ...data,
     manufacturer: manufacturer,
-    model: model
-  }
+    model: model,
+  };
 };
 
-export const fetchProfiles = async(): Promise<ProfileStats[]> => {
+export const fetchProfiles = async (): Promise<ProfileStats[]> => {
   const url = `${API_ENDPOINTS.ANALYTICS_PROFILES}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch profile metrics");
   return res.json();
-}
+};
 
 export const fetchVersions = async (): Promise<VersionStats> => {
   const res = await fetch(API_ENDPOINTS.ANALYTICS_VERSIONS);
@@ -113,7 +113,7 @@ export const fetchTimeseries = async (
   bucket: string = "day",
   timezone: string = "UTC",
   from: Date = new Date("2024-01-01"),
-  to: Date = new Date()
+  to: Date = new Date(),
 ): Promise<TimeseriesResponse> => {
   const url = new URL(API_ENDPOINTS.ANALYTICS_TIMESERIES);
   url.searchParams.append("metric", metric);
