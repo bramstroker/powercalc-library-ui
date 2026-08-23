@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
+import { CalculationStrategy } from "../../types/CalculationStrategy";
 import { DeviceType } from "../../types/DeviceType";
 import type { PowerProfile } from "../../types/PowerProfile";
 
@@ -20,7 +21,7 @@ const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => (
   measureDevice: "",
   measureMethod: "",
   measureDescription: "",
-  calculationStrategy: "fixed",
+  calculationStrategy: CalculationStrategy.FIXED,
   standbyPower: null,
   maxPower: null,
   authors: [],

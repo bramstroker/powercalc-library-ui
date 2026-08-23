@@ -22,6 +22,7 @@ import { useMemo } from "react";
 import { Link as RouterLink, useSearchParams } from "react-router";
 
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
+import { CalculationStrategy } from "../types/CalculationStrategy";
 import type { Author as AuthorDetails, Manufacturer, PowerProfile } from "../types/PowerProfile";
 import { getContributorTier } from "../utils/contributorTier";
 import { numberFormat, plural } from "../utils/plural";
@@ -164,7 +165,10 @@ export const Author = ({ authorDetails, authorProfiles = [], authorRank = null }
     if (primaryType && contributionCount >= 5 && primaryType.count / contributionCount >= 0.5) {
       labels.push(`${humanizeIdentifier(primaryType.key)} specialist`);
     }
-    if (authorProfiles.filter((profile) => profile.calculationStrategy === "lut").length >= 5) {
+    if (
+      authorProfiles.filter((profile) => profile.calculationStrategy === CalculationStrategy.LUT)
+        .length >= 5
+    ) {
       labels.push("LUT contributor");
     }
     return labels.slice(0, 2);

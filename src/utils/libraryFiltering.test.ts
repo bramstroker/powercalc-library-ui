@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { CalculationStrategy } from "../types/CalculationStrategy";
 import { ColorMode } from "../types/ColorMode";
 import { DeviceType } from "../types/DeviceType";
 import { createEmptyFilters } from "../types/LibraryFilters";
@@ -27,7 +28,7 @@ const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => (
   measureDevice: "Shelly Plug S",
   measureMethod: "script",
   measureDescription: "",
-  calculationStrategy: "lut",
+  calculationStrategy: CalculationStrategy.LUT,
   standbyPower: 0.4,
   standbyPowerOn: 0.5,
   maxPower: 9,
@@ -49,7 +50,7 @@ const ikeaLight = createProfile({
   aliases: [],
   colorModes: [ColorMode.BRIGHTNESS],
   measureDevice: "Tapo P110",
-  calculationStrategy: "lut",
+  calculationStrategy: CalculationStrategy.LUT,
   authors: [{ name: "Ruben", githubUsername: "RubenKelevra" }],
   standbyPower: 0.2,
   maxPower: 11,
@@ -68,7 +69,7 @@ const sonoffSwitch = createProfile({
   colorModes: [],
   measureMethod: "manual",
   measureDevice: "Shelly Plug S",
-  calculationStrategy: "fixed",
+  calculationStrategy: CalculationStrategy.FIXED,
   standbyPower: 0.9,
   maxPower: null,
   authors: [{ name: "Bram", githubUsername: "bramstroker" }],

@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { CalculationStrategy } from "../types/CalculationStrategy";
 import type { Author as AuthorDetails, Manufacturer, PowerProfile } from "../types/PowerProfile";
 
 import { Author } from "./Author";
@@ -40,7 +41,8 @@ const profile = ({
     deviceType,
     createdAt: new Date(createdAt),
     authors: [author],
-    calculationStrategy: deviceType === "light" ? "lut" : "fixed",
+    calculationStrategy:
+      deviceType === "light" ? CalculationStrategy.LUT : CalculationStrategy.FIXED,
     standbyPower: 0.4,
     maxPower: deviceType === "light" ? 9 : null,
     usageStats: {

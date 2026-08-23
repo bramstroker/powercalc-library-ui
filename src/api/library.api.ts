@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from "../config/api";
+import type { CalculationStrategy } from "../types/CalculationStrategy";
 
 export interface LibraryModel {
   id: string;
@@ -19,7 +20,7 @@ export interface LibraryModel {
   measure_device: string;
   measure_method: string;
   measure_description: string;
-  calculation_strategy: string;
+  calculation_strategy: CalculationStrategy;
   max_power?: number;
   standby_power?: number;
   standby_power_on?: number;

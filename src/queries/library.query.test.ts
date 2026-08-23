@@ -4,6 +4,7 @@ import type { ProfileStats } from "../api/analytics.api";
 import { fetchProfiles } from "../api/analytics.api";
 import type { LibraryJson, LibraryModel } from "../api/library.api";
 import { fetchLibrary } from "../api/library.api";
+import { CalculationStrategy } from "../types/CalculationStrategy";
 
 import { libraryQuery } from "./library.query";
 
@@ -24,7 +25,7 @@ const createModel = (overrides: Partial<LibraryModel> = {}): LibraryModel => ({
   measure_device: "Shelly Plug S",
   measure_method: "script",
   measure_description: "",
-  calculation_strategy: "lut",
+  calculation_strategy: CalculationStrategy.LUT,
   standby_power: 0.4,
   sub_profile_count: 0,
   ...overrides,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { CalculationStrategy } from "../types/CalculationStrategy";
 import { ColorMode } from "../types/ColorMode";
 import { DeviceType } from "../types/DeviceType";
 import type { PowerProfile } from "../types/PowerProfile";
@@ -21,7 +22,7 @@ const createProfile = (createdAt: string, modelId = "M1"): PowerProfile => ({
   measureDevice: "Shelly Plug S",
   measureMethod: "script",
   measureDescription: "",
-  calculationStrategy: "lut",
+  calculationStrategy: CalculationStrategy.LUT,
   standbyPower: 0.4,
   maxPower: 9,
   authors: [{ name: "Bram", githubUsername: "bramstroker" }],

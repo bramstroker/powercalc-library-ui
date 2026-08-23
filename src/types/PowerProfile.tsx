@@ -1,3 +1,4 @@
+import type { CalculationStrategy } from "./CalculationStrategy";
 import type { ColorMode } from "./ColorMode";
 import type { DeviceType } from "./DeviceType";
 
@@ -54,7 +55,7 @@ export type PowerProfile = {
   measureDevice: string;
   measureMethod: string;
   measureDescription: string;
-  calculationStrategy: string;
+  calculationStrategy: CalculationStrategy;
   standbyPower: number | null;
   standbyPowerOn?: number;
   maxPower?: number | null;

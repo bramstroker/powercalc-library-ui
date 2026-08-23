@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { LibraryModel } from "../api/library.api";
+import { CalculationStrategy } from "../types/CalculationStrategy";
 import type { Manufacturer, UsageStats } from "../types/PowerProfile";
 
 import { mapToBasePowerProfile } from "./profileMappers";
@@ -26,7 +27,7 @@ const createModel = (overrides: Partial<LibraryModel> = {}): LibraryModel => ({
   measure_device: "Shelly Plug S",
   measure_method: "script",
   measure_description: "Measured with the powercalc measure tool",
-  calculation_strategy: "lut",
+  calculation_strategy: CalculationStrategy.LUT,
   max_power: 9,
   standby_power: 0.4,
   standby_power_on: 0.5,

@@ -52,6 +52,7 @@ import {
   subProfilesQuery,
 } from "../queries/profileDetails.query";
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
+import { CalculationStrategy } from "../types/CalculationStrategy";
 import type { PowerProfile } from "../types/PowerProfile";
 import { formatTimestampUtc } from "../utils/dateFormat";
 import { colorModeLabel, humanizeIdentifier } from "../utils/profilePresentation";
@@ -903,7 +904,11 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
           },
         ]
       : []),
-    ...(["lut", "linear", "composite"].includes(profile.calculationStrategy)
+    ...([
+      CalculationStrategy.LUT,
+      CalculationStrategy.LINEAR,
+      CalculationStrategy.COMPOSITE,
+    ].includes(profile.calculationStrategy)
       ? [{ key: "graphs", label: "Graphs", render: <PlotsTab profile={profile} /> }]
       : []),
   ];

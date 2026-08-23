@@ -2,6 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { CalculationStrategy } from "../types/CalculationStrategy";
 import type { Manufacturer as ManufacturerType, PowerProfile } from "../types/PowerProfile";
 
 import { Manufacturer } from "./Manufacturer";
@@ -24,7 +25,7 @@ const profile = (manufacturer: ManufacturerType, modelId: string, deviceType: st
     deviceType,
     name: `${modelId} display name`,
     createdAt: new Date("2024-01-01T00:00:00Z"),
-    calculationStrategy: "fixed",
+    calculationStrategy: CalculationStrategy.FIXED,
     standbyPower: 0.5,
     maxPower: null,
     usageStats: { installationCount: 7, deviceCount: 7, percentage: 1 },
