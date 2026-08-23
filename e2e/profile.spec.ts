@@ -77,7 +77,10 @@ test("shows the usage stats loaded from the analytics endpoint", async ({ page }
 test("uses a readable device type and a clear empty usage state", async ({ page }) => {
   await page.goto("/profiles/sonoff/S31");
 
-  await expect(page.getByText("Smart Switch", { exact: true })).toBeVisible();
+  // The headline chip and the attributes row both render the humanised form — the raw
+  // `smart_switch` must not surface in either.
+  await expect(page.getByText("Smart Switch", { exact: true })).toHaveCount(2);
+  await expect(page.getByText("smart_switch", { exact: true })).toHaveCount(0);
   await expect(page.getByText("No opted-in installations reported yet")).toBeVisible();
   await expect(page.getByRole("progressbar")).toBeHidden();
   await expect(page.getByText("Powercalc can discover this model automatically (by entity).")).toBeVisible();
@@ -194,6 +197,24 @@ test("shows the fields the API publishes beyond the basics", async ({ page }) =>
 
   // The loader redirects a legacy-cased deep link to its slug.
   await expect(page).toHaveURL("/profiles/ikea/led1836g9");
+});
+
+test("keeps the open tab in the URL and restores it on reload", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  await page.getByRole("tab", { name: "Graphs" }).click();
+  await expect(page).toHaveURL(/\?tab=graphs/);
+
+  await page.reload();
+  await expect(page.getByRole("tab", { name: "Graphs" })).toHaveAttribute("aria-selected", "true");
+});
+
+test("carries the tab through the canonical redirect", async ({ page }) => {
+  // A non-canonical path 301s to the slugged one; the query string has to survive that hop or
+  // the link silently lands on the first tab.
+  await page.goto("/profiles/signify/LCA001?tab=json");
+
+  await expect(page.getByRole("tab", { name: "JSON" })).toHaveAttribute("aria-selected", "true");
 });
 
 test("renders an error page for an unknown profile", async ({ page }) => {

@@ -99,10 +99,12 @@ test("keeps every profile tab reachable", async ({ page }) => {
     route.fulfill({
       status: 200,
       contentType: "application/json",
+      // Plot files are named after the colour mode they chart, as the real download API returns
+      // them ("color_temp.svg", "hs.svg") — the label the page shows is derived from that name.
       body: JSON.stringify([
         { url: "https://api.powercalc.nl/x/sub/model.json", path: "brightness/model.json" },
-        { url: "https://api.powercalc.nl/x/plot.png", path: "plot_brightness.png" },
-        { url: "https://api.powercalc.nl/x/plot.svg", path: "plot_brightness.svg" },
+        { url: "https://api.powercalc.nl/x/plot.png", path: "brightness.png" },
+        { url: "https://api.powercalc.nl/x/plot.svg", path: "brightness.svg" },
       ]),
     }),
   );
@@ -111,7 +113,7 @@ test("keeps every profile tab reachable", async ({ page }) => {
 
   await page.getByRole("tab", { name: "Graphs" }).click();
 
-  await expect(page.getByText("plot_brightness")).toBeVisible();
+  await expect(page.getByText("Brightness", { exact: true })).toBeVisible();
 });
 
 test("puts the pie chart legend below the chart", async ({ page }) => {

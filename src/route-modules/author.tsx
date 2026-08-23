@@ -21,7 +21,10 @@ import { authorPath, profilePath, slugifyPathSegment } from "../utils/urlSlugs.m
 // Declared separately from the `loader` export: the React Router Vite plugin strips server-only
 // exports from the client bundle, so a `clientLoader` referencing `loader` by name would throw
 // `ReferenceError: loader is not defined` in the browser.
-const loadAuthor = async ({ params }: Pick<LoaderFunctionArgs, "params">) => {
+const loadAuthor = async ({
+  params,
+  request,
+}: Pick<LoaderFunctionArgs, "params" | "request">) => {
   const authorName = params.authorName;
   if (!authorName) throw new Response("Missing author", { status: 404 });
 
@@ -32,7 +35,8 @@ const loadAuthor = async ({ params }: Pick<LoaderFunctionArgs, "params">) => {
 
   const canonicalPath = authorPath(author.githubUsername);
   if (`/contributors/${authorName}` !== decodeURI(canonicalPath)) {
-    throw redirect(canonicalPath, 301);
+    // The query string carries page state (sort, filters), so it survives the canonicalisation.
+    throw redirect(`${canonicalPath}${new URL(request.url).search}`, 301);
   }
 
   return {

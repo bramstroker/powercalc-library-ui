@@ -14,7 +14,10 @@ const requireParams = (params: LoaderFunctionArgs["params"]) => {
   return { manufacturer, model };
 }
 
-export const powerProfileLoader = async ({ params }: LoaderFunctionArgs): Promise<PowerProfile> => {
+export const powerProfileLoader = async ({
+  params,
+  request,
+}: LoaderFunctionArgs): Promise<PowerProfile> => {
   const { manufacturer, model } = requireParams(params);
 
   const derived = await queryClient.ensureQueryData(libraryQuery());
@@ -30,7 +33,9 @@ export const powerProfileLoader = async ({ params }: LoaderFunctionArgs): Promis
 
   const canonicalPath = profilePath(powerProfile.manufacturer.dirName, powerProfile.modelId);
   if (`/profiles/${manufacturer}/${model}` !== decodeURI(canonicalPath)) {
-    throw redirect(canonicalPath, 301);
+    // Carry the query string across: it holds the open tab, so dropping it would silently send
+    // anyone following a non-canonical link back to the first tab.
+    throw redirect(`${canonicalPath}${new URL(request.url).search}`, 301);
   }
 
   return powerProfile;

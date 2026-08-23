@@ -18,7 +18,10 @@ import { manufacturerPath, profilePath, slugifyPathSegment } from "../utils/urlS
 // Declared separately from the `loader` export: the React Router Vite plugin strips server-only
 // exports from the client bundle, so a `clientLoader` referencing `loader` by name would throw
 // `ReferenceError: loader is not defined` in the browser.
-const loadManufacturer = async ({ params }: Pick<LoaderFunctionArgs, "params">) => {
+const loadManufacturer = async ({
+  params,
+  request,
+}: Pick<LoaderFunctionArgs, "params" | "request">) => {
   const manufacturerName = params.manufacturerName;
   if (!manufacturerName) throw new Response("Missing manufacturer", { status: 404 });
 
@@ -31,7 +34,8 @@ const loadManufacturer = async ({ params }: Pick<LoaderFunctionArgs, "params">) 
 
   const canonicalPath = manufacturerPath(manufacturer.dirName);
   if (`/manufacturers/${manufacturerName}` !== decodeURI(canonicalPath)) {
-    throw redirect(canonicalPath, 301);
+    // The query string carries page state (sort, filters), so it survives the canonicalisation.
+    throw redirect(`${canonicalPath}${new URL(request.url).search}`, 301);
   }
 
   return {

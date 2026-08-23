@@ -42,7 +42,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import {useQuery} from "@tanstack/react-query";
 import React, {useState} from "react";
-import {useNavigate, Link as RouterLink} from "react-router";
+import {useNavigate, useSearchParams, Link as RouterLink} from "react-router";
 
 import type {Summary} from "../api/analytics.api";
 import {
@@ -53,6 +53,7 @@ import {
 import type {BreadcrumbItem} from "../seo/breadcrumbs";
 import type {PowerProfile} from "../types/PowerProfile";
 import {formatTimestampUtc} from "../utils/dateFormat";
+import {colorModeLabel, humanizeIdentifier} from "../utils/profilePresentation";
 import {
   authorPath,
   manufacturerPath,
@@ -101,12 +102,6 @@ type ItemValueType = string | number | boolean | undefined | null | string[] | R
 /** Power figures are watts; the unit belongs next to the number, not only in the headline. */
 const watts = (value: ItemValueType) => `${String(value)} W`;
 const volts = (value: ItemValueType) => `${String(value)} V`;
-const humanizeIdentifier = (value: string) =>
-  value
-    .split("_")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
 
 type AttributeGroup = "device" | "power" | "measurement" | "library";
 
@@ -125,6 +120,12 @@ interface PropertyItem {
   group: AttributeGroup;
   filterKey?: string;
   renderFn?: (value: ItemValueType) => React.ReactNode;
+  /**
+   * Turns a raw identifier into the label a reader should see — `smart_switch` into "Smart
+   * Switch". Display only: the filter link keeps the raw value, which is what the library query
+   * expects.
+   */
+  display?: (value: string) => string;
 }
 
 const MEASURE_DESCRIPTION_COLLAPSED_LINES = 4;
@@ -217,6 +218,8 @@ const PropertyValue = ({property}: { property: PropertyItem }) => {
     return <AliasChips aliases={property.value as string[]} marginTop={1} wrap/>;
   }
 
+  const display = property.display ?? ((value: string) => value);
+
   if (Array.isArray(property.value)) {
     const values = property.value.map(String);
     return (
@@ -224,9 +227,9 @@ const PropertyValue = ({property}: { property: PropertyItem }) => {
           {values.map((v: string, i: number) => (
               <React.Fragment key={`${property.filterKey ?? "v"}-${v}`}>
                 {property.filterKey ? (
-                    <FilterLink filterKey={property.filterKey} value={v} label={property.label}>{v}</FilterLink>
+                    <FilterLink filterKey={property.filterKey} value={v} label={property.label}>{display(v)}</FilterLink>
                 ) : (
-                    v
+                    display(v)
                 )}
                 {i < values.length - 1 && ", "}
               </React.Fragment>
@@ -242,7 +245,7 @@ const PropertyValue = ({property}: { property: PropertyItem }) => {
             value={String(property.value)}
             label={property.label}
         >
-          {String(property.value)}
+          {display(String(property.value))}
         </FilterLink>
     );
   }
@@ -252,7 +255,7 @@ const PropertyValue = ({property}: { property: PropertyItem }) => {
     return null;
   }
 
-  return String(property.value);
+  return display(String(property.value));
 };
 
 type AttributesTabProps = { properties: PropertyItem[] };
@@ -413,13 +416,25 @@ const SubProfilesTab = ({profile}: SubProfilesTabProps) => {
       <List component="nav" aria-label="sub profiles">
         {subProfiles.map((subProfile) => (
             <React.Fragment key={subProfile.name}>
-              <ListItemButton onClick={() => toggleSubProfile(subProfile.name)}>
+              {/*
+                * The chevron is decorative: an IconButton here would nest a control inside the
+                * row's own button, giving keyboard users a second stop announced as "expand"
+                * that only worked by event bubbling. The row carries the state instead.
+                */}
+              <ListItemButton
+                  onClick={() => toggleSubProfile(subProfile.name)}
+                  aria-expanded={Boolean(expandedSubProfiles[subProfile.name])}
+                  aria-controls={`sub-profile-${subProfile.name}`}
+              >
                 <ListItemText primary={subProfile.name}/>
-                <IconButton edge="end" aria-label="expand">
-                  {expandedSubProfiles[subProfile.name] ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
-                </IconButton>
+                {expandedSubProfiles[subProfile.name] ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
               </ListItemButton>
-              <Collapse in={expandedSubProfiles[subProfile.name]} timeout="auto" unmountOnExit>
+              <Collapse
+                  in={expandedSubProfiles[subProfile.name]}
+                  id={`sub-profile-${subProfile.name}`}
+                  timeout="auto"
+                  unmountOnExit
+              >
                 <Paper sx={{p: 2, m: 2, position: 'relative'}}>
                   <Box sx={{position: 'absolute', top: 8, right: 8, zIndex: 1}}>
                     <Tooltip title={copySuccessMap[subProfile.name] ? "Copied!" : "Copy to clipboard"} arrow>
@@ -577,7 +592,7 @@ export const Profile = ({profile, summary}: { profile: PowerProfile; summary: Su
   const properties: PropertyItem[] = [
     {label: "Manufacturer", value: profile.manufacturer.fullName, icon: FactoryIcon, group: "device", filterKey: "manufacturer"},
     {label: "Model ID", value: profile.modelId, icon: PermDeviceInformationIcon, group: "device"},
-    {label: "Device type", value: profile.deviceType, icon: TypeSpecimenIcon, group: "device", filterKey: "deviceType"},
+    {label: "Device type", value: profile.deviceType, icon: TypeSpecimenIcon, group: "device", filterKey: "deviceType", display: humanizeIdentifier},
     {label: "Name", value: profile.name, icon: MoreIcon, group: "device"},
     {label: "Description", value: profile.description, icon: MoreIcon, group: "device"},
     {label: "Created", value: formatTimestampUtc(profile.createdAt), icon: HistoryIcon, group: "library"},
@@ -611,12 +626,13 @@ export const Profile = ({profile, summary}: { profile: PowerProfile; summary: Su
       value: profile.calculationStrategy,
       icon: CalculateIcon,
       group: "measurement",
-      filterKey: "calculationStrategy"
+      filterKey: "calculationStrategy",
+      display: humanizeIdentifier
     },
-    {label: "Color modes", value: profile.colorModes, icon: PaletteIcon, group: "device", filterKey: "colorMode"},
+    {label: "Color modes", value: profile.colorModes, icon: PaletteIcon, group: "device", filterKey: "colorMode", display: colorModeLabel},
     {label: "Aliases", value: profile.aliases, icon: MediationIcon, group: "device"},
     {label: "Measure device", value: profile.measureDevice, icon: ElectricMeterIcon, group: "measurement", filterKey: "measureDevice"},
-    {label: "Measure method", value: profile.measureMethod, icon: ElectricMeterIcon, group: "measurement", filterKey: "measureMethod"},
+    {label: "Measure method", value: profile.measureMethod, icon: ElectricMeterIcon, group: "measurement", filterKey: "measureMethod", display: humanizeIdentifier},
     {
       label: "Measure description",
       value: profile.measureDescription,
@@ -721,20 +737,39 @@ export const Profile = ({profile, summary}: { profile: PowerProfile; summary: Su
   const theme = useTheme();
   const isTabletUp = useMediaQuery(theme.breakpoints.up("sm"));
 
-  const [value, setValue] = React.useState(0);
   const navigate = useNavigate();
-
-  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const tabs = [
-    {label: "Attributes", render: <AttributesTab properties={filteredProperties}/>},
-    {label: "JSON", render: <JsonTab profile={profile}/>},
-    ...(profile.subProfileCount > 0 ? [{label: "Sub Profiles", render: <SubProfilesTab profile={profile}/>}] : []),
+    {key: "attributes", label: "Attributes", render: <AttributesTab properties={filteredProperties}/>},
+    {key: "json", label: "JSON", render: <JsonTab profile={profile}/>},
+    ...(profile.subProfileCount > 0
+      ? [{key: "sub-profiles", label: "Sub Profiles", render: <SubProfilesTab profile={profile}/>}] : []),
     ...(["lut", "linear", "composite"].includes(profile.calculationStrategy)
-      ? [{label: "Graphs", render: <PlotsTab profile={profile}/>}] : []),
+      ? [{key: "graphs", label: "Graphs", render: <PlotsTab profile={profile}/>}] : []),
   ];
+
+  /**
+   * The open tab lives in the query string so a graph or a sub-profile can be linked to directly,
+   * and so a reload does not silently drop the reader back on Attributes. An unknown or
+   * inapplicable key falls back to the first tab rather than showing nothing.
+   */
+  const tabIndex = Math.max(0, tabs.findIndex((tab) => tab.key === searchParams.get("tab")));
+
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setSearchParams(
+      (current) => {
+        const params = new URLSearchParams(current);
+        if (newValue === 0) {
+          params.delete("tab");
+        } else {
+          params.set("tab", tabs[newValue].key);
+        }
+        return params;
+      },
+      {replace: true, preventScrollReset: true},
+    );
+  };
 
   return (
       <>
@@ -820,7 +855,7 @@ export const Profile = ({profile, summary}: { profile: PowerProfile; summary: Su
 
         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
           <Tabs
-              value={value}
+              value={tabIndex}
               onChange={handleChange}
               indicatorColor="secondary"
               variant={isTabletUp ? "standard" : "scrollable"}
@@ -834,7 +869,7 @@ export const Profile = ({profile, summary}: { profile: PowerProfile; summary: Su
         </Box>
 
         {tabs.map((t, i) => (
-            <CustomTabPanel key={t.label} value={value} index={i}>
+            <CustomTabPanel key={t.label} value={tabIndex} index={i}>
               {t.render}
             </CustomTabPanel>
         ))}
