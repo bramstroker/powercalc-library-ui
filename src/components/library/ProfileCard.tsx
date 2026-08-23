@@ -1,3 +1,5 @@
+import BoltIcon from "@mui/icons-material/Bolt";
+import CalculateIcon from "@mui/icons-material/Calculate";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HomeIcon from "@mui/icons-material/Home";
 import {
@@ -103,9 +105,10 @@ export const ProfileCard = ({
             <Chip
               size="small"
               variant="outlined"
+              icon={<CalculateIcon />}
               label={humanizeIdentifier(profile.calculationStrategy)}
             />
-            {power && <Chip size="small" variant="outlined" label={power} />}
+            {power && <Chip size="small" variant="outlined" icon={<BoltIcon />} label={power} />}
           </Stack>
 
           <Stack direction="row" sx={{ alignItems: "center", gap: 1, mt: "auto" }}>

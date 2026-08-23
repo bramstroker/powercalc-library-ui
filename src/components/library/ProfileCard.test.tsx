@@ -57,4 +57,15 @@ describe("ProfileCard", () => {
     expect(screen.getByText("6.41 W max")).toBeInTheDocument();
     expect(screen.queryByText("0.4 W standby")).not.toBeInTheDocument();
   });
+
+  it("shows icons for the calculation strategy and power", () => {
+    renderCard(createProfile({ maxPower: 6.41 }));
+
+    expect(screen.getByText("Fixed").closest(".MuiChip-root")).toContainElement(
+      screen.getByTestId("CalculateIcon"),
+    );
+    expect(screen.getByText("6.41 W max").closest(".MuiChip-root")).toContainElement(
+      screen.getByTestId("BoltIcon"),
+    );
+  });
 });
