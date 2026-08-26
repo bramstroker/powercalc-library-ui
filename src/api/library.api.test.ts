@@ -21,7 +21,9 @@ describe("fetchLibrary", () => {
     vi.mocked(fetch).mockResolvedValue(jsonResponse(payload));
 
     await expect(fetchLibrary()).resolves.toEqual(payload);
-    expect(fetch).toHaveBeenCalledWith(API_ENDPOINTS.LIBRARY);
+    expect(fetch).toHaveBeenCalledWith(API_ENDPOINTS.LIBRARY, {
+      signal: expect.any(AbortSignal),
+    });
   });
 
   it("throws when the response is not ok", async () => {

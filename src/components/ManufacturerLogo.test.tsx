@@ -110,4 +110,18 @@ describe("ManufacturerLogo", () => {
 
     expect(screen.getByText("K")).toBeInTheDocument();
   });
+
+  it("does not retain the previous logo when its manufacturer changes", async () => {
+    const { rerender } = render(
+      <ManufacturerLogo manufacturer={manufacturer({ dirName: "velux", fullName: "Velux" })} />,
+    );
+    expect(await screen.findByRole("img", { name: "Velux logo" })).toBeInTheDocument();
+
+    rerender(
+      <ManufacturerLogo manufacturer={manufacturer({ dirName: "dyson", fullName: "Dyson" })} />,
+    );
+
+    expect(screen.queryByRole("img", { name: "Velux logo" })).not.toBeInTheDocument();
+    expect(await screen.findByRole("img", { name: "Dyson logo" })).toBeInTheDocument();
+  });
 });

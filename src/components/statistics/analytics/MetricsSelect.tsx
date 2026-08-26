@@ -3,6 +3,8 @@ import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
 export type MetricKey = "installation_count" | "count" | "percentage";
 
+export const DEFAULT_METRIC: MetricKey = "installation_count";
+
 export interface MetricOption {
   label: string;
   value: MetricKey;
@@ -13,6 +15,11 @@ export const DEFAULT_METRIC_OPTIONS: ReadonlyArray<MetricOption> = [
   { label: "Installation Count", value: "installation_count" },
   { label: "Percentage", value: "percentage" },
 ];
+
+export const parseMetricKey = (value: string | null): MetricKey =>
+  DEFAULT_METRIC_OPTIONS.some((option) => option.value === value)
+    ? (value as MetricKey)
+    : DEFAULT_METRIC;
 
 export interface MetricsSelectProps {
   value: MetricKey;

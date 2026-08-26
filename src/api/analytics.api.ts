@@ -44,30 +44,51 @@ export interface CountryStats {
   percentage: number;
 }
 
-export const fetchSensors = () =>
-  fetchJson<SensorStats[]>(API_ENDPOINTS.ANALYTICS_SENSORS, "Failed to fetch dimension counts");
+export const fetchSensors = (signal?: AbortSignal) =>
+  fetchJson<SensorStats[]>(
+    API_ENDPOINTS.ANALYTICS_SENSORS,
+    "Failed to fetch dimension counts",
+    signal,
+  );
 
-export const fetchSummary = () =>
-  fetchJson<Summary>(API_ENDPOINTS.ANALYTICS_SUMMARY, "Failed to fetch analytics summary");
+export const fetchSummary = (signal?: AbortSignal) =>
+  fetchJson<Summary>(API_ENDPOINTS.ANALYTICS_SUMMARY, "Failed to fetch analytics summary", signal);
 
-export const fetchProfile = async (manufacturer: string, model: string): Promise<ProfileStats> => {
+export const fetchProfile = async (
+  manufacturer: string,
+  model: string,
+  signal?: AbortSignal,
+): Promise<ProfileStats> => {
   const url = `${API_ENDPOINTS.ANALYTICS_PROFILES}/${encodeURIComponent(manufacturer)}/${encodeURIComponent(model)}`;
   // The endpoint is addressed by manufacturer and model, so it does not echo them back.
   const data = await fetchJson<Omit<ProfileStats, "manufacturer" | "model">>(
     url,
     "Failed to fetch profile metrics",
+    signal,
   );
   return { ...data, manufacturer, model };
 };
 
-export const fetchProfiles = () =>
-  fetchJson<ProfileStats[]>(API_ENDPOINTS.ANALYTICS_PROFILES, "Failed to fetch profile metrics");
+export const fetchProfiles = (signal?: AbortSignal) =>
+  fetchJson<ProfileStats[]>(
+    API_ENDPOINTS.ANALYTICS_PROFILES,
+    "Failed to fetch profile metrics",
+    signal,
+  );
 
-export const fetchVersions = () =>
-  fetchJson<VersionStats>(API_ENDPOINTS.ANALYTICS_VERSIONS, "Failed to fetch versions data");
+export const fetchVersions = (signal?: AbortSignal) =>
+  fetchJson<VersionStats>(
+    API_ENDPOINTS.ANALYTICS_VERSIONS,
+    "Failed to fetch versions data",
+    signal,
+  );
 
-export const fetchCountries = () =>
-  fetchJson<CountryStats[]>(API_ENDPOINTS.ANALYTICS_COUNTRIES, "Failed to fetch country data");
+export const fetchCountries = (signal?: AbortSignal) =>
+  fetchJson<CountryStats[]>(
+    API_ENDPOINTS.ANALYTICS_COUNTRIES,
+    "Failed to fetch country data",
+    signal,
+  );
 
 export interface TimeseriesQuery {
   metric: string;
@@ -98,6 +119,7 @@ export const fetchTimeseries = (
   timezone: string = "UTC",
   from: Date = new Date("2024-01-01"),
   to: Date = new Date(),
+  signal?: AbortSignal,
 ): Promise<TimeseriesResponse> => {
   const url = new URL(API_ENDPOINTS.ANALYTICS_TIMESERIES);
   url.searchParams.append("metric", metric);
@@ -106,5 +128,5 @@ export const fetchTimeseries = (
   url.searchParams.append("from", from.toISOString().split("T")[0]);
   url.searchParams.append("to", to.toISOString().split("T")[0]);
 
-  return fetchJson<TimeseriesResponse>(url.toString(), "Failed to fetch timeseries data");
+  return fetchJson<TimeseriesResponse>(url.toString(), "Failed to fetch timeseries data", signal);
 };

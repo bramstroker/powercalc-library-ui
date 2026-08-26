@@ -11,23 +11,32 @@ export interface DownloadLink {
 const encodedProfilePath = (profile: PowerProfile) =>
   `${encodeURIComponent(profile.manufacturer.dirName)}/${encodeURIComponent(profile.modelId)}`;
 
-export const fetchProfileJson = (profile: PowerProfile) =>
+export const fetchProfileJson = (profile: PowerProfile, signal?: AbortSignal) =>
   fetchJson<Record<string, unknown>>(
     `${API_ENDPOINTS.PROFILE}/${encodedProfilePath(profile)}`,
     `Failed to fetch profile JSON for ${profile.manufacturer.dirName}/${profile.modelId}`,
+    signal,
   );
 
-export const fetchDownloadLinks = (profile: PowerProfile, includePlots = false) =>
+export const fetchDownloadLinks = (
+  profile: PowerProfile,
+  includePlots = false,
+  signal?: AbortSignal,
+) =>
   fetchJson<DownloadLink[]>(
     `${API_ENDPOINTS.DOWNLOAD}/${encodedProfilePath(profile)}${includePlots ? "?includePlots=1" : ""}`,
     `Failed to fetch profile files for ${profile.manufacturer.dirName}/${profile.modelId}`,
+    signal,
   );
 
 export const subProfileLinks = (downloadLinks: DownloadLink[]) =>
   downloadLinks.filter((link) => link.url.endsWith("model.json") && link.path !== "model.json");
 
-export const fetchSubProfiles = async (profile: PowerProfile): Promise<SubProfile[]> => {
-  const links = subProfileLinks(await fetchDownloadLinks(profile));
+export const fetchSubProfiles = async (
+  profile: PowerProfile,
+  signal?: AbortSignal,
+): Promise<SubProfile[]> => {
+  const links = subProfileLinks(await fetchDownloadLinks(profile, false, signal));
 
   return Promise.all(
     links.map(async (link) => ({
@@ -35,6 +44,7 @@ export const fetchSubProfiles = async (profile: PowerProfile): Promise<SubProfil
       rawJson: await fetchJson<Record<string, unknown>>(
         link.url,
         `Failed to fetch sub profile at ${link.url}`,
+        signal,
       ),
     })),
   );
@@ -58,5 +68,7 @@ export const plotsFromDownloadLinks = (downloadLinks: DownloadLink[]): PlotLink[
   return [...byLabel.values()].map(({ url, label }) => ({ url, label }));
 };
 
-export const fetchPlots = async (profile: PowerProfile): Promise<PlotLink[]> =>
-  plotsFromDownloadLinks(await fetchDownloadLinks(profile, true));
+export const fetchPlots = async (
+  profile: PowerProfile,
+  signal?: AbortSignal,
+): Promise<PlotLink[]> => plotsFromDownloadLinks(await fetchDownloadLinks(profile, true, signal));

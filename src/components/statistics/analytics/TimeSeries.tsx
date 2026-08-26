@@ -98,9 +98,8 @@ export const TimeSeries = () => {
       startDate.toISOString().split("T")[0],
       endDate.toISOString().split("T")[0],
     ],
-    queryFn: async () => {
-      return fetchTimeseries(selectedMetric, selectedGrouping, "UTC", startDate, endDate);
-    },
+    queryFn: ({ signal }) =>
+      fetchTimeseries(selectedMetric, selectedGrouping, "UTC", startDate, endDate, signal),
   });
 
   const chartData = React.useMemo(() => {
@@ -233,7 +232,9 @@ export const TimeSeries = () => {
             grouping={selectedGrouping}
           />
         ) : (
-          <Box sx={{ textAlign: "center", p: 4 }}>Loading data...</Box>
+          <Box role="status" sx={{ textAlign: "center", p: 4, color: "text.secondary" }}>
+            No data available for the selected period.
+          </Box>
         )}
       </Box>
     </>

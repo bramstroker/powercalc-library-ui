@@ -13,23 +13,23 @@ const profileKey = (profile: PowerProfile) => [profile.manufacturer.dirName, pro
 export const profileJsonQuery = (profile: PowerProfile) =>
   queryOptions({
     queryKey: ["profile-json", ...profileKey(profile)],
-    queryFn: () => fetchProfileJson(profile),
+    queryFn: ({ signal }) => fetchProfileJson(profile, signal),
   });
 
 export const profileFilesQuery = (profile: PowerProfile) =>
   queryOptions({
     queryKey: ["profile-files", ...profileKey(profile)],
-    queryFn: () => fetchDownloadLinks(profile),
+    queryFn: ({ signal }) => fetchDownloadLinks(profile, false, signal),
   });
 
 export const subProfilesQuery = (profile: PowerProfile) =>
   queryOptions({
     queryKey: ["profile-sub-profiles", ...profileKey(profile)],
-    queryFn: () => fetchSubProfiles(profile),
+    queryFn: ({ signal }) => fetchSubProfiles(profile, signal),
   });
 
 export const profilePlotsQuery = (profile: PowerProfile) =>
   queryOptions({
     queryKey: ["profile-plots", ...profileKey(profile)],
-    queryFn: () => fetchPlots(profile),
+    queryFn: ({ signal }) => fetchPlots(profile, signal),
   });

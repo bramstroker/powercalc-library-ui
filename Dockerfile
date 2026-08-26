@@ -1,4 +1,4 @@
-# Dockerfile
+# syntax=docker/dockerfile:1
 FROM node:25-alpine AS build
 
 WORKDIR /app
@@ -11,7 +11,15 @@ RUN npm ci --silent
 COPY . ./
 # The bundle budget runs here rather than in a separate CI job because this is the only place a
 # production build actually happens — an oversized chunk now fails the image instead of shipping.
-RUN npm run build && npm run bundle:check
+RUN --mount=type=secret,id=sentry_auth_token,required=false \
+    set -eu; \
+    if [ -f /run/secrets/sentry_auth_token ]; then \
+      SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_auth_token)"; \
+      export SENTRY_AUTH_TOKEN; \
+    fi; \
+    npm run build; \
+    npm run bundle:check; \
+    find build -type f -name '*.map' -delete
 
 # production environment
 FROM nginx:stable-perl

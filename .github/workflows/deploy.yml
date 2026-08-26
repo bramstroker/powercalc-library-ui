@@ -68,7 +68,9 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Build Docker image
-        run: docker build -t powercalc-library-ui:latest .
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: docker build --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN -t powercalc-library-ui:latest .
 
       - name: Save Docker image as tar file
         run: docker save -o powercalc-library-ui.tar powercalc-library-ui:latest

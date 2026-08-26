@@ -264,21 +264,30 @@ export const ManufacturerLogo = ({
   const load = variant === "wide" ? (entry?.wide ?? entry?.square) : entry?.square;
   const cacheKey = `${slug}:${load === entry?.wide ? "wide" : "square"}`;
 
-  const [asset, setAsset] = useState<LogoAsset | undefined>(() => assetCache.get(cacheKey));
-  /** A fetch that came back empty-handed, which is what lets the monogram stand in for it. */
-  const [failed, setFailed] = useState(false);
+  const [resolved, setResolved] = useState<{
+    cacheKey: string;
+    asset: LogoAsset | null;
+  } | null>(() => {
+    const cached = assetCache.get(cacheKey);
+    return cached ? { cacheKey, asset: cached } : null;
+  });
+
+  // State survives navigation between two instances of the same route. Only use an asynchronous
+  // result for the key that produced it, or the previous manufacturer's logo can remain visible
+  // while the next chunk loads (and forever when that chunk fails).
+  const cachedAsset = assetCache.get(cacheKey);
+  const resolvedForKey = resolved?.cacheKey === cacheKey ? resolved.asset : undefined;
+  const asset = cachedAsset ?? resolvedForKey ?? undefined;
+  const failed = resolved?.cacheKey === cacheKey && resolved.asset === null;
 
   useEffect(() => {
-    setFailed(false);
     if (!load || assetCache.has(cacheKey)) {
-      setAsset(assetCache.get(cacheKey));
       return;
     }
     let live = true;
     void loadAsset(cacheKey, load).then((resolved) => {
       if (!live) return;
-      if (resolved) setAsset(resolved);
-      else setFailed(true);
+      setResolved({ cacheKey, asset: resolved });
     });
     return () => {
       live = false;

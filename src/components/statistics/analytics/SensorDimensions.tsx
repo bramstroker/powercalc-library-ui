@@ -13,7 +13,7 @@ import {
 import { mangoFusionPalette } from "@mui/x-charts";
 import { PieChart, pieClasses } from "@mui/x-charts/PieChart";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import type { SensorStats } from "../../../api/analytics.api";
@@ -23,7 +23,7 @@ import { visuallyHiddenSx } from "../../../utils/accessibility";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
 import type { MetricKey } from "./MetricsSelect";
-import { MetricsSelect } from "./MetricsSelect";
+import { MetricsSelect, parseMetricKey } from "./MetricsSelect";
 import { SensorDimensionDetailView } from "./SensorDimensionDetailView";
 
 const groupByDimension = (data: SensorStats[]): Record<string, SensorStats[]> => {
@@ -40,17 +40,17 @@ export const SensorDimensions = () => {
   const { dimension: urlDimension } = useParams<{ dimension: string }>();
   const [searchParams] = useSearchParams();
 
-  // Initialize metric from URL query parameter or default to "installation_count"
-  const initialMetric = (searchParams.get("metric") as MetricKey) || "installation_count";
-  const [selectedMetric, setSelectedMetric] = useState<MetricKey>(initialMetric);
+  // The URL remains the source of truth, so deep links and back/forward navigation cannot diverge
+  // from the selected control. Unknown values safely fall back instead of indexing data by an
+  // arbitrary string.
+  const selectedMetric = parseMetricKey(searchParams.get("metric"));
 
   const { data } = useSuspenseQuery<SensorStats[]>({
     queryKey: ["dimensionData"],
-    queryFn: fetchSensors,
+    queryFn: ({ signal }) => fetchSensors(signal),
   });
 
   const handleMetricChange = (value: MetricKey) => {
-    setSelectedMetric(value);
     // Update URL with new metric without navigating
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("metric", value);
@@ -65,11 +65,6 @@ export const SensorDimensions = () => {
   const handleBackToOverview = () => {
     // Include current metric in URL when navigating back to overview
     void navigate(`/analytics/sensor-dimensions?metric=${selectedMetric}`);
-  };
-
-  // Callback for when metric changes in detail view
-  const handleDetailMetricChange = (metric: MetricKey) => {
-    setSelectedMetric(metric);
   };
 
   // Keep a stable empty array reference so useMemo can actually memoize
@@ -89,7 +84,6 @@ export const SensorDimensions = () => {
         data={groupedData[urlDimension]}
         metric={selectedMetric}
         onBack={handleBackToOverview}
-        onMetricChange={handleDetailMetricChange}
       />
     );
   }

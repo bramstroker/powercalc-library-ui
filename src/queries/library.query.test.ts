@@ -56,7 +56,7 @@ const analytics: ProfileStats[] = [
   { manufacturer: "signify", model: "LCA001", count: 100, installation_count: 40, percentage: 2.5 },
 ];
 
-const runQuery = () => libraryQuery().queryFn();
+const runQuery = () => libraryQuery().queryFn({ signal: new AbortController().signal });
 
 describe("libraryQuery", () => {
   beforeEach(() => {

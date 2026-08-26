@@ -12,6 +12,9 @@ const isTestRun = Boolean(isUnitTest || process.env.E2E);
 // `react-router typegen` loads this config too, and creating a Sentry release for a type check
 // is pure noise — only a real build should reach Sentry.
 const isBuild = process.argv.includes("build");
+// Lets local/verification builds exercise the production bundle without contacting Sentry. Docker
+// builds leave this unset and receive their token through a BuildKit secret.
+const isSentryUploadDisabled = process.env.SENTRY_DISABLE_AUTO_UPLOAD === "1";
 
 const loadAvatarManifest = (): Record<string, string> => {
   try {
@@ -39,12 +42,17 @@ export default defineConfig({
   },
   plugins: [
     isUnitTest ? react() : reactRouter(),
-    ...(isTestRun || !isBuild
+    ...(isTestRun || !isBuild || isSentryUploadDisabled
       ? []
       : [
           sentryVitePlugin({
             org: "powercalc",
             project: "library-ui",
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            sourcemaps: {
+              // Source maps are useful only to Sentry and must never reach the public Nginx image.
+              filesToDeleteAfterUpload: "build/**/*.map",
+            },
           }),
         ]),
   ],
@@ -57,8 +65,9 @@ export default defineConfig({
     entries: ["src/**/*.{ts,tsx}"],
   },
   build: {
-    // Route bundles can contain server code, so production source maps must not be published.
-    sourcemap: false,
+    // Hidden maps contain no browser-facing sourceMappingURL. Sentry uploads and removes them when
+    // configured; the Dockerfile also deletes them before assembling the public image.
+    sourcemap: "hidden",
   },
   test: {
     environment: "jsdom",

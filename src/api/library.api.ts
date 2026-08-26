@@ -63,5 +63,5 @@ export type LibraryJson = {
   }>;
 };
 
-export const fetchLibrary = () =>
-  fetchJson<LibraryJson>(API_ENDPOINTS.LIBRARY, "Failed to fetch library");
+export const fetchLibrary = (signal?: AbortSignal) =>
+  fetchJson<LibraryJson>(API_ENDPOINTS.LIBRARY, "Failed to fetch library", signal);

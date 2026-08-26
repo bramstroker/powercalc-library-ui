@@ -14,7 +14,7 @@ import { AnalyticsHeader } from "./AnalyticsHeader";
 export const Profiles = () => {
   const { data } = useSuspenseQuery<ProfileStats[]>({
     queryKey: ["profilesData"],
-    queryFn: fetchProfiles,
+    queryFn: ({ signal }) => fetchProfiles(signal),
   });
   const library = useLibrary();
 

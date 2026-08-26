@@ -74,12 +74,12 @@ export const Installations = () => {
 
   const { data } = useSuspenseQuery<InstallationsData>({
     queryKey: ["analytics", "installations", formatUTCDateKey(fromUTC), formatUTCDateKey(toUTC)],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const [versionsData, countriesData, optinsData, sensorsData] = await Promise.all([
-        fetchVersions(),
-        fetchCountries(),
-        fetchTimeseries("optin_date", "day", "UTC", fromUTC, toUTC),
-        fetchTimeseries("sensors", "day", "UTC", fromUTC, toUTC),
+        fetchVersions(signal),
+        fetchCountries(signal),
+        fetchTimeseries("optin_date", "day", "UTC", fromUTC, toUTC, signal),
+        fetchTimeseries("sensors", "day", "UTC", fromUTC, toUTC, signal),
       ]);
 
       return { versionsData, countriesData, optinsData, sensorsData };

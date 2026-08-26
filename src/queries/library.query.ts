@@ -75,8 +75,11 @@ export const libraryQuery = () => ({
   queryKey: ["library"] as const,
   staleTime: Infinity,
   gcTime: Infinity,
-  queryFn: async (): Promise<LibraryData> => {
-    const [library, analyticsData] = await Promise.all([fetchLibrary(), fetchProfiles()]);
+  queryFn: async ({ signal }: { signal: AbortSignal }): Promise<LibraryData> => {
+    const [library, analyticsData] = await Promise.all([
+      fetchLibrary(signal),
+      fetchProfiles(signal),
+    ]);
 
     if (!library.manufacturers?.length) {
       return emptyLibrary();

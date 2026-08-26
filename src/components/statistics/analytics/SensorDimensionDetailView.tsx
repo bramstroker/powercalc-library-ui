@@ -27,7 +27,6 @@ interface DimensionDetailViewProps {
   data: SensorStats[];
   metric: MetricKey;
   onBack: () => void;
-  onMetricChange?: (metric: MetricKey) => void;
 }
 
 const BAR_HEIGHT = 36; // px per bar (tweak to taste)
@@ -38,48 +37,36 @@ export const SensorDimensionDetailView = ({
   data,
   metric,
   onBack,
-  onMetricChange,
 }: DimensionDetailViewProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [selectedMetric, setSelectedMetric] = React.useState<MetricKey>(metric);
-
-  React.useEffect(() => {
-    setSelectedMetric(metric);
-  }, [metric]);
-
   const handleMetricChange = (newMetric: MetricKey) => {
-    setSelectedMetric(newMetric);
-
     // Update URL with new metric
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("metric", newMetric);
     void navigate(`/analytics/sensor-dimensions/${dimension}?${newSearchParams.toString()}`, {
       replace: true,
     });
-
-    // Notify parent component
-    onMetricChange?.(newMetric);
   };
 
   const sortedData = React.useMemo(() => {
     return [...data].sort((a, b) => {
-      const av = (a[selectedMetric] as number | undefined) ?? 0;
-      const bv = (b[selectedMetric] as number | undefined) ?? 0;
+      const av = (a[metric] as number | undefined) ?? 0;
+      const bv = (b[metric] as number | undefined) ?? 0;
       if (bv !== av) return bv - av;
       return String(a.key_name).localeCompare(String(b.key_name));
     });
-  }, [data, selectedMetric]);
+  }, [data, metric]);
 
   const chartData = React.useMemo(
     () =>
       sortedData.map((item) => ({
         key: item.key_name,
-        value: (item[selectedMetric] as number | undefined) ?? 0,
+        value: (item[metric] as number | undefined) ?? 0,
       })),
-    [sortedData, selectedMetric],
+    [sortedData, metric],
   );
 
   const formattedDimension = React.useMemo(() => sensorDimensionTitle(dimension), [dimension]);
@@ -125,7 +112,7 @@ export const SensorDimensionDetailView = ({
           </Box>
 
           <MetricsSelect
-            value={selectedMetric}
+            value={metric}
             onChange={handleMetricChange}
             formControlProps={{
               size: "small",
@@ -165,17 +152,15 @@ export const SensorDimensionDetailView = ({
                 xAxis={[
                   {
                     valueFormatter: (v: number) =>
-                      selectedMetric === "percentage" ? `${v}%` : v.toLocaleString(),
-                    ...(selectedMetric === "percentage" && { min: 0, max: 100 }),
+                      metric === "percentage" ? `${v}%` : v.toLocaleString(),
+                    ...(metric === "percentage" && { min: 0, max: 100 }),
                   },
                 ]}
                 series={[
                   {
                     dataKey: "value",
                     valueFormatter: (v: number | null) =>
-                      selectedMetric === "percentage"
-                        ? `${v?.toFixed(2)}%`
-                        : (v ?? 0).toLocaleString(),
+                      metric === "percentage" ? `${v?.toFixed(2)}%` : (v ?? 0).toLocaleString(),
                   },
                 ]}
                 layout="horizontal"
