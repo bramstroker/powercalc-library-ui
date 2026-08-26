@@ -9,27 +9,19 @@
     "@mui/material": "^9.0.0",
     "@mui/x-charts": "^9.0.0",
     "@mui/x-data-grid": "^9.0.0",
-    "@mui/x-date-pickers": "^9.0.0",
     "@react-router/node": "^8.3.0",
     "@sentry/react": "^10.38.0",
-    "@sentry/vite-plugin": "^5.0.0",
     "@tanstack/react-query": "^5.29",
-    "@vitejs/plugin-react": "^6.0.0",
-    "ajv": "^8.17.1",
-    "isbot": "^5.2.1",
     "react": "^19.0",
     "react-country-flag": "^3.1.0",
     "react-dom": "^19.0",
-    "react-router": "^8.3.0",
-    "typescript": "^6.0.0",
-    "vite": "^8.0.0"
+    "react-router": "^8.3.0"
   },
   "scripts": {
     "dev": "react-router dev",
     "assets:generate": "node scripts/generate-brand-assets.mjs",
     "avatars:download": "node scripts/download-avatars.mjs",
     "build": "npm run avatars:download && react-router build && node scripts/generate-sitemap.mjs",
-    "build:prerender-all": "npm run avatars:download && PRERENDER_MODE=all react-router build && node scripts/generate-sitemap.mjs",
     "bundle:check": "node scripts/check-bundle-size.mjs",
     "cache:warm": "node scripts/warm-cloudflare-cache.mjs",
     "preview": "vite preview",
@@ -37,10 +29,10 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "format": "prettier --write src e2e scripts react-router.config.ts playwright.config.ts package.json README.md",
-    "format:check": "prettier --check src e2e scripts react-router.config.ts playwright.config.ts package.json README.md",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
     "type-check": "react-router typegen && tsc --noEmit"
   },
   "browserslist": {
@@ -59,6 +51,7 @@
     "@eslint/js": "^10.0.0",
     "@playwright/test": "^1.62.1",
     "@react-router/dev": "^8.3.0",
+    "@sentry/vite-plugin": "^5.0.0",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^26.0.1",
@@ -66,6 +59,7 @@
     "@types/react-dom": "^19.0",
     "@typescript-eslint/eslint-plugin": "^8.44",
     "@typescript-eslint/parser": "^8.44",
+    "@vitejs/plugin-react": "^6.0.0",
     "eslint": "^10.0.0",
     "eslint-plugin-import-x": "^4.16.2",
     "eslint-plugin-react": "^7.37.5",
@@ -75,7 +69,9 @@
     "jsdom": "^30.0.1",
     "prettier": "^3.5",
     "sharp": "^0.35.3",
+    "typescript": "^6.0.0",
     "typescript-eslint": "^8.51.0",
+    "vite": "^8.0.0",
     "vitest": "^4.1.10"
   },
   "overrides": {
@@ -84,6 +80,6 @@
     }
   },
   "engines": {
-    "node": ">=22.22.0"
+    "node": ">=25.0.0"
   }
 }

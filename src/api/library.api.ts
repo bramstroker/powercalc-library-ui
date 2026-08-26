@@ -1,6 +1,8 @@
 import { API_ENDPOINTS } from "../config/api";
 import type { CalculationStrategy } from "../types/CalculationStrategy";
 
+import { fetchJson } from "./http";
+
 export interface LibraryModel {
   id: string;
   name: string;
@@ -61,8 +63,5 @@ export type LibraryJson = {
   }>;
 };
 
-export const fetchLibrary = async (): Promise<LibraryJson> => {
-  const res = await fetch(API_ENDPOINTS.LIBRARY);
-  if (!res.ok) throw new Error("Failed to fetch library");
-  return res.json();
-};
+export const fetchLibrary = () =>
+  fetchJson<LibraryJson>(API_ENDPOINTS.LIBRARY, "Failed to fetch library");

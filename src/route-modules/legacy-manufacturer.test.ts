@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import { clientLoader } from "./legacy-manufacturer";
 
 describe("legacy manufacturer route", () => {
-  it("permanently redirects to the canonical plural URL", async () => {
+  it("permanently redirects to the canonical plural URL", () => {
     let response: Response | undefined;
 
     try {
-      await clientLoader({ params: { manufacturerName: "Brand & Co" } });
+      clientLoader({ params: { manufacturerName: "Brand & Co" } });
     } catch (error) {
       if (error instanceof Response) response = error;
     }
@@ -16,11 +16,11 @@ describe("legacy manufacturer route", () => {
     expect(response?.headers.get("Location")).toBe("/manufacturers/brand-co");
   });
 
-  it("returns not found when the manufacturer is missing", async () => {
+  it("returns not found when the manufacturer is missing", () => {
     let response: Response | undefined;
 
     try {
-      await clientLoader({ params: {} });
+      clientLoader({ params: {} });
     } catch (error) {
       if (error instanceof Response) response = error;
     }

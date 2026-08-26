@@ -6,8 +6,9 @@
 // Run it from the repository root — it resolves Playwright out of the project's node_modules.
 // A few dozen differing pixels on a detailed mark is edge antialiasing; a percent or more is a
 // real shift, so render both and look before accepting it.
-import { chromium } from "@playwright/test";
 import { readFileSync } from "node:fs";
+
+import { chromium } from "@playwright/test";
 
 const [a, b, sizeArg] = process.argv.slice(2);
 const size = Number(sizeArg) || 600;

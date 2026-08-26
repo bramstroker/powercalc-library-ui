@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useLocation, useNavigationType } from "react-router";
+import { NavigationType, useLocation, useNavigationType } from "react-router";
 
 /**
  * Browser scroll position survives client-side navigation. Reset it for a genuinely different
@@ -17,7 +17,9 @@ export const ScrollToTop = () => {
   latestNavigationType.current = navigationType;
 
   useEffect(() => {
-    if (latestNavigationType.current === "POP") {
+    // The enum member rather than its "POP" string value: comparing an enum against a bare literal
+    // typechecks only by coincidence and breaks silently if the value is ever renamed.
+    if (latestNavigationType.current === NavigationType.Pop) {
       return;
     }
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });

@@ -3,12 +3,12 @@ name: Deploy
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [master]
   release:
-    types: [ published ]
+    types: [published]
   schedule:
     # Refresh prerendered analytics and library data once a day (04:17 CEST / 03:17 CET).
-    - cron: '17 2 * * *'
+    - cron: "17 2 * * *"
 
 jobs:
   # Gate the deploy on the same checks that run for pull requests, so a red suite cannot ship.
@@ -23,8 +23,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '24'
-          cache: 'npm'
+          node-version: "25"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -34,6 +34,9 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
 
       - name: Run unit tests
         run: npm test
@@ -94,7 +97,10 @@ jobs:
           ENDSSH
 
       - name: Purge cloudflare cache
-        uses: jakejarvis/cloudflare-purge-action@master
+        # Pinned to the commit behind v0.3.0 rather than tracking `master`. This step is handed a
+        # Cloudflare API key, and a mutable ref means whoever controls that repository decides what
+        # runs against it on the next deploy.
+        uses: jakejarvis/cloudflare-purge-action@eee6dba0236093358f25bb1581bd615dc8b3d8e3 # v0.3.0
         env:
           # Deliberately omit PURGE_URLS: every SPA deep link is a separate Cloudflare cache key.
           CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
@@ -104,10 +110,10 @@ jobs:
       - name: Setup Node.js for cache warm-up
         uses: actions/setup-node@v7
         with:
-          node-version: '24'
+          node-version: "25"
 
       - name: Warm prerendered pages in Cloudflare
         env:
           WARM_SITE_URL: https://library.powercalc.nl
-          WARM_CONCURRENCY: '12'
+          WARM_CONCURRENCY: "12"
         run: npm run cache:warm

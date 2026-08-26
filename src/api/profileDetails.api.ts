@@ -1,6 +1,8 @@
 import { API_ENDPOINTS } from "../config/api";
 import type { PlotLink, PowerProfile, SubProfile } from "../types/PowerProfile";
 
+import { fetchJson } from "./http";
+
 export interface DownloadLink {
   url: string;
   path: string;
@@ -8,14 +10,6 @@ export interface DownloadLink {
 
 const encodedProfilePath = (profile: PowerProfile) =>
   `${encodeURIComponent(profile.manufacturer.dirName)}/${encodeURIComponent(profile.modelId)}`;
-
-const fetchJson = async <T>(url: string, errorMessage: string): Promise<T> => {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`${errorMessage} (HTTP ${response.status})`);
-  }
-  return response.json() as Promise<T>;
-};
 
 export const fetchProfileJson = (profile: PowerProfile) =>
   fetchJson<Record<string, unknown>>(

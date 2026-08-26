@@ -179,17 +179,30 @@ export const hasManufacturerLogo = (dirName: string): boolean =>
 
 /** Parsed assets and in-flight fetches, so a logo is only ever fetched and parsed once. */
 const assetCache = new Map<string, LogoAsset>();
-const inFlight = new Map<string, Promise<LogoAsset>>();
+const inFlight = new Map<string, Promise<LogoAsset | null>>();
 
-const loadAsset = (key: string, load: LogoLoader): Promise<LogoAsset> => {
+/**
+ * Resolves to `null` when the logo could not be fetched, rather than rejecting.
+ *
+ * A chunk fetch fails for reasons that pass — the browser is offline, or a deploy rotated the asset
+ * out from under an open tab. Two things follow from that. The `inFlight` entry has to be cleared on
+ * failure as well as success, or the rejected promise becomes the cached answer for this logo and
+ * every later mount returns it; and the failure has to be swallowed here, because nothing awaits the
+ * promise at the call site, so a rejection would surface as an unhandled rejection and the global
+ * handler would report it to Sentry once per mount. Neither is worth an error for a decorative mark
+ * the monogram covers. Nothing is written to `assetCache`, so a later mount retries.
+ */
+const loadAsset = (key: string, load: LogoLoader): Promise<LogoAsset | null> => {
   const pending = inFlight.get(key);
   if (pending) return pending;
-  const promise = load().then((svg) => {
-    const asset = buildAsset(svg);
-    assetCache.set(key, asset);
-    inFlight.delete(key);
-    return asset;
-  });
+  const promise = load()
+    .then((svg) => {
+      const asset = buildAsset(svg);
+      assetCache.set(key, asset);
+      return asset;
+    })
+    .catch(() => null)
+    .finally(() => inFlight.delete(key));
   inFlight.set(key, promise);
   return promise;
 };
@@ -252,15 +265,20 @@ export const ManufacturerLogo = ({
   const cacheKey = `${slug}:${load === entry?.wide ? "wide" : "square"}`;
 
   const [asset, setAsset] = useState<LogoAsset | undefined>(() => assetCache.get(cacheKey));
+  /** A fetch that came back empty-handed, which is what lets the monogram stand in for it. */
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    setFailed(false);
     if (!load || assetCache.has(cacheKey)) {
       setAsset(assetCache.get(cacheKey));
       return;
     }
     let live = true;
     void loadAsset(cacheKey, load).then((resolved) => {
-      if (live) setAsset(resolved);
+      if (!live) return;
+      if (resolved) setAsset(resolved);
+      else setFailed(true);
     });
     return () => {
       live = false;
@@ -309,8 +327,9 @@ export const ManufacturerLogo = ({
 
   if (!asset) {
     // A logo that exists but has not arrived yet holds its slot empty; swapping a monogram in and
-    // straight back out again would flicker.
-    if (load) {
+    // straight back out again would flicker. Once the fetch has actually failed there is nothing
+    // left to wait for, so the monogram takes the slot rather than leaving a permanent blank.
+    if (load && !failed) {
       // A shrink-wrapping slot would collapse to its own padding while empty, so it holds the
       // artwork's height for the moment the fetch takes rather than popping open around it.
       return <Box sx={[slot, { height: size + inset * 2, width: size + inset * 2 }]} aria-hidden />;

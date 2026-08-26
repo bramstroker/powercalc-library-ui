@@ -109,7 +109,7 @@ export const Installations = () => {
     if (!summaryData.sampled_installations || summaryData.sampled_installations === 0) {
       return 0;
     }
-    return summaryData.total_sensors! / summaryData.sampled_installations;
+    return summaryData.total_sensors / summaryData.sampled_installations;
   }, [summaryData]);
 
   const optinsLastMonth = React.useMemo(() => {

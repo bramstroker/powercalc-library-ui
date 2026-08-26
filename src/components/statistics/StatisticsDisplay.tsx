@@ -89,7 +89,7 @@ export const StatisticsDisplay = ({
   const [count, setCount] = useState<number>(resultsCount);
 
   const handleCountChange = (event: SelectChangeEvent<number>) => {
-    const newCount = event.target.value as number;
+    const newCount = event.target.value;
     setCount(newCount);
     if (onResultsCountChange) {
       onResultsCountChange(newCount);

@@ -17,6 +17,7 @@ import { Link as RouterLink } from "react-router";
 
 import { useLibrary } from "../context/LibraryContext";
 import type { Manufacturer } from "../types/PowerProfile";
+import { plural } from "../utils/plural";
 import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
@@ -144,16 +145,11 @@ export const Manufacturers = () => {
                   <ManufacturerLogo manufacturer={manufacturer} size={44} />
 
                   <Box sx={{ minWidth: 0, flex: 1 }}>
-                    <Typography
-                      component="h2"
-                      variant="subtitle1"
-                      sx={{ fontWeight: 600 }}
-                      noWrap
-                    >
+                    <Typography component="h2" variant="subtitle1" sx={{ fontWeight: 600 }} noWrap>
                       {manufacturer.fullName}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" noWrap>
-                      {profileCount} profile{profileCount !== 1 ? "s" : ""}
+                      {plural(profileCount, "profile")}
                     </Typography>
                   </Box>
 

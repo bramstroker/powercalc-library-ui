@@ -42,7 +42,7 @@ In order of yield for this domain:
      --data-urlencode prop=imageinfo --data-urlencode 'iiprop=url|extmetadata' \
      --data-urlencode 'titles=File:Philips shield (2013).svg'
    ```
-   Require the brand name in the *filename*; searching Wikidata's `P154` misses most brands.
+   Require the brand name in the _filename_; searching Wikidata's `P154` misses most brands.
 2. **The manufacturer's own site or press kit** — usually the header logo, served as SVG.
 3. **A raster the maintainer supplies**, vectorised with `potrace`, one trace per ink.
 
@@ -76,14 +76,14 @@ Round-tripped artwork arrives full of traps. In order:
 
 **Flatten group transforms into the path data.** Inkscape parks artwork under nested
 `translate`/`matrix` groups. Coordinate rounding later turns `matrix(0.78527577,…)` into
-`matrix(.79,…)` — rounding a coordinate is safe, rounding a *scale factor* is not, and the
+`matrix(.79,…)` — rounding a coordinate is safe, rounding a _scale factor_ is not, and the
 artwork's own large offsets amplify the error:
 
 ```sh
 python3 .claude/skills/add-manufacturer-logo/scripts/flatten_transforms.py in.svg out.svg
 ```
 
-**Delete editor bookkeeping *elements*, not just attributes.** `<sodipodi:namedview>`,
+**Delete editor bookkeeping _elements_, not just attributes.** `<sodipodi:namedview>`,
 `<inkscape:grid>`, `<metadata>`. Once their `xmlns:` declarations are stripped these become
 undeclared namespace prefixes — a fatal XML parse error for a full-colour logo, which is
 rendered as an `<img>` from a data URI and so silently fails to draw.
@@ -94,7 +94,7 @@ turned Trust's `opacity:0` rect solid.
 
 **Flatten any `<style>` block to presentation attributes.** Monochrome logos are inlined into
 the page, so `.st0` / `.cls-1` class names collide globally between them — NodOn lost its orange
-when Linkind happened to load after it. Resolve the cascade from the stylesheet rules; do *not*
+when Linkind happened to load after it. Resolve the cascade from the stylesheet rules; do _not_
 use `getComputedStyle`, which resolves `currentColor` to a literal.
 
 **Strip** `id` attributes, `fill-opacity="1"`, `fill-rule="nonzero"`, editor namespaces, and any
@@ -103,7 +103,7 @@ If an `id` is referenced by `clip-path="url(#…)"`, remove the reference too or
 never leave a dangling one.
 
 **Minify coordinates with a tokeniser, never a regex over the raw string.** Path data packs
-numbers without separators and relies on a leading `.` to delimit them, so `.0004.1285` is *two*
+numbers without separators and relies on a leading `.` to delimit them, so `.0004.1285` is _two_
 numbers; rounding them to `0` and `.129` and writing them back adjacent gives `00.129`, one
 number, and every coordinate after it shifts. Scale precision to the viewBox: 2 decimals is
 generous at 2000 units and destroys a 24-unit artwork.
@@ -112,11 +112,11 @@ generous at 2000 units and destroys a 24-unit artwork.
 
 `ManufacturerLogo` picks the mode from the file itself:
 
-| Mode | Write the file as | Use when |
-| --- | --- | --- |
-| Monochrome | everything `fill="currentColor"`, plus `data-brand="#rrggbb"` on the root `<svg>` | single-ink artwork, *including black* — flattening is what lets it show on the dark theme |
-| Full colour | keeps its own fills | multi-ink artwork that reads on both white and near-black |
-| Two-tone | `currentColor` on the dark ink, literal fills on the rest | a coloured mark beside a near-black wordmark |
+| Mode        | Write the file as                                                                 | Use when                                                                                  |
+| ----------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Monochrome  | everything `fill="currentColor"`, plus `data-brand="#rrggbb"` on the root `<svg>` | single-ink artwork, _including black_ — flattening is what lets it show on the dark theme |
+| Full colour | keeps its own fills                                                               | multi-ink artwork that reads on both white and near-black                                 |
+| Two-tone    | `currentColor` on the dark ink, literal fills on the rest                         | a coloured mark beside a near-black wordmark                                              |
 
 **Always set `data-brand` on a coloured monochrome mark** — without it the logo silently renders
 plain black and white. Where the brand ink lacks contrast the component shifts its lightness and
@@ -153,7 +153,7 @@ npm run dev -- --port 3200
 ```
 
 Screenshot `/manufacturers` (the square in a grid, beside other brands) and
-`/manufacturer/<dir_name>` (the wide lockup in the header) in light *and* dark.
+`/manufacturer/<dir_name>` (the wide lockup in the header) in light _and_ dark.
 
 Finally: `npm run lint`, `npx tsc --noEmit`, `npm test -- --run` — from the repository root.
 
@@ -169,7 +169,7 @@ be there at all.
 
 ## Tests
 
-`src/components/ManufacturerLogo.test.tsx` needs a manufacturer that will *never* have a logo for
+`src/components/ManufacturerLogo.test.tsx` needs a manufacturer that will _never_ have a logo for
 its monogram-fallback cases, and uses the sentinel `NO_LOGO = "no such manufacturer"` for exactly
 that. If a test names a real brand there, adding that brand's logo breaks it — repoint it at
 `NO_LOGO` rather than picking another real name.

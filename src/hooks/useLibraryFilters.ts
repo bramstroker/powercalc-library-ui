@@ -18,11 +18,23 @@ const splitValues = (raw: string | null): string[] =>
         .filter(Boolean)
     : [];
 
+/**
+ * Split on the separator rather than on every `-`, so a negative bound survives. No facet produces
+ * one today, but `"-5--1".split("-")` yields four empty-ish pieces and would silently drop the
+ * filter rather than apply it.
+ */
+const RANGE_PATTERN = /^(-?\d+(?:\.\d+)?)-(-?\d+(?:\.\d+)?)$/;
+
 const parseRange = (raw: string | null): Range | undefined => {
   if (!raw) {
     return undefined;
   }
-  const [min, max] = raw.split("-").map(Number);
+  const match = RANGE_PATTERN.exec(raw);
+  if (!match) {
+    return undefined;
+  }
+  const min = Number(match[1]);
+  const max = Number(match[2]);
   if (!Number.isFinite(min) || !Number.isFinite(max) || min > max) {
     return undefined;
   }

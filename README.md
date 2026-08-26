@@ -6,7 +6,7 @@ X charts. Library and usage data come from the [Powercalc API](https://api.power
 
 ## Requirements
 
-- Node.js 22.22 or newer
+- Node.js 25 or newer
 - npm
 
 ## Local development

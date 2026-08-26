@@ -34,7 +34,7 @@ export const MetricsSelect = ({
   const labelId = "metric-select-label";
 
   const handleChange = (event: SelectChangeEvent<MetricKey>) => {
-    onChange(event.target.value as MetricKey);
+    onChange(event.target.value);
   };
 
   return (

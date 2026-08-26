@@ -6,9 +6,12 @@ ENV PATH=/app/node_modules/.bin:$PATH
 COPY package.json ./
 COPY package-lock.json ./
 RUN npm ci --silent
-RUN npm install react-scripts@3.4.1 -g --silent
+# `.dockerignore` keeps this from copying the host's `node_modules` over the tree `npm ci` just
+# installed — the image is linux/amd64 and a macOS host's native binaries do not run here.
 COPY . ./
-RUN npm run build:prerender-all
+# The bundle budget runs here rather than in a separate CI job because this is the only place a
+# production build actually happens — an oversized chunk now fails the image instead of shipping.
+RUN npm run build && npm run bundle:check
 
 # production environment
 FROM nginx:stable-perl

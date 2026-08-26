@@ -61,7 +61,9 @@ export default function handleRequest(
           );
         },
         onShellError(error: unknown) {
-          reject(error);
+          // React types this as `unknown`, and rejecting with a non-Error loses the stack that
+          // makes a shell failure diagnosable at all.
+          reject(error instanceof Error ? error : new Error(String(error)));
         },
         onError(error: unknown) {
           responseStatusCode = 500;

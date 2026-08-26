@@ -1,3 +1,13 @@
+/**
+ * Annotated with JSDoc for the same reason `urlSlugs.mjs` is: this module is imported both by the
+ * TypeScript application and by `scripts/generate-sitemap.mjs`, which runs under plain Node, so it
+ * has to stay `.mjs`. Without the annotations every consumer saw `any` and the type-aware lint rules
+ * had nothing to check `dimensionInfo.description` against.
+ *
+ * @typedef {{ title: string; description: string }} SensorDimension
+ */
+
+/** @type {Record<string, SensorDimension>} */
 export const SENSOR_DIMENSIONS = {
   by_config_type: {
     title: "Config type",
@@ -27,11 +37,19 @@ export const SENSOR_DIMENSIONS = {
   },
 };
 
+/**
+ * @param {string} dimension
+ * @returns {SensorDimension | undefined}
+ */
 export const getSensorDimension = (dimension) =>
   Object.prototype.hasOwnProperty.call(SENSOR_DIMENSIONS, dimension)
     ? SENSOR_DIMENSIONS[dimension]
     : undefined;
 
+/**
+ * @param {string} dimension
+ * @returns {string}
+ */
 export const sensorDimensionTitle = (dimension) =>
   getSensorDimension(dimension)?.title ??
   dimension

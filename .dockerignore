@@ -1,0 +1,32 @@
+# `COPY . ./` runs after `npm ci`, so anything listed here is also something that cannot overwrite
+# the freshly installed tree. `node_modules` matters most: the image is built for linux/amd64 and a
+# host copy carries native binaries (sharp, which the build actually runs) for the wrong platform.
+node_modules
+.git
+.github
+.idea
+
+# Build output, regenerated inside the image.
+build
+dist
+.react-router
+public/avatars
+
+# Test and tooling artifacts.
+coverage
+playwright-report
+test-results
+blob-report
+playwright/.cache
+
+# Local environment and editor noise.
+.env.local
+.env.*.local
+.env.sentry-build-plugin
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+Dockerfile
+.dockerignore
+docker-compose.yml

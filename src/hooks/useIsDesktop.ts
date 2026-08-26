@@ -3,8 +3,17 @@ import { useSyncExternalStore } from "react";
 /** Mirrors the theme's `md` breakpoint, which the library layout switches on. */
 export const DESKTOP_MEDIA_QUERY = "(min-width: 900px)";
 
+/**
+ * One `MediaQueryList` for the whole app. `getSnapshot` runs on every render React checks the store
+ * on, and constructing a fresh list each time is pure waste — the object is stateless and its
+ * `matches` is live.
+ */
+let mediaQuery: MediaQueryList | undefined;
+
+const getMediaQuery = () => (mediaQuery ??= window.matchMedia(DESKTOP_MEDIA_QUERY));
+
 const subscribe = (onChange: () => void) => {
-  const query = window.matchMedia(DESKTOP_MEDIA_QUERY);
+  const query = getMediaQuery();
   query.addEventListener("change", onChange);
   return () => query.removeEventListener("change", onChange);
 };
@@ -18,6 +27,6 @@ const subscribe = (onChange: () => void) => {
 export const useIsDesktop = () =>
   useSyncExternalStore(
     subscribe,
-    () => window.matchMedia(DESKTOP_MEDIA_QUERY).matches,
+    () => getMediaQuery().matches,
     () => false,
   );

@@ -1,19 +1,31 @@
 // eslint.config.mjs
 import js from "@eslint/js";
-import globals from "globals";
-
-import tsParser from "@typescript-eslint/parser";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
-
+import tsParser from "@typescript-eslint/parser";
+import importPlugin from "eslint-plugin-import-x";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
-import importPlugin from "eslint-plugin-import-x";
 import unusedImports from "eslint-plugin-unused-imports";
+import globals from "globals";
 
 const tsconfigRootDir = new URL(".", import.meta.url).pathname;
 
 export default [
-  { ignores: ["dist", "build", "node_modules"] },
+  // `npm run lint` now covers the whole repository rather than `src/` alone, so everything that is
+  // generated or vendored has to be named here.
+  {
+    ignores: [
+      "dist",
+      "build",
+      "node_modules",
+      ".react-router",
+      "coverage",
+      "playwright-report",
+      "test-results",
+      "blob-report",
+      "public",
+    ],
+  },
 
   js.configs.recommended,
 
@@ -59,7 +71,9 @@ export default [
   // TS / TSX files (typed linting enabled)
   // -------------------------
   {
-    files: ["**/*.{ts,tsx}"],
+    // `.mts` is listed explicitly: `vite.config.mts` matched no block at all before, so the build
+    // configuration was the one file in the repository nothing linted.
+    files: ["**/*.{ts,tsx,mts,cts}"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -85,8 +99,11 @@ export default [
       // Turn off core no-undef for TS files (TS handles this)
       "no-undef": "off",
 
-      // TS recommended (non-type-aware baseline)
-      ...tsPlugin.configs.recommended.rules,
+      // The type-aware ruleset, not the plain `recommended` baseline that was here before. The
+      // parser already builds a full program for `project: true` above, so the analysis was being
+      // paid for and then largely thrown away — which is how an untyped `await res.json()` spread
+      // straight into a typed API response without complaint.
+      ...tsPlugin.configs["recommended-type-checked"].rules,
 
       // React + Hooks
       "react/react-in-jsx-scope": "off",
@@ -150,17 +167,48 @@ export default [
       "@typescript-eslint/no-floating-promises": "error",
       "@typescript-eslint/no-misused-promises": "error",
       "@typescript-eslint/consistent-type-imports": ["warn", { prefer: "type-imports" }],
+
+      // Throwing a `Response` is how a React Router loader signals a 404 or a redirect — the
+      // router catches it and renders the error boundary or performs the navigation. It is the
+      // framework's documented control flow, not an error being thrown wrong.
+      "@typescript-eslint/only-throw-error": [
+        "error",
+        { allow: [{ from: "lib", name: "Response" }] },
+      ],
     },
     settings: { react: { version: "19.0" } },
   },
 
   // -------------------------
-  // Optional: turn OFF typed linting for TS config files not in tsconfig includes
-  // (prevents "file not in project" / type-info errors)
+  // Tests.
+  //
+  // Fixtures are deliberately untyped JSON and test doubles are deliberately `async` without
+  // awaiting anything, so the unsafe-value rules fire constantly on code that is asserting on
+  // exactly those shapes. Everything else, including `only-throw-error`, still applies.
   // -------------------------
   {
-    files: ["**/*.{config,conf}.ts", "**/vite.config.ts", "**/eslint.config.*"],
+    files: ["**/*.test.{ts,tsx}", "e2e/**/*.ts"],
     rules: {
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/require-await": "off",
+    },
+  },
+
+  // -------------------------
+  // Tooling configuration files.
+  //
+  // The extension list is spelled out because the previous `**/vite.config.ts` glob never matched
+  // this repository's `vite.config.mts`. Each of these tools reads its configuration from a default
+  // export, so the project-wide ban on those cannot apply here.
+  // -------------------------
+  {
+    files: ["*.config.{ts,mts,cts,js,mjs,cjs}", "**/*.{config,conf}.{ts,mts,cts}"],
+    rules: {
+      "import/no-default-export": "off",
       "@typescript-eslint/no-floating-promises": "off",
       "@typescript-eslint/no-misused-promises": "off",
     },

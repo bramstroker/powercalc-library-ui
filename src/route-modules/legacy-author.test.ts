@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import { clientLoader } from "./legacy-author";
 
 describe("legacy author route", () => {
-  it("permanently redirects to the canonical contributor URL", async () => {
+  it("permanently redirects to the canonical contributor URL", () => {
     let response: Response | undefined;
 
     try {
-      await clientLoader({ params: { authorName: "Alice Example" } });
+      clientLoader({ params: { authorName: "Alice Example" } });
     } catch (error) {
       if (error instanceof Response) response = error;
     }
@@ -16,11 +16,11 @@ describe("legacy author route", () => {
     expect(response?.headers.get("Location")).toBe("/contributors/alice-example");
   });
 
-  it("returns not found when the username is missing", async () => {
+  it("returns not found when the username is missing", () => {
     let response: Response | undefined;
 
     try {
-      await clientLoader({ params: {} });
+      clientLoader({ params: {} });
     } catch (error) {
       if (error instanceof Response) response = error;
     }

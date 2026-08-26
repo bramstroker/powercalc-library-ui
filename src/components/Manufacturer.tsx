@@ -9,6 +9,7 @@ import { Link as RouterLink } from "react-router";
 
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
 import type { Manufacturer as ManufacturerDetails, PowerProfile } from "../types/PowerProfile";
+import { plural } from "../utils/plural";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ProfileCardGrid } from "./library/ProfileCardGrid";
@@ -241,8 +242,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
                 </Typography>
               </Stack>
               <Typography variant="body2" color="text.secondary">
-                {deviceProfiles.length} profile
-                {deviceProfiles.length !== 1 ? "s" : ""}
+                {plural(deviceProfiles.length, "profile")}
               </Typography>
             </Stack>
 

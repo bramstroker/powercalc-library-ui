@@ -34,7 +34,12 @@ export const clientLoader = prerenderedOrLiveClientLoader(loadProfile);
 // after a client navigation, so normalise both before serialising.
 const isoDate = (value: unknown) => {
   if (value == null) return undefined;
-  const date = value instanceof Date ? value : new Date(String(value));
+  // Only the two shapes a serialised `Date` can actually arrive as. Anything else has no date in it
+  // and `String()` would hand `new Date` a value like "[object Object]" to fail on.
+  if (!(value instanceof Date) && typeof value !== "string" && typeof value !== "number") {
+    return undefined;
+  }
+  const date = value instanceof Date ? value : new Date(value);
   return Number.isNaN(date.valueOf()) ? undefined : date.toISOString();
 };
 

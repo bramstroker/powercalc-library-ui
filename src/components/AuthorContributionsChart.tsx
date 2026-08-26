@@ -6,6 +6,7 @@ import { useMemo } from "react";
 
 import type { PowerProfile } from "../types/PowerProfile";
 import { formatDateUtc } from "../utils/dateFormat";
+import { plural } from "../utils/plural";
 
 type Props = {
   profiles: PowerProfile[];
@@ -88,7 +89,7 @@ export const AuthorContributionsChart = ({ profiles }: Props) => {
               {formatDateUtc(bucket.start, { month: "long", year: "numeric" })}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {bucket.count} profile{bucket.count === 1 ? "" : "s"} contributed that month
+              {plural(bucket.count, "profile")} contributed that month
             </Typography>
           </Box>
         </Stack>

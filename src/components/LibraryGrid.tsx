@@ -9,6 +9,7 @@ import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { countActiveFilters } from "../types/LibraryFilters";
 import { visuallyHiddenSx } from "../utils/accessibility";
 import { applyFilters } from "../utils/libraryFiltering";
+import { readStorage, writeStorage } from "../utils/safeStorage";
 
 import { Header } from "./Header";
 import { ActiveFilterChips } from "./library/ActiveFilterChips";
@@ -40,12 +41,12 @@ export const LibraryGrid = () => {
   const showColumnsRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    setCollapsed(window.localStorage.getItem(PANEL_COLLAPSED_STORAGE_KEY) === "true");
+    setCollapsed(readStorage("local", PANEL_COLLAPSED_STORAGE_KEY) === "true");
   }, []);
 
   const setCollapsedPersisted = useCallback((next: boolean) => {
     setCollapsed(next);
-    window.localStorage.setItem(PANEL_COLLAPSED_STORAGE_KEY, String(next));
+    writeStorage("local", PANEL_COLLAPSED_STORAGE_KEY, String(next));
   }, []);
 
   const rows = useMemo(() => applyFilters(powerProfiles, filters), [powerProfiles, filters]);

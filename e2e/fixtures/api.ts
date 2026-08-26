@@ -183,7 +183,7 @@ export const E2E_API_BASE_URL = "http://127.0.0.1:3101";
  */
 export const mockApi = async (page: Page): Promise<void> => {
   const goto = page.goto.bind(page);
-  page.goto = (async (...args: Parameters<Page["goto"]>) => {
+  page.goto = async (...args: Parameters<Page["goto"]>) => {
     const response = await goto(...args);
     await page.waitForFunction(
       () => document.documentElement.dataset.hydrated === "true",
@@ -191,7 +191,7 @@ export const mockApi = async (page: Page): Promise<void> => {
       { timeout: 15_000 },
     );
     return response;
-  }) as Page["goto"];
+  };
 
   await page.route("**/*.sentry.io/**", (route) => route.abort());
 };

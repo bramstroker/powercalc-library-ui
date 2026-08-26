@@ -98,9 +98,24 @@ const a11yProps = (index: number) => {
 type ItemValueType =
   string | number | boolean | undefined | null | string[] | Record<string, unknown>;
 
+/**
+ * The text form of an attribute value, or `""` where it has none.
+ *
+ * Every value here flows in from the API, and the object arm of `ItemValueType` has no meaningful
+ * `String()` result — a `Record` reaching one of these call sites would print the literal text
+ * "[object Object]" to the reader rather than failing anywhere a test would notice.
+ */
+const asText = (value: ItemValueType): string =>
+  value == null || typeof value === "object" ? "" : String(value);
+
 /** Power figures are watts; the unit belongs next to the number, not only in the headline. */
-const watts = (value: ItemValueType) => `${String(value)} W`;
-const volts = (value: ItemValueType) => `${String(value)} V`;
+const withUnit = (unit: string) => (value: ItemValueType) => {
+  const text = asText(value);
+  return text && `${text} ${unit}`;
+};
+
+const watts = withUnit("W");
+const volts = withUnit("V");
 
 type AttributeGroup = "device" | "power" | "measurement" | "library";
 
@@ -273,24 +288,23 @@ const PropertyValue = ({ property }: { property: PropertyItem }) => {
     );
   }
 
-  if (property.filterKey && property.value != null) {
+  if (property.value == null || typeof property.value === "object") {
+    // Objects only render through a renderFn of their own; there is nothing sensible to print.
+    // Checked before the filter link, which would otherwise build one labelled "[object Object]".
+    return null;
+  }
+
+  const text = asText(property.value);
+
+  if (property.filterKey) {
     return (
-      <FilterLink
-        filterKey={property.filterKey}
-        value={String(property.value)}
-        label={property.label}
-      >
-        {display(String(property.value))}
+      <FilterLink filterKey={property.filterKey} value={text} label={property.label}>
+        {display(text)}
       </FilterLink>
     );
   }
 
-  if (property.value == null || typeof property.value === "object") {
-    // Objects only render through a renderFn of their own; there is nothing sensible to print.
-    return null;
-  }
-
-  return display(String(property.value));
+  return display(text);
 };
 
 type AttributesTabProps = { properties: PropertyItem[] };
@@ -752,7 +766,7 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
       value: profile.measureDescription,
       icon: ElectricMeterIcon,
       group: "measurement",
-      renderFn: (value) => <MeasureDescription description={String(value)} />,
+      renderFn: (value) => <MeasureDescription description={asText(value)} />,
     },
     {
       label: "LUT quality",
@@ -857,10 +871,11 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
       group: "device",
       // The value is "<manufacturer>/<model>", which is exactly the profile route.
       renderFn: (value) => {
-        const [manufacturer, ...modelParts] = String(value).split("/");
+        const text = asText(value);
+        const [manufacturer, ...modelParts] = text.split("/");
         return (
           <Link component={RouterLink} to={getProfilePath(manufacturer, modelParts.join("/"))}>
-            {String(value)}
+            {text}
           </Link>
         );
       },
@@ -884,11 +899,19 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  // React Router types history state as `any`, and this value decides where a navigation goes, so
+  // it is narrowed from `unknown` rather than trusted. The two `startsWith` checks keep it a
+  // same-origin path: `//evil.example` is a protocol-relative URL, not a local route.
+  const historyState: unknown = location.state;
+  const candidatePath =
+    typeof historyState === "object" && historyState !== null && "libraryPath" in historyState
+      ? historyState.libraryPath
+      : undefined;
   const libraryPath =
-    typeof location.state?.libraryPath === "string" &&
-    location.state.libraryPath.startsWith("/") &&
-    !location.state.libraryPath.startsWith("//")
-      ? location.state.libraryPath
+    typeof candidatePath === "string" &&
+    candidatePath.startsWith("/") &&
+    !candidatePath.startsWith("//")
+      ? candidatePath
       : "/";
 
   const tabs = [

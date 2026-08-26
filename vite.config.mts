@@ -1,8 +1,9 @@
 /// <reference types="vitest/config" />
+import { readFileSync } from "node:fs";
+
 import { reactRouter } from "@react-router/dev/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import react from "@vitejs/plugin-react";
-import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
 
 // Skip the Sentry release/telemetry work when running unit (vitest) or e2e (playwright) tests

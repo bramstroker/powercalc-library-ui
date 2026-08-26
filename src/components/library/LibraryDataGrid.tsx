@@ -13,6 +13,7 @@ import { Link as RouterLink, useLocation, useNavigate } from "react-router";
 import type { ColorMode } from "../../types/ColorMode";
 import type { Author, PowerProfile } from "../../types/PowerProfile";
 import { isRecentlyAdded } from "../../utils/recency";
+import { readStorage, writeStorage } from "../../utils/safeStorage";
 import { authorPath, profilePath } from "../../utils/urlSlugs.mjs";
 import { AliasChips } from "../AliasChips";
 
@@ -222,7 +223,7 @@ const knownFields = new Set(columns.map((column) => column.field));
 
 const readStoredVisibility = (): GridColumnVisibilityModel => {
   try {
-    const stored = sessionStorage.getItem(COLUMN_VISIBILITY_STORAGE_KEY);
+    const stored = readStorage("session", COLUMN_VISIBILITY_STORAGE_KEY);
     if (!stored) {
       return DEFAULT_COLUMN_VISIBILITY;
     }
@@ -231,7 +232,7 @@ const readStoredVisibility = (): GridColumnVisibilityModel => {
     return {
       ...DEFAULT_COLUMN_VISIBILITY,
       ...Object.fromEntries(Object.entries(parsed).filter(([field]) => knownFields.has(field))),
-    } as GridColumnVisibilityModel;
+    };
   } catch {
     return DEFAULT_COLUMN_VISIBILITY;
   }
@@ -251,7 +252,7 @@ export const LibraryDataGrid = ({ rows, apiRef }: LibraryDataGridProps) => {
 
   const handleColumnVisibilityChange = useCallback((model: GridColumnVisibilityModel) => {
     setColumnVisibilityModel(model);
-    sessionStorage.setItem(COLUMN_VISIBILITY_STORAGE_KEY, JSON.stringify(model));
+    writeStorage("session", COLUMN_VISIBILITY_STORAGE_KEY, JSON.stringify(model));
   }, []);
 
   const handleRowClick = useCallback(
