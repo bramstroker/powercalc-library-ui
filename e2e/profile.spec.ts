@@ -289,3 +289,42 @@ test("renders an error page for an unknown profile", async ({ page }) => {
   await expect(page.getByText("404 Not Found")).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, follow");
 });
+
+test("shows the device metadata a contributor filled in", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  const attributes = page.getByTestId("profile-attribute");
+
+  await expect(attributes.filter({ hasText: "Power range" })).toContainText("0.72 – 9 W");
+  await expect(attributes.filter({ hasText: "Rated power" })).toContainText("9.5 W claimed");
+  await expect(attributes.filter({ hasText: "Light output" })).toContainText("806 lm · 90 lm/W");
+  await expect(attributes.filter({ hasText: "Socket" })).toContainText("E27");
+  await expect(attributes.filter({ hasText: "Connectivity" })).toContainText("Zigbee");
+  await expect(attributes.filter({ hasText: "Barcode" })).toContainText("8719514291218");
+  await expect(attributes.filter({ hasText: "Mains voltage" })).toContainText("230 V");
+
+  await expect(page.getByRole("link", { name: "philips-hue.com" })).toHaveAttribute(
+    "href",
+    "https://www.philips-hue.com/en-us/p/hue-white-and-color-ambiance-a60",
+  );
+});
+
+test("marks a standby figure nobody could measure", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  // Standby power is a headline fact rather than one of the listed attributes.
+  await expect(page.getByText("estimated, not measured")).toBeVisible();
+
+  // The other profile measured its standby draw, so it carries no caveat.
+  await page.goto("/profiles/signify/LCT010");
+  await expect(page.getByText("0.3 W")).toBeVisible();
+  await expect(page.getByText("estimated, not measured")).toBeHidden();
+});
+
+test("separates the measurement date from the profile update date", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  await expect(
+    page.getByTestId("profile-attribute").filter({ hasText: "Measurements updated" }),
+  ).toContainText("May 3, 2024");
+});

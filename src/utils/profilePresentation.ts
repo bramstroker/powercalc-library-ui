@@ -24,3 +24,35 @@ const COLOR_MODE_LABELS: Record<string, string> = {
 
 export const colorModeLabel = (value: string) =>
   COLOR_MODE_LABELS[value] ?? humanizeIdentifier(value);
+
+/**
+ * Protocol names as their own standards bodies write them. The generic humaniser would produce
+ * "Wifi", "Zwave" and "Rf433", none of which anybody recognises at a glance.
+ */
+const CONNECTIVITY_LABELS: Record<string, string> = {
+  zigbee: "Zigbee",
+  wifi: "Wi-Fi",
+  zwave: "Z-Wave",
+  matter: "Matter",
+  thread: "Thread",
+  bluetooth: "Bluetooth",
+  ethernet: "Ethernet",
+  rf433: "RF 433 MHz",
+  infrared: "Infrared",
+  proprietary: "Proprietary",
+};
+
+export const connectivityLabel = (value: string) =>
+  CONNECTIVITY_LABELS[value] ?? humanizeIdentifier(value);
+
+/**
+ * A product page is linked by its host rather than its full URL: the paths manufacturers use run
+ * to a hundred characters of campaign parameters and tell the reader nothing.
+ */
+export const productUrlLabel = (url: string) => {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+};

@@ -13,11 +13,15 @@ import HistoryIcon from "@mui/icons-material/History";
 import HomeIcon from "@mui/icons-material/Home";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LayersIcon from "@mui/icons-material/Layers";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import MediationIcon from "@mui/icons-material/Mediation";
 import MoreIcon from "@mui/icons-material/More";
 import PaletteIcon from "@mui/icons-material/Palette";
 import PermDeviceInformationIcon from "@mui/icons-material/PermDeviceInformation";
 import PersonIcon from "@mui/icons-material/Person";
+import SettingsInputComponentIcon from "@mui/icons-material/SettingsInputComponent";
+import SettingsInputSvideoIcon from "@mui/icons-material/SettingsInputSvideo";
 import TypeSpecimenIcon from "@mui/icons-material/TypeSpecimen";
 import {
   Alert,
@@ -55,7 +59,13 @@ import type { BreadcrumbItem } from "../seo/breadcrumbs";
 import { CalculationStrategy } from "../types/CalculationStrategy";
 import type { PowerProfile } from "../types/PowerProfile";
 import { formatTimestampUtc } from "../utils/dateFormat";
-import { colorModeLabel, humanizeIdentifier } from "../utils/profilePresentation";
+import { mainsVoltageBand } from "../utils/libraryFiltering";
+import {
+  colorModeLabel,
+  connectivityLabel,
+  humanizeIdentifier,
+  productUrlLabel,
+} from "../utils/profilePresentation";
 import { authorPath, manufacturerPath, profilePath as getProfilePath } from "../utils/urlSlugs.mjs";
 
 import { AliasChips } from "./AliasChips";
@@ -521,8 +531,14 @@ const PlotsTab = ({ profile }: PlotsTabProps) => {
   );
 };
 
-type HeadlineFactProps = { label: string; value: string; icon: React.ElementType };
-const HeadlineFact = ({ label, value, icon: Icon }: HeadlineFactProps) => (
+type HeadlineFactProps = {
+  label: string;
+  value: string;
+  icon: React.ElementType;
+  /** Rendered under the value, for a figure that needs a word of context. */
+  note?: string;
+};
+const HeadlineFact = ({ label, value, icon: Icon, note }: HeadlineFactProps) => (
   <Paper
     variant="outlined"
     // The same tinted surface the filter panel uses, so the app has one secondary surface
@@ -548,6 +564,11 @@ const HeadlineFact = ({ label, value, icon: Icon }: HeadlineFactProps) => (
         >
           {value}
         </Typography>
+        {note && (
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+            {note}
+          </Typography>
+        )}
       </Box>
     </Stack>
   </Paper>
@@ -733,6 +754,48 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
     },
     { label: "Aliases", value: profile.aliases, icon: MediationIcon, group: "device" },
     {
+      label: "Socket",
+      value: profile.deviceSpecs?.socket,
+      icon: SettingsInputComponentIcon,
+      group: "device",
+      filterKey: "socket",
+    },
+    {
+      label: "Form factor",
+      value: profile.deviceSpecs?.formFactor,
+      icon: LightbulbIcon,
+      group: "device",
+      filterKey: "formFactor",
+      display: humanizeIdentifier,
+    },
+    {
+      label: "Connectivity",
+      value: profile.connectivity,
+      icon: SettingsInputSvideoIcon,
+      group: "device",
+      filterKey: "connectivity",
+      display: connectivityLabel,
+    },
+    {
+      label: "Barcode",
+      value: profile.ean,
+      icon: MoreIcon,
+      group: "device",
+      stackValues: true,
+    },
+    {
+      label: "Product page",
+      value: profile.productUrl,
+      icon: MoreIcon,
+      group: "device",
+      // An outbound link, unlike every other linked attribute here, which filters the library.
+      renderFn: (value) => (
+        <Link href={String(value)} target="_blank" rel="noreferrer noopener">
+          {productUrlLabel(String(value))}
+        </Link>
+      ),
+    },
+    {
       label: "Measure device",
       value: profile.measureDevice,
       icon: ElectricMeterIcon,
@@ -790,11 +853,76 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
           : null,
     },
     {
+      label: "Mains voltage",
+      value: profile.mainsVoltage,
+      icon: ElectricalServicesIcon,
+      group: "measurement",
+      // The facet groups supplies into two bands, so the link has to carry the band, not the volts.
+      renderFn: () =>
+        profile.mainsVoltage ? (
+          <FilterLink
+            filterKey="mainsVoltage"
+            value={mainsVoltageBand(profile.mainsVoltage)}
+            label="Mains voltage"
+          >
+            {volts(profile.mainsVoltage)}
+          </FilterLink>
+        ) : null,
+    },
+    {
+      label: "Measurements updated",
+      value: profile.measurementUpdatedAt && formatTimestampUtc(profile.measurementUpdatedAt),
+      icon: HistoryIcon,
+      group: "measurement",
+      renderFn: () =>
+        profile.measurementUpdatedAt ? <Timestamp date={profile.measurementUpdatedAt} /> : null,
+    },
+    {
       label: "Max power",
       value: profile.maxPower,
       icon: BoltIcon,
       group: "power",
       renderFn: watts,
+    },
+    {
+      label: "Power range",
+      value: profile.powerRange?.min,
+      icon: BoltIcon,
+      group: "power",
+      renderFn: () =>
+        profile.powerRange ? watts(`${profile.powerRange.min} – ${profile.powerRange.max}`) : null,
+    },
+    {
+      label: "Rated power",
+      value: profile.deviceSpecs?.ratedPower,
+      icon: BoltIcon,
+      group: "power",
+      // The number on the box, next to the one that was measured.
+      renderFn: (value) => (
+        <>
+          {watts(value)}{" "}
+          <Typography variant="body2" color="text.secondary" component="span">
+            claimed
+          </Typography>
+        </>
+      ),
+    },
+    {
+      label: "Light output",
+      value: profile.deviceSpecs?.lumens,
+      icon: LightModeIcon,
+      group: "power",
+      renderFn: (value) => (
+        <>
+          {String(value)} lm
+          {profile.maxPower ? (
+            <Typography variant="body2" color="text.secondary" component="span">
+              {" "}
+              · {Math.round(Number(value) / profile.maxPower)} lm/W
+            </Typography>
+          ) : null}
+        </>
+      ),
     },
     {
       label: "Standby power",
@@ -1005,6 +1133,9 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
                 label="Standby power"
                 value={`${profile.standbyPower} W`}
                 icon={BedtimeIcon}
+                // Some profiles carry the 0.4 W the docs suggest when a meter cannot read that
+                // low. Presenting that as a measurement would be the wrong kind of confident.
+                note={profile.standbyPowerEstimated ? "estimated, not measured" : undefined}
               />
             )}
             {profile.subProfileCount > 0 && (

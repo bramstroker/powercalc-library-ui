@@ -49,6 +49,27 @@ export interface LibraryModel {
     min: number;
     max: number;
   };
+  /** Nominal mains voltage the measurements were taken on, e.g. 230 or 120. */
+  mains_voltage?: number;
+  /** Lowest and highest power the profile draws. Absent when only the maximum is known. */
+  power_range?: {
+    min: number;
+    max: number;
+  };
+  /** When the LUT files last changed, as opposed to `updated_at`, which any commit moves. */
+  measurement_updated_at?: string;
+  /** Set when `standby_power` holds an assumed value rather than a measured one. */
+  standby_power_estimated?: boolean;
+  /** What the box claims about the device. Keys depend on `device_type`; lights so far. */
+  device_specs?: {
+    socket?: string;
+    form_factor?: string;
+    lumens?: number;
+    rated_power?: number;
+  };
+  connectivity?: string[];
+  product_url?: string;
+  ean?: string[];
 }
 
 export type LibraryJson = {
@@ -57,6 +78,11 @@ export type LibraryJson = {
     dir_name: string;
     /** Other brand names the same manufacturer is known by. */
     aliases?: string[];
+    /** Home page of the brand. */
+    website?: string;
+    /** ISO 3166-1 alpha-2 country code, e.g. "NL". */
+    country?: string;
+    description?: string;
     models: LibraryModel[];
   }>;
 };

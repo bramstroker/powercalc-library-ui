@@ -36,6 +36,8 @@ const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => (
   subProfileCount: 0,
   minVersion: null,
   compatibleIntegrations: [],
+  connectivity: [],
+  ean: [],
   lutQuality: { score: 98.3, brightness: 98.3, colorTemp: 96.1 },
   usageStats: { installationCount: 12, deviceCount: 34, percentage: 1.5 },
   ...overrides,
@@ -302,5 +304,78 @@ describe("computeRanges", () => {
     const withoutMaxPower = profiles.map((profile) => ({ ...profile, maxPower: null }));
 
     expect(computeRanges(withoutMaxPower).maxPower).toBeUndefined();
+  });
+});
+
+describe("device metadata facets", () => {
+  const bulb = createProfile({
+    modelId: "LCA001",
+    deviceSpecs: { socket: "E27", formFactor: "bulb", lumens: 806 },
+    connectivity: ["zigbee"],
+    mainsVoltage: 230,
+  });
+  const spot = createProfile({
+    modelId: "GU10",
+    deviceSpecs: { socket: "GU10", formFactor: "spot", lumens: 350 },
+    connectivity: ["wifi", "bluetooth"],
+    mainsVoltage: 120,
+  });
+  const plug = createProfile({ modelId: "PLUG" });
+
+  it("filters on the socket a light fits", () => {
+    const filters = {
+      ...createEmptyFilters(),
+      facets: { ...createEmptyFilters().facets, socket: ["E27"] },
+    };
+
+    expect(applyFilters([bulb, spot, plug], filters).map((profile) => profile.modelId)).toEqual([
+      "LCA001",
+    ]);
+  });
+
+  it("matches a profile on any one of its protocols", () => {
+    const filters = {
+      ...createEmptyFilters(),
+      facets: { ...createEmptyFilters().facets, connectivity: ["bluetooth"] },
+    };
+
+    expect(applyFilters([bulb, spot, plug], filters).map((profile) => profile.modelId)).toEqual([
+      "GU10",
+    ]);
+  });
+
+  it("groups supply voltages into two bands", () => {
+    const counts = computeFacetCounts([bulb, spot, plug], "mainsVoltage");
+
+    // Equal counts fall back to alphabetical order.
+    expect(counts).toEqual([
+      { value: "120 V", count: 1 },
+      { value: "230 V", count: 1 },
+    ]);
+  });
+
+  it("leaves a profile without device specs out of those facets", () => {
+    const counts = computeFacetCounts([bulb, spot, plug], "socket");
+
+    expect(counts.reduce((total, option) => total + option.count, 0)).toBe(2);
+  });
+
+  it("filters on brightness", () => {
+    const filters = {
+      ...createEmptyFilters(),
+      ranges: { lumens: [500, 1000] as [number, number] },
+    };
+
+    expect(applyFilters([bulb, spot, plug], filters).map((profile) => profile.modelId)).toEqual([
+      "LCA001",
+    ]);
+  });
+});
+
+describe("search", () => {
+  it("finds a profile by the barcode on its box", () => {
+    const profile = createProfile({ ean: ["8719514291218"] });
+
+    expect(matchesSearch(profile, "8719514291218")).toBe(true);
   });
 });

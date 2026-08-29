@@ -25,7 +25,7 @@ const server = createServer((request, response) => {
 
   const { pathname } = new URL(request.url, `http://${request.headers.host}`);
   if (pathname === "/health") return sendJson(response, { ok: true });
-  if (pathname === "/library") return sendJson(response, library);
+  if (pathname === "/library" || pathname === "/library/full") return sendJson(response, library);
   if (pathname === "/analytics/profiles") return sendJson(response, profileStats);
   if (pathname === "/analytics/summary") return sendJson(response, summary);
   if (pathname === "/analytics/sensors") return sendJson(response, sensors);
