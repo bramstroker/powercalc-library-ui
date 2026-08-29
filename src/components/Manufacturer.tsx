@@ -212,7 +212,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
         <Stack
           direction={{ xs: "column", md: "row" }}
           sx={{
-            alignItems: { xs: "flex-start", md: "center" },
+            alignItems: "flex-start",
             gap: { xs: 2, sm: 2.5 },
           }}
         >

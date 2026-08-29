@@ -110,8 +110,17 @@ test("starts a newly navigated page at the top", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 
   const authorLink = page.getByRole("link", { name: "Bram Gerritsen" });
-  await authorLink.scrollIntoViewIfNeeded();
-  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expect(authorLink).toBeVisible();
+
+  // Scroll on every attempt rather than once. The assertion below is only meaningful from a
+  // page that is not already at the top, and on a slow run the profile page is still growing
+  // under the first scroll, which leaves it with nothing to do and the window at 0.
+  await expect
+    .poll(async () => {
+      await authorLink.scrollIntoViewIfNeeded();
+      return page.evaluate(() => window.scrollY);
+    })
+    .toBeGreaterThan(0);
 
   await authorLink.click();
 
