@@ -4,3 +4,12 @@ services:
     restart: unless-stopped
     ports:
       - "3001:80"
+
+  # Deliberately behind a profile: `up` never starts it. The content refresh runs
+  # `docker compose run --rm renderer`, which writes the regenerated documents into ./documents for
+  # the workflow to copy into the running container.
+  renderer:
+    image: powercalc-library-renderer:latest
+    profiles: ["render"]
+    volumes:
+      - ./documents:/documents

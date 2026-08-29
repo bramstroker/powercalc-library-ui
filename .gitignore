@@ -31,3 +31,6 @@ yarn-error.log*
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Written by `docker compose run --rm renderer`
+/documents
