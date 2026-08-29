@@ -148,3 +148,98 @@ test("opens a profile when its row is clicked", async ({ page }) => {
   await expect(page).toHaveURL("/profiles/signify/lca001");
   await expect(page.getByRole("heading", { name: "Signify LCA001" })).toBeVisible();
 });
+
+test("filters on the socket a light takes", async ({ page }) => {
+  await page.goto("/");
+
+  const socket = page.getByTestId("facet-socket");
+  await expect(socket.getByRole("checkbox", { name: /E27/ })).toBeVisible();
+
+  await socket.getByRole("checkbox", { name: /E27/ }).click();
+
+  await expect(page).toHaveURL(/socket=E27/);
+  await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
+  await expect(page.getByRole("gridcell", { name: "S31" })).toBeHidden();
+});
+
+test("offers a checkbox for every facet the filters define", async ({ page }) => {
+  await page.goto("/");
+
+  // A facet missing here is filterable through the URL but invisible in the panel.
+  for (const facet of ["deviceType", "colorMode", "socket", "formFactor", "connectivity"]) {
+    await expect(page.getByTestId(`facet-${facet}`)).toBeVisible();
+  }
+});
+
+test("keeps the filter panel header still when a filter is picked", async ({ page }) => {
+  await page.goto("/");
+
+  const title = page.getByTestId("filter-panel").getByText("Filters", { exact: true });
+  const before = await title.boundingBox();
+
+  await page
+    .getByTestId("facet-deviceType")
+    .getByRole("checkbox", { name: /^light/ })
+    .click();
+  await expect(
+    page.getByTestId("filter-panel").getByRole("button", { name: "Clear all" }),
+  ).toBeVisible();
+
+  // "Clear all" is a hair taller than the icon button beside it, so mounting it on the first
+  // filter used to grow the header and shift the title under the pointer.
+  expect((await title.boundingBox())?.y).toBe(before?.y);
+});
+
+test("collapses the author picker, a slider and the date field too", async ({ page }) => {
+  await page.goto("/");
+
+  for (const [testId, name] of [
+    ["facet-author", /Author/],
+    ["facet-standbyPower", /Standby power/],
+    ["facet-dates", /Added/],
+  ] as const) {
+    const section = page.getByTestId(testId);
+    const header = section.getByRole("button", { name });
+
+    await expect(header).toHaveAttribute("aria-expanded", "true");
+    await header.click();
+    await expect(header).toHaveAttribute("aria-expanded", "false");
+  }
+
+  await expect(page.getByLabel("Search authors")).toBeHidden();
+  await expect(page.getByLabel("Created after")).toBeHidden();
+});
+
+test("folds every section away and back with one control", async ({ page }) => {
+  await page.goto("/");
+
+  const headers = page.getByTestId("filter-panel").getByRole("button", { expanded: true });
+  const openBefore = await headers.count();
+  expect(openBefore).toBeGreaterThan(3);
+
+  await page.getByRole("button", { name: "Collapse all sections" }).click();
+
+  await expect(
+    page.getByTestId("filter-panel").getByRole("button", { expanded: true }),
+  ).toHaveCount(0);
+  await expect(page.getByRole("checkbox")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Expand all sections" }).click();
+
+  await expect(
+    page.getByTestId("filter-panel").getByRole("button", { expanded: true }),
+  ).toHaveCount(openBefore);
+});
+
+test("keeps a collapsed section showing what it is doing", async ({ page }) => {
+  await page.goto("/");
+
+  const deviceType = page.getByTestId("facet-deviceType");
+  await deviceType.getByRole("checkbox", { name: /^light/ }).click();
+  await deviceType.getByRole("button", { name: /Device type/ }).click();
+
+  // The count lives in the header, so a collapsed panel still says a filter is on.
+  const header = deviceType.getByRole("button", { name: /Device type/ });
+  await expect(header).toHaveAttribute("aria-expanded", "false");
+  await expect(header.getByText("1", { exact: true })).toBeVisible();
+});

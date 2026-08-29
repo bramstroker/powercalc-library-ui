@@ -157,8 +157,22 @@ describe("libraryQuery", () => {
     const data = await runQuery();
 
     expect(data.manufacturers).toEqual({
-      signify: { dirName: "signify", fullName: "Signify", aliases: [] },
-      ikea: { dirName: "ikea", fullName: "IKEA", aliases: [] },
+      signify: {
+        dirName: "signify",
+        fullName: "Signify",
+        aliases: [],
+        website: null,
+        country: null,
+        description: null,
+      },
+      ikea: {
+        dirName: "ikea",
+        fullName: "IKEA",
+        aliases: [],
+        website: null,
+        country: null,
+        description: null,
+      },
     });
     expect(Object.keys(data.authors)).toEqual(["bramstroker", "someone"]);
   });

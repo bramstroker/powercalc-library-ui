@@ -1,6 +1,7 @@
 import DevicesOtherIcon from "@mui/icons-material/DevicesOther";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import HomeIcon from "@mui/icons-material/Home";
+import LanguageIcon from "@mui/icons-material/Language";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import SearchIcon from "@mui/icons-material/Search";
 import SortIcon from "@mui/icons-material/Sort";
@@ -19,6 +20,7 @@ import {
 } from "@mui/material";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
+import { ReactCountryFlag } from "react-country-flag";
 import { Link as RouterLink, useSearchParams } from "react-router";
 
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
@@ -32,6 +34,17 @@ import { ManufacturerLogo } from "./ManufacturerLogo";
 import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
 const numberFormat = new Intl.NumberFormat("en-US");
+
+const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+
+/** "NL" reads as a filename; the flag alone is not readable text. Spell the country out. */
+const countryName = (code: string) => {
+  try {
+    return regionNames.of(code) ?? code;
+  } catch {
+    return code;
+  }
+};
 
 type ProfileSort = "popular" | "newest" | "name";
 
@@ -227,6 +240,27 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
               {manufacturer.fullName}
             </Typography>
 
+            {manufacturer.country && (
+              <Stack
+                direction="row"
+                sx={{ mt: 0.5, alignItems: "center", gap: 0.75, color: "text.secondary" }}
+              >
+                <ReactCountryFlag
+                  countryCode={manufacturer.country}
+                  svg
+                  aria-hidden="true"
+                  style={{ fontSize: "1.1em", borderRadius: 2 }}
+                />
+                <Typography variant="body2">{countryName(manufacturer.country)}</Typography>
+              </Stack>
+            )}
+
+            {manufacturer.description && (
+              <Typography variant="body1" color="text.secondary" sx={{ mt: 1, maxWidth: "60ch" }}>
+                {manufacturer.description}
+              </Typography>
+            )}
+
             {manufacturer.aliases.length > 0 && (
               <Typography variant="body2" color="text.secondary" sx={{ wordBreak: "break-word" }}>
                 Also known as: {manufacturer.aliases.join(", ")}
@@ -246,6 +280,19 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
             >
               Browse profiles
             </Button>
+
+            {manufacturer.website && (
+              <Button
+                variant="outlined"
+                startIcon={<LanguageIcon />}
+                href={manufacturer.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ flex: { xs: 1, md: "initial" } }}
+              >
+                Brand website
+              </Button>
+            )}
 
             <Button
               variant="outlined"

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { authorPath, manufacturerPath, profilePath } from "../src/utils/urlSlugs.mjs";
 import { SENSOR_DIMENSIONS } from "../src/config/sensorDimensions.mjs";
 
-export const DEFAULT_LIBRARY_API_URL = "https://api.powercalc.nl/library";
+export const DEFAULT_LIBRARY_API_URL = "https://api.powercalc.nl/library/full";
 const DEFAULT_SITE_URL = "https://library.powercalc.nl";
 
 const escapeXml = (value) =>

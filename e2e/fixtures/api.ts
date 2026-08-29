@@ -10,6 +10,9 @@ export const library = {
       full_name: "Signify",
       dir_name: "signify",
       aliases: ["Philips"],
+      website: "https://www.signify.com",
+      country: "NL",
+      description: "Dutch lighting manufacturer, formerly Philips Lighting.",
       models: [
         {
           id: "LCA001",
@@ -38,6 +41,13 @@ export const library = {
           linked_profile: "ikea/LED1836G9",
           lut_quality: { score: 96.1, brightness: 97.9, color_temp: 96.1 },
           voltage_range: { min: 224.2, max: 229.3 },
+          power_range: { min: 0.72, max: 9 },
+          measurement_updated_at: "2024-05-03T09:11:32Z",
+          standby_power_estimated: true,
+          device_specs: { socket: "E27", form_factor: "bulb", lumens: 806, rated_power: 9.5 },
+          connectivity: ["zigbee"],
+          product_url: "https://www.philips-hue.com/en-us/p/hue-white-and-color-ambiance-a60",
+          ean: ["8719514291218"],
         },
         {
           id: "LCT010",

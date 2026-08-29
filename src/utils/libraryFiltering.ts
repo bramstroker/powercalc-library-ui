@@ -10,6 +10,13 @@ export type FacetCount = {
 };
 
 /**
+ * Supply voltages cluster around two standards, and a profile measured at 232 V and one measured
+ * at 228 V belong in the same bucket. Two options are useful to filter on; seven exact numbers are
+ * not, which is why the library keeps the number and the grouping lives here.
+ */
+export const mainsVoltageBand = (voltage: number): string => (voltage < 160 ? "120 V" : "230 V");
+
+/**
  * The values of a profile that a facet can match on. Multi-valued for `colorMode`, which is an
  * array on the profile, and for `author`, where we accept each author's display name or GitHub
  * username so older `?author=` links keep resolving.
@@ -34,6 +41,14 @@ export const getFacetValues = (profile: PowerProfile, key: FacetKey): string[] =
       return profile.authors
         .flatMap((author) => [author.name, author.githubUsername])
         .filter(Boolean);
+    case "socket":
+      return profile.deviceSpecs?.socket ? [profile.deviceSpecs.socket] : [];
+    case "formFactor":
+      return profile.deviceSpecs?.formFactor ? [profile.deviceSpecs.formFactor] : [];
+    case "connectivity":
+      return profile.connectivity ?? [];
+    case "mainsVoltage":
+      return profile.mainsVoltage ? [mainsVoltageBand(profile.mainsVoltage)] : [];
   }
 };
 
@@ -54,6 +69,8 @@ const getRangeValue = (profile: PowerProfile, key: RangeKey): number | null | un
       return profile.standbyPower;
     case "maxPower":
       return profile.maxPower;
+    case "lumens":
+      return profile.deviceSpecs?.lumens;
     case "installationCount":
       return profile.usageStats?.installationCount;
   }
@@ -83,13 +100,15 @@ const searchHaystack = (profile: PowerProfile): string =>
     ...profile.aliases,
     profile.deviceType,
     ...(profile.colorModes ?? []),
+    ...(profile.ean ?? []),
   ]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
 
 /**
- * Substring match over manufacturer, model id, name, aliases, device type and colour modes. The
+ * Substring match over manufacturer, model id, name, aliases, device type, colour modes and the
+ * barcodes on the box, so somebody holding the packaging can search by the number on it. The
  * term is split on whitespace and every word has to match, though not necessarily in the same
  * field — so "amazon echo" finds the Echo Dot, whose manufacturer and name each hold one word.
  */

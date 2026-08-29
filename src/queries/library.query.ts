@@ -100,6 +100,9 @@ export const libraryQuery = () => ({
         fullName: manufacturerData.full_name,
         dirName: manufacturerData.dir_name,
         aliases: manufacturerData.aliases ?? [],
+        website: manufacturerData.website ?? null,
+        country: manufacturerData.country ?? null,
+        description: manufacturerData.description ?? null,
       };
       manufacturers[manufacturerKey] = manufacturer;
       manufacturersBySlug[manufacturerSlug] = manufacturer;

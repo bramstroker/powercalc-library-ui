@@ -40,6 +40,23 @@ export type VoltageRange = {
   max: number;
 };
 
+/** Lowest and highest power a profile draws, both ends of the same measurements. */
+export type PowerRange = {
+  min: number;
+  max: number;
+};
+
+/**
+ * What the manufacturer claims about the device, as opposed to what was measured. Only lights
+ * are described so far; other device types get their own keys as the library grows them.
+ */
+export type DeviceSpecs = {
+  socket?: string;
+  formFactor?: string;
+  lumens?: number;
+  ratedPower?: number;
+};
+
 export type PowerProfile = {
   manufacturer: Manufacturer;
   modelId: string;
@@ -74,6 +91,19 @@ export type PowerProfile = {
   lutQuality?: LutQuality | null;
   /** Only set for profiles measured with a device that reports voltage. */
   voltageRange?: VoltageRange | null;
+  /** Nominal mains voltage the measurements were taken on, 230 or 120 in practice. */
+  mainsVoltage?: number | null;
+  /** Absent when a strategy only knows the top of the range, e.g. linear without calibration. */
+  powerRange?: PowerRange | null;
+  /** When the measurements themselves last changed, unlike `updatedAt`, which any commit moves. */
+  measurementUpdatedAt?: Date | null;
+  /** The standby figure is an assumed value, not something anybody measured. */
+  standbyPowerEstimated?: boolean;
+  deviceSpecs?: DeviceSpecs | null;
+  connectivity: string[];
+  productUrl?: string | null;
+  /** Barcodes on the packaging. A model often ships under several, one per region. */
+  ean: string[];
   usageStats: UsageStats;
 };
 
@@ -82,6 +112,10 @@ export interface Manufacturer {
   fullName: string;
   /** Other names the brand ships under, e.g. "Leedarson" for Linkind. Often empty. */
   aliases: string[];
+  website?: string | null;
+  /** ISO 3166-1 alpha-2, which is what the flag component expects. */
+  country?: string | null;
+  description?: string | null;
 }
 
 export type SubProfile = {

@@ -13,11 +13,15 @@ export const FACET_KEYS = [
   "manufacturer",
   "measureDevice",
   "author",
+  "socket",
+  "formFactor",
+  "connectivity",
+  "mainsVoltage",
 ] as const;
 
 export type FacetKey = (typeof FACET_KEYS)[number];
 
-export const RANGE_KEYS = ["standbyPower", "maxPower", "installationCount"] as const;
+export const RANGE_KEYS = ["standbyPower", "maxPower", "lumens", "installationCount"] as const;
 
 export type RangeKey = (typeof RANGE_KEYS)[number];
 
@@ -43,17 +47,23 @@ export const FACET_LABELS: Record<FacetKey, string> = {
   manufacturer: "Manufacturer",
   measureDevice: "Measure device",
   author: "Author",
+  socket: "Socket",
+  formFactor: "Form factor",
+  connectivity: "Connectivity",
+  mainsVoltage: "Mains voltage",
 };
 
 export const RANGE_LABELS: Record<RangeKey, string> = {
   standbyPower: "Standby power",
   maxPower: "Max power",
+  lumens: "Light output",
   installationCount: "Installations",
 };
 
 export const RANGE_UNITS: Partial<Record<RangeKey, string>> = {
   standbyPower: "W",
   maxPower: "W",
+  lumens: "lm",
 };
 
 export const createEmptyFilters = (): LibraryFilters => ({
@@ -67,6 +77,10 @@ export const createEmptyFilters = (): LibraryFilters => ({
     manufacturer: [],
     measureDevice: [],
     author: [],
+    socket: [],
+    formFactor: [],
+    connectivity: [],
+    mainsVoltage: [],
   },
   ranges: {},
 });

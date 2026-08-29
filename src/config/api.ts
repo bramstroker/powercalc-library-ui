@@ -5,7 +5,7 @@ const configuredApiUrl =
 export const API_BASE_URL = (configuredApiUrl || "https://api.powercalc.nl").replace(/\/+$/, "");
 
 export const API_ENDPOINTS = {
-  LIBRARY: `${API_BASE_URL}/library`,
+  LIBRARY: `${API_BASE_URL}/library/full`,
   PROFILE: `${API_BASE_URL}/profile`,
   MANUFACTURER: `${API_BASE_URL}/manufacturer`,
   DOWNLOAD: `${API_BASE_URL}/download`,

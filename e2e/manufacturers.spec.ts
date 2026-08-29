@@ -114,3 +114,23 @@ test("links the top manufacturers table to the manufacturer pages", async ({ pag
 
   await expect(page).toHaveURL("/manufacturers/signify");
 });
+
+test("shows the brand details a manufacturer carries", async ({ page }) => {
+  await page.goto("/manufacturers/signify");
+
+  await expect(page.getByText("Netherlands")).toBeVisible();
+  await expect(
+    page.getByText("Dutch lighting manufacturer, formerly Philips Lighting."),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Brand website" })).toHaveAttribute(
+    "href",
+    "https://www.signify.com",
+  );
+});
+
+test("leaves out brand details a manufacturer does not have", async ({ page }) => {
+  await page.goto("/manufacturers/ikea");
+
+  await expect(page.getByRole("heading", { level: 1, name: "IKEA" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Brand website" })).toBeHidden();
+});

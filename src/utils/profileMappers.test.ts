@@ -161,4 +161,77 @@ describe("mapToBasePowerProfile", () => {
 
     expect(profile.voltageRange).toBeNull();
   });
+
+  it("maps the power range", () => {
+    const model = createModel({ power_range: { min: 0.72, max: 8.5 } });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.powerRange).toEqual({ min: 0.72, max: 8.5 });
+  });
+
+  it("maps the device specs a light carries", () => {
+    const model = createModel({
+      device_specs: { socket: "E27", form_factor: "bulb", lumens: 806, rated_power: 9.5 },
+    });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.deviceSpecs).toEqual({
+      socket: "E27",
+      formFactor: "bulb",
+      lumens: 806,
+      ratedPower: 9.5,
+    });
+  });
+
+  it("takes the stated mains voltage over the measured range", () => {
+    const model = createModel({ mains_voltage: 120, voltage_range: { min: 224.2, max: 229.3 } });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.mainsVoltage).toBe(120);
+  });
+
+  it("reads the nominal mains voltage off the measured range", () => {
+    const model = createModel({ voltage_range: { min: 224.2, max: 229.3 } });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.mainsVoltage).toBe(230);
+  });
+
+  it("recognises a profile measured on a 120 V supply", () => {
+    const model = createModel({ voltage_range: { min: 118.1, max: 121.4 } });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.mainsVoltage).toBe(120);
+  });
+
+  it("leaves the mains voltage null when nothing recorded it", () => {
+    const profile = mapToBasePowerProfile(createModel(), manufacturer, usageStats);
+
+    expect(profile.mainsVoltage).toBeNull();
+  });
+
+  it("maps the measurement date separately from the profile update date", () => {
+    const model = createModel({ measurement_updated_at: "2024-05-03T09:11:32Z" });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.measurementUpdatedAt?.toISOString()).toBe("2024-05-03T09:11:32.000Z");
+  });
+
+  it("defaults the metadata a profile does not carry", () => {
+    const profile = mapToBasePowerProfile(createModel(), manufacturer, usageStats);
+
+    expect(profile.powerRange).toBeNull();
+    expect(profile.deviceSpecs).toBeNull();
+    expect(profile.measurementUpdatedAt).toBeNull();
+    expect(profile.standbyPowerEstimated).toBe(false);
+    expect(profile.connectivity).toEqual([]);
+    expect(profile.ean).toEqual([]);
+    expect(profile.productUrl).toBeNull();
+  });
 });
