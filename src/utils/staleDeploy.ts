@@ -3,9 +3,10 @@
  *
  * Asset filenames carry a content hash and `location /assets/` answers a missing file with a 404
  * rather than the SPA shell (see `etc/nginx.conf`). A deploy replaces the whole container, so every
- * hashed file from the previous build disappears at once — and the daily prerender refresh means
- * that happens every night, not only when the code changes. A tab opened before a deploy that
- * navigates after it therefore asks for a chunk that is gone and the dynamic import rejects.
+ * hashed file from the previous build disappears at once. The hourly content refresh does not: it
+ * rewrites documents against the build already running and leaves `/assets` alone. A tab opened
+ * before a deploy that navigates after it therefore asks for a chunk that is gone and the dynamic
+ * import rejects.
  *
  * Reloading fetches the current document, which references the current asset URLs. The cooldown
  * keeps that to one attempt per failure: if the import still fails right after a reload the cause

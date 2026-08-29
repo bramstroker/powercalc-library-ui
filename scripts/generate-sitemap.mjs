@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { authorPath, manufacturerPath, profilePath } from "../src/utils/urlSlugs.mjs";
 import { SENSOR_DIMENSIONS } from "../src/config/sensorDimensions.mjs";
 
-const DEFAULT_API_URL = "https://api.powercalc.nl/library";
+export const DEFAULT_LIBRARY_API_URL = "https://api.powercalc.nl/library";
 const DEFAULT_SITE_URL = "https://library.powercalc.nl";
 
 const escapeXml = (value) =>
@@ -168,7 +168,7 @@ export const renderSitemap = (entries, siteUrl = DEFAULT_SITE_URL) => {
 };
 
 export const generateSitemap = async ({
-  apiUrl = DEFAULT_API_URL,
+  apiUrl = DEFAULT_LIBRARY_API_URL,
   siteUrl = DEFAULT_SITE_URL,
   outputPath = resolve("build/client/sitemap.xml"),
   redirectsOutputPath = resolve("build/nginx-redirects.conf"),

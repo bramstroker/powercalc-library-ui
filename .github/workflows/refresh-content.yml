@@ -1,0 +1,57 @@
+name: Refresh content
+
+# The library and analytics data behind the prerendered pages change through the day, the
+# application does not. This regenerates the documents against the build the server is already
+# running: no image build, no container recreate, and every hashed asset keeps its URL, so open
+# tabs keep working and Cloudflare only has to refetch what actually changed.
+on:
+  workflow_dispatch:
+  schedule:
+    # Every hour, at :17 past.
+    - cron: '17 * * * *'
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Render documents on remote server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }} << 'ENDSSH'
+          set -e
+          cd ${{ secrets.REMOTE_SERVER_PATH }}
+          # Start from empty: a page for an entity that has since left the library would otherwise
+          # survive every later render and keep being copied into the container.
+          rm -rf documents
+          mkdir -p documents
+          # As the calling user, so the next run can clear the directory again. Left to Docker, the
+          # rendered files are owned by root and the `rm` above fails from then on.
+          docker compose -f docker-compose.yml run --rm --user "$(id -u):$(id -g)" renderer
+          docker compose -f docker-compose.yml cp documents/. library_ui:/usr/share/nginx/html/
+          ENDSSH
+
+      - name: Purge cloudflare cache
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          # Deliberately omit PURGE_URLS: every SPA deep link is a separate Cloudflare cache key.
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_KEY: ${{ secrets.CLOUDFLARE_KEY }}
+
+      - name: Setup Node.js for cache warm-up
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Warm prerendered pages in Cloudflare
+        env:
+          WARM_SITE_URL: https://library.powercalc.nl
+          WARM_CONCURRENCY: '12'
+        run: npm run cache:warm

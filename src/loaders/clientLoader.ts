@@ -14,7 +14,7 @@ export const loadPrerenderedOrLive = async <T>(
     return (await args.serverLoader()) as T;
   } catch (error) {
     // A route added to the API after the latest static build has no generated `.data` file yet.
-    // Resolve it directly from the APIs so it already works for users; the next daily build turns
+    // Resolve it directly from the APIs so it already works for users; the next refresh turns
     // it into a normal prerendered page. Preserve every other server-loader failure as a real error.
     if (!isMissingPrerenderData(error)) throw error;
     return loader(args);
