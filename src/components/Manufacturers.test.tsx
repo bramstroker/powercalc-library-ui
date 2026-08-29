@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, useLocation } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { LibraryData } from "../queries/library.query";
@@ -29,12 +29,22 @@ vi.mock("../context/LibraryContext", () => ({
   useLibrary: () => libraryData,
 }));
 
-const renderPage = () =>
-  render(
-    <MemoryRouter>
+let currentSearch = "";
+
+const LocationProbe = () => {
+  currentSearch = useLocation().search;
+  return null;
+};
+
+const renderPage = (initialEntry = "/manufacturers") => {
+  currentSearch = "";
+  return render(
+    <MemoryRouter initialEntries={[initialEntry]}>
       <Manufacturers />
+      <LocationProbe />
     </MemoryRouter>,
   );
+};
 
 const search = (text: string) => {
   fireEvent.change(screen.getByPlaceholderText("Search manufacturers"), {
@@ -97,6 +107,27 @@ describe("Manufacturers", () => {
 
     expect(screen.getByText('No manufacturers match "nope"')).toBeInTheDocument();
     expect(screen.queryByTestId("manufacturer-list")).not.toBeInTheDocument();
+  });
+
+  it("keeps the search and sort in the URL", () => {
+    renderPage();
+
+    search("ikea");
+    expect(currentSearch).toContain("q=ikea");
+
+    fireEvent.click(screen.getByRole("button", { name: "Name" }));
+    expect(currentSearch).toContain("sort=name");
+  });
+
+  it("restores a list rendered from URL state", () => {
+    renderPage("/manufacturers?sort=name");
+
+    expect(screen.getByRole("button", { name: "Name" })).toHaveAttribute("aria-pressed", "true");
+    expect(cardNames()).toEqual([
+      expect.stringContaining("IKEA"),
+      expect.stringContaining("Linkind"),
+      expect.stringContaining("Signify"),
+    ]);
   });
 
   it("links each card to the manufacturer page", () => {

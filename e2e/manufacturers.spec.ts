@@ -47,6 +47,24 @@ test("filters the manufacturer index and sorts it by name", async ({ page }) => 
   await expect(cards.last()).toContainText("Sonoff");
 });
 
+test("keeps the sorting when returning from a manufacturer page", async ({ page }) => {
+  await page.goto("/manufacturers");
+
+  await page.getByRole("button", { name: "Name" }).click();
+  await expect(page).toHaveURL("/manufacturers?sort=name");
+
+  await page.getByRole("link", { name: /Signify/ }).click();
+  await expect(page).toHaveURL("/manufacturers/signify");
+
+  await page.goBack();
+
+  await expect(page).toHaveURL("/manufacturers?sort=name");
+  await expect(page.getByRole("button", { name: "Name" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("manufacturer-list").getByRole("link").first()).toContainText(
+    "IKEA",
+  );
+});
+
 test("shows only that manufacturer's profiles on its page", async ({ page }) => {
   await page.goto("/manufacturers/signify");
 
