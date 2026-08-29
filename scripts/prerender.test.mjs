@@ -32,19 +32,11 @@ const recordingHandler = (respond) => {
 };
 
 describe("collectPrerenderPaths", () => {
-  it("renders only parameterless routes without the all mode", () => {
-    const paths = collectPrerenderPaths(library, undefined);
+  it("covers the parameterless routes and every library entity", () => {
+    const paths = collectPrerenderPaths(library);
 
     assert.ok(paths.includes("/"));
-    assert.ok(paths.includes("/manufacturers"));
     assert.ok(paths.includes("/statistics/top-contributors"));
-    assert.ok(!paths.some((path) => path.startsWith("/profiles/")));
-    assert.ok(!paths.includes("/manufacturers/signify"));
-  });
-
-  it("adds every library entity in the all mode", () => {
-    const paths = collectPrerenderPaths(library, "all");
-
     assert.ok(paths.includes("/profiles/signify/lct010"));
     assert.ok(paths.includes("/manufacturers/signify"));
     assert.ok(paths.includes("/contributors/bramstroker"));
@@ -52,10 +44,9 @@ describe("collectPrerenderPaths", () => {
   });
 
   it("decodes escaped slugs, because that is the form the router matches against", () => {
-    const paths = collectPrerenderPaths(
-      { manufacturers: [{ dir_name: "signify", models: [{ id: "日本" }] }] },
-      "all",
-    );
+    const paths = collectPrerenderPaths({
+      manufacturers: [{ dir_name: "signify", models: [{ id: "日本" }] }],
+    });
 
     assert.ok(paths.includes("/profiles/signify/日本"));
   });

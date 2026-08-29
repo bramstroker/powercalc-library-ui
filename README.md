@@ -55,12 +55,11 @@ again against a build that already exists, writing HTML, `.data` and the SPA fal
 touching `/assets`:
 
 ```sh
-PRERENDER_MODE=all npm run prerender -- --out build/client
+npm run prerender -- --out build/client
 ```
 
-- `PRERENDER_MODE=all` covers every library entity; leaving it unset renders only the routes that
-  take no parameters, which is the cheap way to pick up new analytics data.
-- `--out` defaults to `build/client`, `--server` to `build/server/index.js`.
+It renders the same set of paths the build does — the routes that take no parameters plus one page
+per library entity. `--out` defaults to `build/client`, `--server` to `build/server/index.js`.
 
 In production this runs as the `renderer` image built from the same commit as the serving container
 (`docker compose run --rm renderer`), so a content refresh needs no image build, no container

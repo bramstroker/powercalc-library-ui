@@ -36,14 +36,12 @@ const { createRequestHandler, matchRoutes } = await import("react-router");
 const PRERENDER_DATA_HEADER_LIMIT = 8 * 1024;
 
 /**
- * Which documents to render. `all` covers every entity in the library and is what production
- * builds and the hourly refresh use; anything else renders the routes that take no parameters,
- * which keeps a local build from fetching and rendering thousands of pages.
+ * Every document the site serves: the routes that take no parameters plus one page per library
+ * entity. This is the same list `react-router.config.ts` hands the build, so a refresh replaces
+ * exactly the set of documents a build would have produced.
  */
-export const collectPrerenderPaths = (library, mode) =>
-  collectSitemapEntries(mode === "all" ? library : { manufacturers: [] }).map(({ path }) =>
-    decodeURI(path),
-  );
+export const collectPrerenderPaths = (library) =>
+  collectSitemapEntries(library).map(({ path }) => decodeURI(path));
 
 /** Rebuilds the route tree `matchRoutes` needs from the flat route table the server build exports. */
 export const buildRouteTree = (routes, parentId = "") =>
@@ -127,10 +125,6 @@ const fetchLibrary = async (apiUrl) => {
   return response.json();
 };
 
-/** Only the `all` mode needs the library; the parameterless routes are known without it. */
-const loadLibrary = async (mode, apiUrl) =>
-  mode === "all" ? fetchLibrary(apiUrl) : { manufacturers: [] };
-
 /**
  * React Router honours `X-React-Router-Prerender-Data` and `X-React-Router-SPA-Mode` only while
  * this is set, so that a deployed server cannot be steered by client-supplied headers. Without it
@@ -151,14 +145,13 @@ const withBuildRequests = async (run) => {
 export const prerender = async ({
   serverBuild,
   outDir,
-  mode,
   apiUrl = DEFAULT_LIBRARY_API_URL,
   onFile,
 }) =>
   withBuildRequests(async () => {
     const handler = createRequestHandler(serverBuild, "production");
     const routeTree = buildRouteTree(serverBuild.routes);
-    const paths = collectPrerenderPaths(await loadLibrary(mode, apiUrl), mode);
+    const paths = collectPrerenderPaths(await fetchLibrary(apiUrl));
 
     // Serial by design. The application query client is process-wide during static rendering, so
     // concurrent renders would observe and mutate each other's Suspense state — the same reason
@@ -192,12 +185,10 @@ if (isMainModule) {
   const args = parseArgs(process.argv.slice(2));
   const outDir = resolve(args.get("out") ?? "build/client");
   const serverPath = resolve(args.get("server") ?? "build/server/index.js");
-  const mode = args.get("mode") ?? process.env.PRERENDER_MODE;
 
   const count = await prerender({
     serverBuild: await import(pathToFileURL(serverPath).href),
     outDir,
-    mode,
     apiUrl: process.env.LIBRARY_API_URL ?? DEFAULT_LIBRARY_API_URL,
     onFile: (outputPath) => console.log(`Prerendered ${outputPath}`),
   });
