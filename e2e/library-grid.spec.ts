@@ -148,3 +148,25 @@ test("opens a profile when its row is clicked", async ({ page }) => {
   await expect(page).toHaveURL("/profiles/signify/lca001");
   await expect(page.getByRole("heading", { name: "Signify LCA001" })).toBeVisible();
 });
+
+test("filters on the socket a light takes", async ({ page }) => {
+  await page.goto("/");
+
+  const socket = page.getByTestId("facet-socket");
+  await expect(socket.getByRole("checkbox", { name: /E27/ })).toBeVisible();
+
+  await socket.getByRole("checkbox", { name: /E27/ }).click();
+
+  await expect(page).toHaveURL(/socket=E27/);
+  await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
+  await expect(page.getByRole("gridcell", { name: "S31" })).toBeHidden();
+});
+
+test("offers a checkbox for every facet the filters define", async ({ page }) => {
+  await page.goto("/");
+
+  // A facet missing here is filterable through the URL but invisible in the panel.
+  for (const facet of ["deviceType", "colorMode", "socket", "formFactor", "connectivity"]) {
+    await expect(page.getByTestId(`facet-${facet}`)).toBeVisible();
+  }
+});

@@ -40,15 +40,30 @@ const panelSurface = (theme: Theme) => ({
 });
 
 /** Checkbox facets, in the order they appear in the panel. `searchable` gates the type-to-filter box. */
-const CHECKBOX_FACETS: { key: FacetKey; searchable: boolean }[] = [
-  { key: "deviceType", searchable: false },
-  { key: "colorMode", searchable: false },
-  { key: "qualityBand", searchable: false },
-  { key: "calculationStrategy", searchable: false },
-  { key: "measureMethod", searchable: false },
-  { key: "manufacturer", searchable: true },
-  { key: "measureDevice", searchable: true },
-];
+/**
+ * Every facet except `author`, which has a component of its own. Typed as a complete record so
+ * that adding a facet without giving it a checkbox is a compile error rather than a filter that
+ * works through the URL but appears nowhere in the panel. Declaration order is panel order:
+ * what the device is, then how it was measured, then who by.
+ */
+const CHECKBOX_FACET_CONFIG: Record<Exclude<FacetKey, "author">, { searchable: boolean }> = {
+  deviceType: { searchable: false },
+  colorMode: { searchable: false },
+  socket: { searchable: false },
+  formFactor: { searchable: false },
+  connectivity: { searchable: false },
+  qualityBand: { searchable: false },
+  calculationStrategy: { searchable: false },
+  measureMethod: { searchable: false },
+  mainsVoltage: { searchable: false },
+  manufacturer: { searchable: true },
+  measureDevice: { searchable: true },
+};
+
+const CHECKBOX_FACETS = Object.entries(CHECKBOX_FACET_CONFIG).map(([key, { searchable }]) => ({
+  key: key as Exclude<FacetKey, "author">,
+  searchable,
+}));
 
 const SectionHeading = ({
   icon: Icon,
