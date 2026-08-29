@@ -1,8 +1,10 @@
 import type { SvgIconComponent } from "@mui/icons-material";
-import { Box, Button, Slider, Stack, Typography } from "@mui/material";
+import { Box, Button, Slider, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import type { Range } from "../../types/LibraryFilters";
+
+import { FacetSection } from "./FacetSection";
 
 export type RangeFacetProps = {
   title: string;
@@ -12,6 +14,8 @@ export type RangeFacetProps = {
   bounds: Range;
   value: Range | undefined;
   onChange: (range: Range | undefined) => void;
+  expanded: boolean;
+  onToggleExpanded: () => void;
   testId?: string;
 };
 
@@ -26,6 +30,8 @@ export const RangeFacet = ({
   bounds,
   value,
   onChange,
+  expanded,
+  onToggleExpanded,
   testId,
 }: RangeFacetProps) => {
   const [draft, setDraft] = useState<Range>(value ?? bounds);
@@ -38,18 +44,19 @@ export const RangeFacet = ({
   const suffix = unit ? ` ${unit}` : "";
 
   return (
-    <Box data-testid={testId} sx={{ pb: 1, mb: 1, borderBottom: 1, borderColor: "divider" }}>
-      <Stack direction="row" sx={{ alignItems: "center", gap: 1, py: 0.75 }}>
-        <Icon fontSize="small" sx={{ color: "text.secondary" }} />
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1 }}>
-          {title}
-        </Typography>
+    <FacetSection
+      title={title}
+      icon={Icon}
+      expanded={expanded}
+      onToggleExpanded={onToggleExpanded}
+      testId={testId}
+      summary={
         <Typography variant="caption" color="text.secondary">
           {draft[0]} – {draft[1]}
           {suffix}
         </Typography>
-      </Stack>
-
+      }
+    >
       {/* Inset so the thumbs at either end sit inside the panel rather than on its edges. */}
       <Box sx={{ px: 1.5 }}>
         <Slider
@@ -82,6 +89,6 @@ export const RangeFacet = ({
           Clear
         </Button>
       )}
-    </Box>
+    </FacetSection>
   );
 };

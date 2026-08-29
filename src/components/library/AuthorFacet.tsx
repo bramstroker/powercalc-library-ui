@@ -1,15 +1,9 @@
 import PersonIcon from "@mui/icons-material/Person";
-import {
-  Autocomplete,
-  Box,
-  Chip,
-  Stack,
-  TextField,
-  Typography,
-  createFilterOptions,
-} from "@mui/material";
+import { Autocomplete, Box, Chip, TextField, Typography, createFilterOptions } from "@mui/material";
 
 import type { FacetCount } from "../../utils/libraryFiltering";
+
+import { FacetSection } from "./FacetSection";
 
 export type AuthorOption = FacetCount & {
   githubUsername: string;
@@ -24,25 +18,35 @@ export type AuthorFacetProps = {
   options: AuthorOption[];
   selected: string[];
   onChange: (values: string[]) => void;
+  expanded: boolean;
+  onToggleExpanded: () => void;
 };
 
-export const AuthorFacet = ({ options, selected, onChange }: AuthorFacetProps) => {
+export const AuthorFacet = ({
+  options,
+  selected,
+  onChange,
+  expanded,
+  onToggleExpanded,
+}: AuthorFacetProps) => {
   const selectedOptions = selected.map(
     (value) =>
       options.find((option) => option.value === value) ?? { value, count: 0, githubUsername: "" },
   );
 
   return (
-    <Box data-testid="facet-author" sx={{ pb: 1, mb: 1, borderBottom: 1, borderColor: "divider" }}>
-      <Stack direction="row" sx={{ alignItems: "center", gap: 1, py: 0.75 }}>
-        <PersonIcon fontSize="small" sx={{ color: "text.secondary" }} />
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1 }}>
-          Author
-        </Typography>
-        {selected.length > 0 && (
+    <FacetSection
+      title="Author"
+      icon={PersonIcon}
+      expanded={expanded}
+      onToggleExpanded={onToggleExpanded}
+      testId="facet-author"
+      summary={
+        selected.length > 0 ? (
           <Chip size="small" color="primary" label={selected.length} sx={{ height: 18 }} />
-        )}
-      </Stack>
+        ) : undefined
+      }
+    >
       <Autocomplete
         multiple
         size="small"
@@ -78,6 +82,6 @@ export const AuthorFacet = ({ options, selected, onChange }: AuthorFacetProps) =
           );
         }}
       />
-    </Box>
+    </FacetSection>
   );
 };
