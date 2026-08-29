@@ -62,7 +62,8 @@ export interface LibraryModel {
   standby_power_estimated?: boolean;
   /** What the box claims about the device. Keys depend on `device_type`; lights so far. */
   device_specs?: {
-    socket?: string;
+    /** A profile can fit multiple regional equivalents, such as E26 and E27. */
+    socket?: string | string[];
     form_factor?: string;
     lumens?: number;
     rated_power?: number;

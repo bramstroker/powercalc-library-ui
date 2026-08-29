@@ -42,7 +42,7 @@ export const getFacetValues = (profile: PowerProfile, key: FacetKey): string[] =
         .flatMap((author) => [author.name, author.githubUsername])
         .filter(Boolean);
     case "socket":
-      return profile.deviceSpecs?.socket ? [profile.deviceSpecs.socket] : [];
+      return profile.deviceSpecs?.socket ?? [];
     case "formFactor":
       return profile.deviceSpecs?.formFactor ? [profile.deviceSpecs.formFactor] : [];
     case "connectivity":

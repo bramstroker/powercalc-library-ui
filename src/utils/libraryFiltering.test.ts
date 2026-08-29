@@ -310,13 +310,13 @@ describe("computeRanges", () => {
 describe("device metadata facets", () => {
   const bulb = createProfile({
     modelId: "LCA001",
-    deviceSpecs: { socket: "E27", formFactor: "bulb", lumens: 806 },
+    deviceSpecs: { socket: ["E26", "E27"], formFactor: "bulb", lumens: 806 },
     connectivity: ["zigbee"],
     mainsVoltage: 230,
   });
   const spot = createProfile({
     modelId: "GU10",
-    deviceSpecs: { socket: "GU10", formFactor: "spot", lumens: 350 },
+    deviceSpecs: { socket: ["GU10"], formFactor: "spot", lumens: 350 },
     connectivity: ["wifi", "bluetooth"],
     mainsVoltage: 120,
   });
@@ -330,6 +330,13 @@ describe("device metadata facets", () => {
 
     expect(applyFilters([bulb, spot, plug], filters).map((profile) => profile.modelId)).toEqual([
       "LCA001",
+    ]);
+  });
+
+  it("counts every socket a profile fits", () => {
+    expect(computeFacetCounts([bulb], "socket")).toEqual([
+      { value: "E26", count: 1 },
+      { value: "E27", count: 1 },
     ]);
   });
 
@@ -357,7 +364,7 @@ describe("device metadata facets", () => {
   it("leaves a profile without device specs out of those facets", () => {
     const counts = computeFacetCounts([bulb, spot, plug], "socket");
 
-    expect(counts.reduce((total, option) => total + option.count, 0)).toBe(2);
+    expect(counts.reduce((total, option) => total + option.count, 0)).toBe(3);
   });
 
   it("filters on brightness", () => {

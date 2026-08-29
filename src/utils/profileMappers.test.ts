@@ -178,11 +178,21 @@ describe("mapToBasePowerProfile", () => {
     const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
 
     expect(profile.deviceSpecs).toEqual({
-      socket: "E27",
+      socket: ["E27"],
       formFactor: "bulb",
       lumens: 806,
       ratedPower: 9.5,
     });
+  });
+
+  it("maps every socket when a profile fits multiple regional equivalents", () => {
+    const model = createModel({
+      device_specs: { socket: ["E26", "E27"], form_factor: "bulb" },
+    });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.deviceSpecs?.socket).toEqual(["E26", "E27"]);
   });
 
   it("takes the stated mains voltage over the measured range", () => {
