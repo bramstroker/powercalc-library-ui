@@ -5,6 +5,7 @@ import {
   buildRouteTree,
   collectPrerenderPaths,
   dataPath,
+  refreshPrerenderAllowlist,
   renderPath,
   renderSpaFallback,
 } from "./prerender.mjs";
@@ -49,6 +50,24 @@ describe("collectPrerenderPaths", () => {
     });
 
     assert.ok(paths.includes("/profiles/signify/日本"));
+  });
+});
+
+describe("refreshPrerenderAllowlist", () => {
+  it("replaces stale build paths while preserving the exported array", () => {
+    const prerender = ["/", "/profiles/old/model"];
+    const serverBuild = { prerender };
+
+    refreshPrerenderAllowlist(serverBuild, ["/", "/profiles/new/model"]);
+
+    assert.equal(serverBuild.prerender, prerender);
+    assert.deepEqual(prerender, ["/", "/profiles/new/model"]);
+  });
+
+  it("requires the server build to export a prerender path array", () => {
+    assert.throws(() => refreshPrerenderAllowlist({}, ["/"]), {
+      message: /does not export a prerender path array/u,
+    });
   });
 });
 

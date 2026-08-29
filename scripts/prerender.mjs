@@ -43,6 +43,20 @@ const PRERENDER_DATA_HEADER_LIMIT = 8 * 1024;
 export const collectPrerenderPaths = (library) =>
   collectSitemapEntries(library).map(({ path }) => decodeURI(path));
 
+/**
+ * Lets an existing `ssr:false` server build render entities added after the image was built.
+ *
+ * React Router rejects build requests whose path is absent from `serverBuild.prerender`. The
+ * module namespace itself is immutable, so retain the exported array and replace its contents.
+ */
+export const refreshPrerenderAllowlist = (serverBuild, paths) => {
+  if (!Array.isArray(serverBuild.prerender)) {
+    throw new Error("Prerender: the server build does not export a prerender path array");
+  }
+
+  serverBuild.prerender.splice(0, serverBuild.prerender.length, ...paths);
+};
+
 /** Rebuilds the route tree `matchRoutes` needs from the flat route table the server build exports. */
 export const buildRouteTree = (routes, parentId = "") =>
   Object.values(routes)
@@ -149,9 +163,11 @@ export const prerender = async ({
   onFile,
 }) =>
   withBuildRequests(async () => {
+    const paths = collectPrerenderPaths(await fetchLibrary(apiUrl));
+    refreshPrerenderAllowlist(serverBuild, paths);
+
     const handler = createRequestHandler(serverBuild, "production");
     const routeTree = buildRouteTree(serverBuild.routes);
-    const paths = collectPrerenderPaths(await fetchLibrary(apiUrl));
 
     // Serial by design. The application query client is process-wide during static rendering, so
     // concurrent renders would observe and mutate each other's Suspense state — the same reason
