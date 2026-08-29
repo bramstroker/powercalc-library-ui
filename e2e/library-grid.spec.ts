@@ -149,10 +149,11 @@ test("opens a profile when its row is clicked", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Signify LCA001" })).toBeVisible();
 });
 
-test("filters on the socket a light takes", async ({ page }) => {
+test("filters on any socket a light takes", async ({ page }) => {
   await page.goto("/");
 
   const socket = page.getByTestId("facet-socket");
+  await expect(socket.getByRole("checkbox", { name: /E26/ })).toBeVisible();
   await expect(socket.getByRole("checkbox", { name: /E27/ })).toBeVisible();
 
   await socket.getByRole("checkbox", { name: /E27/ }).click();

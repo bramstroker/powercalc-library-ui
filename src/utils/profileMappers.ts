@@ -17,7 +17,11 @@ const mapLutQuality = (quality: LibraryModel["lut_quality"]): LutQuality | null 
 const mapDeviceSpecs = (specs: LibraryModel["device_specs"]): DeviceSpecs | null =>
   specs
     ? {
-        socket: specs.socket,
+        socket: specs.socket
+          ? Array.isArray(specs.socket)
+            ? specs.socket
+            : [specs.socket]
+          : undefined,
         formFactor: specs.form_factor,
         lumens: specs.lumens,
         ratedPower: specs.rated_power,

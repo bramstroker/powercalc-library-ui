@@ -51,7 +51,7 @@ export type PowerRange = {
  * are described so far; other device types get their own keys as the library grows them.
  */
 export type DeviceSpecs = {
-  socket?: string;
+  socket?: string[];
   formFactor?: string;
   lumens?: number;
   ratedPower?: number;
