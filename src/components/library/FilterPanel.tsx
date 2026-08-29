@@ -145,11 +145,17 @@ export const FilterPanel = ({
         <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 700, flexGrow: 1 }}>
           Filters
         </Typography>
-        {activeCount > 0 && (
-          <Button size="small" onClick={clearAll}>
-            Clear all
-          </Button>
-        )}
+        <Button
+          size="small"
+          onClick={clearAll}
+          // Laid out even with nothing to clear. It is a hair taller than the icon button
+          // beside it, so letting it mount on the first tick of a filter grew the header and
+          // nudged "Filters" down by a pixel, right under the pointer that had just clicked.
+          // Hidden this way it also stays out of the tab order and off the accessibility tree.
+          sx={{ visibility: activeCount > 0 ? "visible" : "hidden" }}
+        >
+          Clear all
+        </Button>
         {onCollapse && (
           <Tooltip title="Hide filters">
             <IconButton size="small" aria-label="Hide filters" onClick={onCollapse}>

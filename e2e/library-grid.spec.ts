@@ -170,3 +170,22 @@ test("offers a checkbox for every facet the filters define", async ({ page }) =>
     await expect(page.getByTestId(`facet-${facet}`)).toBeVisible();
   }
 });
+
+test("keeps the filter panel header still when a filter is picked", async ({ page }) => {
+  await page.goto("/");
+
+  const title = page.getByTestId("filter-panel").getByText("Filters", { exact: true });
+  const before = await title.boundingBox();
+
+  await page
+    .getByTestId("facet-deviceType")
+    .getByRole("checkbox", { name: /^light/ })
+    .click();
+  await expect(
+    page.getByTestId("filter-panel").getByRole("button", { name: "Clear all" }),
+  ).toBeVisible();
+
+  // "Clear all" is a hair taller than the icon button beside it, so mounting it on the first
+  // filter used to grow the header and shift the title under the pointer.
+  expect((await title.boundingBox())?.y).toBe(before?.y);
+});
