@@ -49,9 +49,10 @@ generates `sitemap.xml` plus legacy Nginx redirect mappings in `build/`. Useful 
 
 ## Refreshing content without rebuilding
 
-The pages are prerendered from library and analytics data that changes daily, while the application
-itself changes only when the code does. `npm run prerender` renders the documents again against a
-build that already exists, writing HTML, `.data` and the SPA fallback without touching `/assets`:
+The pages are prerendered from library and analytics data that changes through the day, while
+the application itself changes only when the code does. `npm run prerender` renders the documents
+again against a build that already exists, writing HTML, `.data` and the SPA fallback without
+touching `/assets`:
 
 ```sh
 PRERENDER_MODE=all npm run prerender -- --out build/client
@@ -64,7 +65,7 @@ PRERENDER_MODE=all npm run prerender -- --out build/client
 In production this runs as the `renderer` image built from the same commit as the serving container
 (`docker compose run --rm renderer`), so a content refresh needs no image build, no container
 recreate, and leaves every content-hashed asset URL — and the tabs holding them open — intact. The
-`Refresh content` workflow does this nightly.
+`Refresh content` workflow does this hourly.
 
 Brand icons and the social sharing card are generated from `public/favicon.svg`:
 

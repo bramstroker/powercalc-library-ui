@@ -33,7 +33,7 @@ export default {
    * The list has to name every path, including each library entity: with `ssr: false`, React Router
    * rejects a `loader` export on any route the build does not prerender. Trimming it to speed up a
    * local build is therefore not an option — `scripts/prerender.mjs` renders the same documents
-   * against a finished build instead, which is what the nightly content refresh runs.
+   * against a finished build instead, which is what the hourly content refresh runs.
    */
   prerender: {
     paths: fetchPrerenderPaths,

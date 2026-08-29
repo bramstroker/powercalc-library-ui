@@ -1,14 +1,14 @@
 name: Refresh content
 
-# The library and analytics data behind the prerendered pages change daily, the application does
-# not. This regenerates the documents against the build the server is already running: no image
-# build, no container recreate, and every hashed asset keeps its URL, so open tabs keep working and
-# Cloudflare only has to refetch what actually changed.
+# The library and analytics data behind the prerendered pages change through the day, the
+# application does not. This regenerates the documents against the build the server is already
+# running: no image build, no container recreate, and every hashed asset keeps its URL, so open
+# tabs keep working and Cloudflare only has to refetch what actually changed.
 on:
   workflow_dispatch:
   schedule:
-    # Once a day (04:17 CEST / 03:17 CET).
-    - cron: '17 2 * * *'
+    # Every hour, at :17 past.
+    - cron: '17 * * * *'
 
 jobs:
   refresh:

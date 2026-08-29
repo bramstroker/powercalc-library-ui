@@ -3,7 +3,7 @@
  *
  * `react-router build` normally does this as part of the build, which ties a content refresh to a
  * full rebuild: new asset hashes, a new image, and a container swap, for pages whose only change is
- * data fetched from the API. Driving the server build directly separates the two, so the nightly
+ * data fetched from the API. Driving the server build directly separates the two, so the hourly
  * refresh rewrites documents while the running container keeps serving the same `/assets`.
  *
  * The request shapes below mirror `@react-router/dev`'s own prerender step, because the documents
@@ -37,7 +37,7 @@ const PRERENDER_DATA_HEADER_LIMIT = 8 * 1024;
 
 /**
  * Which documents to render. `all` covers every entity in the library and is what production
- * builds and the nightly refresh use; anything else renders the routes that take no parameters,
+ * builds and the hourly refresh use; anything else renders the routes that take no parameters,
  * which keeps a local build from fetching and rendering thousands of pages.
  */
 export const collectPrerenderPaths = (library, mode) =>
