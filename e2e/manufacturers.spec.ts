@@ -24,7 +24,7 @@ test("browses from the Explore menu to a manufacturer and into a profile", async
   await expect(page).toHaveURL("/manufacturers/signify");
   await expect(page.getByRole("heading", { level: 1, name: "Signify" })).toBeVisible();
   await expect(page.getByText("Also known as: Philips")).toBeVisible();
-  await expect(page.getByText("2 profiles")).toBeVisible();
+  await expect(page.getByText("2 profiles across 1 device type")).toBeVisible();
 
   await page.getByRole("link", { name: /LCA001/ }).click();
 
@@ -77,6 +77,26 @@ test("shows only that manufacturer's profiles on its page", async ({ page }) => 
   await expect(page).toHaveURL("/?manufacturer=Signify");
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
   await expect(page.getByRole("gridcell", { name: "LED1836G9" })).toBeHidden();
+});
+
+test("keeps the profile sort of a manufacturer page in the URL", async ({ page }) => {
+  await page.goto("/manufacturers/signify");
+
+  const models = page.getByTestId("manufacturer-profile-list").getByRole("heading", { level: 3 });
+  await expect(models).toHaveText(["LCA001", "LCT010"]);
+
+  await page.getByRole("button", { name: "Name" }).click();
+
+  await expect(page).toHaveURL("/manufacturers/signify?sort=name");
+  await expect(models).toHaveText(["LCT010", "LCA001"]);
+
+  await page.getByRole("link", { name: /LCT010/ }).click();
+  await expect(page).toHaveURL("/profiles/signify/lct010");
+
+  await page.goBack();
+
+  await expect(page).toHaveURL("/manufacturers/signify?sort=name");
+  await expect(page.getByRole("button", { name: "Name" })).toHaveAttribute("aria-pressed", "true");
 });
 
 test("links from a profile heading back to its manufacturer", async ({ page }) => {

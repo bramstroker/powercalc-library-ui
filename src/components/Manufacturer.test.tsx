@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -18,25 +18,36 @@ const signify: ManufacturerType = {
   aliases: [],
 };
 
-const profile = (manufacturer: ManufacturerType, modelId: string, deviceType: string) =>
+const profile = (
+  manufacturer: ManufacturerType,
+  modelId: string,
+  deviceType: string,
+  { installationCount = 7, createdAt = "2024-01-01T00:00:00Z" } = {},
+) =>
   ({
     manufacturer,
     modelId,
     deviceType,
     name: `${modelId} display name`,
-    createdAt: new Date("2024-01-01T00:00:00Z"),
+    aliases: [] as string[],
+    createdAt: new Date(createdAt),
     calculationStrategy: CalculationStrategy.FIXED,
     standbyPower: 0.5,
     maxPower: null,
-    usageStats: { installationCount: 7, deviceCount: 7, percentage: 1 },
+    usageStats: { installationCount, deviceCount: installationCount, percentage: 1 },
   }) as PowerProfile;
 
 const profiles = [
-  profile(linkind, "ZS1100400", "smart_switch"),
-  profile(linkind, "BR30", "light"),
-  profile(linkind, "A19", "light"),
+  profile(linkind, "ZS1100400", "smart_switch", { installationCount: 7 }),
+  profile(linkind, "BR30", "light", { installationCount: 30, createdAt: "2023-01-01T00:00:00Z" }),
+  profile(linkind, "A19", "light", { installationCount: 12, createdAt: "2025-06-01T00:00:00Z" }),
   profile(signify, "LCA001", "light"),
 ];
+
+const profileNames = () =>
+  within(screen.getByTestId("manufacturer-profile-list"))
+    .getAllByRole("heading", { level: 3 })
+    .map((heading) => heading.textContent);
 
 const renderPage = (dirName: string) =>
   render(
@@ -66,7 +77,7 @@ describe("Manufacturer", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Linkind" })).toBeInTheDocument();
     expect(screen.getByText("Also known as: lk, Leedarson")).toBeInTheDocument();
     expect(screen.getByLabelText("3 profiles")).toBeInTheDocument();
-    expect(screen.getByLabelText("21 known installs")).toBeInTheDocument();
+    expect(screen.getByLabelText("49 known installs")).toBeInTheDocument();
     expect(screen.getByLabelText("2 device types")).toBeInTheDocument();
   });
 
@@ -75,16 +86,45 @@ describe("Manufacturer", () => {
 
     expect(screen.queryByText(/Also known as/)).not.toBeInTheDocument();
     expect(screen.getByLabelText("1 profile")).toBeInTheDocument();
-    expect(screen.getByText("1 profile")).toBeInTheDocument();
+    expect(screen.getByText("1 profile across 1 device type")).toBeInTheDocument();
   });
 
-  it("groups profiles by device type, largest group first", () => {
+  it("sorts profiles by installations first, and re-sorts on demand", () => {
     renderPage("linkind");
 
-    expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
-      "light",
-      "smart_switch",
-    ]);
+    expect(profileNames()).toEqual(["BR30", "A19", "ZS1100400"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Newest" }));
+    expect(profileNames()).toEqual(["A19", "ZS1100400", "BR30"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Name" }));
+    expect(profileNames()).toEqual(["A19", "BR30", "ZS1100400"]);
+  });
+
+  it("filters the profiles by device type, and clears the filter on a second click", () => {
+    renderPage("linkind");
+
+    const filter = screen.getByTestId("manufacturer-device-type-filter");
+    expect(
+      within(filter)
+        .getAllByRole("button")
+        .map((chip) => chip.textContent),
+    ).toEqual(["All (3)", "Light (2)", "Smart Switch (1)"]);
+
+    fireEvent.click(within(filter).getByRole("button", { name: "Light (2)" }));
+
+    expect(profileNames()).toEqual(["BR30", "A19"]);
+    expect(screen.getByText("Showing 2 of 3 profiles")).toBeInTheDocument();
+
+    fireEvent.click(within(filter).getByRole("button", { name: "Light (2)" }));
+
+    expect(profileNames()).toHaveLength(3);
+  });
+
+  it("omits the device type filter for a manufacturer with a single device type", () => {
+    renderPage("signify");
+
+    expect(screen.queryByTestId("manufacturer-device-type-filter")).not.toBeInTheDocument();
   });
 
   it("lists only that manufacturer's profiles, linking each to its profile page", () => {
@@ -102,8 +142,8 @@ describe("Manufacturer", () => {
 
     expect(screen.getAllByText("Fixed")).toHaveLength(3);
     expect(screen.getAllByText("0.5 W standby")).toHaveLength(3);
-    expect(screen.getAllByText("7 installs")).toHaveLength(3);
-    expect(screen.getByTestId("manufacturer-profile-list-light")).toBeInTheDocument();
+    expect(screen.getByText("30 installs")).toBeInTheDocument();
+    expect(screen.getByTestId("manufacturer-profile-list")).toBeInTheDocument();
   });
 
   it("links to the filtered library grid by full name", () => {

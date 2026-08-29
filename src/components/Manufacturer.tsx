@@ -2,13 +2,29 @@ import DevicesOtherIcon from "@mui/icons-material/DevicesOther";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import HomeIcon from "@mui/icons-material/Home";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import { Box, Button, Paper, Stack, Tooltip, Typography } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import SortIcon from "@mui/icons-material/Sort";
+import {
+  Box,
+  Button,
+  Chip,
+  InputAdornment,
+  Paper,
+  Stack,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import type { ReactNode } from "react";
-import { useMemo } from "react";
-import { Link as RouterLink } from "react-router";
+import { useCallback, useMemo } from "react";
+import { Link as RouterLink, useSearchParams } from "react-router";
 
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
 import type { Manufacturer as ManufacturerDetails, PowerProfile } from "../types/PowerProfile";
+import { plural } from "../utils/plural";
+import { humanizeIdentifier } from "../utils/profilePresentation";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ProfileCardGrid } from "./library/ProfileCardGrid";
@@ -17,28 +33,35 @@ import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
 const numberFormat = new Intl.NumberFormat("en-US");
 
+type ProfileSort = "popular" | "newest" | "name";
+
+const PROFILE_SORTS: ProfileSort[] = ["popular", "newest", "name"];
+const DEFAULT_SORT: ProfileSort = "popular";
+
+/** Query-string keys, so a filtered brand page survives a share, a reload and the back button. */
+const PARAM = { search: "q", deviceType: "deviceType", sort: "sort" } as const;
+
+/** Below this a brand's profiles fit on a screen or two, and a search box is only noise. */
+const SEARCH_FROM = 12;
+
+/**
+ * One inline figure rather than a card: three tiles stretched over the hero left a 2-digit number
+ * alone in a 600px grey slab, which read as empty space instead of as a stat.
+ */
 const HeroStat = ({ icon, value, label }: { icon: ReactNode; value: number; label: string }) => (
-  <Box
+  <Stack
+    direction="row"
     aria-label={`${numberFormat.format(value)} ${(value === 1 ? label.replace(/s$/, "") : label).toLowerCase()}`}
-    sx={{
-      minWidth: 0,
-      p: { xs: 1.25, sm: 1.5 },
-      border: 1,
-      borderColor: "divider",
-      borderRadius: 2,
-      bgcolor: "action.hover",
-    }}
+    sx={{ alignItems: "baseline", gap: 0.75, color: "text.secondary" }}
   >
-    <Stack direction="row" sx={{ alignItems: "center", gap: 0.75, color: "text.secondary" }}>
-      {icon}
-      <Typography variant="caption" sx={{ fontWeight: 700, textTransform: "uppercase" }}>
-        {label}
-      </Typography>
-    </Stack>
-    <Typography variant="h5" sx={{ mt: 0.5, fontWeight: 800, lineHeight: 1.1 }}>
+    <Box sx={{ display: "flex", alignSelf: "center" }}>{icon}</Box>
+    <Typography component="span" sx={{ fontWeight: 800, color: "text.primary" }}>
       {numberFormat.format(value)}
     </Typography>
-  </Box>
+    <Typography component="span" variant="body2">
+      {label}
+    </Typography>
+  </Stack>
 );
 
 export type ManufacturerProps = {
@@ -47,6 +70,8 @@ export type ManufacturerProps = {
 };
 
 export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const profileCount = profiles.length;
   const displayName = manufacturer?.fullName ?? "";
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -55,14 +80,78 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
     { label: displayName },
   ];
 
-  const profilesByDeviceType = useMemo(() => {
-    const grouped: Record<string, PowerProfile[]> = {};
+  const search = searchParams.get(PARAM.search) ?? "";
+  const sortParam = searchParams.get(PARAM.sort) as ProfileSort | null;
+  const sort: ProfileSort =
+    sortParam && PROFILE_SORTS.includes(sortParam) ? sortParam : DEFAULT_SORT;
+
+  /**
+   * Changes replace the current history entry rather than pushing a new one: typing in the search
+   * box should not bury the page under a stack of back steps, while replacing still means a click
+   * into a profile returns to the brand page exactly as it was left.
+   */
+  const updateParams = useCallback(
+    (changes: Record<string, string | null>) => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          for (const [key, value] of Object.entries(changes)) {
+            if (value === null) {
+              next.delete(key);
+            } else {
+              next.set(key, value);
+            }
+          }
+          return next;
+        },
+        { replace: true, preventScrollReset: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const deviceTypeCounts = useMemo(() => {
+    const counts = new Map<string, number>();
     for (const profile of profiles) {
-      (grouped[profile.deviceType] ||= []).push(profile);
+      counts.set(profile.deviceType, (counts.get(profile.deviceType) ?? 0) + 1);
     }
     // Biggest group first — for a brand with 200 lights and one plug, the lights are the page.
-    return Object.entries(grouped).sort(([, a], [, b]) => b.length - a.length);
+    return [...counts.entries()]
+      .map(([deviceType, count]) => ({ deviceType, count }))
+      .sort((a, b) => b.count - a.count || a.deviceType.localeCompare(b.deviceType));
   }, [profiles]);
+
+  // An unknown device type in the URL (stale link, hand-typed) simply shows everything.
+  const deviceTypeParam = searchParams.get(PARAM.deviceType);
+  const deviceType = deviceTypeCounts.some((entry) => entry.deviceType === deviceTypeParam)
+    ? deviceTypeParam
+    : null;
+
+  const visibleProfiles = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    const matched = profiles.filter((profile) => {
+      if (deviceType && profile.deviceType !== deviceType) return false;
+      if (!term) return true;
+      return (
+        profile.modelId.toLowerCase().includes(term) ||
+        profile.name.toLowerCase().includes(term) ||
+        profile.aliases.some((alias) => alias.toLowerCase().includes(term))
+      );
+    });
+
+    return matched.sort((a, b) => {
+      if (sort === "popular") {
+        return (
+          b.usageStats.installationCount - a.usageStats.installationCount ||
+          a.name.localeCompare(b.name)
+        );
+      }
+      if (sort === "newest") {
+        return b.createdAt.getTime() - a.createdAt.getTime() || a.name.localeCompare(b.name);
+      }
+      return a.name.localeCompare(b.name);
+    });
+  }, [profiles, deviceType, search, sort]);
 
   const knownProfileInstallations = profiles.reduce(
     (total, profile) => total + profile.usageStats.installationCount,
@@ -79,6 +168,8 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
       </>
     );
   }
+
+  const isFiltered = deviceType !== null || search.trim() !== "";
 
   return (
     <>
@@ -169,15 +260,18 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
           </Stack>
         </Stack>
 
-        <Box
+        <Stack
+          direction="row"
+          useFlexGap
           sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "repeat(2, minmax(0, 1fr))",
-              sm: "repeat(3, minmax(0, 1fr))",
-            },
-            gap: 1.25,
-            mt: 3,
+            flexWrap: "wrap",
+            alignItems: "center",
+            columnGap: { xs: 2, sm: 3 },
+            rowGap: 1,
+            mt: { xs: 2, sm: 2.5 },
+            pt: { xs: 2, sm: 2.5 },
+            borderTop: 1,
+            borderColor: "divider",
           }}
         >
           <HeroStat
@@ -197,63 +291,118 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
               />
             </Box>
           </Tooltip>
-          <Box sx={{ gridColumn: { xs: "1 / -1", sm: "auto" } }}>
-            <HeroStat
-              icon={<DevicesOtherIcon fontSize="small" />}
-              value={profilesByDeviceType.length}
-              label="Device types"
-            />
-          </Box>
-        </Box>
+          <HeroStat
+            icon={<DevicesOtherIcon fontSize="small" />}
+            value={deviceTypeCounts.length}
+            label="Device types"
+          />
+        </Stack>
       </Paper>
 
-      <Typography
-        variant="h5"
-        component="h2"
-        sx={{
-          mb: { xs: 1.5, sm: 2 },
-          fontSize: { xs: "1.25rem", sm: "1.5rem" },
-        }}
-      >
-        Profiles by Device Type
-      </Typography>
-
-      {profilesByDeviceType.map(([deviceType, deviceProfiles]) => {
-        const DeviceIcon = getDeviceTypeIcon(deviceType);
-        return (
-          <Box component="section" key={deviceType} sx={{ mb: { xs: 3, sm: 4 } }}>
-            <Stack
-              direction="row"
-              sx={{
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 1.5,
-              }}
+      <Box component="section">
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          sx={{ alignItems: { sm: "center" }, gap: 1.5, mb: 2 }}
+        >
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="h5"
+              component="h2"
+              sx={{ fontWeight: 800, fontSize: { xs: "1.25rem", sm: "1.5rem" } }}
             >
-              <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 0 }}>
-                {DeviceIcon && <DeviceIcon fontSize="small" sx={{ color: "text.secondary" }} />}
-                <Typography
-                  variant="h6"
-                  component="h3"
-                  sx={{ fontSize: { xs: "1.05rem", sm: "1.25rem" } }}
-                >
-                  {deviceType}
-                </Typography>
-              </Stack>
-              <Typography variant="body2" color="text.secondary">
-                {deviceProfiles.length} profile
-                {deviceProfiles.length !== 1 ? "s" : ""}
-              </Typography>
-            </Stack>
-
-            <ProfileCardGrid
-              data-testid={`manufacturer-profile-list-${deviceType}`}
-              profiles={deviceProfiles}
-              headingComponent="h4"
-            />
+              Profiles
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {isFiltered
+                ? `Showing ${numberFormat.format(visibleProfiles.length)} of ${plural(profileCount, "profile")}`
+                : `${plural(profileCount, "profile")} across ${plural(deviceTypeCounts.length, "device type")}`}
+            </Typography>
           </Box>
-        );
-      })}
+
+          {profileCount > 1 && (
+            <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
+              <SortIcon fontSize="small" sx={{ color: "text.secondary" }} />
+              <ToggleButtonGroup
+                size="small"
+                exclusive
+                value={sort}
+                aria-label="Sort profiles"
+                onChange={(_event, next: ProfileSort | null) => {
+                  if (next) updateParams({ [PARAM.sort]: next === DEFAULT_SORT ? null : next });
+                }}
+              >
+                <ToggleButton value="popular">Popular</ToggleButton>
+                <ToggleButton value="newest">Newest</ToggleButton>
+                <ToggleButton value="name">Name</ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
+          )}
+        </Stack>
+
+        {profileCount >= SEARCH_FROM && (
+          <TextField
+            value={search}
+            onChange={(event) => updateParams({ [PARAM.search]: event.target.value || null })}
+            aria-label="Search profiles"
+            placeholder="Search model or name"
+            size="small"
+            fullWidth
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ maxWidth: { sm: 320 }, mb: 2 }}
+          />
+        )}
+
+        {deviceTypeCounts.length > 1 && (
+          <Stack
+            direction="row"
+            useFlexGap
+            sx={{ flexWrap: "wrap", gap: 1, mb: 2.5 }}
+            data-testid="manufacturer-device-type-filter"
+          >
+            <Chip
+              label={`All (${numberFormat.format(profileCount)})`}
+              size="small"
+              aria-pressed={deviceType === null}
+              color={deviceType === null ? "primary" : "default"}
+              variant={deviceType === null ? "filled" : "outlined"}
+              onClick={() => updateParams({ [PARAM.deviceType]: null })}
+            />
+            {deviceTypeCounts.map(({ deviceType: type, count }) => {
+              const DeviceIcon = getDeviceTypeIcon(type);
+              const selected = deviceType === type;
+              return (
+                <Chip
+                  key={type}
+                  icon={DeviceIcon ? <DeviceIcon /> : undefined}
+                  label={`${humanizeIdentifier(type)} (${numberFormat.format(count)})`}
+                  size="small"
+                  aria-pressed={selected}
+                  color={selected ? "primary" : "default"}
+                  variant={selected ? "filled" : "outlined"}
+                  // Clicking the active type again clears it, like the facets on the library grid.
+                  onClick={() => updateParams({ [PARAM.deviceType]: selected ? null : type })}
+                />
+              );
+            })}
+          </Stack>
+        )}
+
+        {visibleProfiles.length === 0 ? (
+          <Typography color="text.secondary" sx={{ p: 3, textAlign: "center" }}>
+            No profiles match the current filters.
+          </Typography>
+        ) : (
+          <ProfileCardGrid data-testid="manufacturer-profile-list" profiles={visibleProfiles} />
+        )}
+      </Box>
     </>
   );
 };
