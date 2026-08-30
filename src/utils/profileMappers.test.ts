@@ -177,7 +177,7 @@ describe("mapToBasePowerProfile", () => {
         form_factor: "bulb",
         lumens: 806,
         rated_power: 9.5,
-        connectivity: ["zigbee"],
+        connectivity: ["zigbee", "matter"],
       },
     });
 
@@ -188,7 +188,7 @@ describe("mapToBasePowerProfile", () => {
       formFactor: "bulb",
       lumens: 806,
       ratedPower: 9.5,
-      connectivity: ["zigbee"],
+      connectivity: ["zigbee", "matter"],
     });
   });
 

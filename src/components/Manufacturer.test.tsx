@@ -71,20 +71,26 @@ const renderPage = (dirName: string) =>
 describe("Manufacturer", () => {
   afterEach(cleanup);
 
-  it("shows the manufacturer with its aliases and profile count", () => {
+  it("keeps discovery aliases in a compact popover", () => {
     renderPage("linkind");
 
     expect(screen.getByRole("heading", { level: 1, name: "Linkind" })).toBeInTheDocument();
-    expect(screen.getByText("Also known as: lk, Leedarson")).toBeInTheDocument();
+    expect(screen.queryByText("lk")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Discovery aliases (2)" }));
+    expect(screen.getByText("lk")).toBeInTheDocument();
+    expect(screen.getByText("Leedarson")).toBeInTheDocument();
+    expect(
+      screen.getByText("Alternate manufacturer names used when matching devices to profiles."),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("3 profiles")).toBeInTheDocument();
     expect(screen.getByLabelText("49 known installs")).toBeInTheDocument();
     expect(screen.getByLabelText("2 device types")).toBeInTheDocument();
   });
 
-  it("omits the alias line for a manufacturer without aliases", () => {
+  it("omits the alias control for a manufacturer without aliases", () => {
     renderPage("signify");
 
-    expect(screen.queryByText(/Also known as/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Discovery aliases/ })).not.toBeInTheDocument();
     expect(screen.getByLabelText("1 profile")).toBeInTheDocument();
     expect(screen.getByText("1 profile across 1 device type")).toBeInTheDocument();
   });

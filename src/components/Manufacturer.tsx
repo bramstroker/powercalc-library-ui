@@ -11,6 +11,7 @@ import {
   Chip,
   InputAdornment,
   Paper,
+  Popover,
   Stack,
   TextField,
   ToggleButton,
@@ -19,7 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { ReactNode } from "react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ReactCountryFlag } from "react-country-flag";
 import { Link as RouterLink, useSearchParams } from "react-router";
 
@@ -76,6 +77,50 @@ const HeroStat = ({ icon, value, label }: { icon: ReactNode; value: number; labe
     </Typography>
   </Stack>
 );
+
+const ManufacturerAliases = ({ aliases }: { aliases: string[] }) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const open = Boolean(anchorEl);
+
+  if (aliases.length === 0) return null;
+
+  return (
+    <>
+      <Tooltip title="Alternate manufacturer names used for device discovery" arrow describeChild>
+        <Chip
+          label={`Discovery aliases (${aliases.length})`}
+          size="small"
+          variant="outlined"
+          onClick={(event) => setAnchorEl(event.currentTarget)}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-controls={open ? "manufacturer-aliases-popover" : undefined}
+          sx={{ mt: 1, color: "text.secondary", borderColor: "divider" }}
+        />
+      </Tooltip>
+      <Popover
+        id="manufacturer-aliases-popover"
+        open={open}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <Box sx={{ p: 2, width: { xs: 280, sm: 400 }, maxHeight: 320, overflowY: "auto" }}>
+          <Typography variant="subtitle2">Discovery aliases</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Alternate manufacturer names used when matching devices to profiles.
+          </Typography>
+          <Stack direction="row" sx={{ flexWrap: "wrap", gap: 1, mt: 1.5 }}>
+            {aliases.map((alias) => (
+              <Chip key={alias} label={alias} size="small" variant="outlined" />
+            ))}
+          </Stack>
+        </Box>
+      </Popover>
+    </>
+  );
+};
 
 export type ManufacturerProps = {
   manufacturer?: ManufacturerDetails;
@@ -261,11 +306,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
               </Typography>
             )}
 
-            {manufacturer.aliases.length > 0 && (
-              <Typography variant="body2" color="text.secondary" sx={{ wordBreak: "break-word" }}>
-                Also known as: {manufacturer.aliases.join(", ")}
-              </Typography>
-            )}
+            <ManufacturerAliases aliases={manufacturer.aliases} />
           </Box>
 
           <Stack
