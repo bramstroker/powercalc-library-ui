@@ -54,6 +54,7 @@ export type Connectivity =
   | "thread"
   | "bluetooth"
   | "ethernet"
+  | "usb"
   | "rf433"
   | "infrared"
   | "proprietary";

@@ -37,6 +37,7 @@ const CONNECTIVITY_LABELS: Record<string, string> = {
   thread: "Thread",
   bluetooth: "Bluetooth",
   ethernet: "Ethernet",
+  usb: "USB",
   rf433: "RF 433 MHz",
   infrared: "Infrared",
   proprietary: "Proprietary",
