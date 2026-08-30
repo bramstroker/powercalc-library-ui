@@ -20,6 +20,7 @@
 
 # misc
 .DS_Store
+/.agents/settings.local.json
 .env.local
 .env.development.local
 .env.test.local
