@@ -159,14 +159,17 @@ those a silhouette is the real logo and a replacement would change nothing.
 | `wyze.svg`    | wyze         | monochrome | square | CC0-1.0 (collection) |
 | `xiaomi.svg`  | xiaomi       | monochrome | square | CC0-1.0 (collection) |
 
-## Manufacturer websites (16)
+## Manufacturer websites (17)
 
 trademark of each manufacturer; taken from the brand's own site
+
+ELRO source: <https://www.elro.eu/static/version1787833378/frontend/Elro/b2c/en_US/images/logo.svg>
 
 | File            | Manufacturer | Rendering   | Shapes                                     | Licence                       |
 | --------------- | ------------ | ----------- | ------------------------------------------ | ----------------------------- |
 | `aqara.svg`     | aqara        | monochrome  | square                                     | trademark of the manufacturer |
 | `elgin.svg`     | elgin        | monochrome  | square                                     | trademark of the manufacturer |
+| `elro.svg`      | elro         | monochrome  | square                                     | trademark of the manufacturer |
 | `eufy.svg`      | eufy         | monochrome  | square                                     | trademark of the manufacturer |
 | `free.svg`      | free         | monochrome  | square                                     | trademark of the manufacturer |
 | `govee.svg`     | govee        | monochrome  | square                                     | trademark of the manufacturer |
