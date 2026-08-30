@@ -27,7 +27,6 @@ const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => (
   authors: [],
   subProfileCount: 0,
   compatibleIntegrations: [],
-  connectivity: [],
   ean: [],
   usageStats: { installationCount: 3, deviceCount: 3, percentage: 0 },
   ...overrides,

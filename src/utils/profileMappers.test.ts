@@ -172,7 +172,13 @@ describe("mapToBasePowerProfile", () => {
 
   it("maps the device specs a light carries", () => {
     const model = createModel({
-      device_specs: { socket: "E27", form_factor: "bulb", lumens: 806, rated_power: 9.5 },
+      device_specs: {
+        socket: "E27",
+        form_factor: "bulb",
+        lumens: 806,
+        rated_power: 9.5,
+        connectivity: ["zigbee"],
+      },
     });
 
     const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
@@ -182,6 +188,7 @@ describe("mapToBasePowerProfile", () => {
       formFactor: "bulb",
       lumens: 806,
       ratedPower: 9.5,
+      connectivity: ["zigbee"],
     });
   });
 
@@ -240,7 +247,6 @@ describe("mapToBasePowerProfile", () => {
     expect(profile.deviceSpecs).toBeNull();
     expect(profile.measurementUpdatedAt).toBeNull();
     expect(profile.standbyPowerEstimated).toBe(false);
-    expect(profile.connectivity).toEqual([]);
     expect(profile.ean).toEqual([]);
     expect(profile.productUrl).toBeNull();
   });

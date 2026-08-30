@@ -770,7 +770,7 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
     },
     {
       label: "Connectivity",
-      value: profile.connectivity,
+      value: profile.deviceSpecs?.connectivity,
       icon: SettingsInputSvideoIcon,
       group: "device",
       filterKey: "connectivity",

@@ -25,6 +25,7 @@ const mapDeviceSpecs = (specs: LibraryModel["device_specs"]): DeviceSpecs | null
         formFactor: specs.form_factor,
         lumens: specs.lumens,
         ratedPower: specs.rated_power,
+        connectivity: specs.connectivity ?? [],
       }
     : null;
 
@@ -94,7 +95,6 @@ export const mapToBasePowerProfile = (
       : null,
     standbyPowerEstimated: model.standby_power_estimated ?? false,
     deviceSpecs: mapDeviceSpecs(model.device_specs),
-    connectivity: model.connectivity ?? [],
     productUrl: model.product_url ?? null,
     ean: model.ean ?? [],
     usageStats: usageStats,

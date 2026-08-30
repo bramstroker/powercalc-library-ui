@@ -36,7 +36,6 @@ const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => (
   subProfileCount: 0,
   minVersion: null,
   compatibleIntegrations: [],
-  connectivity: [],
   ean: [],
   lutQuality: { score: 98.3, brightness: 98.3, colorTemp: 96.1 },
   usageStats: { installationCount: 12, deviceCount: 34, percentage: 1.5 },
@@ -310,14 +309,22 @@ describe("computeRanges", () => {
 describe("device metadata facets", () => {
   const bulb = createProfile({
     modelId: "LCA001",
-    deviceSpecs: { socket: ["E26", "E27"], formFactor: "bulb", lumens: 806 },
-    connectivity: ["zigbee"],
+    deviceSpecs: {
+      socket: ["E26", "E27"],
+      formFactor: "bulb",
+      lumens: 806,
+      connectivity: ["zigbee"],
+    },
     mainsVoltage: 230,
   });
   const spot = createProfile({
     modelId: "GU10",
-    deviceSpecs: { socket: ["GU10"], formFactor: "spot", lumens: 350 },
-    connectivity: ["wifi", "bluetooth"],
+    deviceSpecs: {
+      socket: ["GU10"],
+      formFactor: "spot",
+      lumens: 350,
+      connectivity: ["wifi", "bluetooth"],
+    },
     mainsVoltage: 120,
   });
   const plug = createProfile({ modelId: "PLUG" });
