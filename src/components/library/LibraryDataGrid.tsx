@@ -11,12 +11,13 @@ import { useCallback, useState } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router";
 
 import type { ColorMode } from "../../types/ColorMode";
-import type { Author, PowerProfile } from "../../types/PowerProfile";
+import type { Author, Connectivity, PowerProfile } from "../../types/PowerProfile";
 import { isRecentlyAdded } from "../../utils/recency";
 import { authorPath, profilePath } from "../../utils/urlSlugs.mjs";
 import { AliasChips } from "../AliasChips";
 
 import { ColorModeIcons } from "./ColorModeIcons";
+import { ConnectivityIcons } from "./ConnectivityIcons";
 import { DeviceTypeIcon } from "./facetIcons";
 import { NewBadge } from "./NewBadge";
 import { profileRowId } from "./profileRowId";
@@ -114,6 +115,16 @@ const columns: GridColDef<PowerProfile>[] = [
     sortable: false,
     renderCell: ({ value }: GridRenderCellParams<PowerProfile, ColorMode[]>) => (
       <ColorModeIcons colorModes={value ?? []} />
+    ),
+  },
+  {
+    field: "connectivity",
+    headerName: "Connectivity",
+    width: 140,
+    sortable: false,
+    valueGetter: (_value, row): Connectivity[] => row.deviceSpecs?.connectivity ?? [],
+    renderCell: ({ value }: GridRenderCellParams<PowerProfile, Connectivity[]>) => (
+      <ConnectivityIcons connectivity={value ?? []} />
     ),
   },
   {

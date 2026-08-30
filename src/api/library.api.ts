@@ -1,5 +1,6 @@
 import { API_ENDPOINTS } from "../config/api";
 import type { CalculationStrategy } from "../types/CalculationStrategy";
+import type { Connectivity } from "../types/PowerProfile";
 
 export interface LibraryModel {
   id: string;
@@ -67,8 +68,8 @@ export interface LibraryModel {
     form_factor?: string;
     lumens?: number;
     rated_power?: number;
+    connectivity?: Connectivity[];
   };
-  connectivity?: string[];
   product_url?: string;
   ean?: string[];
 }

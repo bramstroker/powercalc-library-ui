@@ -46,6 +46,18 @@ export type PowerRange = {
   max: number;
 };
 
+export type Connectivity =
+  | "zigbee"
+  | "wifi"
+  | "zwave"
+  | "matter"
+  | "thread"
+  | "bluetooth"
+  | "ethernet"
+  | "rf433"
+  | "infrared"
+  | "proprietary";
+
 /**
  * What the manufacturer claims about the device, as opposed to what was measured. Only lights
  * are described so far; other device types get their own keys as the library grows them.
@@ -55,6 +67,7 @@ export type DeviceSpecs = {
   formFactor?: string;
   lumens?: number;
   ratedPower?: number;
+  connectivity?: Connectivity[];
 };
 
 export type PowerProfile = {
@@ -100,7 +113,6 @@ export type PowerProfile = {
   /** The standby figure is an assumed value, not something anybody measured. */
   standbyPowerEstimated?: boolean;
   deviceSpecs?: DeviceSpecs | null;
-  connectivity: string[];
   productUrl?: string | null;
   /** Barcodes on the packaging. A model often ships under several, one per region. */
   ean: string[];

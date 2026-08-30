@@ -35,8 +35,10 @@ import { Box, Tooltip, Typography } from "@mui/material";
 import type { ColorMode } from "../../types/ColorMode";
 import { DeviceType } from "../../types/DeviceType";
 import type { FacetKey, RangeKey } from "../../types/LibraryFilters";
+import type { Connectivity } from "../../types/PowerProfile";
 
 import { ColorModeIcons } from "./ColorModeIcons";
+import { ConnectivityIcons } from "./ConnectivityIcons";
 
 /** Section headers in the filter panel. */
 export const FACET_ICONS: Record<FacetKey, SvgIconComponent> = {
@@ -134,6 +136,9 @@ export const renderFacetOptionIcon = (key: FacetKey, value: string) => {
   }
   if (key === "colorMode") {
     return <ColorModeIcons colorModes={[value as ColorMode]} />;
+  }
+  if (key === "connectivity") {
+    return <ConnectivityIcons connectivity={[value as Connectivity]} />;
   }
   return null;
 };
