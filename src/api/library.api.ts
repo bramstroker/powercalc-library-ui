@@ -67,8 +67,8 @@ export interface LibraryModel {
     form_factor?: string;
     lumens?: number;
     rated_power?: number;
+    connectivity?: string[];
   };
-  connectivity?: string[];
   product_url?: string;
   ean?: string[];
 }

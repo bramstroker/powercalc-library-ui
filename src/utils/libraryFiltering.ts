@@ -46,7 +46,7 @@ export const getFacetValues = (profile: PowerProfile, key: FacetKey): string[] =
     case "formFactor":
       return profile.deviceSpecs?.formFactor ? [profile.deviceSpecs.formFactor] : [];
     case "connectivity":
-      return profile.connectivity ?? [];
+      return profile.deviceSpecs?.connectivity ?? [];
     case "mainsVoltage":
       return profile.mainsVoltage ? [mainsVoltageBand(profile.mainsVoltage)] : [];
   }

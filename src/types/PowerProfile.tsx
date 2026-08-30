@@ -55,6 +55,7 @@ export type DeviceSpecs = {
   formFactor?: string;
   lumens?: number;
   ratedPower?: number;
+  connectivity?: string[];
 };
 
 export type PowerProfile = {
@@ -100,7 +101,6 @@ export type PowerProfile = {
   /** The standby figure is an assumed value, not something anybody measured. */
   standbyPowerEstimated?: boolean;
   deviceSpecs?: DeviceSpecs | null;
-  connectivity: string[];
   productUrl?: string | null;
   /** Barcodes on the packaging. A model often ships under several, one per region. */
   ean: string[];
