@@ -23,7 +23,11 @@ test("browses from the Explore menu to a manufacturer and into a profile", async
 
   await expect(page).toHaveURL("/manufacturers/signify");
   await expect(page.getByRole("heading", { level: 1, name: "Signify" })).toBeVisible();
-  await expect(page.getByText("Also known as: Philips")).toBeVisible();
+  await expect(page.getByText("Philips", { exact: true })).toBeHidden();
+  await page.getByRole("button", { name: "Discovery aliases (1)" }).click();
+  await expect(page.getByText("Philips", { exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByText("Philips", { exact: true })).toBeHidden();
   await expect(page.getByText("2 profiles across 1 device type")).toBeVisible();
 
   await page.getByRole("link", { name: /LCA001/ }).click();
