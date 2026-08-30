@@ -109,7 +109,7 @@ undefined once the DOCTYPE goes). Replace `rgb(…%)` fills with hex, and set `r
 
 ## Coverage
 
-120 of the 123 manufacturers have a logo. The remaining 3 have no usable artwork at all and render
+126 of the 129 manufacturers have a logo. The remaining 3 have no usable artwork at all and render
 a monogram instead. Never approximate a mark by hand — a wrong logo is worse than a monogram.
 
 Sources worth trying, roughly in yield order for this domain:
@@ -117,7 +117,7 @@ Sources worth trying, roughly in yield order for this domain:
 - **Wikimedia Commons** has SVG logos for anything with a Wikipedia article (24). Search the file
   namespace directly rather than relying on Wikidata's `P154` property, which is often unset — but
   require the brand name in the _filename_, or "Free" matches half of Commons.
-- **The manufacturer's own site** is the biggest source for smart-home brands (17). Most serve
+- **The manufacturer's own site** is the biggest source for smart-home brands (20). Most serve
   their header logo as SVG. Sweep them with a headless browser and pick candidates from `<img>`
   elements inside a header or with "logo" in the URL, plus inline `<svg>` near the top of the page.
   Expect roughly half the hits to be cookie banners, payment badges and country flags — review
