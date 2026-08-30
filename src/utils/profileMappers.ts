@@ -25,7 +25,7 @@ const mapDeviceSpecs = (specs: LibraryModel["device_specs"]): DeviceSpecs | null
         formFactor: specs.form_factor,
         lumens: specs.lumens,
         ratedPower: specs.rated_power,
-        connectivity: specs.connectivity,
+        connectivity: specs.connectivity ?? [],
       }
     : null;
 
