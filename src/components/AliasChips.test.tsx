@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { AliasChips } from "./AliasChips";
@@ -26,5 +26,11 @@ describe("AliasChips", () => {
     expect(screen.getByText("LWB010")).toBeInTheDocument();
     expect(screen.getByText("+2 more")).toBeInTheDocument();
     expect(screen.queryByText("LWB014")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "View all 3 aliases" }));
+
+    expect(screen.getByText("Aliases (3)")).toBeInTheDocument();
+    expect(screen.getByText("LWB014")).toBeInTheDocument();
+    expect(screen.getByText("LWB006")).toBeInTheDocument();
   });
 });

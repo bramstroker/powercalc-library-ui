@@ -180,6 +180,34 @@ test("stacks color modes and measurement settings for easier scanning", async ({
   expect(new Set(settingTops).size).toBe(2);
 });
 
+test("keeps long alias lists compact and reveals the full list on demand", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  const aliases = page.getByTestId("profile-attribute").filter({ hasText: "Aliases" });
+  await expect(aliases.getByText("LWB010")).toBeVisible();
+  await expect(aliases.getByText("+1 more")).toBeVisible();
+  await expect(page.getByText("LWB014")).toBeHidden();
+
+  await aliases.getByRole("button", { name: "View all 2 aliases" }).click();
+
+  await expect(page.getByText("Aliases (2)")).toBeVisible();
+  await expect(page.getByText("LWB014")).toBeVisible();
+});
+
+test("keeps barcode lists compact and reveals the full list on demand", async ({ page }) => {
+  await page.goto("/profiles/signify/LCA001");
+
+  const barcodes = page.getByTestId("profile-attribute").filter({ hasText: "Barcode" });
+  await expect(barcodes.getByText("8719514291218")).toBeVisible();
+  await expect(barcodes.getByText("+1 more")).toBeVisible();
+  await expect(page.getByText("8719514291225")).toBeHidden();
+
+  await barcodes.getByRole("button", { name: "View all 2 barcodes" }).click();
+
+  await expect(page.getByText("Barcodes (2)")).toBeVisible();
+  await expect(page.getByText("8719514291225")).toBeVisible();
+});
+
 test("top-aligns attribute labels and values in a consistent text column", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 

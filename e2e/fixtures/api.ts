@@ -52,7 +52,7 @@ export const library = {
             connectivity: ["zigbee"],
           },
           product_url: "https://www.philips-hue.com/en-us/p/hue-white-and-color-ambiance-a60",
-          ean: ["8719514291218"],
+          ean: ["8719514291218", "8719514291225"],
         },
         {
           id: "LCT010",

@@ -1,20 +1,26 @@
 import { Chip, Stack, Popover, Typography, Box, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 
-interface AliasChipsProps {
-  aliases: string[];
+interface ValueChipsProps {
+  values: string[];
+  singularLabel: string;
+  pluralLabel: string;
+  description: string;
   maxVisible?: number;
   marginTop?: number;
-  /** Show every alias across as many lines as needed. For pages with vertical room to spare. */
+  /** Show every value across as many lines as needed. For pages with vertical room to spare. */
   wrap?: boolean;
 }
 
-export const AliasChips = ({
-  aliases,
+export const ValueChips = ({
+  values,
+  singularLabel,
+  pluralLabel,
+  description,
   maxVisible = 1,
   marginTop = 0,
   wrap = false,
-}: AliasChipsProps) => {
+}: ValueChipsProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -27,59 +33,80 @@ export const AliasChips = ({
 
   const open = Boolean(anchorEl);
 
-  const aliasArray = aliases ?? [];
+  const valueArray = values ?? [];
+  const itemLabel = valueArray.length === 1 ? singularLabel : pluralLabel;
+  const popoverId = `${pluralLabel.replaceAll(" ", "-")}-popover`;
 
-  if (aliasArray.length === 0) {
+  if (valueArray.length === 0) {
     return null;
   }
 
   if (wrap) {
     return (
       <Stack direction="row" sx={{ flexWrap: "wrap", gap: 1, mt: marginTop }}>
-        {aliasArray.map((alias, index) => (
-          <Chip key={index} label={alias} size="small" variant="outlined" color="primary" />
+        {valueArray.map((value) => (
+          <Chip key={value} label={value} size="small" variant="outlined" color="primary" />
         ))}
       </Stack>
     );
   }
 
   // Show only first N chips, with a "+N more" chip if there are more
-  const visibleAliases = aliasArray.slice(0, maxVisible);
-  const remainingCount = aliasArray.length - visibleAliases.length;
-
-  // Format remaining aliases for tooltip
-  const remainingAliases = aliasArray.slice(maxVisible);
-  const tooltipContent = remainingAliases.join(", ");
+  const visibleValues = valueArray.slice(0, maxVisible);
+  const remainingCount = valueArray.length - visibleValues.length;
 
   return (
     <>
       <Stack
         direction="row"
-        spacing={1}
         sx={{
-          overflowX: "hidden",
+          gap: 1,
+          minWidth: 0,
+          width: "100%",
+          overflow: "hidden",
           flexWrap: "nowrap",
           maxWidth: "100%",
           mt: marginTop,
         }}
       >
-        {visibleAliases.map((alias, index) => (
-          <Chip key={index} label={alias} size="small" variant="outlined" color="primary" />
+        {visibleValues.map((value) => (
+          <Chip
+            key={value}
+            label={value}
+            size="small"
+            variant="outlined"
+            color="primary"
+            title={value}
+            sx={{
+              minWidth: 0,
+              flexShrink: 1,
+              "& .MuiChip-label": {
+                minWidth: 0,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              },
+            }}
+          />
         ))}
         {remainingCount > 0 && (
-          <Tooltip title={tooltipContent} arrow placement="top">
+          <Tooltip title={`View all ${valueArray.length} ${itemLabel}`} arrow placement="top">
             <Chip
               label={`+${remainingCount} more`}
               size="small"
               variant="outlined"
               color="secondary"
               onClick={handleClick}
-              sx={{ cursor: "pointer" }}
+              aria-label={`View all ${valueArray.length} ${itemLabel}`}
+              aria-haspopup="dialog"
+              aria-expanded={open}
+              aria-controls={open ? popoverId : undefined}
+              sx={{ cursor: "pointer", flexShrink: 0 }}
             />
           </Tooltip>
         )}
       </Stack>
       <Popover
+        id={popoverId}
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
@@ -92,13 +119,16 @@ export const AliasChips = ({
           horizontal: "left",
         }}
       >
-        <Box sx={{ p: 2, maxWidth: 300 }}>
-          <Typography variant="subtitle1" gutterBottom>
-            All Aliases
+        <Box sx={{ p: 2, width: { xs: 280, sm: 400 }, maxWidth: "calc(100vw - 32px)" }}>
+          <Typography variant="subtitle1">
+            {pluralLabel.charAt(0).toUpperCase() + pluralLabel.slice(1)} ({valueArray.length})
           </Typography>
-          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
-            {aliasArray.map((alias, index) => (
-              <Chip key={index} label={alias} size="small" variant="outlined" color="primary" />
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            {description}
+          </Typography>
+          <Stack direction="row" sx={{ flexWrap: "wrap", gap: 1, mt: 1.5 }}>
+            {valueArray.map((value) => (
+              <Chip key={value} label={value} size="small" variant="outlined" color="primary" />
             ))}
           </Stack>
         </Box>
@@ -106,3 +136,20 @@ export const AliasChips = ({
     </>
   );
 };
+
+type AliasChipsProps = Omit<
+  ValueChipsProps,
+  "values" | "singularLabel" | "pluralLabel" | "description"
+> & {
+  aliases: string[];
+};
+
+export const AliasChips = ({ aliases, ...props }: AliasChipsProps) => (
+  <ValueChips
+    values={aliases}
+    singularLabel="alias"
+    pluralLabel="aliases"
+    description="Alternate model IDs used to match this device."
+    {...props}
+  />
+);
