@@ -10,6 +10,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import DeviceHubIcon from "@mui/icons-material/DeviceHub";
 import DevicesOtherIcon from "@mui/icons-material/DevicesOther";
+import DvrIcon from "@mui/icons-material/Dvr";
 import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
 import ElectricMeterIcon from "@mui/icons-material/ElectricMeter";
 import FactoryIcon from "@mui/icons-material/Factory";
@@ -78,6 +79,7 @@ const DEVICE_TYPE_ICONS: Partial<Record<DeviceType, SvgIconComponent>> = {
   [DeviceType.NETWORK]: RouterIcon,
   [DeviceType.POWER_METER]: ElectricMeterIcon,
   [DeviceType.PRINTER]: PrintIcon,
+  [DeviceType.SET_TOP_BOX]: DvrIcon,
   [DeviceType.SMART_DIMMER]: TuneIcon,
   [DeviceType.SMART_SPEAKER]: SpeakerIcon,
   [DeviceType.SMART_SWITCH]: PowerIcon,

@@ -9,6 +9,7 @@ export enum DeviceType {
   POWER_METER = "power_meter",
   PRINTER = "printer",
   NETWORK = "network",
+  SET_TOP_BOX = "set_top_box",
   SMART_DIMMER = "smart_dimmer",
   SMART_SPEAKER = "smart_speaker",
   SMART_SWITCH = "smart_switch",
