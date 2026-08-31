@@ -3,7 +3,7 @@
 Every file in this directory, where it came from and under what terms. Update this by hand
 when adding a logo.
 
-126 of the 129 manufacturers have a logo; the rest fall back to a monogram.
+127 of the 130 manufacturers have a logo; the rest fall back to a monogram.
 
 `Rendering` is `monochrome` when the file is flattened to `currentColor` and tinted by the
 theme, `full colour` when it keeps its own fills, and `two-tone` when only its near-black,
@@ -12,10 +12,10 @@ near-neutral ink is themed so a coloured mark survives.
 Traced entries were vectorised from a bitmap. Those marked `single ink` carry one colour, so
 any second colour in the original is lost; the rest were traced once per ink and keep both.
 
-25 ship a `<slug>.wide.svg` with the full lockup, because their square file is either
-cropped to the mark or a different file entirely: `antela`, `apc`, `bang-olufsen`, `belkin`, `everspring`, `ewelink`, `fibaro`, `forever-light`, `gledopto`, `hornbach`, `kobi`, `ledvance`, `lumiman`, `mercator-ikuu`, `mueller-licht`, `nanoleaf`, `netatmo`, `philips`, `reolink`, `roborock`, `signify`, `sylvania`, `third-reality`, `tp-link`, `zengge`.
+26 ship a `<slug>.wide.svg` with the full lockup, because their square file is either
+cropped to the mark or a different file entirely: `antela`, `apc`, `bang-olufsen`, `belkin`, `everspring`, `ewelink`, `fibaro`, `forever-light`, `gledopto`, `hornbach`, `kobi`, `ledvance`, `lumiman`, `mercator-ikuu`, `mueller-licht`, `nanoleaf`, `netatmo`, `philips`, `reolink`, `roborock`, `sagemcom`, `signify`, `sylvania`, `third-reality`, `tp-link`, `zengge`.
 
-## Traced from a raster (45)
+## Traced from a raster (46)
 
 trademark of each manufacturer; vectorised with potrace
 
@@ -54,6 +54,7 @@ trademark of each manufacturer; vectorised with potrace
 | `oz-smart-things.svg` | oz-smart-things | monochrome, single ink                | square                                    | trademark of the manufacturer |
 | `qubino.svg`          | qubino          | monochrome, single ink                | square                                    | trademark of the manufacturer |
 | `robb.svg`            | robb            | monochrome, single ink                | square                                    | trademark of the manufacturer |
+| `sagemcom.svg`        | sagemcom        | full colour, gradient                 | square + wide                             | trademark of the manufacturer |
 | `snooz.svg`           | snooz           | monochrome, single ink                | square                                    | trademark of the manufacturer |
 | `smartmi.svg`         | smartmi         | monochrome, single ink                | square                                    | trademark of the manufacturer |
 | `sunco.svg`           | sunco           | monochrome, single ink                | square                                    | trademark of the manufacturer |
@@ -67,7 +68,7 @@ trademark of each manufacturer; vectorised with potrace
 | `zemismart.svg`       | zemismart       | monochrome, single ink                | square                                    | trademark of the manufacturer |
 | `zengge.svg`          | zengge          | full colour                           | square + wide (square from `zengge-mark`) | trademark of the manufacturer |
 
-Source artwork for the 2026-08 batch: [Antela manufacturer site](https://www.antelaglobal.com/cdn/shop/files/ANTELA_LOGO.png?v=1680858853&width=1200), [Forever Light press downloads](https://www.foreverlight.pl/products/instructions-technical-drawings-certificates-logos/), [HiFree product manual](https://m.media-amazon.com/images/I/811n%2BteC5bL.pdf), [Kobi manufacturer site](https://kobi.pl/wp-content/uploads/2018/12/logo-lt.png), [Smartmi manufacturer site](https://smartmi.io/cdn/shop/files/smartmi-logo_1200x1200.png?v=1661392656), [Sunco manufacturer site](https://sunco.com/cdn/shop/files/Sunco_Lighting_Logo_1092x320_119d4bf3-239e-46cc-9036-42a51873b78b.png?v=1701453762&width=1092), and [Sylstar product manual](https://m.media-amazon.com/images/I/B1uUfFFDMQL.pdf).
+Source artwork for the 2026-08 batch: [Antela manufacturer site](https://www.antelaglobal.com/cdn/shop/files/ANTELA_LOGO.png?v=1680858853&width=1200), [Forever Light press downloads](https://www.foreverlight.pl/products/instructions-technical-drawings-certificates-logos/), [HiFree product manual](https://m.media-amazon.com/images/I/811n%2BteC5bL.pdf), [Kobi manufacturer site](https://kobi.pl/wp-content/uploads/2018/12/logo-lt.png), Sagemcom artwork supplied by the maintainer, [Smartmi manufacturer site](https://smartmi.io/cdn/shop/files/smartmi-logo_1200x1200.png?v=1661392656), [Sunco manufacturer site](https://sunco.com/cdn/shop/files/Sunco_Lighting_Logo_1092x320_119d4bf3-239e-46cc-9036-42a51873b78b.png?v=1701453762&width=1092), and [Sylstar product manual](https://m.media-amazon.com/images/I/B1uUfFFDMQL.pdf).
 
 ## Wikimedia Commons (24)
 

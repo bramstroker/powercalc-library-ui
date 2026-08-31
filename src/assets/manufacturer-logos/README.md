@@ -109,7 +109,7 @@ undefined once the DOCTYPE goes). Replace `rgb(…%)` fills with hex, and set `r
 
 ## Coverage
 
-126 of the 129 manufacturers have a logo. The remaining 3 have no usable artwork at all and render
+127 of the 130 manufacturers have a logo. The remaining 3 have no usable artwork at all and render
 a monogram instead. Never approximate a mark by hand — a wrong logo is worse than a monogram.
 
 Sources worth trying, roughly in yield order for this domain:
