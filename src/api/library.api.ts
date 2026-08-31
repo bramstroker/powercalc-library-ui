@@ -17,10 +17,10 @@ export interface LibraryModel {
   }>;
   updated_at: string;
   created_at: string;
-  description: string;
+  description: string | null;
   measure_device: string;
   measure_method: string;
-  measure_description: string;
+  measure_description: string | null;
   calculation_strategy: CalculationStrategy;
   max_power?: number;
   standby_power?: number;

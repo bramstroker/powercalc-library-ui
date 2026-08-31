@@ -84,10 +84,10 @@ export type PowerProfile = {
   colorModes: ColorMode[];
   updatedAt?: Date | null;
   createdAt: Date;
-  description: string;
+  description: string | null;
   measureDevice: string;
   measureMethod: string;
-  measureDescription: string;
+  measureDescription: string | null;
   calculationStrategy: CalculationStrategy;
   standbyPower: number | null;
   standbyPowerOn?: number;

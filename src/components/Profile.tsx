@@ -68,7 +68,7 @@ import {
 } from "../utils/profilePresentation";
 import { authorPath, manufacturerPath, profilePath as getProfilePath } from "../utils/urlSlugs.mjs";
 
-import { AliasChips } from "./AliasChips";
+import { AliasChips, ValueChips } from "./AliasChips";
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ProfileSetup } from "./library/ProfileSetup";
 import { QualityBadge } from "./library/QualityBadge";
@@ -240,7 +240,7 @@ const PropertyValue = ({ property }: { property: PropertyItem }) => {
   }
 
   if (property.label === "Aliases" && property.value) {
-    return <AliasChips aliases={property.value as string[]} marginTop={1} wrap />;
+    return <AliasChips aliases={property.value as string[]} />;
   }
 
   const display = property.display ?? ((value: string) => value);
@@ -781,7 +781,14 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
       value: profile.ean,
       icon: MoreIcon,
       group: "device",
-      stackValues: true,
+      renderFn: (value) => (
+        <ValueChips
+          values={value as string[]}
+          singularLabel="barcode"
+          pluralLabel="barcodes"
+          description="Product barcodes found on this device's packaging."
+        />
+      ),
     },
     {
       label: "Product page",
