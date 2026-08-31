@@ -908,6 +908,20 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
       ),
     },
     {
+      label: "Maximum load",
+      value: profile.deviceSpecs?.maxLoadWatts,
+      icon: ElectricalServicesIcon,
+      group: "power",
+      renderFn: watts,
+    },
+    {
+      label: "Power monitoring",
+      value: profile.deviceSpecs?.powerMonitoring,
+      icon: ElectricMeterIcon,
+      group: "device",
+      renderFn: (value) => (value ? "Yes" : "No"),
+    },
+    {
       label: "Light output",
       value: profile.deviceSpecs?.lumens,
       icon: LightModeIcon,

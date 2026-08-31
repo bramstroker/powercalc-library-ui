@@ -61,7 +61,7 @@ export interface LibraryModel {
   measurement_updated_at?: string;
   /** Set when `standby_power` holds an assumed value rather than a measured one. */
   standby_power_estimated?: boolean;
-  /** What the box claims about the device. Keys depend on `device_type`; lights so far. */
+  /** Manufacturer specifications. Available keys depend on `device_type`. */
   device_specs?: {
     /** A profile can fit multiple regional equivalents, such as E26 and E27. */
     socket?: string | string[];
@@ -69,6 +69,10 @@ export interface LibraryModel {
     lumens?: number;
     rated_power?: number;
     connectivity?: Connectivity[];
+    /** Maximum load supported by a smart switch or dimmer, in watts. */
+    max_load_watts?: number;
+    /** Whether a smart switch or dimmer measures the connected load. */
+    power_monitoring?: boolean;
   };
   product_url?: string;
   ean?: string[];

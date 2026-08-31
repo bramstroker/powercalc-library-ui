@@ -202,6 +202,38 @@ describe("mapToBasePowerProfile", () => {
     expect(profile.deviceSpecs?.socket).toEqual(["E26", "E27"]);
   });
 
+  it("maps the device specs a smart switch carries", () => {
+    const model = createModel({
+      device_specs: {
+        form_factor: "inline",
+        rated_power: 1.2,
+        connectivity: ["zwave"],
+        max_load_watts: 2500,
+        power_monitoring: true,
+      },
+    });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.deviceSpecs).toEqual({
+      socket: undefined,
+      formFactor: "inline",
+      lumens: undefined,
+      ratedPower: 1.2,
+      connectivity: ["zwave"],
+      maxLoadWatts: 2500,
+      powerMonitoring: true,
+    });
+  });
+
+  it("preserves a false power-monitoring claim", () => {
+    const model = createModel({ device_specs: { power_monitoring: false } });
+
+    const profile = mapToBasePowerProfile(model, manufacturer, usageStats);
+
+    expect(profile.deviceSpecs?.powerMonitoring).toBe(false);
+  });
+
   it("takes the stated mains voltage over the measured range", () => {
     const model = createModel({ mains_voltage: 120, voltage_range: { min: 224.2, max: 229.3 } });
 

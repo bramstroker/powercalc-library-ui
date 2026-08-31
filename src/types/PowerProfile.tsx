@@ -60,8 +60,8 @@ export type Connectivity =
   | "proprietary";
 
 /**
- * What the manufacturer claims about the device, as opposed to what was measured. Only lights
- * are described so far; other device types get their own keys as the library grows them.
+ * What the manufacturer claims about the device, as opposed to what was measured. The available
+ * keys vary by device type.
  */
 export type DeviceSpecs = {
   socket?: string[];
@@ -69,6 +69,8 @@ export type DeviceSpecs = {
   lumens?: number;
   ratedPower?: number;
   connectivity?: Connectivity[];
+  maxLoadWatts?: number;
+  powerMonitoring?: boolean;
 };
 
 export type PowerProfile = {
