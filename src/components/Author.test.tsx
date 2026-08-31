@@ -137,6 +137,9 @@ describe("Author", () => {
     expect(screen.getAllByText("Smart Switch").length).toBeGreaterThan(0);
     expect(screen.getByText("3 profiles across 2 manufacturers")).toBeInTheDocument();
     expect(screen.getByText("#1 of 2 contributors")).toBeInTheDocument();
+    expect(screen.getByLabelText("3 profiles")).toBeInTheDocument();
+    expect(screen.getByLabelText("2 manufacturers")).toBeInTheDocument();
+    expect(screen.getByLabelText("2 device types")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open in library" })).toHaveAttribute(
       "href",
       "/?author=alice",

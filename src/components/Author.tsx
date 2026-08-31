@@ -1,4 +1,3 @@
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DevicesOtherIcon from "@mui/icons-material/DevicesOther";
 import FactoryIcon from "@mui/icons-material/Factory";
 import GitHubIcon from "@mui/icons-material/GitHub";
@@ -54,27 +53,23 @@ const countBy = <T,>(items: T[], keyOf: (item: T) => string): Counted<{ key: str
     .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
 };
 
-const Stat = ({ icon, value, label }: { icon: ReactNode; value: string; label: string }) => (
-  <Box
-    sx={{
-      minWidth: 0,
-      p: { xs: 1.25, sm: 1.5 },
-      border: 1,
-      borderColor: "divider",
-      borderRadius: 2,
-      bgcolor: "action.hover",
-    }}
+const HeroStat = ({ icon, value, label }: { icon: ReactNode; value: number; label: string }) => (
+  <Stack
+    direction="row"
+    aria-label={`${numberFormat.format(value)} ${(value === 1
+      ? label.replace(/s$/, "")
+      : label
+    ).toLowerCase()}`}
+    sx={{ alignItems: "baseline", gap: 0.75, color: "text.secondary" }}
   >
-    <Stack direction="row" sx={{ alignItems: "center", gap: 0.75, color: "text.secondary" }}>
-      {icon}
-      <Typography variant="caption" sx={{ fontWeight: 700, textTransform: "uppercase" }}>
-        {label}
-      </Typography>
-    </Stack>
-    <Typography component="p" variant="h5" sx={{ mt: 0.5, fontWeight: 800, lineHeight: 1.1 }}>
-      {value}
+    <Box sx={{ display: "flex", alignSelf: "center" }}>{icon}</Box>
+    <Typography component="span" sx={{ fontWeight: 800, color: "text.primary" }}>
+      {numberFormat.format(value)}
     </Typography>
-  </Box>
+    <Typography component="span" variant="body2">
+      {label}
+    </Typography>
+  </Stack>
 );
 
 const BreakdownRow = ({
@@ -336,38 +331,36 @@ export const Author = ({ authorDetails, authorProfiles = [], authorRank = null }
             </Stack>
           </Box>
 
-          <Box
+          <Stack
+            direction="row"
+            useFlexGap
             sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "repeat(2, minmax(0, 1fr))",
-                md: "repeat(4, minmax(0, 1fr))",
-              },
-              gap: 1.25,
-              mt: 3,
+              flexWrap: "wrap",
+              alignItems: "center",
+              columnGap: { xs: 2, sm: 3 },
+              rowGap: 1,
+              mt: { xs: 2, sm: 2.5 },
+              pt: { xs: 2, sm: 2.5 },
+              borderTop: 1,
+              borderColor: "divider",
             }}
           >
-            <Stat
+            <HeroStat
               icon={<LibraryBooksIcon fontSize="small" />}
-              value={numberFormat.format(contributionCount)}
+              value={contributionCount}
               label="Profiles"
             />
-            <Stat
+            <HeroStat
               icon={<FactoryIcon fontSize="small" />}
-              value={numberFormat.format(manufacturers.length)}
+              value={manufacturers.length}
               label="Manufacturers"
             />
-            <Stat
+            <HeroStat
               icon={<DevicesOtherIcon fontSize="small" />}
-              value={numberFormat.format(deviceTypes.length)}
+              value={deviceTypes.length}
               label="Device types"
             />
-            <Stat
-              icon={<CalendarMonthIcon fontSize="small" />}
-              value={contributorSince ? String(contributorSince) : "—"}
-              label="Since"
-            />
-          </Box>
+          </Stack>
         </Paper>
 
         <Paper
