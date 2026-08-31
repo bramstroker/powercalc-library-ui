@@ -12,6 +12,10 @@ import { applyFilters } from "../utils/libraryFiltering";
 
 import { Header } from "./Header";
 import { ActiveFilterChips } from "./library/ActiveFilterChips";
+import {
+  DesktopDataGridSkeleton,
+  DesktopFilterPanelSkeleton,
+} from "./library/DesktopLibraryLoadingState";
 import { FILTER_PANEL_WIDTH, FilterPanel } from "./library/FilterPanel";
 import { LibraryCardList } from "./library/LibraryCardList";
 import { LibrarySearchField } from "./library/LibrarySearchField";
@@ -22,9 +26,9 @@ const DesktopLibraryDataGrid = lazy(() =>
   importDesktopGrid().then((module) => ({ default: module.DesktopLibraryDataGrid })),
 );
 
-// The prerendered document is the phone layout, so a desktop visitor would otherwise only start
-// fetching the grid chunk once hydration has run — with the card list on screen in the meantime.
-// Requesting it while this module evaluates overlaps that download with hydration itself.
+// A desktop visitor would otherwise only start fetching the grid chunk once hydration has run.
+// Requesting it while this module evaluates overlaps that download with hydration, shortening the
+// time for which the CSS-selected desktop loading shell is visible.
 if (typeof window !== "undefined" && window.matchMedia(DESKTOP_MEDIA_QUERY).matches) {
   void importDesktopGrid();
 }
@@ -50,7 +54,6 @@ export const LibraryGrid = () => {
 
   const rows = useMemo(() => applyFilters(powerProfiles, filters), [powerProfiles, filters]);
   const activeCount = countActiveFilters(filters);
-  const panelHidden = isDesktop ? collapsed : true;
 
   const panel = (
     <FilterPanel
@@ -89,15 +92,20 @@ export const LibraryGrid = () => {
             </Box>
           )
         ) : (
-          <Drawer
-            open={drawerOpen}
-            onClose={() => {
-              setDrawerOpen(false);
-            }}
-            slotProps={{ paper: { sx: { width: FILTER_PANEL_WIDTH } } }}
-          >
-            {panel}
-          </Drawer>
+          <>
+            {/* CSS shows this only at desktop widths. The prerender therefore has the right
+                geometry before JavaScript can determine the viewport. */}
+            <DesktopFilterPanelSkeleton />
+            <Drawer
+              open={drawerOpen}
+              onClose={() => {
+                setDrawerOpen(false);
+              }}
+              slotProps={{ paper: { sx: { width: FILTER_PANEL_WIDTH } } }}
+            >
+              {panel}
+            </Drawer>
+          </>
         )}
 
         <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
@@ -114,23 +122,25 @@ export const LibraryGrid = () => {
               borderColor: "divider",
             }}
           >
-            {panelHidden && (
-              <Badge badgeContent={activeCount} color="primary">
-                <Button
-                  size="small"
-                  startIcon={<FilterListIcon />}
-                  onClick={() => {
-                    if (isDesktop) {
-                      setCollapsedPersisted(false);
-                    } else {
-                      setDrawerOpen(true);
-                    }
-                  }}
-                >
-                  Filters
-                </Button>
-              </Badge>
-            )}
+            <Badge
+              badgeContent={activeCount}
+              color="primary"
+              sx={{ display: { xs: "inline-flex", md: collapsed ? "inline-flex" : "none" } }}
+            >
+              <Button
+                size="small"
+                startIcon={<FilterListIcon />}
+                onClick={() => {
+                  if (isDesktop) {
+                    setCollapsedPersisted(false);
+                  } else {
+                    setDrawerOpen(true);
+                  }
+                }}
+              >
+                Filters
+              </Button>
+            </Badge>
 
             <ActiveFilterChips filters={filters} {...actions} />
 
@@ -152,26 +162,32 @@ export const LibraryGrid = () => {
                 : `${rows.length} of ${powerProfiles.length} results`}
             </Typography>
 
-            {isDesktop && (
-              <Tooltip title="Show/hide columns">
-                <IconButton
-                  size="small"
-                  aria-label="Show/hide columns"
-                  onClick={() => showColumnsRef.current?.()}
-                >
-                  <ViewColumnIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
+            <Tooltip title="Show/hide columns">
+              <IconButton
+                size="small"
+                aria-label="Show/hide columns"
+                onClick={() => showColumnsRef.current?.()}
+                sx={{ display: { xs: "none", md: "inline-flex" } }}
+              >
+                <ViewColumnIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Stack>
 
-          {isDesktop ? (
-            <Suspense fallback={<Box sx={{ flex: 1 }} aria-label="Loading table" />}>
-              <DesktopLibraryDataGrid rows={rows} showColumnsRef={showColumnsRef} />
-            </Suspense>
-          ) : (
-            <LibraryCardList rows={rows} />
-          )}
+          {/* Both viewport slots exist in the prerender and CSS selects the right one immediately.
+              JavaScript still mounts only the expensive result component for the active width. */}
+          <Box sx={{ display: { xs: "none", md: "flex" }, flex: 1, minHeight: 0 }}>
+            {isDesktop ? (
+              <Suspense fallback={<DesktopDataGridSkeleton />}>
+                <DesktopLibraryDataGrid rows={rows} showColumnsRef={showColumnsRef} />
+              </Suspense>
+            ) : (
+              <DesktopDataGridSkeleton />
+            )}
+          </Box>
+          <Box sx={{ display: { xs: "block", md: "none" } }}>
+            {!isDesktop && <LibraryCardList rows={rows} />}
+          </Box>
         </Box>
       </Box>
     </Box>

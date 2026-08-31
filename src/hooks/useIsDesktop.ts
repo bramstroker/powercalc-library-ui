@@ -10,10 +10,10 @@ const subscribe = (onChange: () => void) => {
 };
 
 /**
- * Prerendering has no viewport, so the static document is always the phone layout and this reports
- * `false` until hydration — which is what keeps the first client render matching the server's.
- * Unlike a CSS `display` switch it actually unmounts the other layout, so the phone never pays for
- * rendering the data grid and the desktop never pays for the card list.
+ * Prerendering has no viewport, so this reports `false` until hydration — which keeps the first
+ * client render matching the server's. The library's CSS-selected loading slots make that static
+ * document look correct at either width; this hook then mounts only the expensive result component
+ * for the active viewport.
  */
 export const useIsDesktop = () =>
   useSyncExternalStore(
