@@ -15,7 +15,7 @@ any second colour in the original is lost; the rest were traced once per ink and
 27 ship a `<slug>.wide.svg` with the full lockup, because their square file is either
 cropped to the mark or a different file entirely: `antela`, `apc`, `bang-olufsen`, `belkin`, `everspring`, `ewelink`, `fibaro`, `forever-light`, `gledopto`, `hornbach`, `kobi`, `ledvance`, `lumiman`, `mercator-ikuu`, `mueller-licht`, `nanoleaf`, `netatmo`, `philips`, `reolink`, `roborock`, `sagemcom`, `signify`, `switchbot`, `sylvania`, `third-reality`, `tp-link`, `zengge`.
 
-## Traced from a raster (47)
+## Traced from a raster (48)
 
 trademark of each manufacturer; vectorised with potrace
 
@@ -49,6 +49,7 @@ trademark of each manufacturer; vectorised with potrace
 | `lsc.svg`             | lsc             | full colour                             | square                                    | trademark of the manufacturer            |
 | `luedd.svg`           | luedd           | full colour                             | square                                    | trademark of the manufacturer            |
 | `lumiman.svg`         | lumiman         | monochrome, single ink                  | square + wide                             | trademark of the manufacturer            |
+| `megos.svg`           | megos           | monochrome, single ink                  | square                                    | trademark of the manufacturer            |
 | `melitec.svg`         | melitec         | two-tone                                | square                                    | trademark of the manufacturer            |
 | `neo-coolcam.svg`     | neo-coolcam     | monochrome, single ink                  | square                                    | trademark of the manufacturer            |
 | `oz-smart-things.svg` | oz-smart-things | monochrome, single ink                  | square                                    | trademark of the manufacturer            |
@@ -69,7 +70,7 @@ trademark of each manufacturer; vectorised with potrace
 | `zemismart.svg`       | zemismart       | monochrome, single ink                  | square                                    | trademark of the manufacturer            |
 | `zengge.svg`          | zengge          | full colour                             | square + wide (square from `zengge-mark`) | trademark of the manufacturer            |
 
-Source artwork for the 2026-08 batch: [Antela manufacturer site](https://www.antelaglobal.com/cdn/shop/files/ANTELA_LOGO.png?v=1680858853&width=1200), [Forever Light press downloads](https://www.foreverlight.pl/products/instructions-technical-drawings-certificates-logos/), [HiFree product manual](https://m.media-amazon.com/images/I/811n%2BteC5bL.pdf), [Kobi manufacturer site](https://kobi.pl/wp-content/uploads/2018/12/logo-lt.png), Sagemcom artwork supplied by the maintainer, [Smartmi manufacturer site](https://smartmi.io/cdn/shop/files/smartmi-logo_1200x1200.png?v=1661392656), [Sunco manufacturer site](https://sunco.com/cdn/shop/files/Sunco_Lighting_Logo_1092x320_119d4bf3-239e-46cc-9036-42a51873b78b.png?v=1701453762&width=1092), and [Sylstar product manual](https://m.media-amazon.com/images/I/B1uUfFFDMQL.pdf).
+Source artwork for the 2026-08 batch: [Antela manufacturer site](https://www.antelaglobal.com/cdn/shop/files/ANTELA_LOGO.png?v=1680858853&width=1200), [Forever Light press downloads](https://www.foreverlight.pl/products/instructions-technical-drawings-certificates-logos/), [HiFree product manual](https://m.media-amazon.com/images/I/811n%2BteC5bL.pdf), [Kobi manufacturer site](https://kobi.pl/wp-content/uploads/2018/12/logo-lt.png), Megos and Sagemcom artwork supplied by the maintainer, [Smartmi manufacturer site](https://smartmi.io/cdn/shop/files/smartmi-logo_1200x1200.png?v=1661392656), [Sunco manufacturer site](https://sunco.com/cdn/shop/files/Sunco_Lighting_Logo_1092x320_119d4bf3-239e-46cc-9036-42a51873b78b.png?v=1701453762&width=1092), and [Sylstar product manual](https://m.media-amazon.com/images/I/B1uUfFFDMQL.pdf).
 
 SwitchBot square artwork: [WebCatalog](https://cdn-1.webcatalog.io/catalog/switchbot/switchbot-social-preview.png?v=1785717142747), vectorised once per ink. Wide lockup: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:SwitchBoot_logo.svg), Public domain (`PD-textlogo`).
 
