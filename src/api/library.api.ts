@@ -93,6 +93,87 @@ export type LibraryJson = {
   }>;
 };
 
+export const SUPPORTED_LIBRARY_CHANGE_TYPES = ["profile_added", "measurement_updated"] as const;
+export const LIBRARY_CHANGES_PAGE_SIZE = 30;
+export const LIBRARY_CHANGES_WINDOW_MONTHS = 2;
+
+export type SupportedLibraryChangeType = (typeof SUPPORTED_LIBRARY_CHANGE_TYPES)[number];
+
+export interface LibraryChangeProfile {
+  manufacturer: {
+    dir_name: string;
+    full_name: string;
+  };
+  id: string;
+  /** Older historical changes can predate these optional profile metadata fields. */
+  name?: string;
+  device_type?: string;
+}
+
+export interface LibraryProfileChange {
+  /** New API types may be returned in a PR that also contains a supported change. */
+  type: string;
+  profile: LibraryChangeProfile;
+  changed_fields: string[];
+}
+
+export interface LibraryChange {
+  id: string;
+  occurred_at: string;
+  summary: string;
+  changes: LibraryProfileChange[];
+  authors: Array<{
+    name: string;
+    github?: string;
+  }>;
+  source: {
+    repository: string;
+    branch: string;
+    pull_request_number: number;
+    pull_request_url: string;
+  };
+}
+
+export interface LibraryChangesPage {
+  items: LibraryChange[];
+  next_cursor: string | null;
+}
+
+interface FetchLibraryChangesOptions {
+  cursor?: string | null;
+  since?: string;
+  signal?: AbortSignal;
+}
+
+export const libraryChangesSince = (now = new Date()): string => {
+  const day = now.getUTCDate();
+  const since = new Date(now);
+  since.setUTCHours(0, 0, 0, 0);
+  since.setUTCDate(1);
+  since.setUTCMonth(since.getUTCMonth() - LIBRARY_CHANGES_WINDOW_MONTHS);
+  const lastDayOfTargetMonth = new Date(
+    Date.UTC(since.getUTCFullYear(), since.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  since.setUTCDate(Math.min(day, lastDayOfTargetMonth));
+  return since.toISOString();
+};
+
+export const fetchLibraryChanges = async ({
+  cursor,
+  since,
+  signal,
+}: FetchLibraryChangesOptions = {}): Promise<LibraryChangesPage> => {
+  const url = new URL(API_ENDPOINTS.LIBRARY_CHANGES);
+  url.searchParams.set("limit", String(LIBRARY_CHANGES_PAGE_SIZE));
+  url.searchParams.set("types", SUPPORTED_LIBRARY_CHANGE_TYPES.join(","));
+  if (cursor) url.searchParams.set("cursor", cursor);
+  if (since) url.searchParams.set("since", since);
+
+  const res = await fetch(url.toString(), { signal });
+  if (!res.ok) throw new Error("Failed to fetch library changes");
+  return res.json();
+};
+
 export const fetchLibrary = async (): Promise<LibraryJson> => {
   const res = await fetch(API_ENDPOINTS.LIBRARY);
   if (!res.ok) throw new Error("Failed to fetch library");

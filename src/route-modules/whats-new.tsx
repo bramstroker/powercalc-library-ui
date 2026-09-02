@@ -1,16 +1,28 @@
-import type { LinksFunction, MetaFunction } from "react-router";
+import { useLoaderData, type LoaderFunctionArgs, type MetaFunction } from "react-router";
 
-import { NEW_PROFILE_WINDOW_DAYS, WhatsNew } from "../components/statistics/WhatsNew";
-import { libraryPreloadLinks } from "../seo/apiLinks";
+import { fetchLibraryChanges } from "../api/library.api";
+import { WhatsNew } from "../components/statistics/WhatsNew";
+import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
 import { createPageMeta } from "../seo/meta";
 
-export const links: LinksFunction = () => libraryPreloadLinks;
+const loadWhatsNew = async ({ request }: Pick<LoaderFunctionArgs, "request">) => {
+  return fetchLibraryChanges({ signal: request.signal });
+};
+
+export const loader = loadWhatsNew;
+export const clientLoader = prerenderedOrLiveClientLoader(loadWhatsNew);
 
 export const meta: MetaFunction = () =>
   createPageMeta({
     path: "/whats-new",
     title: "What's new",
-    description: `Power profiles added to the Powercalc library in the last ${NEW_PROFILE_WINDOW_DAYS} days.`,
+    description:
+      "Follow newly added Powercalc profiles and meaningful measurement updates from merged contributions.",
   });
 
-export default WhatsNew;
+const WhatsNewRoute = () => {
+  const page = useLoaderData<typeof loader>();
+  return <WhatsNew initialPage={page} />;
+};
+
+export default WhatsNewRoute;
