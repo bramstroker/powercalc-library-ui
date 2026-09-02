@@ -33,7 +33,9 @@ test("gives each page its own document title", async ({ page }) => {
   await expect(page).toHaveTitle("Powercalc profile library");
 
   await page.getByRole("gridcell", { name: "LCA001" }).click();
-  await expect(page).toHaveTitle("Signify LCA001 · Powercalc profile library");
+  await expect(page).toHaveTitle(
+    "Signify Hue White and Color Ambiance A60 (LCA001) · Powercalc profile library",
+  );
 
   await page.goBack();
   await expect(page).toHaveTitle("Powercalc profile library");

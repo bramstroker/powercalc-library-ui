@@ -76,7 +76,7 @@ test("shows only that manufacturer's profiles on its page", async ({ page }) => 
   await expect(page.getByRole("link", { name: /LCT010/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /LED1836G9/ })).toBeHidden();
 
-  await page.getByRole("link", { name: "Browse profiles" }).click();
+  await page.locator("#main-content").getByRole("link", { name: "Browse profiles" }).click();
 
   await expect(page).toHaveURL("/?manufacturer=Signify");
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
