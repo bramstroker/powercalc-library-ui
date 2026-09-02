@@ -122,6 +122,94 @@ export const library = {
   ],
 };
 
+export const libraryChanges = {
+  items: [
+    {
+      id: "github-pr:5002",
+      occurred_at: "2026-09-02T11:45:00Z",
+      summary: "Improve Signify LCA001 measurements",
+      changes: [
+        {
+          type: "measurement_updated",
+          profile: {
+            manufacturer: { dir_name: "signify", full_name: "Signify" },
+            id: "LCA001",
+            name: "Hue White and Color Ambiance A60",
+            device_type: "light",
+          },
+          changed_fields: ["lut.csv"],
+        },
+        {
+          type: "profile_corrected",
+          profile: {
+            manufacturer: { dir_name: "sonoff", full_name: "Sonoff" },
+            id: "S31",
+            name: "Smart Plug",
+            device_type: "smart_switch",
+          },
+          changed_fields: ["model.json"],
+        },
+      ],
+      authors: [{ name: "Bram Gerritsen", github: "bramstroker" }],
+      source: {
+        repository: "bramstroker/homeassistant-powercalc",
+        branch: "master",
+        pull_request_number: 5002,
+        pull_request_url: "https://github.com/bramstroker/homeassistant-powercalc/pull/5002",
+      },
+    },
+    {
+      id: "github-pr:5001",
+      occurred_at: "2026-09-01T09:30:00Z",
+      summary: "Add IKEA LED1836G9 profile",
+      changes: [
+        {
+          type: "profile_added",
+          profile: {
+            manufacturer: { dir_name: "ikea", full_name: "IKEA" },
+            id: "LED1836G9",
+            name: "TRADFRI bulb E27 WW 806lm",
+            device_type: "light",
+          },
+          changed_fields: ["model.json", "lut.csv"],
+        },
+      ],
+      authors: [{ name: "Contributor Two", github: "contributor-two" }],
+      source: {
+        repository: "bramstroker/homeassistant-powercalc",
+        branch: "master",
+        pull_request_number: 5001,
+        pull_request_url: "https://github.com/bramstroker/homeassistant-powercalc/pull/5001",
+      },
+    },
+    {
+      id: "github-pr:5000",
+      occurred_at: "2026-09-01T08:15:00Z",
+      summary: "Add Signify LCT010 profile",
+      changes: [
+        {
+          type: "profile_added",
+          profile: {
+            manufacturer: { dir_name: "signify", full_name: "Signify" },
+            id: "LCT010",
+            name: "Hue Color Spot",
+            device_type: "light",
+          },
+          changed_fields: ["model.json", "lut.csv"],
+        },
+      ],
+      authors: [{ name: "Another Contributor", github: "another-contributor" }],
+      source: {
+        repository: "bramstroker/homeassistant-powercalc",
+        branch: "master",
+        pull_request_number: 5000,
+        pull_request_url: "https://github.com/bramstroker/homeassistant-powercalc/pull/5000",
+      },
+    },
+  ],
+  next_cursor: null,
+};
+
 export const profileStats = [
   {
     manufacturer: "signify",

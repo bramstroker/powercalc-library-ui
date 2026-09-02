@@ -1,6 +1,14 @@
 import { createServer } from "node:http";
 
-import { library, modelJson, profileStats, sensors, summary, timeseries } from "./fixtures/api.ts";
+import {
+  library,
+  libraryChanges,
+  modelJson,
+  profileStats,
+  sensors,
+  summary,
+  timeseries,
+} from "./fixtures/api.ts";
 
 const port = Number(process.env.E2E_API_PORT || 3101);
 
@@ -25,6 +33,7 @@ const server = createServer((request, response) => {
 
   const { pathname } = new URL(request.url, `http://${request.headers.host}`);
   if (pathname === "/health") return sendJson(response, { ok: true });
+  if (pathname === "/library/changes") return sendJson(response, libraryChanges);
   if (pathname === "/library" || pathname === "/library/full") return sendJson(response, library);
   if (pathname === "/analytics/profiles") return sendJson(response, profileStats);
   if (pathname === "/analytics/summary") return sendJson(response, summary);
