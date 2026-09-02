@@ -8,6 +8,7 @@ import { queryClient } from "../queryClient";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { createPageMeta, MAX_ITEM_LIST_ENTRIES, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
+import { manufacturerIntroduction } from "../utils/manufacturerPresentation";
 import { manufacturerPath, profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
 // Declared separately from the `loader` export: the React Router Vite plugin strips server-only
@@ -45,7 +46,7 @@ export const clientLoader = prerenderedOrLiveClientLoader(loadManufacturer);
 type ManufacturerData = Awaited<ReturnType<typeof loadManufacturer>>;
 
 const manufacturerDescription = ({ manufacturer, profiles }: ManufacturerData) =>
-  `${profiles.length} Powercalc device profiles for ${manufacturer.fullName}.`;
+  manufacturerIntroduction(manufacturer, profiles);
 
 export const manufacturerStructuredData = (data: ManufacturerData): StructuredData[] => {
   const { manufacturer, profiles } = data;

@@ -10,6 +10,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
   type LinksFunction,
   type MetaFunction,
 } from "react-router";
@@ -34,6 +35,17 @@ export const meta: MetaFunction = () => [
   { name: "theme-color", content: "#303f9f" },
 ];
 
+/**
+ * Child route metadata replaces the root route's descriptors, so this rule belongs directly in the
+ * shared document head. Filter, search, sort and UI-state parameters can be combined arbitrarily:
+ * keep those URLs crawlable so their canonical can be read, but never let them become search
+ * results.
+ */
+export const QueryRobotsMeta = () => {
+  const { search } = useLocation();
+  return search ? <meta name="robots" content="noindex, follow" /> : null;
+};
+
 // The SPA fallback must stay independent of build-time API data. It is replaced as soon as the
 // browser has loaded the current route and library data; fully prerendered URLs still get the page.
 export const HydrateFallback = () => (
@@ -49,6 +61,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
+        <QueryRobotsMeta />
         <Links />
       </head>
       <body>

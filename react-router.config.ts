@@ -6,7 +6,11 @@ import { API_ENDPOINTS } from "./src/config/api";
 type LibraryJson = {
   manufacturers?: Array<{
     dir_name: string;
-    models?: Array<{ id: string; authors?: Array<{ github?: string }> }>;
+    models?: Array<{
+      id: string;
+      device_type?: string;
+      authors?: Array<{ github?: string }>;
+    }>;
   }>;
 };
 

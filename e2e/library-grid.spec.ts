@@ -17,6 +17,18 @@ test("renders the library grid with all profiles", async ({ page }) => {
   await expect(page.getByRole("gridcell", { name: "S31" })).toBeVisible();
 });
 
+test("uses a sequential heading hierarchy for the library and filters", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(
+    page.getByRole("heading", { name: "Powercalc profile library", level: 1 }),
+  ).toBeAttached();
+  await expect(page.getByRole("heading", { name: "Filters", level: 2 })).toBeVisible();
+  await expect(
+    page.getByTestId("facet-deviceType").getByRole("heading", { name: "Device type", level: 3 }),
+  ).toBeVisible();
+});
+
 test("filters the grid with the global search", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();

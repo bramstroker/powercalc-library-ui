@@ -13,6 +13,9 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
   await expect(
     page.getByRole("heading", { name: "Hue White and Color Ambiance A60", level: 2 }),
   ).toBeVisible();
+  await expect(page).toHaveTitle(
+    "Signify Hue White and Color Ambiance A60 (LCA001) · Powercalc profile library",
+  );
   await expect(page.getByText("Shelly Plug S")).toBeVisible();
   const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
   await expect(breadcrumb.getByText("LCA001", { exact: true })).toHaveAttribute(

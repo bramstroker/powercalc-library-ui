@@ -22,6 +22,9 @@ export const authorPath = (author) => `/contributors/${encodeSlug(author)}`;
 /** @param {string} manufacturer */
 export const manufacturerPath = (manufacturer) => `/manufacturers/${encodeSlug(manufacturer)}`;
 
+/** @param {string} deviceType */
+export const deviceTypePath = (deviceType) => `/device-types/${encodeSlug(deviceType)}`;
+
 /** @param {string} manufacturer @param {string} model */
 export const profilePath = (manufacturer, model) =>
   `/profiles/${encodeSlug(manufacturer)}/${encodeSlug(model)}`;

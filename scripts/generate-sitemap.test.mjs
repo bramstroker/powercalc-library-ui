@@ -15,11 +15,13 @@ const library = {
       models: [
         {
           id: "model one",
+          device_type: "light",
           updated_at: "2026-08-20T12:00:00Z",
           authors: [{ github: "Alice Example" }],
         },
         {
           id: "model-two",
+          device_type: "smart_switch",
           updated_at: "2026-08-21T12:00:00Z",
           authors: [{ github: "Alice Example" }, { github: "bob" }],
         },
@@ -28,7 +30,7 @@ const library = {
   ],
 };
 
-test("collects canonical profile, manufacturer, and contributor URLs", () => {
+test("collects canonical profile, entity, and category URLs", () => {
   const entries = collectSitemapEntries(library);
   const byPath = new Map(entries.map((entry) => [entry.path, entry.lastModified]));
 
@@ -36,7 +38,10 @@ test("collects canonical profile, manufacturer, and contributor URLs", () => {
   assert.equal(byPath.get("/manufacturers/brand-co"), "2026-08-21");
   assert.equal(byPath.get("/contributors/alice-example"), "2026-08-21");
   assert.equal(byPath.get("/contributors/bob"), "2026-08-21");
+  assert.equal(byPath.get("/device-types/light"), "2026-08-20");
+  assert.equal(byPath.get("/device-types/smart-switch"), "2026-08-21");
   assert.equal(byPath.get("/"), "2026-08-21");
+  assert.equal(byPath.get("/device-types"), "2026-08-21");
   assert.equal(byPath.get("/contributors"), "2026-08-21");
   assert.equal(byPath.has("/statistics"), true);
   assert.equal(byPath.has("/analytics/sensor-dimensions/by_strategy"), true);

@@ -14,7 +14,14 @@ const library = {
   manufacturers: [
     {
       dir_name: "signify",
-      models: [{ id: "lct010", updated_at: "2026-08-01", authors: [{ github: "bramstroker" }] }],
+      models: [
+        {
+          id: "lct010",
+          device_type: "light",
+          updated_at: "2026-08-01",
+          authors: [{ github: "bramstroker" }],
+        },
+      ],
     },
   ],
 };
@@ -42,6 +49,7 @@ describe("collectPrerenderPaths", () => {
     assert.ok(paths.includes("/manufacturers/signify"));
     assert.ok(paths.includes("/contributors/bramstroker"));
     assert.ok(paths.includes("/manufacturers"));
+    assert.ok(paths.includes("/device-types/light"));
   });
 
   it("decodes escaped slugs, because that is the form the router matches against", () => {
