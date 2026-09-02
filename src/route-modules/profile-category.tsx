@@ -37,7 +37,10 @@ const loadProfileCategory = async ({
     config.values(profile).includes(value),
   );
   const canonicalPath = config.path(value);
-  if (url.pathname !== decodeURI(canonicalPath)) {
+  // Compare the matched parameter rather than request.url. React Router generates loader payloads
+  // through `<route>.data`, so the request pathname intentionally differs from the page URL while
+  // still representing the canonical category.
+  if (`${config.indexPath}/${categoryName}` !== decodeURI(canonicalPath)) {
     throw redirect(`${canonicalPath}${url.search}`, 301);
   }
 

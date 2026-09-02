@@ -16,7 +16,8 @@ test("lists indexable device-type categories and their profiles", async ({ page 
   await expect(lightCategory.getByTestId("LightbulbIcon")).toBeVisible();
   await expect(switchCategory.getByTestId("PowerIcon")).toBeVisible();
 
-  await page.goto("/device-types/light");
+  await lightCategory.click();
+  await expect(page).toHaveURL("/device-types/light");
   await expect(page.getByRole("heading", { level: 1, name: "Light power profiles" })).toBeVisible();
   await expect(page.getByText(/smart bulbs, fixtures, light strips/)).toBeVisible();
   await expect(page.getByTestId("category-profile-list").getByRole("link")).toHaveCount(3);
