@@ -40,7 +40,8 @@ npm run build
 ```
 
 The build downloads and optimizes contributor avatars, prerenders canonical library routes, and
-generates `sitemap.xml` plus legacy Nginx redirect mappings in `build/`. Useful overrides are:
+generates entity-specific social cards, `sitemap.xml`, plus legacy Nginx redirect mappings in
+`build/`. Useful overrides are:
 
 - `LIBRARY_API_URL` — API endpoint used by build-time scripts
 - `VITE_API_BASE_URL` — API origin embedded in the application
@@ -59,7 +60,8 @@ npm run prerender -- --out build/client
 ```
 
 It renders the same set of paths the build does — the routes that take no parameters plus one page
-per library entity. `--out` defaults to `build/client`, `--server` to `build/server/index.js`.
+per library entity — and refreshes every profile's social card. `--out` defaults to `build/client`,
+`--server` to `build/server/index.js`.
 
 In production this runs as the `renderer` image built from the same commit as the serving container
 (`docker compose run --rm renderer`), so a content refresh needs no image build, no container

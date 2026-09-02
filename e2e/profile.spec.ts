@@ -16,6 +16,18 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
   await expect(page).toHaveTitle(
     "Signify Hue White and Color Ambiance A60 (LCA001) · Powercalc profile library",
   );
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    "https://library.powercalc.nl/social-cards/profiles/signify/lca001.png",
+  );
+  await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
+    "content",
+    "Signify Hue White and Color Ambiance A60 (LCA001) power profile · Light · 0.4 W standby and 9 W maximum",
+  );
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    "content",
+    "https://library.powercalc.nl/social-cards/profiles/signify/lca001.png",
+  );
   await expect(page.getByText("Shelly Plug S")).toBeVisible();
   const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
   await expect(breadcrumb.getByText("LCA001", { exact: true })).toHaveAttribute(

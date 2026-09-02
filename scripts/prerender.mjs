@@ -21,6 +21,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { DEFAULT_LIBRARY_API_URL, collectSitemapEntries } from "./generate-sitemap.mjs";
+import { generateProfileSocialImages } from "./generate-profile-social-images.mjs";
 
 // Must be set before anything React-adjacent is loaded, which is why `react-router` is imported
 // dynamically below: a static import is evaluated before any statement in this module. `react`
@@ -163,7 +164,8 @@ export const prerender = async ({
   onFile,
 }) =>
   withBuildRequests(async () => {
-    const paths = collectPrerenderPaths(await fetchLibrary(apiUrl));
+    const library = await fetchLibrary(apiUrl);
+    const paths = collectPrerenderPaths(library);
     refreshPrerenderAllowlist(serverBuild, paths);
 
     const handler = createRequestHandler(serverBuild, "production");
@@ -181,6 +183,7 @@ export const prerender = async ({
     }
 
     await writeFiles(outDir, await renderSpaFallback(handler), onFile);
+    await generateProfileSocialImages({ library, outDir, onFile });
 
     return paths.length;
   });
