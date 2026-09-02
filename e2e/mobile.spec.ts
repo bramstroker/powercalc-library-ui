@@ -20,6 +20,24 @@ test("renders the results as cards instead of a table", async ({ page }) => {
   await expect(page.getByText("Hue White and Color Ambiance A60")).toBeVisible();
 });
 
+test("keeps zero-result recovery actions usable", async ({ page }) => {
+  await page.goto("/?q=not-a-real-device&manufacturer=Signify");
+
+  const emptyState = page.getByTestId("library-empty-state");
+  await expect(emptyState.getByRole("heading", { name: "No matching profiles" })).toBeVisible();
+  await expect(
+    emptyState.getByRole("button", { name: "Search without manufacturer" }),
+  ).toBeVisible();
+  await expect(emptyState.getByRole("link", { name: "Measure and contribute" })).toBeVisible();
+  await expect(emptyState.getByRole("link", { name: "Ask the community instead" })).toBeVisible();
+
+  const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+  expect(scrollWidth).toBe(clientWidth);
+});
+
 test("does not scroll sideways", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("library-card-list")).toBeVisible();
