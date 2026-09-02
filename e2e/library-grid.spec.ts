@@ -132,6 +132,46 @@ test("removes a single filter through its chip", async ({ page }) => {
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
 });
 
+test("offers recovery actions when no profiles match", async ({ page }) => {
+  await page.goto("/?q=not-a-real-device&deviceType=light&manufacturer=Signify");
+
+  const emptyState = page.getByTestId("library-empty-state");
+  await expect(emptyState.getByRole("heading", { name: "No matching profiles" })).toBeVisible();
+  await expect(emptyState.getByText(/exact model ID, a model alias, or the barcode/)).toBeVisible();
+  await expect(emptyState.getByRole("link", { name: "Measure and contribute" })).toHaveAttribute(
+    "href",
+    "https://docs.powercalc.nl/contributing/",
+  );
+  await expect(emptyState.getByRole("link", { name: "Ask the community instead" })).toHaveAttribute(
+    "href",
+    "https://github.com/bramstroker/homeassistant-powercalc/discussions/categories/request-light-models",
+  );
+  await expect(
+    emptyState.getByText(/another owner having the exact same physical model/),
+  ).toBeVisible();
+
+  await emptyState.getByRole("button", { name: "Clear all", exact: true }).click();
+  await expect(page).toHaveURL("/");
+  await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
+
+  await page.goto("/?q=not-a-real-device&deviceType=light&manufacturer=Signify");
+  await emptyState.getByRole("button", { name: "Search without manufacturer" }).click();
+  await expect(page).toHaveURL("/?deviceType=light&q=not-a-real-device");
+
+  await emptyState
+    .getByRole("button", { name: "Device type: light" })
+    .getByTestId("CancelIcon")
+    .click();
+  await expect(page).toHaveURL("/?q=not-a-real-device");
+
+  await emptyState
+    .getByRole("button", { name: "Search: not-a-real-device" })
+    .getByTestId("CancelIcon")
+    .click();
+  await expect(page).toHaveURL("/");
+  await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
+});
+
 test("focuses the search box with the / shortcut", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();

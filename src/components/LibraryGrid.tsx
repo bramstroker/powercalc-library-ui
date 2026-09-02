@@ -18,6 +18,7 @@ import {
 } from "./library/DesktopLibraryLoadingState";
 import { FILTER_PANEL_WIDTH, FilterPanel } from "./library/FilterPanel";
 import { LibraryCardList } from "./library/LibraryCardList";
+import { LibraryEmptyState } from "./library/LibraryEmptyState";
 import { LibrarySearchField } from "./library/LibrarySearchField";
 
 const importDesktopGrid = () => import("./library/DesktopLibraryDataGrid");
@@ -142,7 +143,7 @@ export const LibraryGrid = () => {
               </Button>
             </Badge>
 
-            <ActiveFilterChips filters={filters} {...actions} />
+            {rows.length > 0 && <ActiveFilterChips filters={filters} {...actions} />}
 
             <Box sx={{ flexGrow: 1 }} />
 
@@ -174,20 +175,27 @@ export const LibraryGrid = () => {
             </Tooltip>
           </Stack>
 
-          {/* Both viewport slots exist in the prerender and CSS selects the right one immediately.
-              JavaScript still mounts only the expensive result component for the active width. */}
-          <Box sx={{ display: { xs: "none", md: "flex" }, flex: 1, minHeight: 0 }}>
-            {isDesktop ? (
-              <Suspense fallback={<DesktopDataGridSkeleton />}>
-                <DesktopLibraryDataGrid rows={rows} showColumnsRef={showColumnsRef} />
-              </Suspense>
-            ) : (
-              <DesktopDataGridSkeleton />
-            )}
-          </Box>
-          <Box sx={{ display: { xs: "block", md: "none" } }}>
-            {!isDesktop && <LibraryCardList rows={rows} />}
-          </Box>
+          {rows.length === 0 ? (
+            <LibraryEmptyState filters={filters} {...actions} />
+          ) : (
+            <>
+              {/* Both viewport slots exist in the prerender and CSS selects the right one
+                  immediately. JavaScript still mounts only the expensive result component for
+                  the active width. */}
+              <Box sx={{ display: { xs: "none", md: "flex" }, flex: 1, minHeight: 0 }}>
+                {isDesktop ? (
+                  <Suspense fallback={<DesktopDataGridSkeleton />}>
+                    <DesktopLibraryDataGrid rows={rows} showColumnsRef={showColumnsRef} />
+                  </Suspense>
+                ) : (
+                  <DesktopDataGridSkeleton />
+                )}
+              </Box>
+              <Box sx={{ display: { xs: "block", md: "none" } }}>
+                {!isDesktop && <LibraryCardList rows={rows} />}
+              </Box>
+            </>
+          )}
         </Box>
       </Box>
     </Box>
