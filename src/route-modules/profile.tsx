@@ -116,14 +116,13 @@ export const profileStructuredData = (profile: PowerProfile): StructuredData[] =
       keywords: ["Powercalc", profile.deviceType, profile.calculationStrategy, manufacturerName],
       creator: creators.length > 0 ? creators : POWERCALC_PUBLISHER,
       about: {
-        "@type": "Product",
-        name: profile.name || title,
-        model: profile.modelId,
-        manufacturer: {
-          "@type": "Organization",
-          name: manufacturerName,
-          url: `${SITE_URL}${manufacturerPath(dirName)}`,
-        },
+        // This describes what was measured, not a purchasable product. Using `Product` here makes
+        // Google treat the nested entity as a product snippet and require offers or reviews that
+        // the measurement library neither has nor should invent.
+        "@type": "Thing",
+        name: `${manufacturerName} ${profile.name || profile.modelId}`,
+        identifier: profile.modelId,
+        additionalType: humanizeIdentifier(profile.deviceType),
       },
       variableMeasured: [
         profile.standbyPower == null

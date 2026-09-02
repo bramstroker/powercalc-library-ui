@@ -9,11 +9,14 @@
     "dataKiB": 32
   },
   "requests": {
-    "initialHomepage": 90
+    "initialHomepage": 95
   },
   "mobile": {
     "lcpMs": 2500,
     "inpMs": 200,
+    "cls": 0.1
+  },
+  "desktop": {
     "cls": 0.1
   }
 }

@@ -20,10 +20,15 @@ declare global {
   }
 }
 
-test("keeps the mobile homepage within its runtime performance budgets", async ({
+test("keeps the homepage within its runtime performance budgets", async ({
   page,
   context,
-}) => {
+  browserName,
+}, testInfo) => {
+  const isMobile = testInfo.project.name === "mobile-chromium";
+
+  expect(browserName, "performance budgets run in Chromium").toBe("chromium");
+
   await mockApi(page);
   const cdp = await context.newCDPSession(page);
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
@@ -91,16 +96,21 @@ test("keeps the mobile homepage within its runtime performance budgets", async (
 
   const metrics = await page.evaluate(() => window.__performanceBudgetMetrics);
   console.log(
-    `Mobile homepage: LCP ${metrics.lcp.toFixed(0)} ms, INP ${metrics.inp.toFixed(0)} ms, CLS ${metrics.cls.toFixed(3)}, ${requestCount} requests`,
+    `${isMobile ? "Mobile" : "Desktop"} homepage: LCP ${metrics.lcp.toFixed(0)} ms, INP ${metrics.inp.toFixed(0)} ms, CLS ${metrics.cls.toFixed(3)}, ${requestCount} requests`,
   );
 
-  expect(metrics.supportsEventTiming, "Chromium must expose Event Timing for INP").toBe(true);
-  expect(requestCount, "initial homepage requests").toBeLessThanOrEqual(
+  expect(metrics.cls, `${isMobile ? "mobile" : "desktop"} CLS`).toBeLessThanOrEqual(
+    isMobile ? budgets.mobile.cls : budgets.desktop.cls,
+  );
+
+  if (!isMobile) return;
+
+  expect(requestCount, "initial mobile homepage requests").toBeLessThanOrEqual(
     budgets.requests.initialHomepage,
   );
+  expect(metrics.supportsEventTiming, "Chromium must expose Event Timing for INP").toBe(true);
   expect(metrics.lcp, "mobile LCP in milliseconds").toBeGreaterThan(0);
   expect(metrics.lcp, "mobile LCP in milliseconds").toBeLessThanOrEqual(budgets.mobile.lcpMs);
   expect(metrics.inp, "mobile INP in milliseconds").toBeGreaterThan(0);
   expect(metrics.inp, "mobile INP in milliseconds").toBeLessThanOrEqual(budgets.mobile.inpMs);
-  expect(metrics.cls, "mobile CLS").toBeLessThanOrEqual(budgets.mobile.cls);
 });
