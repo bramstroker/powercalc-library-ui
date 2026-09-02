@@ -4,6 +4,7 @@ import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
 import FactoryOutlinedIcon from "@mui/icons-material/FactoryOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
 import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import NewReleasesOutlinedIcon from "@mui/icons-material/NewReleasesOutlined";
 import { Tooltip } from "@mui/material";
@@ -243,6 +244,16 @@ export const Header = ({ searchSlot, resultCount, totalCount }: HeaderProps) => 
                   >
                     <GroupOutlinedIcon fontSize="small" sx={{ mr: 1.25 }} />
                     Contributors
+                  </MenuItem>
+                  <MenuItem
+                    component={RouterLink}
+                    to="/contribute"
+                    onClick={handleExploreClose}
+                    aria-current={isCurrent("/contribute") ? "page" : undefined}
+                    sx={menuItemSx("/contribute")}
+                  >
+                    <LibraryAddOutlinedIcon fontSize="small" sx={{ mr: 1.25 }} />
+                    Contribute
                   </MenuItem>
                   <MenuItem
                     component={RouterLink}

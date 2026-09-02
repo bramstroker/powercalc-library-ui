@@ -386,11 +386,10 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
             </Typography>
             <Stack direction="row" spacing={1.5} useFlexGap sx={{ flexWrap: "wrap", mt: 3 }}>
               <Button
+                component={RouterLink}
+                to="/contribute"
                 variant="contained"
                 startIcon={<LibraryAddOutlinedIcon />}
-                href="https://docs.powercalc.nl/contributing/"
-                target="_blank"
-                rel="noopener noreferrer"
               >
                 Contribute a profile
               </Button>

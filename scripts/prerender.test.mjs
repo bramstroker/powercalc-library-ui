@@ -50,6 +50,8 @@ describe("collectPrerenderPaths", () => {
     assert.ok(paths.includes("/contributors/bramstroker"));
     assert.ok(paths.includes("/manufacturers"));
     assert.ok(paths.includes("/device-types/light"));
+    assert.ok(paths.includes("/contribute"));
+    assert.ok(paths.includes("/about"));
   });
 
   it("decodes escaped slugs, because that is the form the router matches against", () => {

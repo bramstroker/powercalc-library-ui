@@ -43,6 +43,8 @@ test("collects canonical profile, entity, and category URLs", () => {
   assert.equal(byPath.get("/"), "2026-08-21");
   assert.equal(byPath.get("/device-types"), "2026-08-21");
   assert.equal(byPath.get("/contributors"), "2026-08-21");
+  assert.equal(byPath.has("/about"), true);
+  assert.equal(byPath.has("/contribute"), true);
   assert.equal(byPath.has("/statistics"), true);
   assert.equal(byPath.has("/analytics/sensor-dimensions/by_strategy"), true);
 });
