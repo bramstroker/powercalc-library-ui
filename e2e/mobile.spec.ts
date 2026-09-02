@@ -140,8 +140,8 @@ test("groups the profile attributes into sections", async ({ page }) => {
 
   // The overline variant uppercases the headings in CSS.
   expect(headings).toEqual(["DEVICE", "POWER", "MEASUREMENT", "LIBRARY"]);
-  await expect(page.getByRole("heading", { name: "Device", level: 2 })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Power", level: 2 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Device", level: 2, exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Power", level: 2, exact: true })).toBeVisible();
 
   // Extended power values belong here; headline figures are intentionally not repeated.
   await expect(
