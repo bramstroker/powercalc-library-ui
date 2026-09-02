@@ -233,8 +233,62 @@ describe("matchesSearch", () => {
   it("matches on device type and color mode", () => {
     expect(matchesSearch(hueLight, "light")).toBe(true);
     expect(matchesSearch(hueLight, "color_temp")).toBe(true);
+    expect(matchesSearch(hueLight, "color temp")).toBe(true);
     expect(matchesSearch(hueLight, "signify light")).toBe(true);
     expect(matchesSearch(sonoffSwitch, "light")).toBe(false);
+  });
+
+  it("matches manufacturer aliases and profile metadata", () => {
+    const profile = createProfile({
+      manufacturer: {
+        dirName: "tp-link",
+        fullName: "TP-Link",
+        aliases: ["Kasa"],
+      },
+      measureDevice: "Tapo P110",
+      compatibleIntegrations: ["deCONZ"],
+      deviceSpecs: {
+        socket: ["E27"],
+        formFactor: "bulb",
+        connectivity: ["zigbee", "bluetooth"],
+      },
+    });
+
+    for (const term of [
+      "tplink",
+      "kasa",
+      "tapo p110",
+      "deconz",
+      "e27",
+      "bulb",
+      "zigbee",
+      "bluetooth",
+      "script",
+      "lut",
+      "bramstroker",
+    ]) {
+      expect(matchesSearch(profile, term), term).toBe(true);
+    }
+  });
+
+  it("folds diacritics and punctuation", () => {
+    const profile = createProfile({ name: "TRÅDFRI Wi-Fi bulb" });
+
+    expect(matchesSearch(profile, "tradfri")).toBe(true);
+    expect(matchesSearch(profile, "wifi")).toBe(true);
+    expect(matchesSearch(profile, "wi fi")).toBe(true);
+  });
+
+  it("tolerates small spelling mistakes and adjacent letter swaps", () => {
+    expect(matchesSearch(hueLight, "signfy")).toBe(true);
+    expect(matchesSearch(hueLight, "singify")).toBe(true);
+    expect(matchesSearch(ikeaLight, "tradfry")).toBe(true);
+  });
+
+  it("keeps short terms and identifiers exact", () => {
+    expect(matchesSearch(hueLight, "lca002")).toBe(false);
+    expect(matchesSearch(hueLight, "e26")).toBe(false);
+    expect(matchesSearch(sonoffSwitch, "s30")).toBe(false);
   });
 
   it("matches everything on an empty or whitespace term", () => {

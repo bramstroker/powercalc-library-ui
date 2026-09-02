@@ -92,33 +92,137 @@ const matchesRange = (profile: PowerProfile, key: RangeKey, range: Range): boole
   return value >= range[0] && value <= range[1];
 };
 
-const searchHaystack = (profile: PowerProfile): string =>
-  [
+type SearchDocument = {
+  fields: string[];
+  words: string[];
+};
+
+const searchDocumentCache = new WeakMap<PowerProfile, SearchDocument>();
+
+/**
+ * Makes terms entered the way people write them comparable with library identifiers. Diacritics
+ * are folded and punctuation becomes whitespace, so `TRÅDFRI`, `color-temp` and `color_temp`
+ * behave like their plain-text equivalents.
+ */
+const normalizeSearchText = (value: string): string =>
+  value
+    .normalize("NFKD")
+    .replace(/\p{M}/gu, "")
+    .toLocaleLowerCase("en-US")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+
+const getSearchDocument = (profile: PowerProfile): SearchDocument => {
+  const cached = searchDocumentCache.get(profile);
+  if (cached) {
+    return cached;
+  }
+
+  const values = [
     profile.manufacturer.fullName,
+    profile.manufacturer.dirName,
+    ...profile.manufacturer.aliases,
     profile.modelId,
     profile.name,
     ...profile.aliases,
+    ...(profile.legacyIds ?? []),
     profile.deviceType,
     ...(profile.colorModes ?? []),
+    profile.measureDevice,
+    profile.measureMethod,
+    profile.calculationStrategy,
+    ...profile.compatibleIntegrations,
+    ...(profile.deviceSpecs?.socket ?? []),
+    profile.deviceSpecs?.formFactor,
+    ...(profile.deviceSpecs?.connectivity ?? []),
+    ...profile.authors.flatMap((author) => [author.name, author.githubUsername]),
     ...(profile.ean ?? []),
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+  ];
+  const normalizedFields = values
+    .filter((value): value is string => Boolean(value))
+    .map(normalizeSearchText)
+    .filter(Boolean);
+  const document = {
+    // Keep compact variants too: `tp-link`, `TP Link` and `tplink` should be interchangeable.
+    fields: [...normalizedFields, ...normalizedFields.map((field) => field.replaceAll(" ", ""))],
+    words: [...new Set(normalizedFields.flatMap((field) => field.split(" ")))],
+  };
+  searchDocumentCache.set(profile, document);
+  return document;
+};
+
+const FUZZY_WORD = /^\p{L}+$/u;
+
+const fuzzyDistanceFor = (word: string): number => {
+  if (!FUZZY_WORD.test(word) || word.length < 4) {
+    return 0;
+  }
+  return word.length >= 8 ? 2 : 1;
+};
+
+/** Damerau-Levenshtein distance, including the adjacent letter swaps common in typing errors. */
+const isWithinEditDistance = (left: string, right: string, maximum: number): boolean => {
+  if (Math.abs(left.length - right.length) > maximum) {
+    return false;
+  }
+
+  let previousPrevious: number[] | undefined;
+  let previous = Array.from({ length: right.length + 1 }, (_value, index) => index);
+
+  for (let row = 1; row <= left.length; row += 1) {
+    const current = [row];
+    for (let column = 1; column <= right.length; column += 1) {
+      const substitutionCost = left[row - 1] === right[column - 1] ? 0 : 1;
+      current[column] = Math.min(
+        previous[column] + 1,
+        current[column - 1] + 1,
+        previous[column - 1] + substitutionCost,
+      );
+      if (
+        previousPrevious &&
+        row > 1 &&
+        column > 1 &&
+        left[row - 1] === right[column - 2] &&
+        left[row - 2] === right[column - 1]
+      ) {
+        current[column] = Math.min(current[column], previousPrevious[column - 2] + 1);
+      }
+    }
+    previousPrevious = previous;
+    previous = current;
+  }
+
+  return previous[right.length] <= maximum;
+};
+
+const matchesSearchWord = (document: SearchDocument, word: string): boolean => {
+  if (document.fields.some((field) => field.includes(word))) {
+    return true;
+  }
+
+  const maximumDistance = fuzzyDistanceFor(word);
+  return (
+    maximumDistance > 0 &&
+    document.words.some(
+      (candidate) =>
+        FUZZY_WORD.test(candidate) && isWithinEditDistance(word, candidate, maximumDistance),
+    )
+  );
+};
 
 /**
- * Substring match over manufacturer, model id, name, aliases, device type, colour modes and the
- * barcodes on the box, so somebody holding the packaging can search by the number on it. The
- * term is split on whitespace and every word has to match, though not necessarily in the same
- * field — so "amazon echo" finds the Echo Dot, whose manufacturer and name each hold one word.
+ * Matches identity, device, measurement and integration metadata. Every word must match, though
+ * not necessarily in the same field, so "amazon echo" finds an Echo whose manufacturer and name
+ * each hold one word. Text words tolerate small spelling mistakes; short terms, model identifiers
+ * and barcodes remain exact to avoid silently suggesting a different device.
  */
 export const matchesSearch = (profile: PowerProfile, term: string): boolean => {
-  const words = term.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const words = normalizeSearchText(term).split(/\s+/).filter(Boolean);
   if (words.length === 0) {
     return true;
   }
-  const haystack = searchHaystack(profile);
-  return words.every((word) => haystack.includes(word));
+  const document = getSearchDocument(profile);
+  return words.every((word) => matchesSearchWord(document, word));
 };
 
 const matchesDate = (value: Date | null | undefined, isoDate: string): boolean => {
