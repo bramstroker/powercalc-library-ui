@@ -1,11 +1,13 @@
 import type { MetaDescriptor } from "react-router";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { SITE_URL } from "../config/site";
+import { libraryQuery, type LibraryData } from "../queries/library.query";
+import { queryClient } from "../queryClient";
 import type { Manufacturer, PowerProfile } from "../types/PowerProfile";
 
 import { meta as categoryIndexMeta } from "./profile-categories";
-import { meta as categoryMeta, profileCategoryStructuredData } from "./profile-category";
+import { loader, meta as categoryMeta, profileCategoryStructuredData } from "./profile-category";
 
 const signify: Manufacturer = { dirName: "signify", fullName: "Signify", aliases: [] };
 const profile = {
@@ -70,5 +72,22 @@ describe("profile category metadata", () => {
     );
 
     expect(metadata.robots).toBe("noindex, follow");
+  });
+});
+
+describe("profile category loader", () => {
+  afterEach(() => queryClient.clear());
+
+  it("does not redirect the generated data request for a canonical category", async () => {
+    queryClient.setQueryData(libraryQuery().queryKey, {
+      powerProfiles: [profile],
+    } as LibraryData);
+
+    await expect(
+      loader({
+        params: { categoryName: "light" },
+        request: new Request("http://localhost/device-types/light.data"),
+      } as never),
+    ).resolves.toMatchObject({ value: "light", profiles: [profile] });
   });
 });
