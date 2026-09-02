@@ -216,7 +216,7 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
   );
 
   return (
-    <Box sx={{ mb: 3 }} data-testid="profile-setup">
+    <Box data-testid="profile-setup">
       <Button
         variant="outlined"
         aria-expanded={setupExpanded}

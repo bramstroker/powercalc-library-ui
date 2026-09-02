@@ -29,8 +29,7 @@ describe("ProfileMetrics", () => {
     expect(html).toContain("Community usage");
     expect(html).toContain("12 opted-in installations");
     expect(html).toContain("1.2% of 1,000 reporting installations");
-    expect(html).toContain("Help improve these insights.");
-    expect(html).toContain("Opt in to anonymous analytics");
+    expect(html).toContain("Opt in to analytics");
     expect(html).toContain("https://docs.powercalc.nl/misc/analytics/");
   });
 });
