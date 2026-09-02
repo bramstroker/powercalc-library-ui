@@ -45,6 +45,12 @@ describe("profileStructuredData", () => {
       isAccessibleForFree: true,
       includedInDataCatalog: DATA_CATALOG_ID,
       isPartOf: LIBRARY_DATASET_ID,
+      about: {
+        "@type": "Thing",
+        name: "Signify Hue White and Color Ambiance A60",
+        identifier: "LCA001",
+        additionalType: "Light",
+      },
       distribution: {
         "@type": "DataDownload",
         encodingFormat: "application/json",
@@ -52,5 +58,6 @@ describe("profileStructuredData", () => {
       },
     });
     expect(String(dataset.description).length).toBeGreaterThanOrEqual(50);
+    expect(JSON.stringify(graph)).not.toContain('"@type":"Product"');
   });
 });

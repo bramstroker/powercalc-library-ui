@@ -61,5 +61,9 @@ describe("community information pages", () => {
       "href",
       "https://opensource.org/license/mit",
     );
+    expect(screen.getByRole("link", { name: "Understand measurement quality" })).toHaveAttribute(
+      "href",
+      "/measurement-quality",
+    );
   });
 });

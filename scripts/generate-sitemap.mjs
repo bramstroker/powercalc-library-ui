@@ -142,6 +142,7 @@ export const collectSitemapEntries = (library) => {
   for (const path of [
     "/about",
     "/contribute",
+    "/measurement-quality",
     "/statistics",
     "/statistics/top-measure-devices",
     "/statistics/top-contributors",

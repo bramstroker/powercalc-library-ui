@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { describe, it } from "node:test";
 
 import {
@@ -52,6 +53,7 @@ describe("collectPrerenderPaths", () => {
     assert.ok(paths.includes("/device-types/light"));
     assert.ok(paths.includes("/contribute"));
     assert.ok(paths.includes("/about"));
+    assert.ok(paths.includes("/measurement-quality"));
   });
 
   it("decodes escaped slugs, because that is the form the router matches against", () => {
@@ -60,6 +62,18 @@ describe("collectPrerenderPaths", () => {
     });
 
     assert.ok(paths.includes("/profiles/signify/日本"));
+  });
+
+  it("keeps every sitemap route in the Nginx React Router allowlist", async () => {
+    const nginxConfig = await readFile(new URL("../etc/nginx.conf", import.meta.url), "utf8");
+    const routeLocation = nginxConfig.match(/^\s*location ~ (\^\/\(.*\)\/\?\$) \{$/mu)?.[1];
+    assert.ok(routeLocation, "Nginx React Router location was not found");
+
+    const routePattern = new RegExp(routeLocation, "u");
+    for (const path of collectPrerenderPaths(library).filter((path) => path !== "/")) {
+      assert.match(path, routePattern, `${path} must resolve without a redirect`);
+      assert.match(`${path}/`, routePattern, `${path}/ must remain a supported route variant`);
+    }
   });
 });
 

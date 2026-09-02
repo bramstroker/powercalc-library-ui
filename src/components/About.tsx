@@ -102,6 +102,9 @@ export const About = () => (
           >
             Browse the source data
           </Button>
+          <Button component={RouterLink} to="/measurement-quality" sx={{ mt: 1.5 }}>
+            Understand measurement quality
+          </Button>
         </InformationCard>
       </Grid>
 

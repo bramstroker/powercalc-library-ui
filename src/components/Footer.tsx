@@ -13,6 +13,7 @@ const NAVIGATION_LINKS = [
   { label: "What's new", to: "/whats-new" },
   { label: "Statistics", to: "/statistics" },
   { label: "Analytics", to: "/analytics" },
+  { label: "Measurement quality", to: "/measurement-quality" },
   { label: "About", to: "/about" },
 ] as const;
 

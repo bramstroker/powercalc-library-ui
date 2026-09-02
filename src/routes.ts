@@ -24,6 +24,7 @@ export default [
     route("contributors/:authorName", "./route-modules/author.tsx"),
     route("contribute", "./route-modules/contribute.tsx"),
     route("about", "./route-modules/about.tsx"),
+    route("measurement-quality", "./route-modules/measurement-quality.tsx"),
     route("manufacturers", "./route-modules/manufacturers.tsx"),
     route("manufacturers/:manufacturerName", "./route-modules/manufacturer.tsx"),
     route("device-types", "./route-modules/profile-categories.tsx", {
