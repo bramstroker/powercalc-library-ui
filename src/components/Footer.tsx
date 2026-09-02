@@ -8,9 +8,11 @@ const NAVIGATION_LINKS = [
   { label: "Manufacturers", to: "/manufacturers" },
   { label: "Device types", to: "/device-types" },
   { label: "Contributors", to: "/contributors" },
+  { label: "Contribute", to: "/contribute" },
   { label: "What's new", to: "/whats-new" },
   { label: "Statistics", to: "/statistics" },
   { label: "Analytics", to: "/analytics" },
+  { label: "About", to: "/about" },
 ] as const;
 
 export const Footer = () => {

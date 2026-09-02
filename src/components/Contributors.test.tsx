@@ -119,7 +119,7 @@ describe("Contributors", () => {
     ).toHaveAccessibleDescription("show them all in the directory");
     expect(screen.getByRole("link", { name: "Contribute a profile" })).toHaveAttribute(
       "href",
-      "https://docs.powercalc.nl/contributing/",
+      "/contribute",
     );
     expect(screen.getByRole("link", { name: "View top contributors" })).toHaveAttribute(
       "href",

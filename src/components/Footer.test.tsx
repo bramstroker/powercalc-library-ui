@@ -20,9 +20,11 @@ describe("Footer", () => {
       ["Manufacturers", "/manufacturers"],
       ["Device types", "/device-types"],
       ["Contributors", "/contributors"],
+      ["Contribute", "/contribute"],
       ["What's new", "/whats-new"],
       ["Statistics", "/statistics"],
       ["Analytics", "/analytics"],
+      ["About", "/about"],
     ]);
   });
 });
