@@ -28,6 +28,17 @@ test("filters the grid with the global search", async ({ page }) => {
   await expect(page).toHaveURL(/q=TRADFRI/);
 });
 
+test("searches profile metadata and tolerates a typo", async ({ page }) => {
+  await page.goto("/");
+
+  const search = page.getByPlaceholder("Search all profiles");
+  await search.fill("signfy zigbee");
+
+  await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
+  await expect(page.getByRole("gridcell", { name: "LCT010" })).toBeHidden();
+  await expect(page.getByRole("gridcell", { name: "S31" })).toBeHidden();
+});
+
 test("applies a manufacturer filter from the URL query string", async ({ page }) => {
   await page.goto("/?manufacturer=IKEA");
 
