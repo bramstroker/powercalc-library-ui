@@ -9,6 +9,9 @@ export interface DownloadLink {
 const encodedProfilePath = (profile: PowerProfile) =>
   `${encodeURIComponent(profile.manufacturer.dirName)}/${encodeURIComponent(profile.modelId)}`;
 
+export const profileJsonUrl = (profile: PowerProfile) =>
+  `${API_ENDPOINTS.PROFILE}/${encodedProfilePath(profile)}`;
+
 const fetchJson = async <T>(url: string, errorMessage: string): Promise<T> => {
   const response = await fetch(url);
   if (!response.ok) {
@@ -19,7 +22,7 @@ const fetchJson = async <T>(url: string, errorMessage: string): Promise<T> => {
 
 export const fetchProfileJson = (profile: PowerProfile) =>
   fetchJson<Record<string, unknown>>(
-    `${API_ENDPOINTS.PROFILE}/${encodedProfilePath(profile)}`,
+    profileJsonUrl(profile),
     `Failed to fetch profile JSON for ${profile.manufacturer.dirName}/${profile.modelId}`,
   );
 

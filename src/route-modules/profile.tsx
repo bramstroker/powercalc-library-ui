@@ -1,6 +1,7 @@
 import { useLoaderData, type LoaderFunctionArgs, type MetaFunction } from "react-router";
 
 import type { Summary } from "../api/analytics.api";
+import { profileJsonUrl } from "../api/profileDetails.api";
 import { Profile } from "../components/Profile";
 import { SITE_URL } from "../config/site";
 import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
@@ -8,6 +9,12 @@ import { powerProfileLoader } from "../loaders/powerProfileLoader";
 import { dailySummaryQuery } from "../queries/summary.query";
 import { queryClient } from "../queryClient";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
+import {
+  DATA_CATALOG_ID,
+  DATASET_LICENSE_URL,
+  LIBRARY_DATASET_ID,
+  POWERCALC_PUBLISHER,
+} from "../seo/dataset";
 import { createPageMeta, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import type { PowerProfile } from "../types/PowerProfile";
@@ -42,6 +49,7 @@ const pageDescription = (profile: PowerProfile) =>
   [
     profile.name,
     `${profile.deviceType} power profile measured with ${profile.measureDevice || "an unknown device"}.`,
+    "This dataset documents device power consumption and calculation metadata for Powercalc.",
     profile.maxPower != null ? `Max power ${profile.maxPower} W.` : null,
     profile.standbyPower != null ? `Standby power ${profile.standbyPower} W.` : null,
   ]
@@ -57,6 +65,12 @@ export const profileStructuredData = (profile: PowerProfile): StructuredData[] =
   const profileUrl = `${SITE_URL}${canonicalPath}`;
   const title = `${manufacturerName} ${profile.modelId}`;
   const description = pageDescription(profile);
+  const creators = profile.authors.map((author) => ({
+    "@type": "Person",
+    name: author.name,
+    url: `${SITE_URL}${authorPath(author.githubUsername)}`,
+    sameAs: `https://github.com/${encodeURIComponent(author.githubUsername)}`,
+  }));
 
   return [
     breadcrumbStructuredData([
@@ -71,16 +85,15 @@ export const profileStructuredData = (profile: PowerProfile): StructuredData[] =
       name: `${title} power profile`,
       description,
       url: profileUrl,
+      identifier: [profileUrl, `${dirName}/${profile.modelId}`],
       dateCreated: isoDate(profile.createdAt),
       dateModified: isoDate(profile.updatedAt),
+      license: DATASET_LICENSE_URL,
+      isAccessibleForFree: true,
+      publisher: POWERCALC_PUBLISHER,
       measurementTechnique: [profile.calculationStrategy, profile.measureMethod].filter(Boolean),
       keywords: ["Powercalc", profile.deviceType, profile.calculationStrategy, manufacturerName],
-      creator: profile.authors.map((author) => ({
-        "@type": "Person",
-        name: author.name,
-        url: `${SITE_URL}${authorPath(author.githubUsername)}`,
-        sameAs: `https://github.com/${encodeURIComponent(author.githubUsername)}`,
-      })),
+      creator: creators.length > 0 ? creators : POWERCALC_PUBLISHER,
       about: {
         "@type": "Product",
         name: profile.name || title,
@@ -109,10 +122,13 @@ export const profileStructuredData = (profile: PowerProfile): StructuredData[] =
               unitText: "W",
             },
       ].filter(Boolean),
-      isPartOf: {
-        "@type": "Dataset",
-        name: "Powercalc profile library",
-        url: SITE_URL,
+      includedInDataCatalog: DATA_CATALOG_ID,
+      isPartOf: LIBRARY_DATASET_ID,
+      distribution: {
+        "@type": "DataDownload",
+        name: `${title} raw profile JSON`,
+        encodingFormat: "application/json",
+        contentUrl: profileJsonUrl(profile),
       },
     },
   ];

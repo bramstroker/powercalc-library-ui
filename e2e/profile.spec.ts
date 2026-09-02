@@ -38,6 +38,14 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
   expect(structuredData["@graph"][1]).toMatchObject({
     name: "Signify LCA001 power profile",
     url: "https://library.powercalc.nl/profiles/signify/lca001",
+    license: "https://opensource.org/license/mit",
+    isAccessibleForFree: true,
+    publisher: { "@type": "Organization", name: "Powercalc" },
+    isPartOf: "https://library.powercalc.nl/#dataset",
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "application/json",
+    },
   });
 });
 
