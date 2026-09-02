@@ -24,6 +24,7 @@ describe("Footer", () => {
       ["What's new", "/whats-new"],
       ["Statistics", "/statistics"],
       ["Analytics", "/analytics"],
+      ["Measurement quality", "/measurement-quality"],
       ["About", "/about"],
     ]);
 
