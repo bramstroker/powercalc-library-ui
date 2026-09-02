@@ -19,6 +19,10 @@ type PageMetaOptions = {
   description?: string;
   path: string;
   noIndex?: boolean;
+  socialImage?: {
+    url: string;
+    alt: string;
+  };
 };
 
 export const createPageMeta = ({
@@ -26,6 +30,10 @@ export const createPageMeta = ({
   description = DEFAULT_DESCRIPTION,
   path,
   noIndex = false,
+  socialImage = {
+    url: SOCIAL_IMAGE_URL,
+    alt: "Powercalc profile library",
+  },
 }: PageMetaOptions): MetaDescriptor[] => {
   const fullTitle = title ? `${title} · ${SITE_NAME}` : SITE_NAME;
   const canonicalPath = path.replace(/\/+$/, "") || "/";
@@ -39,15 +47,16 @@ export const createPageMeta = ({
     { property: "og:type", content: "website" },
     { property: "og:url", content: canonicalUrl },
     { property: "og:site_name", content: SITE_NAME },
-    { property: "og:image", content: SOCIAL_IMAGE_URL },
+    { property: "og:image", content: socialImage.url },
+    { property: "og:image:type", content: "image/png" },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
-    { property: "og:image:alt", content: "Powercalc profile library" },
+    { property: "og:image:alt", content: socialImage.alt },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: fullTitle },
     { name: "twitter:description", content: description },
-    { name: "twitter:image", content: SOCIAL_IMAGE_URL },
-    { name: "twitter:image:alt", content: "Powercalc profile library" },
+    { name: "twitter:image", content: socialImage.url },
+    { name: "twitter:image:alt", content: socialImage.alt },
     { tagName: "link", rel: "canonical", href: canonicalUrl },
     ...(noIndex ? [{ name: "robots", content: "noindex, follow" } as MetaDescriptor] : []),
   ];

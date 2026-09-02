@@ -18,7 +18,13 @@ import {
 import { createPageMeta, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import type { PowerProfile } from "../types/PowerProfile";
-import { authorPath, manufacturerPath, profilePath } from "../utils/urlSlugs.mjs";
+import { humanizeIdentifier } from "../utils/profilePresentation";
+import {
+  authorPath,
+  manufacturerPath,
+  profilePath,
+  profileSocialImagePath,
+} from "../utils/urlSlugs.mjs";
 
 export type ProfileLoaderData = {
   profile: PowerProfile;
@@ -58,6 +64,21 @@ const pageDescription = (profile: PowerProfile) =>
 
 const pageTitle = (profile: PowerProfile) =>
   `${profile.manufacturer.fullName} ${profile.name} (${profile.modelId})`;
+
+const socialImageAlt = (profile: PowerProfile) => {
+  const figures = [
+    profile.standbyPower != null ? `${profile.standbyPower} W standby` : null,
+    profile.maxPower != null ? `${profile.maxPower} W maximum` : null,
+  ].filter(Boolean);
+
+  return [
+    `${profile.manufacturer.fullName} ${profile.name} (${profile.modelId}) power profile`,
+    humanizeIdentifier(profile.deviceType),
+    figures.length > 0 ? figures.join(" and ") : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+};
 
 export const profileStructuredData = (profile: PowerProfile): StructuredData[] => {
   const { fullName: manufacturerName, dirName } = profile.manufacturer;
@@ -148,6 +169,13 @@ export const meta: MetaFunction<typeof loader> = ({ loaderData, location, error 
     path: profilePath(loaderData.profile.manufacturer.dirName, loaderData.profile.modelId),
     title: pageTitle(loaderData.profile),
     description: pageDescription(loaderData.profile),
+    socialImage: {
+      url: `${SITE_URL}${profileSocialImagePath(
+        loaderData.profile.manufacturer.dirName,
+        loaderData.profile.modelId,
+      )}`,
+      alt: socialImageAlt(loaderData.profile),
+    },
   });
 };
 

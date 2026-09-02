@@ -61,6 +61,7 @@ export const usePageMeta = ({ title, description, noIndex = false }: PageMeta) =
     upsertMeta("property", "og:url", resolvedCanonicalUrl);
     upsertMeta("property", "og:site_name", SITE_NAME);
     upsertMeta("property", "og:image", SOCIAL_IMAGE_URL);
+    upsertMeta("property", "og:image:type", "image/png");
     upsertMeta("property", "og:image:width", "1200");
     upsertMeta("property", "og:image:height", "630");
     upsertMeta("property", "og:image:alt", "Powercalc profile library");

@@ -28,3 +28,7 @@ export const deviceTypePath = (deviceType) => `/device-types/${encodeSlug(device
 /** @param {string} manufacturer @param {string} model */
 export const profilePath = (manufacturer, model) =>
   `/profiles/${encodeSlug(manufacturer)}/${encodeSlug(model)}`;
+
+/** @param {string} manufacturer @param {string} model */
+export const profileSocialImagePath = (manufacturer, model) =>
+  `/social-cards/profiles/${encodeSlug(manufacturer)}/${encodeSlug(model)}.png`;
