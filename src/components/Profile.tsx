@@ -75,6 +75,7 @@ import { QualityBadge } from "./library/QualityBadge";
 import { ManufacturerLogo } from "./ManufacturerLogo";
 import { PageBreadcrumbs } from "./PageBreadcrumbs";
 import { Plot } from "./Plot";
+import { SupportPowercalcPrompt } from "./SupportPowercalc";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -630,19 +631,18 @@ export const ProfileMetrics = ({
             </Tooltip>
           </Typography>
 
-          <Divider sx={{ my: 0.5 }} />
-          <Typography variant="caption" color="text.secondary">
-            Help improve these insights.
-          </Typography>
           <Link
-            variant="body2"
+            variant="caption"
             href="https://docs.powercalc.nl/misc/analytics/"
             target="_blank"
             rel="noopener noreferrer"
-            sx={{ alignSelf: "flex-start", fontWeight: 700 }}
+            sx={{ alignSelf: "flex-start", mt: 0.25, fontWeight: 700 }}
           >
-            Opt in to anonymous analytics
+            Opt in to analytics
           </Link>
+
+          <Divider sx={{ my: 0.75 }} />
+          <SupportPowercalcPrompt />
         </Stack>
       </CardContent>
     </Card>
@@ -1167,13 +1167,15 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
               />
             )}
           </Stack>
+
+          <Box sx={{ mt: 3 }}>
+            <ProfileSetup profile={profile} />
+          </Box>
         </Grid>
         <Grid size={{ xs: 12, md: 4, lg: 3 }}>
           <ProfileMetrics profile={profile} summary={summary} />
         </Grid>
       </Grid>
-
-      <ProfileSetup profile={profile} />
 
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs

@@ -26,5 +26,10 @@ describe("Footer", () => {
       ["Analytics", "/analytics"],
       ["About", "/about"],
     ]);
+
+    expect(screen.getByRole("link", { name: "Support Powercalc" })).toHaveAttribute(
+      "href",
+      "https://buymeacoffee.com/bramski",
+    );
   });
 });

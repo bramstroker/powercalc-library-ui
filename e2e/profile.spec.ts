@@ -13,6 +13,12 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
   await expect(
     page.getByRole("heading", { name: "Hue White and Color Ambiance A60", level: 2 }),
   ).toBeVisible();
+  const supportCard = page.getByRole("complementary", { name: "Support Powercalc" });
+  await expect(supportCard).toContainText("hosting and measurement hardware");
+  await expect(supportCard.getByRole("link", { name: "Support Powercalc" })).toHaveAttribute(
+    "href",
+    "https://buymeacoffee.com/bramski",
+  );
   await expect(page).toHaveTitle(
     "Signify Hue White and Color Ambiance A60 (LCA001) · Powercalc profile library",
   );
@@ -92,7 +98,7 @@ test("shows the usage stats loaded from the analytics endpoint", async ({ page }
   await expect(page.getByText("480 opted-in installations")).toBeVisible();
   await expect(page.getByText("12.5% of 3,840 reporting installations")).toBeVisible();
   await expect(page.getByRole("img", { name: "About installation analytics" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Opt in to anonymous analytics" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Opt in to analytics" })).toHaveAttribute(
     "href",
     "https://docs.powercalc.nl/misc/analytics/",
   );

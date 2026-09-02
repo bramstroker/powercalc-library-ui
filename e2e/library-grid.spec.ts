@@ -17,6 +17,28 @@ test("renders the library grid with all profiles", async ({ page }) => {
   await expect(page.getByRole("gridcell", { name: "S31" })).toBeVisible();
 });
 
+test("keeps the desktop footer at the viewport boundary", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+
+  const layout = await page.evaluate(() => {
+    const footer = document.querySelector("footer");
+    return {
+      scrollY: window.scrollY,
+      scrollHeight: document.documentElement.scrollHeight,
+      viewportHeight: document.documentElement.clientHeight,
+      footerBottom: footer?.getBoundingClientRect().bottom,
+    };
+  });
+
+  expect(layout).toMatchObject({
+    scrollY: 0,
+    scrollHeight: layout.viewportHeight,
+    footerBottom: layout.viewportHeight,
+  });
+});
+
 test("publishes the library dataset and catalog as structured data", async ({ page }) => {
   await page.goto("/");
 

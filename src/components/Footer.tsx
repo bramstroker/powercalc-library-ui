@@ -1,7 +1,8 @@
 import GitHubIcon from "@mui/icons-material/GitHub";
-import LocalCafeIcon from "@mui/icons-material/LocalCafe";
 import { Box, Link, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router";
+
+import { SupportPowercalcButton } from "./SupportPowercalc";
 
 const NAVIGATION_LINKS = [
   { label: "Browse profiles", to: "/" },
@@ -73,17 +74,7 @@ export const Footer = () => {
           GitHub
         </Link>
 
-        <Link
-          href="https://buymeacoffee.com/bramski"
-          target="_blank"
-          rel="noopener noreferrer"
-          color="inherit"
-          variant="body2"
-          sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}
-        >
-          <LocalCafeIcon fontSize="small" />
-          Buy Me A Coffee
-        </Link>
+        <SupportPowercalcButton size="small" subtle />
 
         <Typography variant="body2" color="text.secondary">
           © {currentYear} Bram Gerritsen
