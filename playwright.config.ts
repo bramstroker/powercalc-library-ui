@@ -8,10 +8,13 @@ const API_URL = `http://127.0.0.1:${API_PORT}`;
 
 export default defineConfig({
   testDir: "./e2e",
+  testIgnore: "**/performance/**",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // The fixture API and per-page route mocks are concurrency-safe. Four CI workers substantially
+  // shorten the suite without overloading GitHub's standard runner; override when needed.
+  workers: process.env.CI ? Number(process.env.E2E_WORKERS ?? 4) : undefined,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : [["list"]],
   use: {
     baseURL: BASE_URL,

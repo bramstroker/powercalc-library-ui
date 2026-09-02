@@ -28,10 +28,20 @@ npm test
 npm run test:e2e
 npm run format:check
 npm run bundle:check # run after a production build
+npm run performance:build
+npm run performance:check
 ```
 
 Playwright starts both the application and a local fixture API, so end-to-end tests do not depend
-on production data or network availability.
+on production data or network availability. CI runs the regular suite with four workers by default;
+set `E2E_WORKERS` to override that for a runner with different resources. The mobile performance
+test runs separately against the production build so it cannot affect regular E2E timing.
+
+`performance:build` creates a deterministic production build against that fixture API.
+`performance:check` then enforces the limits in `performance-budgets.json`: individual and
+aggregate homepage JavaScript, JavaScript added by any other route, prerendered HTML and loader
+data, initial homepage requests, plus mobile LCP, INP, and CLS. Route-specific JavaScript means the
+gzip size of modulepreloaded chunks that a route adds on top of the homepage's initial chunk set.
 
 ## Production build
 

@@ -1,0 +1,19 @@
+{
+  "javascript": {
+    "individualGzipKiB": 130,
+    "initialHomepageGzipKiB": 300,
+    "routeSpecificGzipKiB": 150
+  },
+  "prerender": {
+    "htmlKiB": 200,
+    "dataKiB": 32
+  },
+  "requests": {
+    "initialHomepage": 90
+  },
+  "mobile": {
+    "lcpMs": 2500,
+    "inpMs": 200,
+    "cls": 0.1
+  }
+}
