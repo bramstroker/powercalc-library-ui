@@ -42,6 +42,7 @@ describe("profile social images", () => {
   it("renders the profile identity and power figures into escaped SVG", () => {
     const svg = renderProfileSocialCardSvg(manufacturer, manufacturer.models[0]);
 
+    assert.match(svg, /font-family="DejaVu Sans, sans-serif"/u);
     assert.match(svg, /Brand &amp; Co/u);
     assert.match(svg, /A &lt;very&gt; capable/u);
     assert.match(svg, /Model \/ One/u);

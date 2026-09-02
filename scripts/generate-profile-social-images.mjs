@@ -90,7 +90,7 @@ export const renderProfileSocialCardSvg = (manufacturer, model) => {
   const maxPower = model.max_power ?? model.power_range?.max;
 
   return `
-<svg xmlns="http://www.w3.org/2000/svg" width="${CARD_WIDTH}" height="${CARD_HEIGHT}" viewBox="0 0 ${CARD_WIDTH} ${CARD_HEIGHT}">
+<svg xmlns="http://www.w3.org/2000/svg" width="${CARD_WIDTH}" height="${CARD_HEIGHT}" viewBox="0 0 ${CARD_WIDTH} ${CARD_HEIGHT}" font-family="DejaVu Sans, sans-serif">
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#ffffff"/>
@@ -107,40 +107,40 @@ export const renderProfileSocialCardSvg = (manufacturer, model) => {
   <g transform="translate(68 52)">
     <rect width="54" height="54" rx="13" fill="#303f9f"/>
     <g transform="translate(80 12)">
-      <text y="25" fill="#303f9f" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" letter-spacing="1.4">POWERCALC</text>
-      <text x="205" y="25" fill="#667085" font-family="Arial, Helvetica, sans-serif" font-size="27">PROFILE LIBRARY</text>
+      <text y="25" fill="#303f9f" font-size="27" font-weight="700" letter-spacing="1.4">POWERCALC</text>
+      <text x="205" y="25" fill="#667085" font-size="27">PROFILE LIBRARY</text>
     </g>
     <g transform="translate(13 11) scale(.52)" fill="#ffffff">
       <path d="M16.17 26.61 8.09 33.45v-23.2c0-.61.5-1.11 1.11-1.11h6.97v17.48Zm10.55-8.92-8.08 6.84V9.14h8.08v8.55Zm2.47-2.1V9.13h7.63l-7.63 6.46ZM6.11 59.15l7.19-12.56.47-.81 5.31-9.29H8.43c-.39 0-.57-.48-.27-.73l29.1-24.63-8.08 14.61-2.47 4.48h6.98c.77 0 1.26.81.92 1.49L25.2 50.52l2.19-.19c6.09-.52 11.55-3.21 15.63-7.29a25.07 25.07 0 0 0 7.38-17.65C50.49 11.44 38.7.02 24.75.02H9.64C4.32 0 0 4.32 0 9.64v47.87c0 3.35 4.44 4.54 6.11 1.65Z"/>
     </g>
   </g>
 
-  <text x="72" y="174" fill="#4455bd" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">${escapeXml(manufacturerName)}</text>
-  <text x="72" fill="#171923" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700">${textLines(productLines, 72, 244, 64)}</text>
+  <text x="72" y="174" fill="#4455bd" font-size="30" font-weight="700">${escapeXml(manufacturerName)}</text>
+  <text x="72" fill="#171923" font-size="54" font-weight="700">${textLines(productLines, 72, 244, 64)}</text>
 
   <g transform="translate(72 374)">
     <rect width="${Math.max(144, 28 + modelId.length * 15)}" height="52" rx="26" fill="#ffffff" stroke="#b9c1eb" stroke-width="2"/>
-    <text x="22" y="35" fill="#303f9f" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">${escapeXml(modelId)}</text>
+    <text x="22" y="35" fill="#303f9f" font-size="24" font-weight="700">${escapeXml(modelId)}</text>
   </g>
   <g transform="translate(72 444)">
     <circle cx="18" cy="18" r="18" fill="#e5e9ff"/>
     <path d="M10 18h16M18 10v16" stroke="#4455bd" stroke-width="3" stroke-linecap="round"/>
-    <text x="50" y="26" fill="#4a5061" font-family="Arial, Helvetica, sans-serif" font-size="26">${escapeXml(deviceType)}</text>
+    <text x="50" y="26" fill="#4a5061" font-size="26">${escapeXml(deviceType)}</text>
   </g>
 
   <g transform="translate(810 146)">
     <rect width="318" height="330" rx="28" fill="#303f9f"/>
-    <text x="34" y="58" fill="#cbd2ff" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="1.6">POWER FIGURES</text>
-    <text x="34" y="110" fill="#ffffff" fill-opacity=".78" font-family="Arial, Helvetica, sans-serif" font-size="23">Standby</text>
-    <text x="34" y="163" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="43" font-weight="700">${escapeXml(powerValue(model.standby_power))}</text>
+    <text x="34" y="58" fill="#cbd2ff" font-size="20" font-weight="700" letter-spacing="1.6">POWER FIGURES</text>
+    <text x="34" y="110" fill="#ffffff" fill-opacity=".78" font-size="23">Standby</text>
+    <text x="34" y="163" fill="#ffffff" font-size="43" font-weight="700">${escapeXml(powerValue(model.standby_power))}</text>
     <line x1="34" y1="198" x2="284" y2="198" stroke="#ffffff" stroke-opacity=".2"/>
-    <text x="34" y="244" fill="#ffffff" fill-opacity=".78" font-family="Arial, Helvetica, sans-serif" font-size="23">Maximum</text>
-    <text x="34" y="297" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="43" font-weight="700">${escapeXml(powerValue(maxPower))}</text>
+    <text x="34" y="244" fill="#ffffff" fill-opacity=".78" font-size="23">Maximum</text>
+    <text x="34" y="297" fill="#ffffff" font-size="43" font-weight="700">${escapeXml(powerValue(maxPower))}</text>
   </g>
 
   <line x1="72" y1="538" x2="1128" y2="538" stroke="#d6daea" stroke-width="2"/>
-  <text x="72" y="584" fill="#667085" font-family="Arial, Helvetica, sans-serif" font-size="23">Community-measured power profile</text>
-  <text x="1128" y="584" text-anchor="end" fill="#303f9f" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">library.powercalc.nl</text>
+  <text x="72" y="584" fill="#667085" font-size="23">Community-measured power profile</text>
+  <text x="1128" y="584" text-anchor="end" fill="#303f9f" font-size="23" font-weight="700">library.powercalc.nl</text>
 </svg>`;
 };
 
