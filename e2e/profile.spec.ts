@@ -251,16 +251,30 @@ test("offers manual setup for a profile discovered by entity", async ({ page }) 
   await expect(setup.getByText("model: S31")).toBeVisible();
 });
 
-test("hides manual setup for profiles not discovered by entity", async ({ page }) => {
+test("offers setup for profiles discovered by device", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 
   await expect(page.getByText("Automatic, by device")).toBeVisible();
-  await expect(page.getByTestId("profile-setup")).toBeHidden();
+  const setup = page.getByTestId("profile-setup");
+  await setup.getByRole("button", { name: "Use this profile" }).click();
+  await expect(
+    setup.getByText(/Powercalc can discover this model automatically \(by device\)/),
+  ).toBeVisible();
+  await setup.getByText("Set up manually instead").click();
+  await expect(setup.getByRole("link", { name: "Open in Home Assistant" })).toBeVisible();
+});
 
+test("offers setup for manual-only profiles", async ({ page }) => {
   await page.goto("/profiles/signify/LCT010");
 
   await expect(page.getByText("Not available (manual setup only)")).toBeVisible();
-  await expect(page.getByTestId("profile-setup")).toBeHidden();
+  const setup = page.getByTestId("profile-setup");
+  await setup.getByRole("button", { name: "Use this profile" }).click();
+  await expect(setup.getByText(/Automatic discovery is not available/)).toBeVisible();
+  await expect(setup.getByRole("link", { name: "Open in Home Assistant" })).toBeVisible();
+  await setup.getByText("Or configure with YAML").click();
+  await expect(setup.getByText("manufacturer: signify")).toBeVisible();
+  await expect(setup.getByText("model: LCT010")).toBeVisible();
 });
 
 test("shows the fields the API publishes beyond the basics", async ({ page }) => {
