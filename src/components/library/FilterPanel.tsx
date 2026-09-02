@@ -165,7 +165,11 @@ export const FilterPanel = ({
           ...panelSurface(theme),
         })}
       >
-        <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 700, flexGrow: 1 }}>
+        <Typography
+          component="h2"
+          variant="h6"
+          sx={{ fontSize: "1rem", fontWeight: 700, flexGrow: 1 }}
+        >
           Filters
         </Typography>
         <Button

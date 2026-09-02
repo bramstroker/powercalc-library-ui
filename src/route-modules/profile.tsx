@@ -48,6 +48,9 @@ const pageDescription = (profile: PowerProfile) =>
     .filter(Boolean)
     .join(" ");
 
+const pageTitle = (profile: PowerProfile) =>
+  `${profile.manufacturer.fullName} ${profile.name} (${profile.modelId})`;
+
 export const profileStructuredData = (profile: PowerProfile): StructuredData[] => {
   const { fullName: manufacturerName, dirName } = profile.manufacturer;
   const canonicalPath = profilePath(dirName, profile.modelId);
@@ -127,7 +130,7 @@ export const meta: MetaFunction<typeof loader> = ({ loaderData, location, error 
 
   return createPageMeta({
     path: profilePath(loaderData.profile.manufacturer.dirName, loaderData.profile.modelId),
-    title: `${loaderData.profile.manufacturer.fullName} ${loaderData.profile.modelId}`,
+    title: pageTitle(loaderData.profile),
     description: pageDescription(loaderData.profile),
   });
 };

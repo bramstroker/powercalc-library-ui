@@ -85,6 +85,10 @@ describe("Manufacturer", () => {
     expect(screen.getByLabelText("3 profiles")).toBeInTheDocument();
     expect(screen.getByLabelText("49 known installs")).toBeInTheDocument();
     expect(screen.getByLabelText("2 device types")).toBeInTheDocument();
+    expect(
+      screen.getByText(/community-contributed Powercalc measurements for products from Linkind/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/coverage includes lights and smart switches/)).toBeInTheDocument();
   });
 
   it("omits the alias control for a manufacturer without aliases", () => {

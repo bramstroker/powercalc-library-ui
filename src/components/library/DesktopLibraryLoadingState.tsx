@@ -49,7 +49,11 @@ export const DesktopFilterPanelSkeleton = () => (
         borderColor: "divider",
       }}
     >
-      <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 700, flexGrow: 1 }}>
+      <Typography
+        component="span"
+        variant="h6"
+        sx={{ fontSize: "1rem", fontWeight: 700, flexGrow: 1 }}
+      >
         Filters
       </Typography>
       <Skeleton variant="circular" width={28} height={28} />
@@ -60,7 +64,7 @@ export const DesktopFilterPanelSkeleton = () => (
       <Box key={title} sx={{ py: 1, borderBottom: 1, borderColor: "divider" }}>
         <Stack direction="row" sx={{ height: 32, alignItems: "center", gap: 1 }}>
           <Skeleton variant="circular" width={20} height={20} />
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1 }}>
+          <Typography component="span" variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1 }}>
             {title}
           </Typography>
           <Skeleton variant="rounded" width={20} height={20} />

@@ -24,6 +24,12 @@ export default [
     route("contributors/:authorName", "./route-modules/author.tsx"),
     route("manufacturers", "./route-modules/manufacturers.tsx"),
     route("manufacturers/:manufacturerName", "./route-modules/manufacturer.tsx"),
+    route("device-types", "./route-modules/profile-categories.tsx", {
+      id: "device-types",
+    }),
+    route("device-types/:categoryName", "./route-modules/profile-category.tsx", {
+      id: "device-type",
+    }),
     route("manufacturer/:manufacturerName", "./route-modules/legacy-manufacturer.tsx"),
     route("*", "./route-modules/not-found.tsx"),
   ]),

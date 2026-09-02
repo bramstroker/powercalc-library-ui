@@ -16,7 +16,7 @@ test("renders the results as cards instead of a table", async ({ page }) => {
   await expect(page.getByTestId("library-card-list")).toBeVisible();
   await expect(page.getByRole("grid")).toBeHidden();
 
-  await expect(page.getByText("LCA001")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "LCA001", level: 2 })).toBeVisible();
   await expect(page.getByText("Hue White and Color Ambiance A60")).toBeVisible();
 });
 

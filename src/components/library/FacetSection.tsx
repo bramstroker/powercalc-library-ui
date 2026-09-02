@@ -58,7 +58,11 @@ export const FacetSection = ({
         onClick={onToggleExpanded}
       >
         {Icon && <Icon fontSize="small" sx={{ color: "text.secondary" }} />}
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1, textAlign: "left" }}>
+        <Typography
+          component="h3"
+          variant="subtitle2"
+          sx={{ fontWeight: 700, flexGrow: 1, textAlign: "left" }}
+        >
           {title}
         </Typography>
         {summary}

@@ -2,7 +2,12 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { authorPath, manufacturerPath, profilePath } from "../src/utils/urlSlugs.mjs";
+import {
+  authorPath,
+  deviceTypePath,
+  manufacturerPath,
+  profilePath,
+} from "../src/utils/urlSlugs.mjs";
 import { SENSOR_DIMENSIONS } from "../src/config/sensorDimensions.mjs";
 
 export const DEFAULT_LIBRARY_API_URL = "https://api.powercalc.nl/library/full";
@@ -89,6 +94,7 @@ export const renderNginxRedirectMap = (redirects) => {
 export const collectSitemapEntries = (library) => {
   const entries = new Map();
   const authorDates = new Map();
+  const deviceTypeDates = new Map();
   const allDates = [];
 
   const add = (path, lastModified) => {
@@ -108,6 +114,11 @@ export const collectSitemapEntries = (library) => {
 
       add(profilePath(manufacturer.dir_name, model.id), modified);
 
+      if (model.device_type) {
+        const path = deviceTypePath(model.device_type);
+        deviceTypeDates.set(path, newestDate([deviceTypeDates.get(path), modified]));
+      }
+
       for (const author of model.authors ?? []) {
         if (!author.github) continue;
         const path = authorPath(author.github);
@@ -119,11 +130,13 @@ export const collectSitemapEntries = (library) => {
   }
 
   for (const [path, modified] of authorDates) add(path, modified);
+  for (const [path, modified] of deviceTypeDates) add(path, modified);
 
   const libraryModified = newestDate(allDates);
   add("/", libraryModified);
   add("/manufacturers", libraryModified);
   add("/contributors", libraryModified);
+  add("/device-types", libraryModified);
   add("/whats-new", libraryModified);
 
   for (const path of [

@@ -74,7 +74,7 @@ export const LibraryCardList = ({ rows }: LibraryCardListProps) => {
                   <Typography variant="body2" color="text.secondary">
                     ·
                   </Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
+                  <Typography component="h2" variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
                     {profile.modelId}
                   </Typography>
                   {isRecentlyAdded(profile) && <NewBadge />}

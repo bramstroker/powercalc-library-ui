@@ -26,6 +26,7 @@ import { Link as RouterLink, useSearchParams } from "react-router";
 
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
 import type { Manufacturer as ManufacturerDetails, PowerProfile } from "../types/PowerProfile";
+import { manufacturerLibraryIntroduction } from "../utils/manufacturerPresentation";
 import { plural } from "../utils/plural";
 import { humanizeIdentifier } from "../utils/profilePresentation";
 
@@ -215,6 +216,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
     (total, profile) => total + profile.usageStats.installationCount,
     0,
   );
+  const introduction = manufacturer ? manufacturerLibraryIntroduction(manufacturer, profiles) : "";
 
   if (!manufacturer) {
     return (
@@ -265,17 +267,9 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
 
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography
-              variant="overline"
-              color="primary"
-              sx={{ fontWeight: 800, lineHeight: 1.2 }}
-            >
-              Powercalc profile library
-            </Typography>
-            <Typography
               variant="h3"
               component="h1"
               sx={{
-                mt: 0.25,
                 fontSize: { xs: "1.75rem", sm: "2.5rem" },
                 fontWeight: 800,
                 lineHeight: 1.1,
@@ -301,10 +295,17 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
             )}
 
             {manufacturer.description && (
-              <Typography variant="body1" color="text.secondary" sx={{ mt: 1, maxWidth: "60ch" }}>
+              <Typography variant="body1" color="text.secondary" sx={{ mt: 1, maxWidth: "70ch" }}>
                 {manufacturer.description}
               </Typography>
             )}
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ mt: manufacturer.description ? 1.5 : 1, maxWidth: "70ch" }}
+            >
+              {introduction}
+            </Typography>
 
             <ManufacturerAliases aliases={manufacturer.aliases} />
           </Box>
