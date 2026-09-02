@@ -1,8 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { API_ENDPOINTS } from "../config/api";
 import { SITE_NAME, SITE_URL } from "../config/site";
+import {
+  DATA_CATALOG_ID,
+  DATASET_LICENSE_URL,
+  LIBRARY_DATASET_ID,
+  POWERCALC_PUBLISHER,
+} from "../seo/dataset";
 
-import { meta } from "./home";
+import { libraryDatasetStructuredData, meta } from "./home";
 
 vi.mock("../components/LibraryGrid", () => ({ LibraryGrid: () => null }));
 
@@ -21,5 +28,32 @@ describe("home metadata", () => {
     const metadata = metadataFor("?q=Hue&manufacturer=Signify");
 
     expect(metadata).toContainEqual({ tagName: "link", rel: "canonical", href: `${SITE_URL}/` });
+  });
+
+  it("describes the library as a downloadable dataset in a data catalog", () => {
+    const [catalog, dataset] = libraryDatasetStructuredData();
+
+    expect(catalog).toMatchObject({
+      "@type": "DataCatalog",
+      "@id": DATA_CATALOG_ID,
+      license: DATASET_LICENSE_URL,
+      isAccessibleForFree: true,
+      dataset: { "@id": LIBRARY_DATASET_ID },
+    });
+    expect(dataset).toMatchObject({
+      "@type": "Dataset",
+      "@id": LIBRARY_DATASET_ID,
+      creator: POWERCALC_PUBLISHER,
+      publisher: POWERCALC_PUBLISHER,
+      license: DATASET_LICENSE_URL,
+      isAccessibleForFree: true,
+      includedInDataCatalog: { "@id": DATA_CATALOG_ID },
+      distribution: {
+        "@type": "DataDownload",
+        encodingFormat: "application/json",
+        contentUrl: API_ENDPOINTS.LIBRARY,
+      },
+    });
+    expect(String(dataset.description).length).toBeGreaterThanOrEqual(50);
   });
 });

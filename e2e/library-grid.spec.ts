@@ -17,6 +17,24 @@ test("renders the library grid with all profiles", async ({ page }) => {
   await expect(page.getByRole("gridcell", { name: "S31" })).toBeVisible();
 });
 
+test("publishes the library dataset and catalog as structured data", async ({ page }) => {
+  await page.goto("/");
+
+  const structuredData = await page
+    .locator('script[type="application/ld+json"]')
+    .evaluate((element) => JSON.parse(element.textContent ?? ""));
+
+  expect(structuredData["@graph"].map((item: { "@type": string }) => item["@type"])).toEqual([
+    "DataCatalog",
+    "Dataset",
+  ]);
+  expect(structuredData["@graph"][1]).toMatchObject({
+    license: "https://opensource.org/license/mit",
+    isAccessibleForFree: true,
+    distribution: { "@type": "DataDownload", encodingFormat: "application/json" },
+  });
+});
+
 test("uses a sequential heading hierarchy for the library and filters", async ({ page }) => {
   await page.goto("/");
 
