@@ -1,5 +1,11 @@
 # Dockerfile
-FROM node:25-alpine AS build
+FROM node:25-alpine AS node-with-fonts
+
+# Sharp delegates SVG text rendering to librsvg/Pango. Alpine does not include a font by default,
+# which makes every social-card glyph render as a missing-character box.
+RUN apk add --no-cache fontconfig font-dejavu
+
+FROM node-with-fonts AS build
 
 WORKDIR /app
 ENV PATH=/app/node_modules/.bin:$PATH
@@ -12,7 +18,7 @@ RUN npm run build
 # Renders the documents again without rebuilding the app. Run against the same build the serving
 # container was made from, it rewrites HTML, `.data` and the sitemap while every hashed asset — and
 # the container serving it — stays exactly where it was.
-FROM node:25-alpine AS renderer
+FROM node-with-fonts AS renderer
 
 WORKDIR /app
 ENV NODE_ENV=production
