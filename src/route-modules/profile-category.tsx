@@ -1,6 +1,6 @@
 import { redirect, type LoaderFunctionArgs, type MetaFunction, useLoaderData } from "react-router";
 
-import { ProfileCategory } from "../components/ProfileCategory";
+import { ProfileCategory } from "../components/profile/ProfileCategory";
 import { DEVICE_TYPE_CATEGORY } from "../config/profileCategories";
 import { SITE_URL } from "../config/site";
 import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";

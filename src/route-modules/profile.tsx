@@ -2,7 +2,7 @@ import { useLoaderData, type LoaderFunctionArgs, type MetaFunction } from "react
 
 import type { Summary } from "../api/analytics.api";
 import { profileJsonUrl } from "../api/profileDetails.api";
-import { Profile } from "../components/Profile";
+import { Profile } from "../components/profile/Profile";
 import { SITE_URL } from "../config/site";
 import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
 import { powerProfileLoader } from "../loaders/powerProfileLoader";

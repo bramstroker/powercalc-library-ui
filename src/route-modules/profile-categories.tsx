@@ -1,6 +1,6 @@
 import type { LinksFunction, MetaFunction } from "react-router";
 
-import { ProfileCategoryIndex } from "../components/ProfileCategoryIndex";
+import { ProfileCategoryIndex } from "../components/profile/ProfileCategoryIndex";
 import { DEVICE_TYPE_CATEGORY } from "../config/profileCategories";
 import { libraryPreloadLinks } from "../seo/apiLinks";
 import { createPageMeta } from "../seo/meta";

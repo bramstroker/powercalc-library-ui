@@ -1,6 +1,6 @@
 import type { MetaFunction } from "react-router";
 
-import { MeasurementQuality } from "../components/MeasurementQuality";
+import { MeasurementQuality } from "../components/content/MeasurementQuality";
 import { createPageMeta } from "../seo/meta";
 
 export const meta: MetaFunction = () =>

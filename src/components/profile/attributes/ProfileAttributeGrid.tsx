@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import { Fragment, type ReactNode } from "react";
 import { Link as RouterLink } from "react-router";
 
-import { AliasChips } from "../../AliasChips";
+import { AliasChips } from "../AliasChips";
 
 import { PROFILE_ATTRIBUTE_GROUPS, type ProfileAttribute } from "./types";
 

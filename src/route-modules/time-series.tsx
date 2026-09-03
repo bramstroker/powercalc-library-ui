@@ -1,6 +1,6 @@
 import type { LinksFunction, MetaFunction } from "react-router";
 
-import { TimeSeries } from "../components/statistics/analytics/TimeSeries";
+import { TimeSeries } from "../components/analytics/time-series/TimeSeries";
 import { apiPreconnectLinks } from "../seo/apiLinks";
 import { createPageMeta } from "../seo/meta";
 

@@ -1,6 +1,6 @@
 import type { MetaFunction } from "react-router";
 
-import { About } from "../components/About";
+import { About } from "../components/content/About";
 import { createPageMeta } from "../seo/meta";
 
 export const meta: MetaFunction = () =>

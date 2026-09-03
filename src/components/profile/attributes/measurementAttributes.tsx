@@ -11,7 +11,7 @@ import type { PowerProfile } from "../../../types/PowerProfile";
 import { formatTimestampUtc } from "../../../utils/dateFormat";
 import { mainsVoltageBand } from "../../../utils/libraryFiltering";
 import { humanizeIdentifier } from "../../../utils/profilePresentation";
-import { QualityBadge } from "../../library/QualityBadge";
+import { QualityBadge } from "../../library/presentation/QualityBadge";
 
 import { MeasureDescription, Timestamp, volts } from "./AttributeRenderers";
 import { FilterLink } from "./ProfileAttributeGrid";

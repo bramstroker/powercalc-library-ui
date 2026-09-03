@@ -238,7 +238,7 @@ describe("matchesSearch", () => {
     expect(matchesSearch(sonoffSwitch, "light")).toBe(false);
   });
 
-  it("matches manufacturer aliases and profile metadata", () => {
+  it("matches manufacturer aliases and searchable profile metadata", () => {
     const profile = createProfile({
       manufacturer: {
         dirName: "tp-link",
@@ -257,7 +257,6 @@ describe("matchesSearch", () => {
     for (const term of [
       "tplink",
       "kasa",
-      "tapo p110",
       "deconz",
       "e27",
       "bulb",
@@ -445,5 +444,11 @@ describe("search", () => {
     const profile = createProfile({ ean: ["8719514291218"] });
 
     expect(matchesSearch(profile, "8719514291218")).toBe(true);
+  });
+
+  it("does not search the device used to measure a profile", () => {
+    const profile = createProfile({ measureDevice: "Tapo P110" });
+
+    expect(matchesSearch(profile, "Tapo P110")).toBe(false);
   });
 });
