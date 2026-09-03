@@ -3,7 +3,6 @@ import FactoryIcon from "@mui/icons-material/Factory";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import HomeIcon from "@mui/icons-material/Home";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import SortIcon from "@mui/icons-material/Sort";
 import {
   Box,
   Button,
@@ -11,36 +10,35 @@ import {
   LinearProgress,
   Paper,
   Stack,
-  ToggleButton,
-  ToggleButtonGroup,
   Tooltip,
   Typography,
 } from "@mui/material";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
-import { Link as RouterLink, useSearchParams } from "react-router";
+import { Link as RouterLink } from "react-router";
 
+import { useUrlSearchParams } from "../hooks/useUrlSearchParams";
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
 import { CalculationStrategy } from "../types/CalculationStrategy";
 import type { Author as AuthorDetails, Manufacturer, PowerProfile } from "../types/PowerProfile";
 import { getContributorTier } from "../utils/contributorTier";
-import { numberFormat, plural } from "../utils/plural";
+import { numberFormat } from "../utils/formatters";
+import { plural } from "../utils/plural";
 import { humanizeIdentifier } from "../utils/profilePresentation";
+import { DEFAULT_PROFILE_SORT, parseProfileSort, sortProfiles } from "../utils/profileSort";
 import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
 import { ContributorTierChip } from "./ContributorTierBadge";
 import { GithubAvatar } from "./GithubAvatar";
+import { InlineHeroStat } from "./InlineHeroStat";
 import { LazyAuthorContributionsChart } from "./LazyAuthorContributionsChart";
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ProfileCardGrid } from "./library/ProfileCardGrid";
+import { ProfileSortControl } from "./library/ProfileSortControl";
 import { ManufacturerLogo } from "./ManufacturerLogo";
 import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
 type Counted<T> = T & { count: number };
-type ProfileSort = "popular" | "newest" | "name";
-
-const PROFILE_SORTS: ProfileSort[] = ["popular", "newest", "name"];
-const DEFAULT_PROFILE_SORT: ProfileSort = "popular";
 
 const countBy = <T,>(items: T[], keyOf: (item: T) => string): Counted<{ key: string }>[] => {
   const counts = new Map<string, number>();
@@ -52,25 +50,6 @@ const countBy = <T,>(items: T[], keyOf: (item: T) => string): Counted<{ key: str
     .map(([key, count]) => ({ key, count }))
     .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
 };
-
-const HeroStat = ({ icon, value, label }: { icon: ReactNode; value: number; label: string }) => (
-  <Stack
-    direction="row"
-    aria-label={`${numberFormat.format(value)} ${(value === 1
-      ? label.replace(/s$/, "")
-      : label
-    ).toLowerCase()}`}
-    sx={{ alignItems: "baseline", gap: 0.75, color: "text.secondary" }}
-  >
-    <Box sx={{ display: "flex", alignSelf: "center" }}>{icon}</Box>
-    <Typography component="span" sx={{ fontWeight: 800, color: "text.primary" }}>
-      {numberFormat.format(value)}
-    </Typography>
-    <Typography component="span" variant="body2">
-      {label}
-    </Typography>
-  </Stack>
-);
 
 const BreakdownRow = ({
   label,
@@ -113,10 +92,8 @@ export type AuthorProps = {
 
 export const Author = ({ authorDetails, authorProfiles = [], authorRank = null }: AuthorProps) => {
   const githubUsername = authorDetails?.githubUsername;
-  const [searchParams, setSearchParams] = useSearchParams();
-  const sortParam = searchParams.get("sort") as ProfileSort | null;
-  const profileSort: ProfileSort =
-    sortParam && PROFILE_SORTS.includes(sortParam) ? sortParam : DEFAULT_PROFILE_SORT;
+  const { searchParams, updateSearchParams } = useUrlSearchParams();
+  const profileSort = parseProfileSort(searchParams.get("sort"));
 
   const contributionCount = authorProfiles.length;
   const tier = getContributorTier(contributionCount);
@@ -169,20 +146,10 @@ export const Author = ({ authorDetails, authorProfiles = [], authorRank = null }
     return labels.slice(0, 2);
   }, [authorProfiles, contributionCount, deviceTypes]);
 
-  const sortedProfiles = useMemo(() => {
-    return [...authorProfiles].sort((a, b) => {
-      if (profileSort === "popular") {
-        return (
-          b.usageStats.installationCount - a.usageStats.installationCount ||
-          a.name.localeCompare(b.name)
-        );
-      }
-      if (profileSort === "newest") {
-        return b.createdAt.getTime() - a.createdAt.getTime();
-      }
-      return a.name.localeCompare(b.name);
-    });
-  }, [authorProfiles, profileSort]);
+  const sortedProfiles = useMemo(
+    () => sortProfiles(authorProfiles, profileSort),
+    [authorProfiles, profileSort],
+  );
 
   if (!githubUsername || !authorDetails) {
     return (
@@ -345,17 +312,17 @@ export const Author = ({ authorDetails, authorProfiles = [], authorRank = null }
               borderColor: "divider",
             }}
           >
-            <HeroStat
+            <InlineHeroStat
               icon={<LibraryBooksIcon fontSize="small" />}
               value={contributionCount}
               label="Profiles"
             />
-            <HeroStat
+            <InlineHeroStat
               icon={<FactoryIcon fontSize="small" />}
               value={manufacturers.length}
               label="Manufacturers"
             />
-            <HeroStat
+            <InlineHeroStat
               icon={<DevicesOtherIcon fontSize="small" />}
               value={deviceTypes.length}
               label="Device types"
@@ -526,34 +493,15 @@ export const Author = ({ authorDetails, authorProfiles = [], authorRank = null }
               </Typography>
             </Box>
             {contributionCount > 1 && (
-              <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
-                <SortIcon fontSize="small" sx={{ color: "text.secondary" }} />
-                <ToggleButtonGroup
-                  size="small"
-                  exclusive
-                  value={profileSort}
-                  aria-label="Sort contributed profiles"
-                  onChange={(_event, next: ProfileSort | null) => {
-                    if (!next) return;
-                    setSearchParams(
-                      (current) => {
-                        const params = new URLSearchParams(current);
-                        if (next === DEFAULT_PROFILE_SORT) {
-                          params.delete("sort");
-                        } else {
-                          params.set("sort", next);
-                        }
-                        return params;
-                      },
-                      { replace: true, preventScrollReset: true },
-                    );
-                  }}
-                >
-                  <ToggleButton value="popular">Popular</ToggleButton>
-                  <ToggleButton value="newest">Newest</ToggleButton>
-                  <ToggleButton value="name">Name</ToggleButton>
-                </ToggleButtonGroup>
-              </Stack>
+              <ProfileSortControl
+                value={profileSort}
+                label="Sort contributed profiles"
+                onChange={(next) =>
+                  updateSearchParams({
+                    sort: next === DEFAULT_PROFILE_SORT ? null : next,
+                  })
+                }
+              />
             )}
           </Stack>
 

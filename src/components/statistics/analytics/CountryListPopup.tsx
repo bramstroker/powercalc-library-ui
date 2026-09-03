@@ -17,9 +17,10 @@ import {
   useTheme,
 } from "@mui/material";
 import * as React from "react";
-import ReactCountryFlag from "react-country-flag";
+import { ReactCountryFlag } from "react-country-flag";
 
 import type { CountryStats } from "../../../api/analytics.api";
+import { formatCountryName, numberFormat } from "../../../utils/formatters";
 
 interface CountryListPopupProps {
   open: boolean;
@@ -32,12 +33,6 @@ export const CountryListPopup = ({ open, onClose, data }: CountryListPopupProps)
     () => [...data].sort((a, b) => b.percentage - a.percentage),
     [data],
   );
-
-  const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
-
-  const getCountryName = (code: string): string => {
-    return regionNames.of(code.toUpperCase()) ?? code;
-  };
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -103,9 +98,13 @@ export const CountryListPopup = ({ open, onClose, data }: CountryListPopupProps)
                         }}
                       />
                     </Avatar>
-                    <Typography variant="body2">{getCountryName(country.country_code)}</Typography>
+                    <Typography variant="body2">
+                      {formatCountryName(country.country_code)}
+                    </Typography>
                   </TableCell>
-                  <TableCell align="right">{country.installation_count.toLocaleString()}</TableCell>
+                  <TableCell align="right">
+                    {numberFormat.format(country.installation_count)}
+                  </TableCell>
                   <TableCell align="right">{country.percentage.toFixed(2)}%</TableCell>
                 </TableRow>
               ))}

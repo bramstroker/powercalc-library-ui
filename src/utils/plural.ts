@@ -1,4 +1,4 @@
-export const numberFormat = new Intl.NumberFormat("en-US");
+import { numberFormat } from "./formatters";
 
 /**
  * Formats a count with the right form of its noun: `plural(1, "profile")` is "1 profile", not

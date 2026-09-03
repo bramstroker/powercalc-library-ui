@@ -14,10 +14,11 @@ import { mangoFusionPalette } from "@mui/x-charts";
 import { PieChart, pieClasses } from "@mui/x-charts/PieChart";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 import type { SensorStats } from "../../../api/analytics.api";
 import { getSensorDimension, sensorDimensionTitle } from "../../../config/sensorDimensions.mjs";
+import { useUrlSearchParams } from "../../../hooks/useUrlSearchParams";
 import { sensorDimensionsQuery } from "../../../queries/analytics.query";
 import { visuallyHiddenSx } from "../../../utils/accessibility";
 
@@ -39,21 +40,14 @@ export const SensorDimensions = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const { dimension: urlDimension } = useParams<{ dimension: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { searchParams, updateSearchParams } = useUrlSearchParams();
 
   const selectedMetric = parseMetricKey(searchParams.get("metric"));
 
   const { data } = useSuspenseQuery(sensorDimensionsQuery());
 
   const handleMetricChange = (value: MetricKey) => {
-    setSearchParams(
-      (current) => {
-        const next = new URLSearchParams(current);
-        next.set("metric", value);
-        return next;
-      },
-      { replace: true, preventScrollReset: true },
-    );
+    updateSearchParams({ metric: value });
   };
 
   const handleShowDetails = (dimension: string) => {

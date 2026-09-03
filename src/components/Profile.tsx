@@ -47,9 +47,10 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { useLocation, useNavigate, useSearchParams, Link as RouterLink } from "react-router";
+import { useLocation, useNavigate, Link as RouterLink } from "react-router";
 
 import type { Summary } from "../api/analytics.api";
+import { useUrlSearchParams } from "../hooks/useUrlSearchParams";
 import {
   profileJsonQuery,
   profilePlotsQuery,
@@ -59,6 +60,7 @@ import type { BreadcrumbItem } from "../seo/breadcrumbs";
 import { CalculationStrategy } from "../types/CalculationStrategy";
 import type { PowerProfile } from "../types/PowerProfile";
 import { formatTimestampUtc } from "../utils/dateFormat";
+import { numberFormat } from "../utils/formatters";
 import { mainsVoltageBand } from "../utils/libraryFiltering";
 import {
   colorModeLabel,
@@ -583,10 +585,8 @@ export const ProfileMetrics = ({
   summary: Summary;
 }) => {
   const hasReportedUsage = profile.usageStats.installationCount > 0;
-  const installationCount = new Intl.NumberFormat("en-US").format(
-    profile.usageStats.installationCount,
-  );
-  const sampledInstallations = new Intl.NumberFormat("en-US").format(summary.sampled_installations);
+  const installationCount = numberFormat.format(profile.usageStats.installationCount);
+  const sampledInstallations = numberFormat.format(summary.sampled_installations);
 
   return (
     <Card
@@ -1032,7 +1032,7 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
 
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { searchParams, updateSearchParams } = useUrlSearchParams();
   const libraryPath =
     typeof location.state?.libraryPath === "string" &&
     location.state.libraryPath.startsWith("/") &&
@@ -1076,18 +1076,7 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
   );
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setSearchParams(
-      (current) => {
-        const params = new URLSearchParams(current);
-        if (newValue === 0) {
-          params.delete("tab");
-        } else {
-          params.set("tab", tabs[newValue].key);
-        }
-        return params;
-      },
-      { replace: true, preventScrollReset: true },
-    );
+    updateSearchParams({ tab: newValue === 0 ? null : tabs[newValue].key });
   };
 
   return (

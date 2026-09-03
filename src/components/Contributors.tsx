@@ -23,17 +23,19 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useCallback, useId, useMemo, useRef } from "react";
-import { Link as RouterLink, useSearchParams } from "react-router";
+import { Link as RouterLink } from "react-router";
 
 import { SITE_URL } from "../config/site";
 import { useLibrary } from "../context/LibraryContext";
+import { useUrlSearchParams } from "../hooks/useUrlSearchParams";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { MAX_ITEM_LIST_ENTRIES, type StructuredData as StructuredDataNode } from "../seo/meta";
 import { StructuredData } from "../seo/StructuredData";
 import type { ContributorSummary, PowerProfile } from "../types/PowerProfile";
 import { CONTRIBUTOR_TIERS } from "../utils/contributorTier";
 import { formatDateUtc } from "../utils/dateFormat";
-import { numberFormat, plural } from "../utils/plural";
+import { numberFormat } from "../utils/formatters";
+import { plural } from "../utils/plural";
 import { daysSince } from "../utils/recency";
 import { authorPath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
@@ -222,7 +224,7 @@ const ActivityMetric = ({
 
 export const Contributors = ({ now = new Date() }: { now?: Date }) => {
   const { contributorSummaries, powerProfiles, profilesByAuthorSlug } = useLibrary();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { searchParams, updateSearchParams } = useUrlSearchParams();
   const directoryRef = useRef<HTMLDivElement>(null);
 
   const search = searchParams.get(PARAM.search) ?? "";
@@ -233,35 +235,11 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
   const activeOnly = searchParams.get(PARAM.active) === "1";
   const visibleCount = Math.max(PAGE_SIZE, Number(searchParams.get(PARAM.show)) || PAGE_SIZE);
 
-  /**
-   * Every change replaces the current history entry rather than pushing a new one: paging through
-   * the directory should not bury the previous page under a stack of back steps, and replacing
-   * still means a click into an author page returns to the directory exactly as it was left.
-   */
-  const updateParams = useCallback(
-    (changes: Record<string, string | null>) => {
-      setSearchParams(
-        (current) => {
-          const next = new URLSearchParams(current);
-          for (const [key, value] of Object.entries(changes)) {
-            if (value === null) {
-              next.delete(key);
-            } else {
-              next.set(key, value);
-            }
-          }
-          return next;
-        },
-        { replace: true, preventScrollReset: true },
-      );
-    },
-    [setSearchParams],
-  );
-
   /** Any change to what is being listed starts the directory over at the first page. */
   const updateFilters = useCallback(
-    (changes: Record<string, string | null>) => updateParams({ ...changes, [PARAM.show]: null }),
-    [updateParams],
+    (changes: Record<string, string | null>) =>
+      updateSearchParams({ ...changes, [PARAM.show]: null }),
+    [updateSearchParams],
   );
 
   const recentProfiles = useMemo(
@@ -603,7 +581,9 @@ export const Contributors = ({ now = new Date() }: { now?: Date }) => {
               <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
                 <Button
                   variant="outlined"
-                  onClick={() => updateParams({ [PARAM.show]: String(visibleCount + PAGE_SIZE) })}
+                  onClick={() =>
+                    updateSearchParams({ [PARAM.show]: String(visibleCount + PAGE_SIZE) })
+                  }
                 >
                   Load more ({numberFormat.format(sortedMatches.length - visibleCount)} to go)
                 </Button>

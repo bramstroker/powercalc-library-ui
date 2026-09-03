@@ -4,7 +4,6 @@ import HomeIcon from "@mui/icons-material/Home";
 import LanguageIcon from "@mui/icons-material/Language";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import SearchIcon from "@mui/icons-material/Search";
-import SortIcon from "@mui/icons-material/Sort";
 import {
   Box,
   Button,
@@ -14,70 +13,34 @@ import {
   Popover,
   Stack,
   TextField,
-  ToggleButton,
-  ToggleButtonGroup,
   Tooltip,
   Typography,
 } from "@mui/material";
-import type { ReactNode } from "react";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ReactCountryFlag } from "react-country-flag";
-import { Link as RouterLink, useSearchParams } from "react-router";
+import { Link as RouterLink } from "react-router";
 
+import { useUrlSearchParams } from "../hooks/useUrlSearchParams";
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
 import type { Manufacturer as ManufacturerDetails, PowerProfile } from "../types/PowerProfile";
+import { formatCountryName, numberFormat } from "../utils/formatters";
 import { manufacturerLibraryIntroduction } from "../utils/manufacturerPresentation";
 import { plural } from "../utils/plural";
 import { humanizeIdentifier } from "../utils/profilePresentation";
+import { DEFAULT_PROFILE_SORT, parseProfileSort, sortProfiles } from "../utils/profileSort";
 
+import { InlineHeroStat } from "./InlineHeroStat";
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ProfileCardGrid } from "./library/ProfileCardGrid";
+import { ProfileSortControl } from "./library/ProfileSortControl";
 import { ManufacturerLogo } from "./ManufacturerLogo";
 import { PageBreadcrumbs } from "./PageBreadcrumbs";
-
-const numberFormat = new Intl.NumberFormat("en-US");
-
-const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
-
-/** "NL" reads as a filename; the flag alone is not readable text. Spell the country out. */
-const countryName = (code: string) => {
-  try {
-    return regionNames.of(code) ?? code;
-  } catch {
-    return code;
-  }
-};
-
-type ProfileSort = "popular" | "newest" | "name";
-
-const PROFILE_SORTS: ProfileSort[] = ["popular", "newest", "name"];
-const DEFAULT_SORT: ProfileSort = "popular";
 
 /** Query-string keys, so a filtered brand page survives a share, a reload and the back button. */
 const PARAM = { search: "q", deviceType: "deviceType", sort: "sort" } as const;
 
 /** Below this a brand's profiles fit on a screen or two, and a search box is only noise. */
 const SEARCH_FROM = 12;
-
-/**
- * One inline figure rather than a card: three tiles stretched over the hero left a 2-digit number
- * alone in a 600px grey slab, which read as empty space instead of as a stat.
- */
-const HeroStat = ({ icon, value, label }: { icon: ReactNode; value: number; label: string }) => (
-  <Stack
-    direction="row"
-    aria-label={`${numberFormat.format(value)} ${(value === 1 ? label.replace(/s$/, "") : label).toLowerCase()}`}
-    sx={{ alignItems: "baseline", gap: 0.75, color: "text.secondary" }}
-  >
-    <Box sx={{ display: "flex", alignSelf: "center" }}>{icon}</Box>
-    <Typography component="span" sx={{ fontWeight: 800, color: "text.primary" }}>
-      {numberFormat.format(value)}
-    </Typography>
-    <Typography component="span" variant="body2">
-      {label}
-    </Typography>
-  </Stack>
-);
 
 const ManufacturerAliases = ({ aliases }: { aliases: string[] }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -129,7 +92,7 @@ export type ManufacturerProps = {
 };
 
 export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { searchParams, updateSearchParams } = useUrlSearchParams();
 
   const profileCount = profiles.length;
   const displayName = manufacturer?.fullName ?? "";
@@ -140,34 +103,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
   ];
 
   const search = searchParams.get(PARAM.search) ?? "";
-  const sortParam = searchParams.get(PARAM.sort) as ProfileSort | null;
-  const sort: ProfileSort =
-    sortParam && PROFILE_SORTS.includes(sortParam) ? sortParam : DEFAULT_SORT;
-
-  /**
-   * Changes replace the current history entry rather than pushing a new one: typing in the search
-   * box should not bury the page under a stack of back steps, while replacing still means a click
-   * into a profile returns to the brand page exactly as it was left.
-   */
-  const updateParams = useCallback(
-    (changes: Record<string, string | null>) => {
-      setSearchParams(
-        (current) => {
-          const next = new URLSearchParams(current);
-          for (const [key, value] of Object.entries(changes)) {
-            if (value === null) {
-              next.delete(key);
-            } else {
-              next.set(key, value);
-            }
-          }
-          return next;
-        },
-        { replace: true, preventScrollReset: true },
-      );
-    },
-    [setSearchParams],
-  );
+  const sort = parseProfileSort(searchParams.get(PARAM.sort));
 
   const deviceTypeCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -198,18 +134,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
       );
     });
 
-    return matched.sort((a, b) => {
-      if (sort === "popular") {
-        return (
-          b.usageStats.installationCount - a.usageStats.installationCount ||
-          a.name.localeCompare(b.name)
-        );
-      }
-      if (sort === "newest") {
-        return b.createdAt.getTime() - a.createdAt.getTime() || a.name.localeCompare(b.name);
-      }
-      return a.name.localeCompare(b.name);
-    });
+    return sortProfiles(matched, sort);
   }, [profiles, deviceType, search, sort]);
 
   const knownProfileInstallations = profiles.reduce(
@@ -290,7 +215,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
                   aria-hidden="true"
                   style={{ fontSize: "1.1em", borderRadius: 2 }}
                 />
-                <Typography variant="body2">{countryName(manufacturer.country)}</Typography>
+                <Typography variant="body2">{formatCountryName(manufacturer.country)}</Typography>
               </Stack>
             )}
 
@@ -363,7 +288,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
             borderColor: "divider",
           }}
         >
-          <HeroStat
+          <InlineHeroStat
             icon={<LibraryBooksIcon fontSize="small" />}
             value={profileCount}
             label="Profiles"
@@ -373,14 +298,14 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
             arrow
           >
             <Box>
-              <HeroStat
+              <InlineHeroStat
                 icon={<HomeIcon fontSize="small" />}
                 value={knownProfileInstallations}
                 label="Known installs"
               />
             </Box>
           </Tooltip>
-          <HeroStat
+          <InlineHeroStat
             icon={<DevicesOtherIcon fontSize="small" />}
             value={deviceTypeCounts.length}
             label="Device types"
@@ -409,29 +334,22 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
           </Box>
 
           {profileCount > 1 && (
-            <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
-              <SortIcon fontSize="small" sx={{ color: "text.secondary" }} />
-              <ToggleButtonGroup
-                size="small"
-                exclusive
-                value={sort}
-                aria-label="Sort profiles"
-                onChange={(_event, next: ProfileSort | null) => {
-                  if (next) updateParams({ [PARAM.sort]: next === DEFAULT_SORT ? null : next });
-                }}
-              >
-                <ToggleButton value="popular">Popular</ToggleButton>
-                <ToggleButton value="newest">Newest</ToggleButton>
-                <ToggleButton value="name">Name</ToggleButton>
-              </ToggleButtonGroup>
-            </Stack>
+            <ProfileSortControl
+              value={sort}
+              label="Sort profiles"
+              onChange={(next) =>
+                updateSearchParams({
+                  [PARAM.sort]: next === DEFAULT_PROFILE_SORT ? null : next,
+                })
+              }
+            />
           )}
         </Stack>
 
         {profileCount >= SEARCH_FROM && (
           <TextField
             value={search}
-            onChange={(event) => updateParams({ [PARAM.search]: event.target.value || null })}
+            onChange={(event) => updateSearchParams({ [PARAM.search]: event.target.value || null })}
             aria-label="Search profiles"
             placeholder="Search model or name"
             size="small"
@@ -462,7 +380,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
               aria-pressed={deviceType === null}
               color={deviceType === null ? "primary" : "default"}
               variant={deviceType === null ? "filled" : "outlined"}
-              onClick={() => updateParams({ [PARAM.deviceType]: null })}
+              onClick={() => updateSearchParams({ [PARAM.deviceType]: null })}
             />
             {deviceTypeCounts.map(({ deviceType: type, count }) => {
               const DeviceIcon = getDeviceTypeIcon(type);
@@ -477,7 +395,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
                   color={selected ? "primary" : "default"}
                   variant={selected ? "filled" : "outlined"}
                   // Clicking the active type again clears it, like the facets on the library grid.
-                  onClick={() => updateParams({ [PARAM.deviceType]: selected ? null : type })}
+                  onClick={() => updateSearchParams({ [PARAM.deviceType]: selected ? null : type })}
                 />
               );
             })}

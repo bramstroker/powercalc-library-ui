@@ -16,6 +16,7 @@ import { Link as RouterLink } from "react-router";
 
 import type { PowerProfile } from "../../types/PowerProfile";
 import { formatDateUtc } from "../../utils/dateFormat";
+import { numberFormat } from "../../utils/formatters";
 import { humanizeIdentifier } from "../../utils/profilePresentation";
 import { isRecentlyAdded } from "../../utils/recency";
 import { profilePath } from "../../utils/urlSlugs.mjs";
@@ -23,8 +24,6 @@ import { ManufacturerLogo } from "../ManufacturerLogo";
 
 import { getDeviceTypeIcon } from "./facetIcons";
 import { NewBadge } from "./NewBadge";
-
-const numberFormat = new Intl.NumberFormat("en-US");
 
 export const ProfileCard = ({
   profile,
