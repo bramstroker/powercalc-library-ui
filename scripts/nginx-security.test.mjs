@@ -22,7 +22,10 @@ describe("Nginx security headers", () => {
 
     assert.match(headers, /frame-ancestors 'none'/u);
     assert.match(headers, /object-src 'none'/u);
-    assert.match(headers, /connect-src 'self' https:\/\/api\.powercalc\.nl/u);
+    assert.match(
+      headers,
+      /connect-src 'self' https:\/\/api\.powercalc\.nl https:\/\/raw\.githubusercontent\.com/u,
+    );
   });
 
   it("repeats the headers in locations that override add_header inheritance", async () => {
