@@ -26,6 +26,7 @@ describe("Nginx security headers", () => {
       headers,
       /connect-src 'self' https:\/\/api\.powercalc\.nl https:\/\/raw\.githubusercontent\.com/u,
     );
+    assert.match(headers, /img-src [^;]*https:\/\/cdn\.jsdelivr\.net(?:;|$)/u);
   });
 
   it("repeats the headers in locations that override add_header inheritance", async () => {
