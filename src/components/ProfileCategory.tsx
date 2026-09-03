@@ -6,11 +6,10 @@ import {
 } from "../config/profileCategories";
 import type { BreadcrumbItem } from "../seo/breadcrumbs";
 import type { PowerProfile } from "../types/PowerProfile";
+import { numberFormat } from "../utils/formatters";
 
 import { ProfileCardGrid } from "./library/ProfileCardGrid";
 import { PageBreadcrumbs } from "./PageBreadcrumbs";
-
-const numberFormat = new Intl.NumberFormat("en-US");
 
 export const ProfileCategory = ({
   config,

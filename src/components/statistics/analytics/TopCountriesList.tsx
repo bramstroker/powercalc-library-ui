@@ -7,6 +7,7 @@ import * as React from "react";
 import { ReactCountryFlag } from "react-country-flag";
 
 import type { CountryStats } from "../../../api/analytics.api";
+import { formatCountryName } from "../../../utils/formatters";
 
 import { CountryListPopup } from "./CountryListPopup";
 
@@ -27,12 +28,6 @@ export const TopCountriesList = ({ data, limit }: Props) => {
     const topXTotal = topX.reduce((sum, country) => sum + country.percentage, 0);
     return Math.max(0, 100 - topXTotal);
   }, [topX]);
-
-  const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
-
-  const getCountryName = (code: string): string => {
-    return regionNames.of(code.toUpperCase()) ?? code;
-  };
 
   const handleOpenPopup = () => {
     setIsPopupOpen(true);
@@ -98,7 +93,7 @@ export const TopCountriesList = ({ data, limit }: Props) => {
                   }}
                 >
                   <Typography variant="body2" sx={{ fontWeight: "500" }}>
-                    {getCountryName(country.country_code)}
+                    {formatCountryName(country.country_code)}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     {country.percentage.toFixed(2)}%

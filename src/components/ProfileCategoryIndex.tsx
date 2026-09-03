@@ -9,13 +9,12 @@ import { useLibrary } from "../context/LibraryContext";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { MAX_ITEM_LIST_ENTRIES, type StructuredData as StructuredDataNode } from "../seo/meta";
 import { StructuredData } from "../seo/StructuredData";
+import { numberFormat } from "../utils/formatters";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
 type CategorySummary = { value: string; label: string; profileCount: number; path: string };
-
-const numberFormat = new Intl.NumberFormat("en-US");
 
 export const ProfileCategoryIndex = ({ config }: { config: ProfileCategoryConfig }) => {
   const { powerProfiles } = useLibrary();

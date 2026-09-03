@@ -1,5 +1,6 @@
 import { DeviceType } from "../types/DeviceType";
 import type { PowerProfile } from "../types/PowerProfile";
+import { numberFormat } from "../utils/formatters";
 import { humanizeIdentifier } from "../utils/profilePresentation";
 import { deviceTypePath } from "../utils/urlSlugs.mjs";
 
@@ -15,7 +16,7 @@ export type ProfileCategoryConfig = {
   description: (value: string, label: string, profileCount: number) => string;
 };
 
-const formattedCount = (count: number) => new Intl.NumberFormat("en-US").format(count);
+const formattedCount = (count: number) => numberFormat.format(count);
 
 const DEVICE_TYPE_INTRODUCTIONS: Record<DeviceType, string> = {
   [DeviceType.CAMERA]:

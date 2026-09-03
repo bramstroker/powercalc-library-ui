@@ -10,6 +10,7 @@ import {
   analyticsTimeSeriesQuery,
   analyticsVersionsQuery,
 } from "../../../queries/analytics.query";
+import { compactNumberFormat } from "../../../utils/formatters";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
 import { StatCard } from "./StatCard";
@@ -138,9 +139,7 @@ export const Installations = () => {
                   title="Opt-ins"
                   value={
                     summaryData.sampled_installations != null
-                      ? new Intl.NumberFormat("en", { notation: "compact" }).format(
-                          summaryData.sampled_installations,
-                        )
+                      ? compactNumberFormat.format(summaryData.sampled_installations)
                       : "0"
                   }
                   interval={`${optinsLastMonth} in last 30 days`}
@@ -156,9 +155,7 @@ export const Installations = () => {
                   title="Total sensors"
                   value={
                     summaryData.total_sensors != null
-                      ? new Intl.NumberFormat("en", { notation: "compact" }).format(
-                          summaryData.total_sensors,
-                        )
+                      ? compactNumberFormat.format(summaryData.total_sensors)
                       : "0"
                   }
                   interval={`avg ${avgSensorsPerInstallation.toFixed(0)} per installation`}

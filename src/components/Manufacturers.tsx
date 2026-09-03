@@ -12,10 +12,11 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import { useCallback, useMemo } from "react";
-import { Link as RouterLink, useSearchParams } from "react-router";
+import { useMemo } from "react";
+import { Link as RouterLink } from "react-router";
 
 import { useLibrary } from "../context/LibraryContext";
+import { useUrlSearchParams } from "../hooks/useUrlSearchParams";
 import type { Manufacturer } from "../types/PowerProfile";
 import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
@@ -39,36 +40,11 @@ const PARAM = { search: "q", sort: "sort" } as const;
 
 export const Manufacturers = () => {
   const { powerProfiles, manufacturers } = useLibrary();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { searchParams, updateSearchParams } = useUrlSearchParams();
 
   const search = searchParams.get(PARAM.search) ?? "";
   const sortParam = searchParams.get(PARAM.sort) as SortKey | null;
   const sort: SortKey = sortParam && SORT_KEYS.includes(sortParam) ? sortParam : DEFAULT_SORT;
-
-  /**
-   * Changes replace the current history entry rather than pushing a new one: tweaking the search
-   * box should not bury the previous page under a stack of back steps, and replacing still means a
-   * click into a manufacturer page returns to the index exactly as it was left.
-   */
-  const updateParams = useCallback(
-    (changes: Record<string, string | null>) => {
-      setSearchParams(
-        (current) => {
-          const next = new URLSearchParams(current);
-          for (const [key, value] of Object.entries(changes)) {
-            if (value === null) {
-              next.delete(key);
-            } else {
-              next.set(key, value);
-            }
-          }
-          return next;
-        },
-        { replace: true, preventScrollReset: true },
-      );
-    },
-    [setSearchParams],
-  );
 
   const summaries = useMemo<ManufacturerSummary[]>(() => {
     const counts = new Map<string, { profileCount: number; deviceTypes: Set<string> }>();
@@ -130,7 +106,7 @@ export const Manufacturers = () => {
       >
         <TextField
           value={search}
-          onChange={(event) => updateParams({ [PARAM.search]: event.target.value || null })}
+          onChange={(event) => updateSearchParams({ [PARAM.search]: event.target.value || null })}
           aria-label="Search manufacturers"
           placeholder="Search manufacturers"
           size="small"
@@ -152,7 +128,7 @@ export const Manufacturers = () => {
           exclusive
           size="small"
           onChange={(_event, next: SortKey | null) => {
-            if (next) updateParams({ [PARAM.sort]: next === DEFAULT_SORT ? null : next });
+            if (next) updateSearchParams({ [PARAM.sort]: next === DEFAULT_SORT ? null : next });
           }}
           aria-label="Sort manufacturers"
         >
