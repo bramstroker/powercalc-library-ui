@@ -20,7 +20,7 @@ import { numberFormat } from "../../utils/formatters";
 import { humanizeIdentifier } from "../../utils/profilePresentation";
 import { isRecentlyAdded } from "../../utils/recency";
 import { profilePath } from "../../utils/urlSlugs.mjs";
-import { ManufacturerLogo } from "../ManufacturerLogo";
+import { ManufacturerLogo } from "../manufacturer/ManufacturerLogo";
 
 import { getDeviceTypeIcon } from "./facetIcons";
 import { NewBadge } from "./NewBadge";

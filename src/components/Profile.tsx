@@ -22,7 +22,7 @@ import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
 import { ProfileSetup } from "./library/ProfileSetup";
-import { ManufacturerLogo } from "./ManufacturerLogo";
+import { ManufacturerLogo } from "./manufacturer/ManufacturerLogo";
 import { PageBreadcrumbs } from "./PageBreadcrumbs";
 import { ProfileAttributesTab } from "./profile/ProfileAttributesTab";
 import {

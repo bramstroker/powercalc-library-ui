@@ -1,7 +1,7 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import type { Manufacturer } from "../types/PowerProfile";
+import type { Manufacturer } from "../../types/PowerProfile";
 
 import { hasManufacturerLogo, ManufacturerLogo, manufacturerLogoSlug } from "./ManufacturerLogo";
 

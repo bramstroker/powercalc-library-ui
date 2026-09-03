@@ -21,7 +21,7 @@ import type { Manufacturer } from "../types/PowerProfile";
 import { manufacturerPath } from "../utils/urlSlugs.mjs";
 
 import { getDeviceTypeIcon } from "./library/facetIcons";
-import { ManufacturerLogo } from "./ManufacturerLogo";
+import { ManufacturerLogo } from "./manufacturer/ManufacturerLogo";
 import { PageBreadcrumbs } from "./PageBreadcrumbs";
 
 type ManufacturerSummary = {
