@@ -12,9 +12,9 @@
       "description": "TypeScript 7 is the Go-native port and ships no stable programmatic compiler API (it lands in 7.1). typescript-eslint cannot parse with it, so type-aware linting breaks. Hold on 6.x until 7.1 and typescript-eslint support land."
     },
     {
-      "description": "Automerge GitHub Actions minor and patch updates. Scope is CI only, and a break fails loudly in the workflow run.",
+      "description": "Automerge GitHub Actions minor, patch and digest updates. Actions are pinned to commit SHAs, so a version bump arrives as a digest update. Scope is CI only, and a break fails loudly in the workflow run.",
       "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
       "automerge": true
     },
     {
