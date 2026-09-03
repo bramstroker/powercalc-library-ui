@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { Summary } from "../api/analytics.api";
 import type { PowerProfile } from "../types/PowerProfile";
 
-import { ProfileMetrics } from "./Profile";
+import { ProfileMetrics } from "./profile/ProfileMetrics";
 
 describe("ProfileMetrics", () => {
   it("renders analytics in the server-generated markup", () => {
