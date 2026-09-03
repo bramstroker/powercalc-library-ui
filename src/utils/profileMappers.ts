@@ -9,6 +9,8 @@ import type {
   UsageStats,
 } from "../types/PowerProfile";
 
+import { safeHttpsUrl } from "./externalUrls";
+
 const mapLutQuality = (quality: LibraryModel["lut_quality"]): LutQuality | null =>
   quality
     ? { score: quality.score, brightness: quality.brightness, colorTemp: quality.color_temp }
@@ -97,7 +99,7 @@ export const mapToBasePowerProfile = (
       : null,
     standbyPowerEstimated: model.standby_power_estimated ?? false,
     deviceSpecs: mapDeviceSpecs(model.device_specs),
-    productUrl: model.product_url ?? null,
+    productUrl: safeHttpsUrl(model.product_url),
     ean: model.ean ?? [],
     usageStats: usageStats,
   };

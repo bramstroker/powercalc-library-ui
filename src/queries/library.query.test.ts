@@ -177,6 +177,23 @@ describe("libraryQuery", () => {
     expect(Object.keys(data.authors)).toEqual(["bramstroker", "someone"]);
   });
 
+  it("rejects unsafe manufacturer website URLs", async () => {
+    fetchLibraryMock.mockResolvedValue({
+      manufacturers: [
+        {
+          full_name: "Signify",
+          dir_name: "signify",
+          website: "javascript:alert(1)",
+          models: [createModel()],
+        },
+      ],
+    });
+
+    const data = await runQuery();
+
+    expect(data.manufacturers.signify.website).toBeNull();
+  });
+
   it("collects every author from a profile with multiple authors", async () => {
     fetchLibraryMock.mockResolvedValue({
       manufacturers: [
