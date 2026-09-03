@@ -56,7 +56,7 @@ export const LibraryGrid = () => {
   const rows = useMemo(() => applyFilters(powerProfiles, filters), [powerProfiles, filters]);
   const activeCount = countActiveFilters(filters);
 
-  const panel = (
+  const filterPanel = (
     <FilterPanel
       profiles={powerProfiles}
       filters={filters}
@@ -89,7 +89,7 @@ export const LibraryGrid = () => {
                 borderColor: "divider",
               }}
             >
-              {panel}
+              {filterPanel}
             </Box>
           )
         ) : (
@@ -104,7 +104,7 @@ export const LibraryGrid = () => {
               }}
               slotProps={{ paper: { sx: { width: FILTER_PANEL_WIDTH } } }}
             >
-              {panel}
+              {filterPanel}
             </Drawer>
           </>
         )}
