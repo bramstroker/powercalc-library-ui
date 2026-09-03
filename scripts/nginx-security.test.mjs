@@ -13,6 +13,7 @@ describe("Nginx security headers", () => {
       "Content-Security-Policy",
       "Permissions-Policy",
       "Referrer-Policy",
+      "Strict-Transport-Security",
       "X-Content-Type-Options",
       "X-Frame-Options",
     ]) {
@@ -31,6 +32,17 @@ describe("Nginx security headers", () => {
     assert.ok(blocksWithCacheHeaders.length > 0);
     for (const block of blocksWithCacheHeaders) {
       assert.match(block, /include \/etc\/nginx\/security-headers\.conf;/u);
+    }
+  });
+
+  it("keeps control characters out of redirect captures", async () => {
+    const nginxConfig = await readFile(nginxConfigUrl, "utf8");
+    const captures =
+      nginxConfig.match(/location ~ \^\/(?:author|manufacturer)\/\(([^)]+)\)/gu) ?? [];
+
+    assert.equal(captures.length, 2);
+    for (const capture of captures) {
+      assert.match(capture, /\[\^\/\[:cntrl:\]\]\+/u);
     }
   });
 });
