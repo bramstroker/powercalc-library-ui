@@ -49,7 +49,10 @@ const profileNames = () =>
     .getAllByRole("heading", { level: 3 })
     .map((heading) => heading.textContent);
 
-const renderPage = (dirName: string) =>
+const renderPage = (
+  dirName: string,
+  manufacturerProfiles = profiles.filter((entry) => entry.manufacturer.dirName === dirName),
+) =>
   render(
     <MemoryRouter initialEntries={[`/manufacturers/${encodeURIComponent(dirName)}`]}>
       <Routes>
@@ -60,7 +63,7 @@ const renderPage = (dirName: string) =>
               manufacturer={
                 dirName === "linkind" ? linkind : dirName === "signify" ? signify : undefined
               }
-              profiles={profiles.filter((entry) => entry.manufacturer.dirName === dirName)}
+              profiles={manufacturerProfiles}
             />
           }
         />
@@ -135,6 +138,20 @@ describe("Manufacturer", () => {
     renderPage("signify");
 
     expect(screen.queryByTestId("manufacturer-device-type-filter")).not.toBeInTheDocument();
+  });
+
+  it("filters a larger profile collection by model or name", () => {
+    const manyProfiles = Array.from({ length: 12 }, (_, index) =>
+      profile(linkind, `MODEL-${index + 1}`, "light"),
+    );
+    renderPage("linkind", manyProfiles);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Search profiles" }), {
+      target: { value: "MODEL-12" },
+    });
+
+    expect(profileNames()).toEqual(["MODEL-12"]);
+    expect(screen.getByText("Showing 1 of 12 profiles")).toBeInTheDocument();
   });
 
   it("lists only that manufacturer's profiles, linking each to its profile page", () => {
