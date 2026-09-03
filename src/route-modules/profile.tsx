@@ -6,7 +6,7 @@ import { Profile } from "../components/Profile";
 import { SITE_URL } from "../config/site";
 import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
 import { powerProfileLoader } from "../loaders/powerProfileLoader";
-import { dailySummaryQuery } from "../queries/summary.query";
+import { dailySummaryQuery } from "../queries/analytics.query";
 import { queryClient } from "../queryClient";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import {

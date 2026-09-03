@@ -6,16 +6,13 @@ import { useMemo } from "react";
 import { Link as RouterLink } from "react-router";
 
 import type { ProfileStats } from "../../../api/analytics.api";
-import { fetchProfiles } from "../../../api/analytics.api";
 import { useLibrary } from "../../../context/LibraryContext";
+import { analyticsProfilesQuery } from "../../../queries/analytics.query";
 import { profilePath } from "../../../utils/urlSlugs.mjs";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
 export const Profiles = () => {
-  const { data } = useSuspenseQuery<ProfileStats[]>({
-    queryKey: ["profilesData"],
-    queryFn: fetchProfiles,
-  });
+  const { data } = useSuspenseQuery(analyticsProfilesQuery());
   const library = useLibrary();
 
   const columns = useMemo<GridColDef<ProfileStats>[]>(

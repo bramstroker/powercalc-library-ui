@@ -16,7 +16,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 
 import type { TimeseriesResponse } from "../../../api/analytics.api";
-import { fetchTimeseries } from "../../../api/analytics.api";
+import { analyticsTimeSeriesQuery } from "../../../queries/analytics.query";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
 import type { ChartType } from "./TimeSeriesChart";
@@ -90,18 +90,9 @@ export const TimeSeries = () => {
     if (!Number.isNaN(next.valueOf()) && next >= startDate) setEndDate(next);
   };
 
-  const { data } = useSuspenseQuery<TimeseriesResponse>({
-    queryKey: [
-      "timeseries",
-      selectedMetric,
-      selectedGrouping,
-      startDate.toISOString().split("T")[0],
-      endDate.toISOString().split("T")[0],
-    ],
-    queryFn: async () => {
-      return fetchTimeseries(selectedMetric, selectedGrouping, "UTC", startDate, endDate);
-    },
-  });
+  const { data } = useSuspenseQuery(
+    analyticsTimeSeriesQuery(selectedMetric, selectedGrouping, "UTC", startDate, endDate),
+  );
 
   const chartData = React.useMemo(() => {
     if (!data) return [];
