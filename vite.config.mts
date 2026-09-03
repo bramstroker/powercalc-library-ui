@@ -58,6 +58,20 @@ export default defineConfig({
   build: {
     // Route bundles can contain server code, so production source maps must not be published.
     sourcemap: false,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              // All filter-section icons are needed together. Preserve that boundary so moving
+              // their consumers cannot turn tiny shared modules into separate initial requests.
+              name: "library-facet-icons",
+              test: /src[\\/]components[\\/]library[\\/]filters[\\/]facetSectionIcons\.ts$/,
+            },
+          ],
+        },
+      },
+    },
   },
   test: {
     environment: "jsdom",

@@ -25,8 +25,9 @@ import { sortByQualityBand } from "../../../utils/lutQuality";
 import type { AuthorOption } from "./AuthorFacet";
 import { AuthorFacet } from "./AuthorFacet";
 import { CheckboxFacet } from "./CheckboxFacet";
-import { FACET_ICONS, RANGE_ICONS, SECTION_ICONS, renderFacetOptionIcon } from "./facetIcons";
+import { renderFacetOptionIcon } from "./facetIcons";
 import { FacetSection } from "./FacetSection";
+import { FACET_ICONS, RANGE_ICONS, SECTION_ICONS } from "./facetSectionIcons";
 import { RangeFacet } from "./RangeFacet";
 
 export const FILTER_PANEL_WIDTH = 288;
