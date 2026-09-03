@@ -8,7 +8,10 @@ on:
   workflow_dispatch:
   schedule:
     # Every hour, at :17 past.
-    - cron: '17 * * * *'
+    - cron: "17 * * * *"
+
+permissions:
+  contents: read
 
 jobs:
   refresh:
@@ -19,12 +22,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
+      - name: Configure SSH host verification
+        # Provision this from a trusted source; never populate it with ssh-keyscan during the job.
+        env:
+          DEPLOY_SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          install -d -m 700 "$RUNNER_TEMP/powercalc-deploy-ssh"
+          printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" > "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa"
+          printf '%s\n' "$DEPLOY_SSH_KNOWN_HOSTS" > "$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts"
+          chmod 600 "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa" "$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts"
+          test -s "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa"
+          test -s "$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts"
+
       - name: Render documents on remote server
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }} << 'ENDSSH'
+          ssh -i "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts" \
+            ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }} << 'ENDSSH'
           set -e
           cd ${{ secrets.REMOTE_SERVER_PATH }}
           # Start from empty: a page for an entity that has since left the library would otherwise
@@ -37,21 +54,28 @@ jobs:
           docker compose -f docker-compose.yml cp documents/. library_ui:/usr/share/nginx/html/
           ENDSSH
 
-      - name: Purge cloudflare cache
-        uses: jakejarvis/cloudflare-purge-action@master
+      - name: Purge Cloudflare cache
         env:
           # Deliberately omit PURGE_URLS: every SPA deep link is a separate Cloudflare cache key.
+          # Use a scoped API token with only Zone.Cache Purge access for this zone.
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
-          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
-          CLOUDFLARE_KEY: ${{ secrets.CLOUDFLARE_KEY }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --url "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE}/purge_cache" \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            --header "Content-Type: application/json" \
+            --data '{"purge_everything":true}' \
+            | jq --exit-status '.success == true'
 
       - name: Setup Node.js for cache warm-up
         uses: actions/setup-node@v7
         with:
-          node-version: '24'
+          node-version: "24"
 
       - name: Warm prerendered pages in Cloudflare
         env:
           WARM_SITE_URL: https://library.powercalc.nl
-          WARM_CONCURRENCY: '12'
+          WARM_CONCURRENCY: "12"
         run: npm run cache:warm

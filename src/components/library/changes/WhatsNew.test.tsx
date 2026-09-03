@@ -115,4 +115,34 @@ describe("WhatsNew", () => {
     expect(screen.queryByText(/x50-ultra/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Load older changes" })).toBeVisible();
   });
+
+  it("renders an untrusted pull request URL as plain text", () => {
+    queryClient.setQueryData(libraryQuery().queryKey, {
+      powerProfilesBySlugKey: new Map(),
+    } as LibraryData);
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <WhatsNew
+            initialPage={{
+              ...page,
+              items: [
+                {
+                  ...page.items[0],
+                  source: {
+                    ...page.items[0].source,
+                    pull_request_url: "https://attacker.example/fake-pull-request",
+                  },
+                },
+              ],
+            }}
+          />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    expect(screen.getByTestId("whats-new-pull-request")).toHaveTextContent("Pull request #42");
+    expect(screen.queryByRole("link", { name: /Pull request #42/ })).not.toBeInTheDocument();
+  });
 });

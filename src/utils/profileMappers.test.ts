@@ -282,4 +282,14 @@ describe("mapToBasePowerProfile", () => {
     expect(profile.ean).toEqual([]);
     expect(profile.productUrl).toBeNull();
   });
+
+  it("rejects an unsafe product URL", () => {
+    const profile = mapToBasePowerProfile(
+      createModel({ product_url: "data:text/html,<script>alert(1)</script>" }),
+      manufacturer,
+      usageStats,
+    );
+
+    expect(profile.productUrl).toBeNull();
+  });
 });

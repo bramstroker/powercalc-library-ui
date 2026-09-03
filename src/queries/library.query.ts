@@ -8,6 +8,7 @@ import type {
   PowerProfile,
   UsageStats,
 } from "../types/PowerProfile";
+import { safeHttpsUrl } from "../utils/externalUrls";
 import { mapToBasePowerProfile } from "../utils/profileMappers";
 import { slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
@@ -100,7 +101,7 @@ export const libraryQuery = () => ({
         fullName: manufacturerData.full_name,
         dirName: manufacturerData.dir_name,
         aliases: manufacturerData.aliases ?? [],
-        website: manufacturerData.website ?? null,
+        website: safeHttpsUrl(manufacturerData.website),
         country: manufacturerData.country ?? null,
         description: manufacturerData.description ?? null,
       };

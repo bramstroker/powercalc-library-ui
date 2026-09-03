@@ -27,6 +27,7 @@ import {
 import { useLibrary } from "../../../context/LibraryContext";
 import type { PowerProfile } from "../../../types/PowerProfile";
 import { formatDateUtc } from "../../../utils/dateFormat";
+import { safeGithubPullRequestUrl } from "../../../utils/externalUrls";
 import { humanizeIdentifier } from "../../../utils/profilePresentation";
 import { authorPath, profilePath, slugifyPathSegment } from "../../../utils/urlSlugs.mjs";
 import { DeviceTypeIcon } from "../../profile/DeviceTypeIcon";
@@ -161,31 +162,34 @@ const PullRequestChange = ({
 }: {
   change: VisibleLibraryChange;
   currentProfiles: Map<string, PowerProfile>;
-}) => (
-  <Box component="article" sx={{ px: 2, py: 1.75 }} data-testid="whats-new-pull-request">
-    <Stack divider={<Divider flexItem />}>
-      {change.changes.map((profileChange, index) => (
-        <Box
-          key={`${profileChange.type}-${profileChange.profile.manufacturer.dir_name}-${profileChange.profile.id}-${index}`}
-        >
-          <ProfileChange change={profileChange} currentProfiles={currentProfiles} />
-        </Box>
-      ))}
-    </Stack>
-    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
-      Contributed by <ContributorLinks change={change} /> ·{" "}
-      <Link
-        href={change.source.pull_request_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        underline="hover"
-      >
-        Pull request #{change.source.pull_request_number}
-        <OpenInNewIcon sx={{ ml: 0.4, fontSize: "inherit", verticalAlign: "text-bottom" }} />
-      </Link>
-    </Typography>
-  </Box>
-);
+}) => {
+  const pullRequestUrl = safeGithubPullRequestUrl(change.source.pull_request_url);
+
+  return (
+    <Box component="article" sx={{ px: 2, py: 1.75 }} data-testid="whats-new-pull-request">
+      <Stack divider={<Divider flexItem />}>
+        {change.changes.map((profileChange, index) => (
+          <Box
+            key={`${profileChange.type}-${profileChange.profile.manufacturer.dir_name}-${profileChange.profile.id}-${index}`}
+          >
+            <ProfileChange change={profileChange} currentProfiles={currentProfiles} />
+          </Box>
+        ))}
+      </Stack>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+        Contributed by <ContributorLinks change={change} /> ·{" "}
+        {pullRequestUrl ? (
+          <Link href={pullRequestUrl} target="_blank" rel="noopener noreferrer" underline="hover">
+            Pull request #{change.source.pull_request_number}
+            <OpenInNewIcon sx={{ ml: 0.4, fontSize: "inherit", verticalAlign: "text-bottom" }} />
+          </Link>
+        ) : (
+          <>Pull request #{change.source.pull_request_number}</>
+        )}
+      </Typography>
+    </Box>
+  );
+};
 
 export const WhatsNew = ({ initialPage }: WhatsNewProps) => {
   const { powerProfilesBySlugKey } = useLibrary();

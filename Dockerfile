@@ -43,6 +43,7 @@ CMD ["sh", "-c", "node scripts/prerender.mjs --out \"$PRERENDER_OUT\" && node sc
 FROM nginx:stable-perl
 COPY --from=build /app/build/client /usr/share/nginx/html
 COPY --from=build /app/build/nginx-redirects.conf /etc/nginx/conf.d/00-legacy-redirects-map.conf
+COPY etc/security-headers.conf /etc/nginx/security-headers.conf
 COPY etc/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
