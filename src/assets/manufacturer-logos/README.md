@@ -2,7 +2,8 @@
 
 One SVG per manufacturer, named after the slug of its `dir_name` in the library API — lowercase,
 with every run of non-alphanumeric characters collapsed to a single `-`. `paulmann licht` therefore
-becomes `paulmann-licht.svg`. `manufacturerLogoSlug()` in `../../components/ManufacturerLogo.tsx`
+becomes `paulmann-licht.svg`. `manufacturerLogoSlug()` in
+`../../components/manufacturer/logo/ManufacturerLogo.tsx`
 produces that name, and the file is picked up automatically: nothing needs registering by hand.
 
 Manufacturers without a file here fall back to a monogram, so adding logos one at a time is fine.

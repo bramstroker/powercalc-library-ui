@@ -1,6 +1,6 @@
 import { redirect, type LoaderFunctionArgs, type MetaFunction, useLoaderData } from "react-router";
 
-import { Author } from "../components/Author";
+import { Author } from "../components/contributor/detail/Author";
 import { SITE_URL } from "../config/site";
 import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
 import { authorRank, libraryQuery } from "../queries/library.query";

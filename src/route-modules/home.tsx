@@ -1,6 +1,6 @@
 import type { LinksFunction, MetaFunction } from "react-router";
 
-import { LibraryGrid } from "../components/LibraryGrid";
+import { LibraryGrid } from "../components/library/LibraryGrid";
 import { libraryPreloadLinks } from "../seo/apiLinks";
 import { libraryDatasetStructuredData } from "../seo/dataset";
 import { createPageMeta } from "../seo/meta";

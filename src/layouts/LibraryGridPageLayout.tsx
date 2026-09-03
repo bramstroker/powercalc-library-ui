@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
 import { Outlet } from "react-router";
 
-import { AppBoundary } from "../components/AppBoundary";
-import { Footer } from "../components/Footer";
-import { PageSpinner, useIsChangingPage } from "../components/PageSpinner";
-import { ScrollToTop } from "../components/ScrollToTop";
+import { AppBoundary } from "../components/app/AppBoundary";
+import { Footer } from "../components/app/Footer";
+import { PageSpinner, useIsChangingPage } from "../components/app/PageSpinner";
+import { ScrollToTop } from "../components/app/ScrollToTop";
 
 /**
  * App-shell layout for the grid: on desktop the page never scrolls, the grid scrolls internally and

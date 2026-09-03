@@ -1,11 +1,11 @@
 import { Box, Container } from "@mui/material";
 import { Outlet } from "react-router";
 
-import { AppBoundary } from "../components/AppBoundary";
-import { Footer } from "../components/Footer";
-import { Header } from "../components/Header";
-import { PageSpinner, useIsChangingPage } from "../components/PageSpinner";
-import { ScrollToTop } from "../components/ScrollToTop";
+import { AppBoundary } from "../components/app/AppBoundary";
+import { Footer } from "../components/app/Footer";
+import { PageSpinner, useIsChangingPage } from "../components/app/PageSpinner";
+import { ScrollToTop } from "../components/app/ScrollToTop";
+import { Header } from "../components/header/Header";
 
 export const DefaultPageLayout = () => {
   // Driven by the router rather than a Suspense boundary. A `<Suspense>` wrapping `<Outlet />` makes

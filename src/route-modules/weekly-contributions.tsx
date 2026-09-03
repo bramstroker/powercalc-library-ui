@@ -1,6 +1,6 @@
 import type { LinksFunction, MetaFunction } from "react-router";
 
-import { WeeklyContributions } from "../components/statistics/WeeklyContributions";
+import { WeeklyContributions } from "../components/statistics/trends/WeeklyContributions";
 import { libraryPreloadLinks } from "../seo/apiLinks";
 import { createPageMeta } from "../seo/meta";
 

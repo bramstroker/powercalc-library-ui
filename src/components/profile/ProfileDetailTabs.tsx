@@ -25,7 +25,8 @@ import {
   subProfilesQuery,
 } from "../../queries/profileDetails.query";
 import type { PowerProfile } from "../../types/PowerProfile";
-import { Plot } from "../Plot";
+
+import { Plot } from "./Plot";
 
 const LoadingDetails = () => (
   <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", py: 2 }}>

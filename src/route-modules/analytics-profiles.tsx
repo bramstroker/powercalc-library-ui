@@ -1,6 +1,6 @@
 import type { LinksFunction, MetaFunction } from "react-router";
 
-import { Profiles } from "../components/statistics/analytics/Profiles";
+import { Profiles } from "../components/analytics/Profiles";
 import { libraryPreloadLinks } from "../seo/apiLinks";
 import { createPageMeta } from "../seo/meta";
 

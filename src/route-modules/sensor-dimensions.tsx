@@ -1,6 +1,6 @@
 import type { LinksFunction, MetaFunction } from "react-router";
 
-import { SensorDimensions } from "../components/statistics/analytics/SensorDimensions";
+import { SensorDimensions } from "../components/analytics/sensors/SensorDimensions";
 import { getSensorDimension, sensorDimensionTitle } from "../config/sensorDimensions.mjs";
 import { apiPreconnectLinks } from "../seo/apiLinks";
 import { createPageMeta } from "../seo/meta";

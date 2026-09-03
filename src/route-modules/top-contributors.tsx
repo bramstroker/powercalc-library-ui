@@ -1,6 +1,6 @@
 import type { LinksFunction, MetaFunction } from "react-router";
 
-import { TopContributors } from "../components/statistics/TopContributors";
+import { TopContributors } from "../components/statistics/rankings/TopContributors";
 import { libraryPreloadLinks } from "../seo/apiLinks";
 import { createPageMeta } from "../seo/meta";
 

@@ -6,7 +6,7 @@ import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import { Box, Card, CardActionArea, CardContent, Grid, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router";
 
-import { PageBreadcrumbs } from "../PageBreadcrumbs";
+import { PageBreadcrumbs } from "../shared/PageBreadcrumbs";
 
 const reports = [
   {

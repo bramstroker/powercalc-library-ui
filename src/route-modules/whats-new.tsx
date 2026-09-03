@@ -1,7 +1,7 @@
 import { useLoaderData, type LoaderFunctionArgs, type MetaFunction } from "react-router";
 
 import { fetchLibraryChanges } from "../api/library.api";
-import { WhatsNew } from "../components/statistics/WhatsNew";
+import { WhatsNew } from "../components/library/changes/WhatsNew";
 import { prerenderedOrLiveClientLoader } from "../loaders/clientLoader";
 import { createPageMeta } from "../seo/meta";
 

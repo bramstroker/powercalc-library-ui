@@ -20,7 +20,7 @@ import {
   productUrlLabel,
 } from "../../../utils/profilePresentation";
 import { manufacturerPath, profilePath } from "../../../utils/urlSlugs.mjs";
-import { ValueChips } from "../../AliasChips";
+import { ValueChips } from "../AliasChips";
 
 import type { ProfileAttribute } from "./types";
 

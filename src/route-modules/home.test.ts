@@ -11,7 +11,7 @@ import {
 
 import { libraryDatasetStructuredData, meta } from "./home";
 
-vi.mock("../components/LibraryGrid", () => ({ LibraryGrid: () => null }));
+vi.mock("../components/library/LibraryGrid", () => ({ LibraryGrid: () => null }));
 
 const metadataFor = (search: string) =>
   meta({ location: { search } } as Parameters<typeof meta>[0]);

@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import type { Summary } from "../../api/analytics.api";
 import type { PowerProfile } from "../../types/PowerProfile";
 import { numberFormat } from "../../utils/formatters";
-import { SupportPowercalcPrompt } from "../SupportPowercalc";
+import { SupportPowercalcPrompt } from "../shared/SupportPowercalc";
 
 export const ProfileMetrics = ({
   profile,

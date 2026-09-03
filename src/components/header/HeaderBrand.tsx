@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Link as RouterLink } from "react-router";
 
-import { Logo } from "../Logo";
+import { Logo } from "../shared/Logo";
 
 export const HeaderBrand = ({ compactOnMobile }: { compactOnMobile: boolean }) => (
   <Box

@@ -1,6 +1,6 @@
 import type { LinksFunction, MetaFunction } from "react-router";
 
-import { Manufacturers } from "../components/Manufacturers";
+import { Manufacturers } from "../components/manufacturer/Manufacturers";
 import { libraryPreloadLinks } from "../seo/apiLinks";
 import { createPageMeta } from "../seo/meta";
 

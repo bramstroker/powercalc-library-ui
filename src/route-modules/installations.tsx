@@ -1,6 +1,6 @@
 import type { LinksFunction, MetaFunction } from "react-router";
 
-import { Installations } from "../components/statistics/analytics/Installations";
+import { Installations } from "../components/analytics/installations/Installations";
 import { apiPreconnectLinks } from "../seo/apiLinks";
 import { createPageMeta } from "../seo/meta";
 

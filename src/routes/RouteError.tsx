@@ -2,8 +2,8 @@ import { Button, Container, Stack, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { useRouteError, isRouteErrorResponse } from "react-router";
 
-import { Footer } from "../components/Footer";
-import { Header } from "../components/Header";
+import { Footer } from "../components/app/Footer";
+import { Header } from "../components/header/Header";
 import { usePageMeta } from "../hooks/usePageMeta";
 
 const getErrorMessage = (err: unknown): string => {
