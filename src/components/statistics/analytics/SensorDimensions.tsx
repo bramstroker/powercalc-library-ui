@@ -13,18 +13,19 @@ import {
 import { mangoFusionPalette } from "@mui/x-charts";
 import { PieChart, pieClasses } from "@mui/x-charts/PieChart";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
 import type { SensorStats } from "../../../api/analytics.api";
-import { fetchSensors } from "../../../api/analytics.api";
 import { getSensorDimension, sensorDimensionTitle } from "../../../config/sensorDimensions.mjs";
+import { sensorDimensionsQuery } from "../../../queries/analytics.query";
 import { visuallyHiddenSx } from "../../../utils/accessibility";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
-import type { MetricKey } from "./MetricsSelect";
 import { MetricsSelect } from "./MetricsSelect";
 import { SensorDimensionDetailView } from "./SensorDimensionDetailView";
+import type { MetricKey } from "./sensorMetric";
+import { parseMetricKey } from "./sensorMetric";
 
 const groupByDimension = (data: SensorStats[]): Record<string, SensorStats[]> => {
   return data.reduce<Record<string, SensorStats[]>>((acc, item) => {
@@ -38,46 +39,39 @@ export const SensorDimensions = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const { dimension: urlDimension } = useParams<{ dimension: string }>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Initialize metric from URL query parameter or default to "installation_count"
-  const initialMetric = (searchParams.get("metric") as MetricKey) || "installation_count";
-  const [selectedMetric, setSelectedMetric] = useState<MetricKey>(initialMetric);
+  const selectedMetric = parseMetricKey(searchParams.get("metric"));
 
-  const { data } = useSuspenseQuery<SensorStats[]>({
-    queryKey: ["dimensionData"],
-    queryFn: fetchSensors,
-  });
+  const { data } = useSuspenseQuery(sensorDimensionsQuery());
 
   const handleMetricChange = (value: MetricKey) => {
-    setSelectedMetric(value);
-    // Update URL with new metric without navigating
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set("metric", value);
-    void navigate({ search: newSearchParams.toString() }, { replace: true });
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        next.set("metric", value);
+        return next;
+      },
+      { replace: true, preventScrollReset: true },
+    );
   };
 
   const handleShowDetails = (dimension: string) => {
-    // Include current metric in URL when navigating to detail view
-    void navigate(`/analytics/sensor-dimensions/${dimension}?metric=${selectedMetric}`);
+    const next = new URLSearchParams(searchParams);
+    next.set("metric", selectedMetric);
+    void navigate({
+      pathname: `/analytics/sensor-dimensions/${encodeURIComponent(dimension)}`,
+      search: next.toString(),
+    });
   };
 
   const handleBackToOverview = () => {
-    // Include current metric in URL when navigating back to overview
-    void navigate(`/analytics/sensor-dimensions?metric=${selectedMetric}`);
+    const next = new URLSearchParams(searchParams);
+    next.set("metric", selectedMetric);
+    void navigate({ pathname: "/analytics/sensor-dimensions", search: next.toString() });
   };
 
-  // Callback for when metric changes in detail view
-  const handleDetailMetricChange = (metric: MetricKey) => {
-    setSelectedMetric(metric);
-  };
-
-  // Keep a stable empty array reference so useMemo can actually memoize
-  const EMPTY_DIMENSION_COUNTS: SensorStats[] = [];
-
-  const dimensionCounts = data ?? EMPTY_DIMENSION_COUNTS;
-
-  const groupedData = useMemo(() => groupByDimension(dimensionCounts), [dimensionCounts]);
+  const groupedData = useMemo(() => groupByDimension(data), [data]);
 
   const dimensions = useMemo(() => Object.keys(groupedData).sort(), [groupedData]);
 
@@ -89,7 +83,7 @@ export const SensorDimensions = () => {
         data={groupedData[urlDimension]}
         metric={selectedMetric}
         onBack={handleBackToOverview}
-        onMetricChange={handleDetailMetricChange}
+        onMetricChange={handleMetricChange}
       />
     );
   }

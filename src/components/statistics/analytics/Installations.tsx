@@ -1,23 +1,20 @@
 import { Stack } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQueries } from "@tanstack/react-query";
 import React from "react";
 
-import type { CountryStats, TimeseriesResponse, VersionStats } from "../../../api/analytics.api";
-import { fetchCountries, fetchTimeseries, fetchVersions } from "../../../api/analytics.api";
+import type { TimeseriesResponse } from "../../../api/analytics.api";
 import { useSummary } from "../../../hooks/useSummary";
+import {
+  analyticsCountriesQuery,
+  analyticsTimeSeriesQuery,
+  analyticsVersionsQuery,
+} from "../../../queries/analytics.query";
 
 import { AnalyticsHeader } from "./AnalyticsHeader";
 import { StatCard } from "./StatCard";
 import { TopCountriesList } from "./TopCountriesList";
 import { VersionChart } from "./VersionChart";
-
-type InstallationsData = {
-  versionsData: VersionStats;
-  countriesData: CountryStats[];
-  optinsData: TimeseriesResponse;
-  sensorsData: TimeseriesResponse;
-};
 
 type SparkPoint = { label: string; value: number };
 
@@ -72,37 +69,34 @@ export const Installations = () => {
     return { fromUTC: from, toUTC: to };
   }, []);
 
-  const { data } = useSuspenseQuery<InstallationsData>({
-    queryKey: ["analytics", "installations", formatUTCDateKey(fromUTC), formatUTCDateKey(toUTC)],
-    queryFn: async () => {
-      const [versionsData, countriesData, optinsData, sensorsData] = await Promise.all([
-        fetchVersions(),
-        fetchCountries(),
-        fetchTimeseries("optin_date", "day", "UTC", fromUTC, toUTC),
-        fetchTimeseries("sensors", "day", "UTC", fromUTC, toUTC),
-      ]);
-
-      return { versionsData, countriesData, optinsData, sensorsData };
-    },
+  const [
+    { data: versionsData },
+    { data: countriesData },
+    { data: optinsData },
+    { data: sensorsData },
+  ] = useSuspenseQueries({
+    queries: [
+      analyticsVersionsQuery(),
+      analyticsCountriesQuery(),
+      analyticsTimeSeriesQuery("optin_date", "day", "UTC", fromUTC, toUTC),
+      analyticsTimeSeriesQuery("sensors", "day", "UTC", fromUTC, toUTC),
+    ],
   });
 
-  const haVersions = React.useMemo(
-    () => data.versionsData.ha_versions.slice(0, 10),
-    [data.versionsData],
-  );
+  const haVersions = React.useMemo(() => versionsData.ha_versions.slice(0, 10), [versionsData]);
   const pcVersions = React.useMemo(
-    () => data.versionsData.powercalc_versions.slice(0, 10),
-    [data.versionsData],
+    () => versionsData.powercalc_versions.slice(0, 10),
+    [versionsData],
   );
 
   const optinsSeries = React.useMemo(
-    () => buildSparklineData(data.optinsData, "optin_date", fromUTC, toUTC),
-    [data.optinsData, fromUTC, toUTC],
+    () => buildSparklineData(optinsData, "optin_date", fromUTC, toUTC),
+    [optinsData, fromUTC, toUTC],
   );
 
   const sensorsSeries = React.useMemo(
-    () => buildSparklineData(data.sensorsData, "sensors", fromUTC, toUTC),
-    [data.sensorsData, fromUTC, toUTC],
+    () => buildSparklineData(sensorsData, "sensors", fromUTC, toUTC),
+    [sensorsData, fromUTC, toUTC],
   );
 
   const avgSensorsPerInstallation = React.useMemo(() => {
@@ -176,7 +170,7 @@ export const Installations = () => {
               </Grid>
             </Grid>
 
-            <TopCountriesList data={data.countriesData ?? []} limit={10} />
+            <TopCountriesList data={countriesData} limit={10} />
           </Stack>
         </Grid>
       </Grid>
