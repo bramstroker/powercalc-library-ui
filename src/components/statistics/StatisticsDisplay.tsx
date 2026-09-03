@@ -22,7 +22,7 @@ import { Link as RouterLink } from "react-router";
 import { useLibrary } from "../../context/LibraryContext";
 import { authorPath, manufacturerPath } from "../../utils/urlSlugs.mjs";
 import { GithubAvatar } from "../GithubAvatar";
-import { ManufacturerLogo } from "../ManufacturerLogo";
+import { ManufacturerLogo } from "../manufacturer/ManufacturerLogo";
 import { PageBreadcrumbs } from "../PageBreadcrumbs";
 
 type StatItem = {

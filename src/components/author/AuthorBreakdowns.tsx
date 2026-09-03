@@ -8,7 +8,7 @@ import { plural } from "../../utils/plural";
 import { humanizeIdentifier } from "../../utils/profilePresentation";
 import { manufacturerPath } from "../../utils/urlSlugs.mjs";
 import { getDeviceTypeIcon } from "../library/facetIcons";
-import { ManufacturerLogo } from "../ManufacturerLogo";
+import { ManufacturerLogo } from "../manufacturer/ManufacturerLogo";
 
 import type { DeviceTypeCount, ManufacturerCount } from "./useAuthorViewModel";
 

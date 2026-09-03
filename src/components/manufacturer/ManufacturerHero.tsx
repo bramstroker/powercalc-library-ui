@@ -10,9 +10,9 @@ import { Link as RouterLink } from "react-router";
 import type { Manufacturer } from "../../types/PowerProfile";
 import { formatCountryName } from "../../utils/formatters";
 import { InlineHeroStat } from "../InlineHeroStat";
-import { ManufacturerLogo } from "../ManufacturerLogo";
 
 import { ManufacturerAliases } from "./ManufacturerAliases";
+import { ManufacturerLogo } from "./ManufacturerLogo";
 
 export type ManufacturerHeroProps = {
   deviceTypeCount: number;
