@@ -128,7 +128,6 @@ const getSearchDocument = (profile: PowerProfile): SearchDocument => {
     ...(profile.legacyIds ?? []),
     profile.deviceType,
     ...(profile.colorModes ?? []),
-    profile.measureDevice,
     profile.measureMethod,
     profile.calculationStrategy,
     ...profile.compatibleIntegrations,
