@@ -33,6 +33,16 @@ test("lists profile additions and measurement updates by merged pull request", a
 
   // The API filters PRs, while the UI filters nested changes within a mixed PR as well.
   await expect(page.getByText("Sonoff S31")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Added profiles" }).click();
+  await expect(page).toHaveURL("/whats-new?type=profile_added");
+  await expect(page.getByText("New profile")).toHaveCount(2);
+  await expect(page.getByText("Measurements updated")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Updated measurements" }).click();
+  await expect(page).toHaveURL("/whats-new?type=measurement_updated");
+  await expect(page.getByText("New profile")).toHaveCount(0);
+  await expect(page.getByText("Measurements updated")).toBeVisible();
 });
 
 test("is reachable from the Explore menu", async ({ page }) => {
