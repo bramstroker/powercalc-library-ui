@@ -1,5 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -114,6 +114,55 @@ describe("WhatsNew", () => {
     expect(screen.getByText("X50 Ultra Complete · Vacuum Robot")).toBeInTheDocument();
     expect(screen.queryByText(/x50-ultra/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Load older changes" })).toBeVisible();
+  });
+
+  it("filters added profiles and updated measurements", () => {
+    queryClient.setQueryData(libraryQuery().queryKey, {
+      powerProfilesBySlugKey: new Map(),
+    } as LibraryData);
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <WhatsNew initialPage={page} />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Added profiles" }));
+    expect(screen.getAllByText("New profile")).toHaveLength(2);
+    expect(screen.queryByText("Measurements updated")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Added profiles" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Updated measurements" }));
+    expect(screen.queryByText("New profile")).not.toBeInTheDocument();
+    expect(screen.getByText("Measurements updated")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "IKEA LED1836G9" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Signify LCA001" })).not.toBeInTheDocument();
+  });
+
+  it("restores a filter from the URL", () => {
+    queryClient.setQueryData(libraryQuery().queryKey, {
+      powerProfilesBySlugKey: new Map(),
+    } as LibraryData);
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={["/whats-new?type=measurement_updated"]}>
+          <WhatsNew initialPage={page} />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    expect(screen.queryByText("New profile")).not.toBeInTheDocument();
+    expect(screen.getByText("Measurements updated")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Updated measurements" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 
   it("renders an untrusted pull request URL as plain text", () => {

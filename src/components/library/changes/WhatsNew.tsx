@@ -11,6 +11,8 @@ import {
   Link,
   Paper,
   Stack,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import { useMemo, useState } from "react";
@@ -25,6 +27,7 @@ import {
   type SupportedLibraryChangeType,
 } from "../../../api/library.api";
 import { useLibrary } from "../../../context/LibraryContext";
+import { useUrlSearchParams } from "../../../hooks/useUrlSearchParams";
 import type { PowerProfile } from "../../../types/PowerProfile";
 import { formatDateUtc } from "../../../utils/dateFormat";
 import { safeGithubPullRequestUrl } from "../../../utils/externalUrls";
@@ -39,14 +42,32 @@ interface WhatsNewProps {
 
 type VisibleProfileChange = LibraryProfileChange & { type: SupportedLibraryChangeType };
 type VisibleLibraryChange = Omit<LibraryChange, "changes"> & { changes: VisibleProfileChange[] };
+type ChangeTypeFilter = "all" | SupportedLibraryChangeType;
+
+const CHANGE_TYPE_FILTERS: Array<{ value: ChangeTypeFilter; label: string }> = [
+  { value: "all", label: "All changes" },
+  { value: "profile_added", label: "Added profiles" },
+  { value: "measurement_updated", label: "Updated measurements" },
+];
+
+const parseChangeTypeFilter = (value: string | null): ChangeTypeFilter =>
+  value && SUPPORTED_LIBRARY_CHANGE_TYPES.includes(value as SupportedLibraryChangeType)
+    ? (value as SupportedLibraryChangeType)
+    : "all";
 
 const isSupportedChange = (change: LibraryProfileChange): change is VisibleProfileChange =>
   SUPPORTED_LIBRARY_CHANGE_TYPES.includes(change.type as SupportedLibraryChangeType);
 
-const visibleChanges = (pages: LibraryChangesPage[]): VisibleLibraryChange[] =>
+const visibleChanges = (
+  pages: LibraryChangesPage[],
+  filter: ChangeTypeFilter,
+): VisibleLibraryChange[] =>
   pages.flatMap((page) =>
     page.items.flatMap((item) => {
-      const changes = item.changes.filter(isSupportedChange);
+      const changes = item.changes.filter(
+        (change): change is VisibleProfileChange =>
+          isSupportedChange(change) && (filter === "all" || change.type === filter),
+      );
       return changes.length > 0 ? [{ ...item, changes }] : [];
     }),
   );
@@ -193,10 +214,12 @@ const PullRequestChange = ({
 
 export const WhatsNew = ({ initialPage }: WhatsNewProps) => {
   const { powerProfilesBySlugKey } = useLibrary();
+  const { searchParams, updateSearchParams } = useUrlSearchParams();
   const [pages, setPages] = useState([initialPage]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const changes = useMemo(() => visibleChanges(pages), [pages]);
+  const changeTypeFilter = parseChangeTypeFilter(searchParams.get("type"));
+  const changes = useMemo(() => visibleChanges(pages, changeTypeFilter), [pages, changeTypeFilter]);
   const groups = useMemo(() => groupByDay(changes), [changes]);
   const nextCursor = pages.at(-1)?.next_cursor;
 
@@ -225,8 +248,32 @@ export const WhatsNew = ({ initialPage }: WhatsNewProps) => {
         that brought them into the library.
       </Typography>
 
+      <ToggleButtonGroup
+        value={changeTypeFilter}
+        exclusive
+        fullWidth
+        size="small"
+        aria-label="Filter changes"
+        onChange={(_event, next: ChangeTypeFilter | null) => {
+          if (next) updateSearchParams({ type: next === "all" ? null : next });
+        }}
+        sx={{ mb: 3, maxWidth: 520 }}
+      >
+        {CHANGE_TYPE_FILTERS.map((filter) => (
+          <ToggleButton key={filter.value} value={filter.value}>
+            {filter.label}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
+
       {groups.length === 0 && (
-        <Typography color="text.secondary">No recent profile changes are available.</Typography>
+        <Typography color="text.secondary">
+          {changeTypeFilter === "all"
+            ? "No recent profile changes are available."
+            : changeTypeFilter === "profile_added"
+              ? "No recently added profiles are available."
+              : "No recently updated measurements are available."}
+        </Typography>
       )}
 
       {groups.map(([day, dayChanges]) => (
