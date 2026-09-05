@@ -1,9 +1,12 @@
 export enum DeviceType {
+  AIR_CONDITIONER = "air_conditioner",
+  AIR_PURIFIER = "air_purifier",
   CAMERA = "camera",
   COVER = "cover",
   FAN = "fan",
   GENERIC_IOT = "generic_iot",
   HEATING = "heating",
+  HUMIDIFIER = "humidifier",
   LAWN_MOWER_ROBOT = "lawn_mower_robot",
   LIGHT = "light",
   POWER_METER = "power_meter",
@@ -16,4 +19,5 @@ export enum DeviceType {
   TELEVISION = "television",
   UPS = "ups",
   VACUUM_ROBOT = "vacuum_robot",
+  WATER_HEATER = "water_heater",
 }
