@@ -1,12 +1,15 @@
 import type { SvgIconComponent } from "@mui/icons-material";
+import AcUnitIcon from "@mui/icons-material/AcUnit";
 import AirIcon from "@mui/icons-material/Air";
 import BatteryChargingFullIcon from "@mui/icons-material/BatteryChargingFull";
 import BlindsIcon from "@mui/icons-material/Blinds";
+import BlurOnIcon from "@mui/icons-material/BlurOn";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import DeviceHubIcon from "@mui/icons-material/DeviceHub";
 import DvrIcon from "@mui/icons-material/Dvr";
 import ElectricMeterIcon from "@mui/icons-material/ElectricMeter";
 import GrassIcon from "@mui/icons-material/Grass";
+import HeatPumpIcon from "@mui/icons-material/HeatPump";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import PowerIcon from "@mui/icons-material/Power";
@@ -16,16 +19,20 @@ import SpeakerIcon from "@mui/icons-material/Speaker";
 import TuneIcon from "@mui/icons-material/Tune";
 import TvIcon from "@mui/icons-material/Tv";
 import VideocamIcon from "@mui/icons-material/Videocam";
+import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import { Box, Tooltip, Typography } from "@mui/material";
 
 import { DeviceType } from "../../types/DeviceType";
 
-const DEVICE_TYPE_ICONS: Partial<Record<DeviceType, SvgIconComponent>> = {
+const DEVICE_TYPE_ICONS: Record<DeviceType, SvgIconComponent> = {
+  [DeviceType.AIR_CONDITIONER]: AcUnitIcon,
+  [DeviceType.AIR_PURIFIER]: BlurOnIcon,
   [DeviceType.CAMERA]: VideocamIcon,
   [DeviceType.COVER]: BlindsIcon,
   [DeviceType.FAN]: AirIcon,
   [DeviceType.GENERIC_IOT]: DeviceHubIcon,
   [DeviceType.HEATING]: LocalFireDepartmentIcon,
+  [DeviceType.HUMIDIFIER]: WaterDropIcon,
   [DeviceType.LAWN_MOWER_ROBOT]: GrassIcon,
   [DeviceType.LIGHT]: LightbulbIcon,
   [DeviceType.NETWORK]: RouterIcon,
@@ -38,6 +45,7 @@ const DEVICE_TYPE_ICONS: Partial<Record<DeviceType, SvgIconComponent>> = {
   [DeviceType.TELEVISION]: TvIcon,
   [DeviceType.UPS]: BatteryChargingFullIcon,
   [DeviceType.VACUUM_ROBOT]: CleaningServicesIcon,
+  [DeviceType.WATER_HEATER]: HeatPumpIcon,
 };
 
 /** The icon for a device type, or undefined for one this map has not caught up with yet. */
