@@ -1,6 +1,7 @@
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
+import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import {
   Box,
   Button,
@@ -12,7 +13,10 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useId, useState } from "react";
 
@@ -42,13 +46,20 @@ const plotDescription = (label: string) => {
 
 export const Plot = ({ link }: { link: PlotLink }) => {
   const [open, setOpen] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const openGraph = () => {
+    setZoom(1);
+    setOpen(true);
+  };
   const label = colorModeLabel(link.label);
   const titleId = useId();
 
   return (
     <>
       <Card>
-        <CardActionArea onClick={() => setOpen(true)}>
+        <CardActionArea onClick={openGraph}>
           <Typography gutterBottom variant="subtitle1" component="div" sx={{ px: 2, pt: 1 }}>
             {label}
           </Typography>
@@ -70,7 +81,7 @@ export const Plot = ({ link }: { link: PlotLink }) => {
           </Typography>
         </CardActionArea>
         <CardActions sx={{ px: 2, pt: 0, pb: 2 }}>
-          <Button size="small" startIcon={<ZoomInIcon />} onClick={() => setOpen(true)}>
+          <Button size="small" startIcon={<ZoomInIcon />} onClick={openGraph}>
             Enlarge
           </Button>
           <Button
@@ -90,10 +101,11 @@ export const Plot = ({ link }: { link: PlotLink }) => {
         onClose={() => setOpen(false)}
         maxWidth="lg"
         fullWidth
+        fullScreen={fullScreen}
         aria-labelledby={titleId}
       >
-        <DialogTitle id={titleId} sx={{ pr: 7 }}>
-          {label} power measurements
+        <DialogTitle id={`${titleId}-heading`} sx={{ pr: 7, py: 1.5, fontSize: "1rem" }}>
+          <span id={titleId}>{label}</span>
           <IconButton
             aria-label="Close graph"
             onClick={() => setOpen(false)}
@@ -102,13 +114,41 @@ export const Plot = ({ link }: { link: PlotLink }) => {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent>
-          <Box sx={plateSx}>
+        <Stack direction="row" sx={{ px: 1, alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+          <IconButton
+            aria-label="Zoom out"
+            aria-disabled={zoom === 1}
+            sx={{ opacity: zoom === 1 ? 0.4 : 1 }}
+            onClick={() => setZoom((value) => Math.max(1, value - 1))}
+          >
+            <ZoomOutIcon />
+          </IconButton>
+          <Typography variant="body2" role="status" aria-live="polite">
+            {zoom * 100}%
+          </Typography>
+          <IconButton
+            aria-label="Zoom in"
+            aria-disabled={zoom === 4}
+            sx={{ opacity: zoom === 4 ? 0.4 : 1 }}
+            onClick={() => setZoom((value) => Math.min(4, value + 1))}
+          >
+            <ZoomInIcon />
+          </IconButton>
+          <Button onClick={() => setZoom(1)}>Fit</Button>
+          <Button href={link.url} target="_blank" rel="noopener noreferrer" sx={{ ml: "auto" }}>
+            Open original
+          </Button>
+        </Stack>
+        <Typography variant="caption" color="text.secondary" sx={{ px: 2, pb: 1 }}>
+          Zoom in, then scroll or swipe to explore the graph.
+        </Typography>
+        <DialogContent sx={{ p: 0, overflow: "auto" }} tabIndex={0} aria-label="Graph viewport">
+          <Box sx={{ bgcolor: "common.white", width: `${zoom * 100}%` }}>
             <Box
               component="img"
               src={link.url}
               alt={`${label} power measurements`}
-              sx={{ display: "block", width: "100%", maxHeight: "75vh", objectFit: "contain" }}
+              sx={{ display: "block", width: "100%", height: "auto" }}
             />
           </Box>
         </DialogContent>
