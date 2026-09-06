@@ -61,6 +61,7 @@ export const LibraryGrid = () => {
       profiles={powerProfiles}
       filters={filters}
       onCollapse={isDesktop ? () => setCollapsedPersisted(true) : undefined}
+      onClose={isDesktop ? undefined : () => setDrawerOpen(false)}
       {...actions}
     />
   );
@@ -102,9 +103,33 @@ export const LibraryGrid = () => {
               onClose={() => {
                 setDrawerOpen(false);
               }}
-              slotProps={{ paper: { sx: { width: FILTER_PANEL_WIDTH } } }}
+              slotProps={{
+                paper: {
+                  "aria-label": "Filters",
+                  sx: { width: 340, maxWidth: "100%", overflow: "hidden" },
+                },
+              }}
             >
-              {filterPanel}
+              <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto" }}>{filterPanel}</Box>
+              <Box
+                sx={{
+                  p: 2,
+                  pb: "max(16px, env(safe-area-inset-bottom))",
+                  borderTop: 1,
+                  borderColor: "divider",
+                }}
+              >
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  <span aria-live="polite" aria-atomic="true">
+                    Show {rows.length} {rows.length === 1 ? "result" : "results"}
+                  </span>
+                </Button>
+              </Box>
             </Drawer>
           </>
         )}

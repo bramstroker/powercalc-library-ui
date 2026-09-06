@@ -1,3 +1,4 @@
+import CloseIcon from "@mui/icons-material/Close";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
@@ -70,8 +71,10 @@ const CHECKBOX_FACETS = Object.entries(CHECKBOX_FACET_CONFIG).map(([key, { searc
 export type FilterPanelProps = LibraryFilterActions & {
   profiles: PowerProfile[];
   filters: LibraryFilters;
-  /** Renders the collapse control. Omitted in the mobile drawer, which closes by tapping away. */
+  /** Renders the desktop collapse control. */
   onCollapse?: () => void;
+  /** Renders an explicit close control in the mobile drawer. */
+  onClose?: () => void;
 };
 
 export const FilterPanel = ({
@@ -83,6 +86,7 @@ export const FilterPanel = ({
   setDate,
   clearAll,
   onCollapse,
+  onClose,
 }: FilterPanelProps) => {
   // Each facet is counted against everything *except* its own selection, so ticking a second box
   // in the same list widens the results instead of collapsing them to zero.
@@ -197,6 +201,15 @@ export const FilterPanel = ({
             )}
           </IconButton>
         </Tooltip>
+        {onClose && (
+          <IconButton
+            aria-label="Close filters"
+            onClick={onClose}
+            sx={{ minWidth: 44, minHeight: 44 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        )}
         {onCollapse && (
           <Tooltip title="Hide filters">
             <IconButton size="small" aria-label="Hide filters" onClick={onCollapse}>

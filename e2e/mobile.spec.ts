@@ -224,7 +224,10 @@ test("filters from the drawer and opens a profile", async ({ page }) => {
 
   await expect(page).toHaveURL(/deviceType=smart_switch/);
 
-  await page.keyboard.press("Escape");
+  const drawer = page.getByRole("dialog", { name: "Filters", exact: true });
+  await expect(drawer).toBeVisible();
+  await drawer.getByRole("button", { name: "Show 1 result", exact: true }).click();
+  await expect(drawer).toBeHidden();
 
   await expect(page.getByText("S31")).toBeVisible();
   await expect(page.getByText("LCA001")).toBeHidden();
@@ -232,4 +235,22 @@ test("filters from the drawer and opens a profile", async ({ page }) => {
   await page.getByText("S31").click();
 
   await expect(page).toHaveURL("/profiles/sonoff/s31");
+});
+
+test("keeps mobile filter controls visible and restores focus when closing", async ({ page }) => {
+  await page.goto("/");
+  const trigger = page.getByRole("button", { name: "Filters", exact: true });
+  await trigger.click();
+  const drawer = page.getByRole("dialog", { name: "Filters", exact: true });
+  await drawer.getByTestId("facet-dates").scrollIntoViewIfNeeded();
+  await expect(drawer.getByRole("button", { name: "Show 4 results" })).toBeInViewport();
+  await expect(drawer.getByRole("button", { name: "Close filters" })).toBeInViewport();
+  await page.screenshot({ path: "test-results/mobile-filter-drawer.png" });
+  await drawer.getByRole("button", { name: "Close filters" }).click();
+  await expect(drawer).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await page.keyboard.press("Escape");
+  await expect(drawer).toBeHidden();
+  await expect(trigger).toBeFocused();
 });
