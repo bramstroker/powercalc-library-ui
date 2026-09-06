@@ -1,7 +1,19 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 
-import { libraryQuery } from "../queries/library.query";
+import { fetchLibrary } from "../api/library.api";
+import { analyticsProfilesQuery } from "../queries/analytics.query";
+import { buildLibraryData } from "../queries/library.query";
 
-// Keep this expensive query local to the routes that actually consume the library. A provider at
-// the application root made every profile detail request download the complete library first.
-export const useLibrary = () => useSuspenseQuery(libraryQuery()).data;
+// Analytics enriches the catalogue after it becomes usable; a slow or unavailable metrics
+// service must not suspend searching. The dashboard consumes this same analytics query cache.
+export const useLibrary = () => {
+  const analytics = useQuery(analyticsProfilesQuery());
+  const { data: library } = useSuspenseQuery({
+    queryKey: ["library", "browse"],
+    queryFn: fetchLibrary,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+  return useMemo(() => buildLibraryData(library, analytics.data), [library, analytics.data]);
+};

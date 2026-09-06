@@ -72,7 +72,9 @@ const getRangeValue = (profile: PowerProfile, key: RangeKey): number | null | un
     case "lumens":
       return profile.deviceSpecs?.lumens;
     case "installationCount":
-      return profile.usageStats?.installationCount;
+      return profile.usageStats?.available === false
+        ? undefined
+        : profile.usageStats?.installationCount;
   }
 };
 
@@ -218,7 +220,8 @@ const matchesSearchWord = (document: SearchDocument, word: string): boolean => {
 const createSearchMatcher = (term: string) => {
   const words = normalizeSearchText(term).split(/\s+/).filter(Boolean);
   return (profile: PowerProfile): boolean =>
-    words.length === 0 || words.every((word) => matchesSearchWord(getSearchDocument(profile), word));
+    words.length === 0 ||
+    words.every((word) => matchesSearchWord(getSearchDocument(profile), word));
 };
 
 export const matchesSearch = (profile: PowerProfile, term: string): boolean =>

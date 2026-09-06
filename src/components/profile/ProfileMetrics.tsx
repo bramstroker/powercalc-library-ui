@@ -37,9 +37,11 @@ export const ProfileMetrics = ({
           </Typography>
 
           <Typography component="div" variant="subtitle2" sx={{ fontWeight: 700 }}>
-            {hasReportedUsage
-              ? `${installationCount} opted-in ${profile.usageStats.installationCount === 1 ? "installation" : "installations"}`
-              : "No opted-in usage yet"}
+            {profile.usageStats.available === false
+              ? "Usage statistics unavailable"
+              : hasReportedUsage
+                ? `${installationCount} opted-in ${profile.usageStats.installationCount === 1 ? "installation" : "installations"}`
+                : "No opted-in usage yet"}
           </Typography>
 
           <Typography variant="caption" color="text.secondary">

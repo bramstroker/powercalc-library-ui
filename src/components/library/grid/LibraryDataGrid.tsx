@@ -24,18 +24,24 @@ export const LibraryDataGrid = ({ rows, apiRef }: LibraryDataGridProps) => {
   const location = useLocation();
   const { page, pageSize, setPagination } = useLibraryPagination(rows.length);
   const { searchParams, updateSearchParams } = useUrlSearchParams();
+  const usageAvailable = rows.every((row) => row.usageStats.available !== false);
+  const columns = useMemo(
+    () =>
+      LIBRARY_DATA_GRID_COLUMNS.map((column) =>
+        column.field === "installationCount" ? { ...column, sortable: usageAvailable } : column,
+      ),
+    [usageAvailable],
+  );
   const field = searchParams.get("sort");
   const direction = searchParams.get("direction");
   // DataGrid treats a new model reference as a sort change and resets pagination.
   const sortModel = useMemo<GridSortModel>(() => {
     return field &&
-      LIBRARY_DATA_GRID_COLUMNS.some(
-        (column) => column.field === field && column.sortable !== false,
-      ) &&
+      columns.some((column) => column.field === field && column.sortable !== false) &&
       (direction === "asc" || direction === "desc")
       ? [{ field, sort: direction }]
       : [];
-  }, [field, direction]);
+  }, [field, direction, columns]);
   const { columnVisibilityModel, handleColumnVisibilityChange } = useLibraryGridColumnVisibility();
 
   const handleRowClick = useCallback(
@@ -51,7 +57,7 @@ export const LibraryDataGrid = ({ rows, apiRef }: LibraryDataGridProps) => {
     <DataGrid
       apiRef={apiRef}
       rows={rows}
-      columns={LIBRARY_DATA_GRID_COLUMNS}
+      columns={columns}
       getRowId={profileRowId}
       onRowClick={handleRowClick}
       columnVisibilityModel={columnVisibilityModel}

@@ -182,7 +182,8 @@ export const LIBRARY_DATA_GRID_COLUMNS: GridColDef<PowerProfile>[] = [
     headerName: "Installations",
     type: "number",
     width: 130,
-    valueGetter: (_value, row) => row.usageStats?.installationCount,
+    valueGetter: (_value, row) =>
+      row.usageStats?.available === false ? null : row.usageStats?.installationCount,
   },
   {
     field: "lutQualityScore",

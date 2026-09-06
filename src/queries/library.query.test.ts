@@ -245,4 +245,11 @@ describe("libraryQuery", () => {
     expect(data.total).toBe(3);
     expect(data.powerProfiles[0].usageStats.deviceCount).toBe(0);
   });
+  it("keeps the catalogue available when analytics fails without claiming zero usage", async () => {
+    fetchProfilesMock.mockRejectedValue(new Error("Analytics unavailable"));
+    const data = await runQuery();
+    expect(data.total).toBe(3);
+    expect(data.powerProfiles.every((profile) => profile.usageStats.available === false)).toBe(true);
+  });
+
 });

@@ -1,5 +1,6 @@
 import type { ProfileStats } from "../api/analytics.api";
 import { fetchProfiles } from "../api/analytics.api";
+import type { LibraryJson } from "../api/library.api";
 import { fetchLibrary } from "../api/library.api";
 import type {
   Author,
@@ -39,7 +40,8 @@ const createAnalyticsMap = (analyticsData: ProfileStats[]): Map<string, ProfileS
   return map;
 };
 
-const getUsageStats = (stat?: ProfileStats): UsageStats => ({
+const getUsageStats = (stat?: ProfileStats, available = true): UsageStats => ({
+  ...(available ? {} : { available: false }),
   installationCount: stat?.installation_count ?? 0,
   deviceCount: stat?.count ?? 0,
   percentage: stat?.percentage ?? 0,
@@ -77,123 +79,127 @@ export const libraryQuery = () => ({
   staleTime: Infinity,
   gcTime: Infinity,
   queryFn: async (): Promise<LibraryData> => {
-    const [library, analyticsData] = await Promise.all([fetchLibrary(), fetchProfiles()]);
-
-    if (!library.manufacturers?.length) {
-      return emptyLibrary();
-    }
-
-    const analyticsMap = createAnalyticsMap(analyticsData ?? []);
-    const powerProfiles: PowerProfile[] = [];
-    const powerProfilesBySlugKey = new Map<string, PowerProfile>();
-    const authors: Record<string, Author> = {};
-    const authorsBySlug: Record<string, Author> = {};
-    const manufacturers: Record<string, Manufacturer> = {};
-    const manufacturersBySlug: Record<string, Manufacturer> = {};
-    const profilesByManufacturerSlug = new Map<string, PowerProfile[]>();
-    const profilesByAuthorSlug = new Map<string, PowerProfile[]>();
-    const contributionCountsByAuthor = new Map<string, number>();
-
-    for (const manufacturerData of library.manufacturers) {
-      const manufacturerKey = manufacturerData.dir_name;
-      const manufacturerSlug = slugifyPathSegment(manufacturerKey);
-      const manufacturer: Manufacturer = {
-        fullName: manufacturerData.full_name,
-        dirName: manufacturerData.dir_name,
-        aliases: manufacturerData.aliases ?? [],
-        website: safeHttpsUrl(manufacturerData.website),
-        country: manufacturerData.country ?? null,
-        description: manufacturerData.description ?? null,
-      };
-      manufacturers[manufacturerKey] = manufacturer;
-      manufacturersBySlug[manufacturerSlug] = manufacturer;
-
-      const manufacturerProfiles: PowerProfile[] = [];
-      profilesByManufacturerSlug.set(manufacturerSlug, manufacturerProfiles);
-
-      for (const modelData of manufacturerData.models ?? []) {
-        const key = `${manufacturerKey}/${modelData.id}`;
-        const stat = analyticsMap.get(key);
-        const usageStats = getUsageStats(stat);
-
-        const profile = mapToBasePowerProfile(modelData, manufacturer, usageStats);
-        powerProfiles.push(profile);
-        manufacturerProfiles.push(profile);
-        powerProfilesBySlugKey.set(
-          `${manufacturerSlug}/${slugifyPathSegment(modelData.id)}`,
-          profile,
-        );
-        for (const legacyId of profile.legacyIds ?? []) {
-          powerProfilesBySlugKey.set(
-            `${manufacturerSlug}/${slugifyPathSegment(legacyId)}`,
-            profile,
-          );
-        }
-
-        for (const author of profile.authors) {
-          if (!author.githubUsername) continue;
-
-          const authorSlug = slugifyPathSegment(author.githubUsername);
-          authors[author.githubUsername] ??= author;
-          authorsBySlug[authorSlug] ??= author;
-
-          const authorProfiles = profilesByAuthorSlug.get(authorSlug);
-          if (authorProfiles) {
-            authorProfiles.push(profile);
-          } else {
-            profilesByAuthorSlug.set(authorSlug, [profile]);
-          }
-
-          contributionCountsByAuthor.set(
-            author.githubUsername,
-            (contributionCountsByAuthor.get(author.githubUsername) ?? 0) + 1,
-          );
-        }
-      }
-    }
-
-    const contributorSummaries = Object.values(authors).map((author): ContributorSummary => {
-      const authorSlug = slugifyPathSegment(author.githubUsername);
-      const profiles = profilesByAuthorSlug.get(authorSlug) ?? [];
-      const datedProfiles = profiles.filter(
-        (profile) => !Number.isNaN(profile.createdAt.getTime()),
-      );
-      const latestProfile = datedProfiles.reduce<PowerProfile | null>(
-        (latest, profile) =>
-          !latest || profile.createdAt.getTime() > latest.createdAt.getTime() ? profile : latest,
-        null,
-      );
-      const firstContributionAt = datedProfiles.reduce<Date | null>(
-        (first, profile) =>
-          !first || profile.createdAt.getTime() < first.getTime() ? profile.createdAt : first,
-        null,
-      );
-
-      return {
-        author,
-        profileCount: profiles.length,
-        manufacturerCount: new Set(profiles.map((profile) => profile.manufacturer.dirName)).size,
-        deviceTypes: [...new Set(profiles.map((profile) => profile.deviceType))].sort((a, b) =>
-          a.localeCompare(b),
-        ),
-        firstContributionAt,
-        latestContributionAt: latestProfile?.createdAt ?? null,
-        latestProfile,
-      };
-    });
-
-    return {
-      powerProfiles,
-      powerProfilesBySlugKey,
-      total: powerProfiles.length,
-      authors,
-      authorsBySlug,
-      manufacturers,
-      manufacturersBySlug,
-      profilesByManufacturerSlug,
-      profilesByAuthorSlug,
-      contributionCountsByAuthor,
-      contributorSummaries,
-    };
+    const [library, analyticsData] = await Promise.all([
+      fetchLibrary(),
+      fetchProfiles().catch(() => undefined),
+    ]);
+    return buildLibraryData(library, analyticsData);
   },
 });
+
+export const buildLibraryData = (
+  library: LibraryJson,
+  analyticsData?: ProfileStats[],
+): LibraryData => {
+  if (!library.manufacturers?.length) {
+    return emptyLibrary();
+  }
+
+  const analyticsMap = createAnalyticsMap(analyticsData ?? []);
+  const powerProfiles: PowerProfile[] = [];
+  const powerProfilesBySlugKey = new Map<string, PowerProfile>();
+  const authors: Record<string, Author> = {};
+  const authorsBySlug: Record<string, Author> = {};
+  const manufacturers: Record<string, Manufacturer> = {};
+  const manufacturersBySlug: Record<string, Manufacturer> = {};
+  const profilesByManufacturerSlug = new Map<string, PowerProfile[]>();
+  const profilesByAuthorSlug = new Map<string, PowerProfile[]>();
+  const contributionCountsByAuthor = new Map<string, number>();
+
+  for (const manufacturerData of library.manufacturers) {
+    const manufacturerKey = manufacturerData.dir_name;
+    const manufacturerSlug = slugifyPathSegment(manufacturerKey);
+    const manufacturer: Manufacturer = {
+      fullName: manufacturerData.full_name,
+      dirName: manufacturerData.dir_name,
+      aliases: manufacturerData.aliases ?? [],
+      website: safeHttpsUrl(manufacturerData.website),
+      country: manufacturerData.country ?? null,
+      description: manufacturerData.description ?? null,
+    };
+    manufacturers[manufacturerKey] = manufacturer;
+    manufacturersBySlug[manufacturerSlug] = manufacturer;
+
+    const manufacturerProfiles: PowerProfile[] = [];
+    profilesByManufacturerSlug.set(manufacturerSlug, manufacturerProfiles);
+
+    for (const modelData of manufacturerData.models ?? []) {
+      const key = `${manufacturerKey}/${modelData.id}`;
+      const stat = analyticsMap.get(key);
+      const usageStats = getUsageStats(stat, analyticsData !== undefined);
+
+      const profile = mapToBasePowerProfile(modelData, manufacturer, usageStats);
+      powerProfiles.push(profile);
+      manufacturerProfiles.push(profile);
+      powerProfilesBySlugKey.set(
+        `${manufacturerSlug}/${slugifyPathSegment(modelData.id)}`,
+        profile,
+      );
+      for (const legacyId of profile.legacyIds ?? []) {
+        powerProfilesBySlugKey.set(`${manufacturerSlug}/${slugifyPathSegment(legacyId)}`, profile);
+      }
+
+      for (const author of profile.authors) {
+        if (!author.githubUsername) continue;
+
+        const authorSlug = slugifyPathSegment(author.githubUsername);
+        authors[author.githubUsername] ??= author;
+        authorsBySlug[authorSlug] ??= author;
+
+        const authorProfiles = profilesByAuthorSlug.get(authorSlug);
+        if (authorProfiles) {
+          authorProfiles.push(profile);
+        } else {
+          profilesByAuthorSlug.set(authorSlug, [profile]);
+        }
+
+        contributionCountsByAuthor.set(
+          author.githubUsername,
+          (contributionCountsByAuthor.get(author.githubUsername) ?? 0) + 1,
+        );
+      }
+    }
+  }
+
+  const contributorSummaries = Object.values(authors).map((author): ContributorSummary => {
+    const authorSlug = slugifyPathSegment(author.githubUsername);
+    const profiles = profilesByAuthorSlug.get(authorSlug) ?? [];
+    const datedProfiles = profiles.filter((profile) => !Number.isNaN(profile.createdAt.getTime()));
+    const latestProfile = datedProfiles.reduce<PowerProfile | null>(
+      (latest, profile) =>
+        !latest || profile.createdAt.getTime() > latest.createdAt.getTime() ? profile : latest,
+      null,
+    );
+    const firstContributionAt = datedProfiles.reduce<Date | null>(
+      (first, profile) =>
+        !first || profile.createdAt.getTime() < first.getTime() ? profile.createdAt : first,
+      null,
+    );
+
+    return {
+      author,
+      profileCount: profiles.length,
+      manufacturerCount: new Set(profiles.map((profile) => profile.manufacturer.dirName)).size,
+      deviceTypes: [...new Set(profiles.map((profile) => profile.deviceType))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
+      firstContributionAt,
+      latestContributionAt: latestProfile?.createdAt ?? null,
+      latestProfile,
+    };
+  });
+
+  return {
+    powerProfiles,
+    powerProfilesBySlugKey,
+    total: powerProfiles.length,
+    authors,
+    authorsBySlug,
+    manufacturers,
+    manufacturersBySlug,
+    profilesByManufacturerSlug,
+    profilesByAuthorSlug,
+    contributionCountsByAuthor,
+    contributorSummaries,
+  };
+};

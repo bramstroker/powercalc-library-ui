@@ -22,16 +22,9 @@ export const apiPreconnectLinks: LinkDescriptor[] = [
  * the credential-less `fetch()` in `library.api.ts`, or the browser discards the preload and
  * fetches the response a second time.
  *
- * Both endpoints are listed because `libraryQuery` awaits them together, so the slower of the two
- * gates the render either way.
+ * Analytics is deliberately not preloaded: it is optional enrichment.
  */
 export const libraryPreloadLinks: LinkDescriptor[] = [
   ...apiPreconnectLinks,
   { rel: "preload", as: "fetch", href: API_ENDPOINTS.LIBRARY, crossOrigin: "anonymous" },
-  {
-    rel: "preload",
-    as: "fetch",
-    href: API_ENDPOINTS.ANALYTICS_PROFILES,
-    crossOrigin: "anonymous",
-  },
 ];
