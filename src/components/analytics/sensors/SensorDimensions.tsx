@@ -11,7 +11,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { mangoFusionPalette } from "@mui/x-charts";
-import { PieChart, pieClasses } from "@mui/x-charts/PieChart";
+import { BarChart } from "@mui/x-charts/BarChart";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -20,13 +20,13 @@ import type { SensorStats } from "../../../api/analytics.api";
 import { getSensorDimension, sensorDimensionTitle } from "../../../config/sensorDimensions.mjs";
 import { useUrlSearchParams } from "../../../hooks/useUrlSearchParams";
 import { sensorDimensionsQuery } from "../../../queries/analytics.query";
-import { visuallyHiddenSx } from "../../../utils/accessibility";
 import { AnalyticsHeader } from "../AnalyticsHeader";
 
 import { MetricsSelect } from "./MetricsSelect";
 import { SensorDimensionDetailView } from "./SensorDimensionDetailView";
 import type { MetricKey } from "./sensorMetric";
 import { parseMetricKey } from "./sensorMetric";
+import { SensorMetricContext } from "./SensorMetricContext";
 
 const groupByDimension = (data: SensorStats[]): Record<string, SensorStats[]> => {
   return data.reduce<Record<string, SensorStats[]>>((acc, item) => {
@@ -82,7 +82,7 @@ export const SensorDimensions = () => {
     );
   }
 
-  // Otherwise show the overview with pie charts
+  // Show the largest categories; details retain the complete distribution.
   return (
     <>
       <AnalyticsHeader
@@ -118,6 +118,7 @@ export const SensorDimensions = () => {
         filterSection={<MetricsSelect value={selectedMetric} onChange={handleMetricChange} />}
       />
 
+      <SensorMetricContext metric={selectedMetric} />
       <Grid container spacing={4}>
         {dimensions.map((dimension) => {
           const dimensionData = groupedData[dimension] ?? [];
@@ -131,8 +132,11 @@ export const SensorDimensions = () => {
               id: `${dimension}:${item.key_name}`, // ensure unique
               value: item[selectedMetric] ?? 0,
               label: item.key_name,
+              installations: item.installation_count,
+              percentage: item.percentage,
             }))
             .filter((x) => x.value > 0);
+          const visibleData = chartData.slice(0, 8);
 
           const dimensionInfo = getSensorDimension(dimension);
           const title = sensorDimensionTitle(dimension);
@@ -146,10 +150,14 @@ export const SensorDimensions = () => {
                     justifyContent: "space-between",
                     alignItems: "center",
                     mb: 2,
+                    flexWrap: "wrap",
+                    gap: 1,
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Typography variant="h6">{title}</Typography>
+                    <Typography variant="h6" component="h2">
+                      {title}
+                    </Typography>
                     {dimensionInfo?.description && (
                       <Tooltip title={dimensionInfo.description} arrow describeChild>
                         <Box
@@ -174,87 +182,52 @@ export const SensorDimensions = () => {
                   </Button>
                 </Box>
 
-                <Box sx={{ position: "relative", height: isMobile ? 420 : 300 }}>
-                  {chartData.length === 0 ? (
-                    <Box
-                      sx={{
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Typography color="text.secondary">No data</Typography>
-                    </Box>
-                  ) : (
-                    <PieChart
-                      series={[
+                {chartData.length === 0 ? (
+                  <Typography color="text.secondary">No data</Typography>
+                ) : (
+                  <>
+                    {chartData.length > 8 && (
+                      <Typography variant="body2" color="text.secondary">
+                        Top 8 of {chartData.length} categories. Open Details for the full list.
+                      </Typography>
+                    )}
+                    <BarChart
+                      dataset={visibleData}
+                      layout="horizontal"
+                      height={visibleData.length * 42 + 50}
+                      yAxis={[{ scaleType: "band", dataKey: "label", width: isMobile ? 100 : 140 }]}
+                      xAxis={[
                         {
-                          data: chartData,
-                          highlightScope: { fade: "global", highlight: "item" },
-                          faded: {
-                            innerRadius: 30,
-                            additionalRadius: -30,
-                            color: "gray",
-                          },
-                          arcLabel: (item) => {
-                            const value =
-                              selectedMetric === "percentage"
-                                ? `${item.value.toFixed(1)}%`
-                                : item.value.toString();
-                            return isMobile ? value : `${item.label ?? ""} (${value})`;
-                          },
-                          arcLabelMinAngle: isMobile ? 25 : 18,
+                          min: 0,
+                          ...(selectedMetric === "percentage" ? { max: 100 } : {}),
+                          valueFormatter: (value: number) =>
+                            selectedMetric === "percentage" ? `${value}%` : value.toLocaleString(),
                         },
                       ]}
-                      sx={{
-                        [`& .${pieClasses.arcLabel}`]: {
-                          fill: "white",
-                          fontSize: 14,
+                      series={[
+                        {
+                          dataKey: "value",
+                          valueFormatter: (value: number | null) =>
+                            selectedMetric === "percentage"
+                              ? `${value ?? 0}% of reporting installations`
+                              : `${(value ?? 0).toLocaleString()} ${selectedMetric === "count" ? "sensors" : "installations"}`,
                         },
-                        height: "100%",
-                      }}
-                      margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
+                      ]}
                       colors={mangoFusionPalette}
-                      slotProps={{
-                        legend: isMobile
-                          ? {
-                              direction: "horizontal",
-                              position: {
-                                vertical: "bottom",
-                                horizontal: "center",
-                              },
-                              sx: {
-                                flexWrap: "wrap",
-                                justifyContent: "center",
-                              },
-                            }
-                          : {
-                              direction: "vertical",
-                              position: {
-                                vertical: "top",
-                                horizontal: "end",
-                              },
-                              sx: {
-                                overflowY: "scroll",
-                                flexWrap: "nowrap",
-                                height: "100%",
-                              },
-                            },
-                      }}
+                      grid={{ vertical: true }}
                     />
-                  )}
-                  {chartData.length > 0 && (
-                    <Box component="ul" sx={visuallyHiddenSx}>
-                      {chartData.map((item) => (
-                        <li key={item.id}>
-                          {item.label}: {item.value}
-                          {selectedMetric === "percentage" ? "%" : ""}
-                        </li>
+                    <Box component="ul" sx={{ pl: 2, my: 1, overflowWrap: "anywhere" }}>
+                      {visibleData.map((item) => (
+                        <Typography component="li" variant="body2" key={item.id} sx={{ mb: 0.5 }}>
+                          {item.label}:{" "}
+                          {selectedMetric === "count"
+                            ? `${item.value.toLocaleString()} sensors`
+                            : `${item.installations.toLocaleString()} installations · ${item.percentage}% of reporting installations`}
+                        </Typography>
                       ))}
                     </Box>
-                  )}
-                </Box>
+                  </>
+                )}
               </Paper>
             </Grid>
           );

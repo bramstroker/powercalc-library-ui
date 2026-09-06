@@ -12,12 +12,13 @@ vi.mock("@tanstack/react-query", () => ({
   useSuspenseQuery: vi.fn(),
 }));
 
-vi.mock("@mui/x-charts/PieChart", () => ({
-  PieChart: () => <div data-testid="pie-chart" />,
-  pieClasses: { arcLabel: "arc-label" },
+vi.mock("@mui/x-charts/BarChart", () => ({
+  BarChart: ({ dataset }: { dataset: { value: number }[] }) => (
+    <div data-testid="bar-chart">{dataset.map((item) => item.value).join(",")}</div>
+  ),
 }));
 
-vi.mock("./AnalyticsHeader", () => ({
+vi.mock("../AnalyticsHeader", () => ({
   AnalyticsHeader: ({ filterSection }: { filterSection?: React.ReactNode }) => filterSection,
 }));
 
@@ -102,6 +103,21 @@ describe("SensorDimensions", () => {
     expect(screen.getByTestId("location")).toHaveTextContent(
       "/analytics/sensor-dimensions?metric=percentage&source=test",
     );
+  });
+
+  it("preserves overlapping installation percentages without normalizing them", () => {
+    vi.mocked(useSuspenseQuery).mockReturnValue({
+      data: [
+        ...sensorData,
+        { ...sensorData[0], key_name: "switch", installation_count: 7, percentage: 70 },
+      ],
+    } as never);
+    renderPage("/analytics/sensor-dimensions?metric=percentage");
+
+    expect(screen.getByTestId("bar-chart")).toHaveTextContent("80,70");
+    expect(screen.getByText(/light: 8 installations · 80%/)).toBeVisible();
+    expect(screen.getByText(/switch: 7 installations · 70%/)).toBeVisible();
+    expect(screen.getByText(/can add up to more than 100%/)).toBeVisible();
   });
 
   it("lets the controlled detail view update the metric in the URL", () => {
