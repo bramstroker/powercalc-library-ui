@@ -32,13 +32,6 @@ export const EXPLORE_NAVIGATION: ExploreNavigationSection[] = [
     ],
   },
   {
-    label: "Help",
-    items: [
-      { label: "Measurement quality", path: "/measurement-quality", icon: VerifiedOutlinedIcon },
-      { label: "About", path: "/about", icon: InfoOutlinedIcon },
-    ],
-  },
-  {
     label: "Community & data",
     items: [
       { label: "Contributors", path: "/contributors", icon: GroupOutlinedIcon },
@@ -46,6 +39,13 @@ export const EXPLORE_NAVIGATION: ExploreNavigationSection[] = [
       { label: "What's new", path: "/whats-new", icon: NewReleasesOutlinedIcon },
       { label: "Library statistics", path: "/statistics", icon: BarChartIcon },
       { label: "Usage analytics", path: "/analytics", icon: AnalyticsOutlinedIcon },
+    ],
+  },
+  {
+    label: "Help",
+    items: [
+      { label: "Measurement quality", path: "/measurement-quality", icon: VerifiedOutlinedIcon },
+      { label: "About", path: "/about", icon: InfoOutlinedIcon },
     ],
   },
 ];

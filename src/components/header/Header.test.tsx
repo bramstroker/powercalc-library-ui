@@ -22,13 +22,13 @@ describe("Header", () => {
       "Browse profiles",
       "Manufacturers",
       "Device types",
-      "Measurement quality",
-      "About",
       "Contributors",
       "Contribute",
       "What's new",
       "Library statistics",
       "Usage analytics",
+      "Measurement quality",
+      "About",
     ]);
     expect(within(navigation).getByRole("menuitem", { name: "Manufacturers" })).toHaveAttribute(
       "aria-current",
