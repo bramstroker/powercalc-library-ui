@@ -105,7 +105,16 @@ export const StatisticsDisplay = ({
           { label: breadcrumbLabel },
         ]}
       />
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: "space-between",
+          alignItems: { xs: "flex-start", sm: "center" },
+          gap: 2,
+          mb: 2,
+        }}
+      >
         <Stack>
           <Typography variant="h4" component="h1" gutterBottom>
             {title}
@@ -114,7 +123,7 @@ export const StatisticsDisplay = ({
             {aggregationsCount} total {nameColumnLabel.toLowerCase()}s
           </Typography>
         </Stack>
-        <FormControl sx={{ minWidth: 120 }}>
+        <FormControl sx={{ minWidth: 120, flexShrink: 0 }}>
           <InputLabel id="results-count-label">Show</InputLabel>
           <Select
             labelId="results-count-label"

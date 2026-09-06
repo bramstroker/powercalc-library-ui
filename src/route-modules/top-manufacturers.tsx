@@ -9,7 +9,7 @@ export const links: LinksFunction = () => libraryPreloadLinks;
 export const meta: MetaFunction = () =>
   createPageMeta({
     path: "/statistics/top-manufacturers",
-    title: "Top Most Common Manufacturers",
+    title: "Top manufacturers",
     description: "The manufacturers with the most measured devices in the Powercalc library.",
   });
 

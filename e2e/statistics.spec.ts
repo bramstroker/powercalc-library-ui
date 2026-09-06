@@ -18,7 +18,7 @@ test("navigates to a statistics page through the Explore menu and overview", asy
   await page.getByRole("link", { name: /Top manufacturers/ }).click();
 
   await expect(page).toHaveURL("/statistics/top-manufacturers");
-  await expect(page.getByRole("heading", { name: /Most Common Manufacturers/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Top manufacturers", level: 1 })).toBeVisible();
 });
 
 test("links Contributors to the overview and its top-ten ranking", async ({ page }) => {
@@ -54,4 +54,24 @@ test("aggregates the profiles per device type", async ({ page }) => {
   const rows = page.getByRole("row");
   await expect(rows.nth(1)).toContainText("light");
   await expect(rows.nth(1)).toContainText("3");
+});
+
+test("places the ranking selector below the heading on a narrow screen", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto("/statistics/top-manufacturers");
+
+  const heading = page.getByRole("heading", { name: "Top manufacturers", level: 1 });
+  const total = page.getByText("3 total manufacturers");
+  const selector = page.getByRole("combobox", { name: "Show" });
+  await expect(heading).toBeVisible();
+  await expect(selector).toBeVisible();
+  const totalBox = await total.boundingBox();
+  const selectorBox = await selector.boundingBox();
+  expect(selectorBox!.y).toBeGreaterThan(totalBox!.y + totalBox!.height);
+  expect(selectorBox!.x + selectorBox!.width).toBeLessThanOrEqual(320);
+
+  await selector.click();
+  await page.getByRole("option", { name: "10 results", exact: true }).click();
+  await expect(selector).toHaveText("10 results");
+  await expect(page.getByRole("row")).toHaveCount(4);
 });
