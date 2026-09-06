@@ -1,13 +1,11 @@
-import { Divider, Stack, Tooltip } from "@mui/material";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
+import { Tooltip } from "@mui/material";
 import Link from "@mui/material/Link";
-import Typography from "@mui/material/Typography";
 import { Fragment, type ReactNode } from "react";
 import { Link as RouterLink } from "react-router";
 
 import { AliasChips } from "../AliasChips";
 
+import attributeStyles from "./ProfileAttributeGrid.css?inline";
 import { PROFILE_ATTRIBUTE_GROUPS, type ProfileAttribute } from "./types";
 
 export const FilterLink = ({
@@ -55,9 +53,9 @@ const ProfileAttributeValue = ({ attribute }: { attribute: ProfileAttribute }) =
     const values = attribute.value.map(String);
     if (attribute.stackValues) {
       return (
-        <Stack component="span" spacing={0.25} sx={{ alignItems: "flex-start" }}>
+        <span className="profile-attributes-stackedValues">
           {values.map((value) => (
-            <Box component="span" key={`${attribute.filterKey ?? "v"}-${value}`}>
+            <span key={`${attribute.filterKey ?? "v"}-${value}`}>
               {attribute.filterKey ? (
                 <FilterLink filterKey={attribute.filterKey} value={value} label={attribute.label}>
                   {display(value)}
@@ -65,9 +63,9 @@ const ProfileAttributeValue = ({ attribute }: { attribute: ProfileAttribute }) =
               ) : (
                 display(value)
               )}
-            </Box>
+            </span>
           ))}
-        </Stack>
+        </span>
       );
     }
 
@@ -109,75 +107,38 @@ const ProfileAttributeValue = ({ attribute }: { attribute: ProfileAttribute }) =
 };
 
 export const ProfileAttributeGrid = ({ attributes }: { attributes: ProfileAttribute[] }) => (
-  <Stack spacing={3}>
+  <div className="profile-attributes-groups">
+    <style>{attributeStyles}</style>
     {PROFILE_ATTRIBUTE_GROUPS.map(({ key, label }) => {
       const items = attributes.filter((attribute) => attribute.group === key);
       if (items.length === 0) return null;
 
       const headingId = `attribute-group-${key}`;
       return (
-        <Box
-          component="section"
-          key={key}
-          data-testid="attribute-group"
-          aria-labelledby={headingId}
-        >
-          <Typography
-            component="h2"
-            id={headingId}
-            variant="overline"
-            color="text.secondary"
-            sx={{ fontWeight: 700, letterSpacing: ".08em", m: 0 }}
-          >
+        <section key={key} data-testid="attribute-group" aria-labelledby={headingId}>
+          <h2 id={headingId} className="profile-attributes-heading">
             {label}
-          </Typography>
-          <Divider sx={{ mb: 0.5 }} />
-
-          <Grid component="dl" container spacing={1} sx={{ m: 0 }}>
+          </h2>
+          <hr className="profile-attributes-divider" />
+          <dl className="profile-attributes-grid">
             {items.map((attribute) => (
-              <Grid
-                component="div"
-                size={{ xs: 12, sm: 6, md: 3 }}
+              <div
+                className="profile-attributes-attribute"
                 key={`${attribute.label}-${attribute.filterKey ?? ""}`}
                 data-testid="profile-attribute"
-                sx={{
-                  py: 1,
-                  minWidth: 0,
-                  display: "grid",
-                  gridTemplateColumns: "34px minmax(0, 1fr)",
-                  alignContent: "start",
-                }}
               >
-                <Typography
-                  component="dt"
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{
-                    gridColumn: "1 / -1",
-                    display: "grid",
-                    gridTemplateColumns: "34px minmax(0, 1fr)",
-                    alignItems: "start",
-                  }}
-                >
+                <dt className="profile-attributes-label">
                   <attribute.icon aria-hidden="true" fontSize="small" />
-                  <Box component="span">{attribute.label}</Box>
-                </Typography>
-                <Box
-                  component="dd"
-                  sx={{
-                    gridColumn: 2,
-                    m: 0,
-                    color: "text.primary",
-                    overflowWrap: "anywhere",
-                  }}
-                >
+                  <span>{attribute.label}</span>
+                </dt>
+                <dd className="profile-attributes-value">
                   <ProfileAttributeValue attribute={attribute} />
-                </Box>
-              </Grid>
+                </dd>
+              </div>
             ))}
-          </Grid>
-        </Box>
+          </dl>
+        </section>
       );
     })}
-  </Stack>
+  </div>
 );

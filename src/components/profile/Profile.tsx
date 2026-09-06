@@ -4,7 +4,7 @@ import GithubIcon from "@mui/icons-material/GitHub";
 import HomeIcon from "@mui/icons-material/Home";
 import LayersIcon from "@mui/icons-material/Layers";
 import TypeSpecimenIcon from "@mui/icons-material/TypeSpecimen";
-import { Button, Paper, Stack, Tab, Tabs } from "@mui/material";
+import { Button, Stack, Tab, Tabs } from "@mui/material";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
@@ -23,6 +23,7 @@ import { ManufacturerLogo } from "../manufacturer/logo/ManufacturerLogo";
 import { PageBreadcrumbs } from "../shared/PageBreadcrumbs";
 
 import { getDeviceTypeIcon } from "./DeviceTypeIcon";
+import profileStyles from "./Profile.css?inline";
 import { ProfileAttributesTab } from "./ProfileAttributesTab";
 const ProfileJsonTab = lazy(() =>
   import("./ProfileDetailTabs").then((module) => ({ default: module.ProfileJsonTab })),
@@ -106,37 +107,14 @@ const HeadlineFact = ({
   icon: ElementType;
   note?: string;
 }) => (
-  <Paper
-    variant="outlined"
-    sx={(theme) => ({
-      px: 1.5,
-      py: 1,
-      borderRadius: 2,
-      backgroundColor: theme.palette.grey[100],
-      ...theme.applyStyles("dark", { backgroundColor: theme.palette.grey[900] }),
-    })}
-  >
-    <Stack direction="row" sx={{ alignItems: "center", gap: 1.25 }}>
-      <Icon sx={{ fontSize: 26, color: "text.secondary" }} />
-      <Box sx={{ minWidth: 0 }}>
-        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-          {label}
-        </Typography>
-        <Typography
-          component="div"
-          variant="subtitle2"
-          sx={{ fontWeight: 700, lineHeight: 1.3, overflowWrap: "anywhere" }}
-        >
-          {value}
-        </Typography>
-        {note && (
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-            {note}
-          </Typography>
-        )}
-      </Box>
-    </Stack>
-  </Paper>
+  <div className="profile-fact">
+    <Icon className="profile-factIcon" />
+    <div className="profile-factContent">
+      <span className="profile-factCaption">{label}</span>
+      <div className="profile-factValue">{value}</div>
+      {note && <span className="profile-factCaption">{note}</span>}
+    </div>
+  </div>
 );
 
 export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: Summary }) => {
@@ -173,6 +151,8 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
 
   return (
     <>
+      {/* Keep these small, static rules in the HTML: an external sheet delays the first paint. */}
+      <style>{profileStyles}</style>
       <PageBreadcrumbs items={breadcrumbItems} includeStructuredData={false} />
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 8, lg: 9 }}>
