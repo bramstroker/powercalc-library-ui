@@ -130,13 +130,21 @@ test("shows the LUT quality with its per color mode breakdown", async ({ page })
 
   await expect(page.getByText("96.1 · Excellent")).toBeVisible();
   await expect(page.getByText("brightness 97.9 · color temp 96.1")).toBeVisible();
+  const quality = page.getByTestId("profile-attribute").filter({ hasText: "LUT curve quality" });
+  await expect(quality).toContainText(
+    "Curve smoothness on a 0–100 scale. This is not an accuracy percentage.",
+  );
+  await quality.getByRole("link", { name: "How this score works" }).click();
+  await expect(page).toHaveURL("/measurement-quality#quality-bands-heading");
+  await expect(page.getByRole("heading", { name: "LUT quality bands" })).toBeVisible();
 });
 
 test("omits the LUT quality for a profile without measured curves", async ({ page }) => {
   await page.goto("/profiles/sonoff/S31");
 
   await expect(page.getByText("Shelly Plug S").or(page.getByText("Zhurui PR10"))).toBeVisible();
-  await expect(page.getByText("LUT quality")).toBeHidden();
+  await expect(page.getByText("LUT curve quality")).toBeHidden();
+  await expect(page.getByRole("link", { name: "How this score works" })).toBeHidden();
 });
 
 test("does not show graphs for a fixed profile", async ({ page }) => {
