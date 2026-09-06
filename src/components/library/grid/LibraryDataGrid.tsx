@@ -24,16 +24,18 @@ export const LibraryDataGrid = ({ rows, apiRef }: LibraryDataGridProps) => {
   const location = useLocation();
   const { page, pageSize, setPagination } = useLibraryPagination(rows.length);
   const { searchParams, updateSearchParams } = useUrlSearchParams();
+  const field = searchParams.get("sort");
+  const direction = searchParams.get("direction");
+  // DataGrid treats a new model reference as a sort change and resets pagination.
   const sortModel = useMemo<GridSortModel>(() => {
-    const field = searchParams.get("sort");
-    const direction = searchParams.get("direction");
-    return LIBRARY_DATA_GRID_COLUMNS.some(
-      (column) => column.field === field && column.sortable !== false,
-    ) &&
+    return field &&
+      LIBRARY_DATA_GRID_COLUMNS.some(
+        (column) => column.field === field && column.sortable !== false,
+      ) &&
       (direction === "asc" || direction === "desc")
-      ? [{ field: field!, sort: direction }]
+      ? [{ field, sort: direction }]
       : [];
-  }, [searchParams]);
+  }, [field, direction]);
   const { columnVisibilityModel, handleColumnVisibilityChange } = useLibraryGridColumnVisibility();
 
   const handleRowClick = useCallback(

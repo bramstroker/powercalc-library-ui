@@ -36,6 +36,8 @@ for (const viewport of [
     await page.getByRole("link", { name: "Profile Library" }).click();
     await page.getByRole("button", { name: "Go to next page" }).click();
     await expect(page).toHaveURL("/?page=2");
+    // The grid can schedule a page reset after rendering; verify the page remains stable.
+    await page.waitForTimeout(500);
     await expect(page.getByText("26–30 of 30")).toBeVisible();
     await page
       .getByRole("link", {
@@ -45,6 +47,8 @@ for (const viewport of [
       .click();
     await page.getByRole("button", { name: "Back to results" }).click();
     await expect(page).toHaveURL("/?page=2");
+    // The grid can schedule a page reset after rendering; verify the page remains stable.
+    await page.waitForTimeout(500);
     await expect(page.getByText("26–30 of 30")).toBeVisible();
   });
 }
