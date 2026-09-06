@@ -30,8 +30,60 @@ const timed = async (
 const search = (page: Page) =>
   page.getByRole("textbox", { name: "Search all profiles", exact: true });
 
-// Cold-load network performance is measured separately. Interaction timings include rendering,
-// debounce, lazy chunks and Playwright assertion overhead, and are not field INP percentiles.
+declare global {
+  interface Window {
+    __searchCompletionMs: number | null;
+  }
+}
+
+const timedSearch = async (page: Page, label: string, term: string) => {
+  // Measure input-to-painted-results in the browser. Node-side assertion retries and transport
+  // latency must not become part of the user's search latency on a busy CI runner.
+  await page.evaluate((query) => {
+    const paginationSelector = ".MuiTablePagination-displayedRows";
+    const previous = document.querySelector(paginationSelector)?.textContent;
+    const input = document.querySelector('input[aria-label="Search all profiles"]');
+    const main = document.querySelector("#main-content");
+    if (!previous || !input || !main) throw new Error("Catalogue is not ready for search timing");
+    window.__searchCompletionMs = null;
+    input.addEventListener(
+      "input",
+      () => {
+        const started = performance.now();
+        let painting = false;
+        const observer = new MutationObserver(() => {
+          const current = document.querySelector(paginationSelector)?.textContent;
+          if (
+            painting ||
+            !current ||
+            current === previous ||
+            new URLSearchParams(location.search).get("q") !== query
+          )
+            return;
+          painting = true;
+          observer.disconnect();
+          clearTimeout(timeout);
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+              window.__searchCompletionMs = performance.now() - started;
+            }),
+          );
+        });
+        const timeout = setTimeout(() => observer.disconnect(), 10_000);
+        observer.observe(main, { subtree: true, childList: true, characterData: true });
+      },
+      { once: true, capture: true },
+    );
+  }, term);
+  await search(page).fill(term);
+  await page.waitForFunction(() => window.__searchCompletionMs !== null, null, { timeout: 10_000 });
+  const elapsed = await page.evaluate(() => window.__searchCompletionMs!);
+  console.log(`${label}: ${elapsed.toFixed(0)} ms (input to painted results)`);
+  expect(elapsed, label).toBeLessThanOrEqual(budgets.runtime.interactionCompletionMs);
+};
+
+// Cold-load network performance is measured separately. Search timings include debounce and
+// rendering; other actions also include Playwright overhead. Neither is a field INP percentile.
 test.beforeEach(async ({ context, page }) => {
   const cdp = await context.newCDPSession(page);
   await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
@@ -52,12 +104,10 @@ test("searches, filters, paginates and opens a profile with a representative cat
   page.on("request", (request) => requests.push(request.url()));
   await timed("Usable catalogue", () => ready(page), budgets.runtime.usableCatalogueMs);
   await expect(page.getByText(`1–25 of ${count}`, { exact: true })).toBeVisible();
-  await timed("Typo search", async () => {
-    await search(page).fill("tradrfi");
-    await expect(page).toHaveURL(/q=tradrfi/);
-    await expect(page.getByText(`1–25 of ${count}`, { exact: true })).toHaveCount(0);
-    await expect(page.getByText("No profiles match", { exact: false })).toHaveCount(0);
-  });
+  await timedSearch(page, "Typo search", "tradrfi");
+  await expect(page).toHaveURL(/q=tradrfi/);
+  await expect(page.getByText(`1–25 of ${count}`, { exact: true })).toHaveCount(0);
+  await expect(page.getByText("No profiles match", { exact: false })).toHaveCount(0);
   await search(page).fill("");
   await expect(page).not.toHaveURL(/q=/);
   await timed(
@@ -116,11 +166,10 @@ for (const mode of ["slow", "unavailable"] as const) {
     });
     try {
       await ready(page);
-      await timed("Search while analytics is unavailable", async () => {
-        await search(page).fill("ikea");
-        await expect(page).toHaveURL(/q=ikea/);
-        await expect(page.getByText(`1–25 of ${count}`, { exact: true })).toHaveCount(0);
-      });
+      await expect(page.getByText(`1–25 of ${count}`, { exact: true })).toBeVisible();
+      await timedSearch(page, "Search while analytics is unavailable", "ikea");
+      await expect(page).toHaveURL(/q=ikea/);
+      await expect(page.getByText(`1–25 of ${count}`, { exact: true })).toHaveCount(0);
       const results =
         info.project.name === "mobile-chromium"
           ? page.getByTestId("library-card-list").getByRole("link").first()
@@ -153,11 +202,10 @@ test("keeps typo search responsive when the catalogue grows fourfold", async ({ 
   await expect(
     page.getByText(`1–25 of ${(count * 4).toLocaleString("en-US")}`, { exact: true }),
   ).toBeVisible();
-  await timed("Typo search with 2996 profiles", async () => {
-    await search(page).fill("philps");
-    await expect(page).toHaveURL(/q=philps/);
-    await expect(
-      page.getByText(`1–25 of ${(count * 4).toLocaleString("en-US")}`, { exact: true }),
-    ).toHaveCount(0);
-  });
+  await timedSearch(page, "Typo search with 2996 profiles", "philps");
+  await expect(page).toHaveURL(/q=philps/);
+  await expect(
+    page.getByText(`1–25 of ${(count * 4).toLocaleString("en-US")}`, { exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByText("No profiles match", { exact: false })).toHaveCount(0);
 });

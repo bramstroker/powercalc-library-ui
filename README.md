@@ -44,7 +44,9 @@ aggregate homepage JavaScript, JavaScript added by any other route, prerendered 
 data, initial homepage requests, plus mobile and desktop LCP, observed interaction latency, and
 CLS. Tests use gzip delivery, 4× CPU slowdown, 150 ms latency and 1.6 Mbps download throughput.
 They also measure time until the catalogue is usable, actual transferred JavaScript including
-dynamic chunks, typo search, facets, pagination and profile navigation. Separate cases cover
+dynamic chunks, typo search, facets, pagination and profile navigation. Search latency runs from
+the browser input event through debounce and the first paint after pagination updates; functional
+assertions run separately so their polling and transport time do not inflate it. Separate cases cover
 unavailable/slow analytics and growth to 2,996 profiles. Each scenario runs twice with fresh browser
 contexts to catch intermittent loading shifts. Observed event latency in these scripted
 interactions is a lab regression check, not a field INP percentile. Route-specific JavaScript means the
