@@ -63,13 +63,14 @@ export default defineConfig({
         codeSplitting: {
           groups: [
             {
-              // Keep React and MUI's shared primitives together without capturing optional
-              // DataGrid/chart features. Entry-aware merging reduces tiny network requests.
-              name: "shared-ui",
-              test: /node_modules[\\/](?:@mui[\\/](?:material|system|utils)|@emotion|react|react-dom|scheduler)[\\/]/,
-              entriesAware: true,
-              entriesAwareMergeThreshold: 16 * 1024,
+              // Every page hydrates through this runtime. Keep it together, but let MUI split
+              // automatically so optional controls cannot pull unrelated UI code into a route.
+              name: "react-runtime",
+              test: /node_modules[\\/](?:react|react-dom|scheduler|react-router)[\\/]/,
+              priority: 20,
             },
+            // The small, shared glyphs compress better together than as individual requests.
+            { name: "icons", test: /node_modules[\\/]@mui[\\/]icons-material[\\/]/ },
           ],
         },
       },
