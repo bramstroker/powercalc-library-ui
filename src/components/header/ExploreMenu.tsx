@@ -1,5 +1,5 @@
-import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import MenuIcon from "@mui/icons-material/Menu";
 import { Tooltip } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -22,6 +22,8 @@ export const ExploreMenu = () => {
   const menuItemSx = (path: string) => ({
     borderRadius: 1,
     mb: 0.5,
+    whiteSpace: "normal",
+    minHeight: 44,
     fontWeight: isCurrent(path) ? 700 : 400,
     bgcolor: isCurrent(path) ? "action.selected" : undefined,
   });
@@ -32,7 +34,7 @@ export const ExploreMenu = () => {
         <Button
           color="inherit"
           onClick={(event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget)}
-          startIcon={<ExploreOutlinedIcon />}
+          startIcon={<MenuIcon />}
           id="explore-button"
           aria-controls={open ? "explore-menu" : undefined}
           aria-haspopup="true"
@@ -64,7 +66,7 @@ export const ExploreMenu = () => {
           paper: {
             sx: {
               mt: 1,
-              width: { xs: "calc(100vw - 16px)", sm: 680 },
+              width: { xs: "calc(100vw - 16px)", sm: 760 },
               maxWidth: "calc(100vw - 16px)",
               maxHeight: "calc(100vh - 80px)",
             },
@@ -76,7 +78,7 @@ export const ExploreMenu = () => {
           aria-label="Explore Powercalc"
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "1.35fr 1fr 1fr" },
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1.15fr" },
             gap: { xs: 1, sm: 2 },
             p: 2,
           }}
@@ -96,7 +98,12 @@ export const ExploreMenu = () => {
                     }
               }
             >
-              <Typography variant="overline" color="text.secondary" sx={{ px: 1 }}>
+              <Typography
+                id={`explore-section-${sectionIndex}`}
+                variant="overline"
+                color="text.secondary"
+                sx={{ px: 1 }}
+              >
                 {section.label}
               </Typography>
               {section.description ? (
@@ -104,7 +111,7 @@ export const ExploreMenu = () => {
                   {section.description}
                 </Typography>
               ) : null}
-              <MenuList disablePadding aria-labelledby="explore-button">
+              <MenuList disablePadding aria-labelledby={`explore-section-${sectionIndex}`}>
                 {section.items.map((item) => (
                   <MenuItem
                     key={item.path}
@@ -114,7 +121,7 @@ export const ExploreMenu = () => {
                     aria-current={isCurrent(item.path) ? "page" : undefined}
                     sx={menuItemSx(item.path)}
                   >
-                    <item.icon fontSize="small" sx={{ mr: 1.25 }} />
+                    <item.icon fontSize="small" sx={{ mr: 1.25, flexShrink: 0 }} />
                     {item.label}
                   </MenuItem>
                 ))}

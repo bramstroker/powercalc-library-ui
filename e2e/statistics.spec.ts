@@ -10,7 +10,7 @@ test("navigates to a statistics page through the Explore menu and overview", asy
   await page.goto("/");
 
   await page.getByRole("button", { name: "Explore" }).click();
-  await page.getByRole("menuitem", { name: "View statistics" }).click();
+  await page.getByRole("menuitem", { name: "Library statistics" }).click();
 
   await expect(page).toHaveURL("/statistics");
   await expect(page.getByRole("heading", { name: "Library statistics" })).toBeVisible();

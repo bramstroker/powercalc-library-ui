@@ -101,8 +101,8 @@ test("stacks the Explore navigation within the phone viewport", async ({ page })
 
   await expect(page.getByRole("navigation", { name: "Explore Powercalc" })).toBeVisible();
   await expect(page.getByRole("menuitem", { name: "Browse profiles" })).toBeVisible();
-  await expect(page.getByRole("menuitem", { name: "View statistics" })).toBeVisible();
-  await expect(page.getByRole("menuitem", { name: "View analytics" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Library statistics" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Usage analytics" })).toBeVisible();
 
   const { scrollWidth, clientWidth } = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
