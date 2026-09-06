@@ -29,7 +29,7 @@ export const createLibraryAttributes = (profile: PowerProfile): ProfileAttribute
     render: () => (profile.updatedAt ? <Timestamp date={profile.updatedAt} /> : null),
   },
   {
-    label: "Authors",
+    label: "Contributors",
     value: profile.authors.map((author) => author.name),
     icon: PersonIcon,
     group: "library",

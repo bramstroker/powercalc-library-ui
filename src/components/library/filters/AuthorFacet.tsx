@@ -36,7 +36,7 @@ export const AuthorFacet = ({
 
   return (
     <FacetSection
-      title="Author"
+      title="Contributor"
       icon={PersonIcon}
       expanded={expanded}
       onToggleExpanded={onToggleExpanded}
@@ -59,7 +59,11 @@ export const AuthorFacet = ({
           onChange(next.map((option) => option.value));
         }}
         renderInput={(params) => (
-          <TextField {...params} aria-label="Search authors" placeholder="Search authors" />
+          <TextField
+            {...params}
+            aria-label="Search contributors"
+            placeholder="Search contributors"
+          />
         )}
         renderOption={(props, option) => {
           const { key, ...optionProps } = props;

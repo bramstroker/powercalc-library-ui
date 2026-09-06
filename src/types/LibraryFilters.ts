@@ -46,7 +46,7 @@ export const FACET_LABELS: Record<FacetKey, string> = {
   measureMethod: "Measure method",
   manufacturer: "Manufacturer",
   measureDevice: "Measure device",
-  author: "Author",
+  author: "Contributor",
   socket: "Socket",
   formFactor: "Form factor",
   connectivity: "Connectivity",

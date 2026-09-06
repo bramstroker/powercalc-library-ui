@@ -101,7 +101,7 @@ export const LIBRARY_DATA_GRID_COLUMNS: GridColDef<PowerProfile>[] = [
   },
   {
     field: "authors",
-    headerName: "Authors",
+    headerName: "Contributors",
     width: 160,
     valueGetter: (value: Author[]) => value?.map((author) => author.name).join(", ") ?? "",
     renderCell: ({ row }: GridRenderCellParams<PowerProfile>) => (

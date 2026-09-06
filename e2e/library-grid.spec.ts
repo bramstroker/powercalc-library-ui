@@ -295,12 +295,12 @@ test("keeps the filter panel header still when a filter is picked", async ({ pag
   expect((await title.boundingBox())?.y).toBe(before?.y);
 });
 
-test("collapses the author picker, a slider and the date field too", async ({ page }) => {
+test("collapses the contributor picker, a slider and the date field too", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Advanced filters", exact: true }).click();
 
   for (const [testId, name] of [
-    ["facet-author", /Author/],
+    ["facet-author", /Contributor/],
     ["facet-standbyPower", /Standby power/],
     ["facet-dates", /Added/],
   ] as const) {
@@ -312,7 +312,7 @@ test("collapses the author picker, a slider and the date field too", async ({ pa
     await expect(header).toHaveAttribute("aria-expanded", "false");
   }
 
-  await expect(page.getByLabel("Search authors")).toBeHidden();
+  await expect(page.getByLabel("Search contributors")).toBeHidden();
   await expect(page.getByLabel("Created after")).toBeHidden();
 });
 
