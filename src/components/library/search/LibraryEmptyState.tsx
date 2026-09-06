@@ -52,6 +52,19 @@ export const LibraryEmptyState = ({ filters, ...actions }: LibraryEmptyStateProp
         </Stack>
 
         {activeCount > 0 && (
+          <Stack direction={{ xs: "column", sm: "row" }} sx={{ mt: 3, gap: 1.5 }}>
+            <Button variant="contained" onClick={actions.clearAll}>
+              Show all profiles
+            </Button>
+            {filters.search && (
+              <Button variant="outlined" onClick={() => actions.setSearch("")}>
+                Clear search
+              </Button>
+            )}
+          </Stack>
+        )}
+
+        {activeCount > 0 && (
           <Box sx={{ mt: 3 }}>
             <Typography component="h3" variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
               Adjust your filters
@@ -71,7 +84,7 @@ export const LibraryEmptyState = ({ filters, ...actions }: LibraryEmptyStateProp
 
         {hasManufacturerFilter && (
           <Button
-            variant="contained"
+            variant="outlined"
             sx={{ mt: 3 }}
             onClick={() => {
               actions.setFacet("manufacturer", []);
@@ -95,7 +108,7 @@ export const LibraryEmptyState = ({ filters, ...actions }: LibraryEmptyStateProp
               href={CONTRIBUTION_GUIDE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              variant="contained"
+              variant="outlined"
               startIcon={<PostAddIcon />}
             >
               Measure and contribute

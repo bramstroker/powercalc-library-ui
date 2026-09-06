@@ -170,7 +170,7 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
         <Grid size={{ xs: 12, md: 8, lg: 9 }}>
           <Box sx={{ display: "flex", flexWrap: "wrap", mb: 2, gap: 2 }}>
             <Button
-              variant="contained"
+              variant="outlined"
               color="primary"
               onClick={() => void navigate(libraryPath)}
               startIcon={<HomeIcon />}

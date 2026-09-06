@@ -15,11 +15,12 @@ import React from "react";
 
 import type { SensorStats } from "../../../api/analytics.api";
 import { sensorDimensionTitle } from "../../../config/sensorDimensions.mjs";
-import { visuallyHiddenSx } from "../../../utils/accessibility";
 import { PageBreadcrumbs } from "../../shared/PageBreadcrumbs";
 
 import { MetricsSelect } from "./MetricsSelect";
+import { sensorCategoryLabel } from "./sensorCategoryLabel";
 import type { MetricKey } from "./sensorMetric";
+import { SensorMetricContext } from "./SensorMetricContext";
 
 interface DimensionDetailViewProps {
   dimension: string;
@@ -54,7 +55,7 @@ export const SensorDimensionDetailView = ({
   const chartData = React.useMemo(
     () =>
       sortedData.map((item) => ({
-        key: item.key_name,
+        key: sensorCategoryLabel(item.key_name),
         value: (item[metric] as number | undefined) ?? 0,
       })),
     [sortedData, metric],
@@ -113,6 +114,7 @@ export const SensorDimensionDetailView = ({
           />
         </Box>
 
+        <SensorMetricContext metric={metric} />
         <Paper sx={{ p: { xs: 1, sm: 2 } }}>
           <Box>
             {chartData.length === 0 ? (
@@ -160,22 +162,40 @@ export const SensorDimensionDetailView = ({
               />
             )}
             {chartData.length > 0 && (
-              <Box component="table" sx={visuallyHiddenSx}>
-                <caption>{formattedDimension} sensor statistics</caption>
-                <thead>
-                  <tr>
-                    <th>Type</th>
-                    <th>Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {chartData.map((item) => (
-                    <tr key={item.key}>
-                      <th scope="row">{item.key}</th>
-                      <td>{item.value}</td>
+              <Box sx={{ overflowX: "auto", mt: 2 }}>
+                <Box
+                  component="table"
+                  sx={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    "& th, & td": {
+                      p: 1,
+                      textAlign: "left",
+                      borderBottom: 1,
+                      borderColor: "divider",
+                    },
+                  }}
+                >
+                  <caption>{formattedDimension} sensor statistics</caption>
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>Installations</th>
+                      <th>% of reporting installations</th>
+                      <th>Sensors</th>
                     </tr>
-                  ))}
-                </tbody>
+                  </thead>
+                  <tbody>
+                    {sortedData.map((item) => (
+                      <tr key={item.key_name}>
+                        <th scope="row">{sensorCategoryLabel(item.key_name)}</th>
+                        <td>{item.installation_count.toLocaleString()}</td>
+                        <td>{item.percentage}%</td>
+                        <td>{item.count.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Box>
               </Box>
             )}
           </Box>

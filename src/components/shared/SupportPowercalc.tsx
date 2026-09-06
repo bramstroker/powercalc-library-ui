@@ -54,6 +54,6 @@ export const SupportPowercalcPrompt = () => (
     <Typography variant="caption" color="text.secondary">
       Help cover hosting and measurement hardware.
     </Typography>
-    <SupportPowercalcButton fullWidth size="small" />
+    <SupportPowercalcButton fullWidth size="small" subtle />
   </Stack>
 );

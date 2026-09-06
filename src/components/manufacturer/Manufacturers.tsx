@@ -43,6 +43,7 @@ export const Manufacturers = () => {
   const { searchParams, updateSearchParams } = useUrlSearchParams();
 
   const search = searchParams.get(PARAM.search) ?? "";
+  const searchTerm = search.trim().toLowerCase();
   const sortParam = searchParams.get(PARAM.sort) as SortKey | null;
   const sort: SortKey = sortParam && SORT_KEYS.includes(sortParam) ? sortParam : DEFAULT_SORT;
 
@@ -137,6 +138,17 @@ export const Manufacturers = () => {
         </ToggleButtonGroup>
       </Stack>
 
+      <Typography
+        role="status"
+        variant="body2"
+        color="text.secondary"
+        sx={{ mb: searchTerm ? 2 : 0 }}
+      >
+        {searchTerm
+          ? `${visible.length} matching manufacturer${visible.length === 1 ? "" : "s"}`
+          : ""}
+      </Typography>
+
       {visible.length === 0 ? (
         <Typography color="text.secondary" sx={{ p: 3, textAlign: "center" }}>
           No manufacturers match &quot;{search}&quot;
@@ -157,6 +169,23 @@ export const Manufacturers = () => {
                     <Typography component="h2" variant="subtitle1" sx={{ fontWeight: 600 }} noWrap>
                       {manufacturer.fullName}
                     </Typography>
+                    {searchTerm &&
+                      manufacturer.aliases
+                        .filter(
+                          (alias) =>
+                            alias.toLowerCase().includes(searchTerm) &&
+                            alias.toLowerCase() !== manufacturer.fullName.toLowerCase(),
+                        )
+                        .map((alias) => (
+                          <Typography
+                            key={alias}
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ overflowWrap: "anywhere" }}
+                          >
+                            Also known as {alias}
+                          </Typography>
+                        ))}
                     <Typography variant="body2" color="text.secondary" noWrap>
                       {profileCount} profile{profileCount !== 1 ? "s" : ""}
                     </Typography>

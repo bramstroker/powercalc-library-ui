@@ -5,7 +5,7 @@
     "routeSpecificGzipKiB": 150
   },
   "prerender": {
-    "htmlKiB": 200,
+    "htmlKiB": 220,
     "dataKiB": 32
   },
   "requests": {

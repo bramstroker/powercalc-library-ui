@@ -46,7 +46,7 @@ const Harness = ({ onPush }: { onPush: (value: string) => void }) => {
   );
 };
 
-const input = () => screen.getByPlaceholderText("Search all profiles") as HTMLInputElement;
+const input = () => screen.getByPlaceholderText("Search brand or model") as HTMLInputElement;
 
 const type = (text: string) => {
   fireEvent.change(input(), { target: { value: text } });

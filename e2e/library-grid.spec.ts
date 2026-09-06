@@ -61,7 +61,7 @@ test("uses a sequential heading hierarchy for the library and filters", async ({
   await page.goto("/");
 
   await expect(
-    page.getByRole("heading", { name: "Powercalc profile library", level: 1 }),
+    page.getByRole("heading", { name: "Find a power profile", level: 1 }),
   ).toBeAttached();
   await expect(page.getByRole("heading", { name: "Filters", level: 2 })).toBeVisible();
   await expect(
@@ -73,7 +73,7 @@ test("filters the grid with the global search", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
 
-  await page.getByPlaceholder("Search all profiles").fill("TRADFRI");
+  await page.getByRole("textbox", { name: "Search all profiles", exact: true }).fill("TRADFRI");
 
   await expect(page.getByRole("gridcell", { name: "LED1836G9" })).toBeVisible();
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeHidden();
@@ -83,7 +83,7 @@ test("filters the grid with the global search", async ({ page }) => {
 test("searches profile metadata and tolerates a typo", async ({ page }) => {
   await page.goto("/");
 
-  const search = page.getByPlaceholder("Search all profiles");
+  const search = page.getByRole("textbox", { name: "Search all profiles", exact: true });
   await search.fill("signfy zigbee");
 
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
@@ -109,7 +109,7 @@ test("pushes a filter chosen in the UI back into the URL", async ({ page }) => {
 
   await page
     .getByTestId("facet-deviceType")
-    .getByRole("checkbox", { name: /smart_switch/ })
+    .getByRole("checkbox", { name: /Smart Switch/ })
     .click();
 
   await expect(page).toHaveURL(/deviceType=smart_switch/);
@@ -121,8 +121,8 @@ test("combines multiple values within a single facet", async ({ page }) => {
   await page.goto("/");
 
   const deviceType = page.getByTestId("facet-deviceType");
-  await deviceType.getByRole("checkbox", { name: /^light/ }).click();
-  await deviceType.getByRole("checkbox", { name: /smart_switch/ }).click();
+  await deviceType.getByRole("checkbox", { name: /^Light/ }).click();
+  await deviceType.getByRole("checkbox", { name: /Smart Switch/ }).click();
 
   await expect(page).toHaveURL(/deviceType=light%2Csmart_switch/);
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
@@ -172,7 +172,7 @@ test("offers recovery actions when no profiles match", async ({ page }) => {
     emptyState.getByText(/another owner having the exact same physical model/),
   ).toBeVisible();
 
-  await emptyState.getByRole("button", { name: "Clear all", exact: true }).click();
+  await emptyState.getByRole("button", { name: "Show all profiles", exact: true }).click();
   await expect(page).toHaveURL("/");
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
 
@@ -181,7 +181,7 @@ test("offers recovery actions when no profiles match", async ({ page }) => {
   await expect(page).toHaveURL("/?deviceType=light&q=not-a-real-device");
 
   await emptyState
-    .getByRole("button", { name: "Device type: light" })
+    .getByRole("button", { name: "Device type: Light" })
     .getByTestId("CancelIcon")
     .click();
   await expect(page).toHaveURL("/?q=not-a-real-device");
@@ -199,7 +199,9 @@ test("focuses the search box with the / shortcut", async ({ page }) => {
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
 
   await page.keyboard.press("/");
-  await expect(page.getByPlaceholder("Search all profiles")).toBeFocused();
+  await expect(
+    page.getByRole("textbox", { name: "Search all profiles", exact: true }),
+  ).toBeFocused();
 
   // The shortcut must not fire while another field is being typed into.
   const facetSearch = page
@@ -226,6 +228,7 @@ test("collapses a facet from the keyboard", async ({ page }) => {
 
 test("filters on the LUT quality band", async ({ page }) => {
   await page.goto("/");
+  await page.getByRole("button", { name: "Advanced filters", exact: true }).click();
 
   const qualityBand = page.getByTestId("facet-qualityBand");
   await qualityBand.getByRole("checkbox", { name: /Poor/ }).click();
@@ -283,7 +286,7 @@ test("keeps the filter panel header still when a filter is picked", async ({ pag
 
   await page
     .getByTestId("facet-deviceType")
-    .getByRole("checkbox", { name: /^light/ })
+    .getByRole("checkbox", { name: /^Light/ })
     .click();
   await expect(
     page.getByTestId("filter-panel").getByRole("button", { name: "Clear all" }),
@@ -294,11 +297,12 @@ test("keeps the filter panel header still when a filter is picked", async ({ pag
   expect((await title.boundingBox())?.y).toBe(before?.y);
 });
 
-test("collapses the author picker, a slider and the date field too", async ({ page }) => {
+test("collapses the contributor picker, a slider and the date field too", async ({ page }) => {
   await page.goto("/");
+  await page.getByRole("button", { name: "Advanced filters", exact: true }).click();
 
   for (const [testId, name] of [
-    ["facet-author", /Author/],
+    ["facet-author", /Contributor/],
     ["facet-standbyPower", /Standby power/],
     ["facet-dates", /Added/],
   ] as const) {
@@ -310,12 +314,13 @@ test("collapses the author picker, a slider and the date field too", async ({ pa
     await expect(header).toHaveAttribute("aria-expanded", "false");
   }
 
-  await expect(page.getByLabel("Search authors")).toBeHidden();
+  await expect(page.getByLabel("Search contributors")).toBeHidden();
   await expect(page.getByLabel("Created after")).toBeHidden();
 });
 
 test("folds every section away and back with one control", async ({ page }) => {
   await page.goto("/");
+  await page.getByRole("button", { name: "Advanced filters", exact: true }).click();
 
   const headers = page.getByTestId("filter-panel").getByRole("button", { expanded: true });
   const openBefore = await headers.count();
@@ -339,7 +344,7 @@ test("keeps a collapsed section showing what it is doing", async ({ page }) => {
   await page.goto("/");
 
   const deviceType = page.getByTestId("facet-deviceType");
-  await deviceType.getByRole("checkbox", { name: /^light/ }).click();
+  await deviceType.getByRole("checkbox", { name: /^Light/ }).click();
   await deviceType.getByRole("button", { name: /Device type/ }).click();
 
   // The count lives in the header, so a collapsed panel still says a filter is on.
@@ -347,3 +352,82 @@ test("keeps a collapsed section showing what it is doing", async ({ page }) => {
   await expect(header).toHaveAttribute("aria-expanded", "false");
   await expect(header.getByText("1", { exact: true })).toBeVisible();
 });
+
+test("restores the result size and sorting after a profile visit", async ({ page }) => {
+  await page.goto("/?pageSize=50&sort=modelId&direction=desc");
+  await expect(page.getByRole("columnheader", { name: /Model/ })).toHaveAttribute(
+    "aria-sort",
+    "descending",
+  );
+  await expect(page.getByRole("combobox", { name: "Rows per page:" })).toHaveText("50");
+  await page.getByRole("link", { name: "LCA001", exact: true }).click();
+  await page.getByRole("button", { name: "Back to results" }).click();
+  await expect(page).toHaveURL("/?pageSize=50&sort=modelId&direction=desc");
+  await expect(page.getByRole("columnheader", { name: /Model/ })).toHaveAttribute(
+    "aria-sort",
+    "descending",
+  );
+  await expect(page.getByRole("combobox", { name: "Rows per page:" })).toHaveText("50");
+});
+
+test("prioritizes device filters and keeps technical filters in an advanced group", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const panel = page.getByTestId("filter-panel");
+  await expect(panel.getByRole("heading", { level: 3 }).first()).toHaveText("Manufacturer");
+  await expect(
+    panel.getByRole("button", { name: "Advanced filters", exact: true }),
+  ).toHaveAttribute("aria-expanded", "false");
+  await expect(panel.getByTestId("facet-measureDevice")).toBeHidden();
+  await expect(panel.getByRole("checkbox", { name: /Color temperature/ })).toBeVisible();
+  await panel.getByRole("checkbox", { name: /Smart Switch/ }).click();
+  await expect(page).toHaveURL(/deviceType=smart_switch/);
+  await expect(page.getByTestId("active-filter-chips")).toContainText("Device type: Smart Switch");
+  await expect(panel.getByTestId("facet-lumens")).toBeHidden();
+  await panel.getByRole("button", { name: "Advanced filters", exact: true }).click();
+  await expect(panel.getByRole("checkbox", { name: /Fixed power/ })).toBeVisible();
+});
+
+test("reveals active advanced filters in shared URLs", async ({ page }) => {
+  await page.goto("/?calculationStrategy=lut");
+  await expect(
+    page.getByRole("button", { name: "Advanced filters (1)", exact: true }),
+  ).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByRole("checkbox", { name: /Lookup table/ })).toBeChecked();
+});
+
+test("explains profile search and provides model identification help", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Find a power profile", level: 1 })).toBeVisible();
+  await expect(page.getByText(/Search by brand, model, product name or barcode/)).toBeVisible();
+  await page.getByText("Where can I find the model number?", { exact: true }).click();
+  await expect(page.getByText(/Check the label on your device/)).toBeVisible();
+  await page.screenshot({ path: "test-results/library-introduction.png" });
+});
+
+for (const width of [1280, 320]) {
+  test(`recovers from an empty search while preserving filters at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/?q=not-a-real-device&manufacturer=Signify");
+    const emptyState = page.getByTestId("library-empty-state");
+    const showAll = emptyState.getByRole("button", { name: "Show all profiles", exact: true });
+    const clearSearch = emptyState.getByRole("button", { name: "Clear search", exact: true });
+    await expect(showAll).toBeVisible();
+    await expect(clearSearch).toBeVisible();
+    const recoveryBox = await showAll.boundingBox();
+    const contributionBox = await emptyState
+      .getByRole("heading", { name: "Add this device to the library" })
+      .boundingBox();
+    expect(recoveryBox!.y).toBeLessThan(contributionBox!.y);
+    await clearSearch.click();
+    await expect(page).toHaveURL("/?manufacturer=Signify");
+    await expect(emptyState).toBeHidden();
+
+    await page.goto("/?manufacturer=Signify&deviceType=smart_switch");
+    await expect(clearSearch).toHaveCount(0);
+    await showAll.click();
+    await expect(page).toHaveURL("/");
+    await expect(emptyState).toBeHidden();
+  });
+}

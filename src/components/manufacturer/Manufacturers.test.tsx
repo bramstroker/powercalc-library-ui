@@ -98,12 +98,35 @@ describe("Manufacturers", () => {
     search("leedarson");
 
     expect(cardNames()).toEqual([expect.stringContaining("Linkind")]);
+    expect(screen.getByRole("status")).toHaveTextContent("1 matching manufacturer");
+    expect(screen.getByText("Also known as Leedarson")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Linkind/ })).toHaveAttribute(
+      "href",
+      "/manufacturers/linkind",
+    );
+
+    search("linkind");
+    expect(screen.queryByText("Also known as Leedarson")).not.toBeInTheDocument();
+
+    search("");
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+    expect(screen.queryByText("Also known as Leedarson")).not.toBeInTheDocument();
+  });
+
+  it("counts all matches from a restored search and ignores whitespace-only searches", () => {
+    renderPage("/manufacturers?q=I");
+    expect(screen.getByRole("status")).toHaveTextContent("3 matching manufacturers");
+    expect(screen.getByText("3 manufacturers, 5 profiles")).toBeVisible();
+    search("   ");
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+    expect(cardNames()).toHaveLength(3);
   });
 
   it("reports when nothing matches", () => {
     renderPage();
 
     search("nope");
+    expect(screen.getByRole("status")).toHaveTextContent("0 matching manufacturers");
 
     expect(screen.getByText('No manufacturers match "nope"')).toBeInTheDocument();
     expect(screen.queryByTestId("manufacturer-list")).not.toBeInTheDocument();

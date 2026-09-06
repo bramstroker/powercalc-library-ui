@@ -131,10 +131,15 @@ export const useLibraryFilters = (): UseLibraryFilters => {
       draftRef.current = draft;
 
       const next = serializeFilters(draft);
+      // Filter changes restart pagination but retain the chosen size and ordering.
+      for (const key of ["pageSize", "sort", "direction"]) {
+        const value = searchParams.get(key);
+        if (value !== null) next.set(key, value);
+      }
       writtenRef.current = next.toString();
       setSearchParams(next, { replace: true });
     },
-    [setSearchParams],
+    [searchParams, setSearchParams],
   );
 
   const setSearch = useCallback(
@@ -199,10 +204,8 @@ export const useLibraryFilters = (): UseLibraryFilters => {
   );
 
   const clearAll = useCallback(() => {
-    draftRef.current = createEmptyFilters();
-    writtenRef.current = "";
-    setSearchParams(new URLSearchParams(), { replace: true });
-  }, [setSearchParams]);
+    update((draft) => Object.assign(draft, createEmptyFilters()));
+  }, [update]);
 
   return {
     filters,

@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react";
-import { useSearchParams } from "react-router";
+import { useLocation, useSearchParams } from "react-router";
 
 export type SearchParamChanges = Readonly<Record<string, string | null>>;
 
@@ -8,6 +8,7 @@ export type SearchParamChanges = Readonly<Record<string, string | null>>;
  * A local draft makes multiple updates issued before React Router commits build on each other.
  */
 export const useUrlSearchParams = () => {
+  const { state } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentQuery = searchParams.toString();
   const draftRef = useRef(new URLSearchParams(searchParams));
@@ -31,9 +32,9 @@ export const useUrlSearchParams = () => {
 
       draftRef.current = next;
       writtenQueryRef.current = next.toString();
-      setSearchParams(next, { replace: true, preventScrollReset: true });
+      setSearchParams(next, { replace: true, preventScrollReset: true, state });
     },
-    [setSearchParams],
+    [setSearchParams, state],
   );
 
   return { searchParams, updateSearchParams };

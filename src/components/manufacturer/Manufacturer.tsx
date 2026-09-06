@@ -45,6 +45,7 @@ export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps)
         profileCount={viewModel.profileCount}
       />
       <ManufacturerProfiles
+        manufacturerName={manufacturer.fullName}
         deviceType={viewModel.deviceType}
         deviceTypeCounts={viewModel.deviceTypeCounts}
         isFiltered={viewModel.isFiltered}

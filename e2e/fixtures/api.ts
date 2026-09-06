@@ -210,6 +210,25 @@ export const libraryChanges = {
   next_cursor: null,
 };
 
+libraryChanges.items.push({
+  ...libraryChanges.items[0],
+  id: "github-pr:4999",
+  occurred_at: "2026-08-31T10:00:00Z",
+  summary: "Batch measurement update",
+  changes: Array.from({ length: 12 }, (_, index) => ({
+    ...libraryChanges.items[0].changes[0],
+    profile: {
+      ...libraryChanges.items[0].changes[0].profile,
+      id: `BATCH${index + 1}`,
+    },
+  })),
+  source: {
+    ...libraryChanges.items[0].source,
+    pull_request_number: 4999,
+    pull_request_url: "https://github.com/bramstroker/homeassistant-powercalc/pull/4999",
+  },
+});
+
 export const profileStats = [
   {
     manufacturer: "signify",

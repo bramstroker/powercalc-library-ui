@@ -28,6 +28,7 @@ export type CheckboxFacetProps = {
   onToggle: (value: string) => void;
   onClear: () => void;
   /** Optional glyph in front of each option's label, e.g. the device type's own icon. */
+  getOptionLabel?: (value: string) => string;
   renderOptionIcon?: (value: string) => ReactNode;
   /** Adds a type-to-filter box, for facets with many options. */
   searchable?: boolean;
@@ -44,6 +45,7 @@ export const CheckboxFacet = ({
   onToggle,
   onClear,
   renderOptionIcon,
+  getOptionLabel = (value) => value,
   searchable = false,
   expanded,
   onToggleExpanded,
@@ -55,14 +57,14 @@ export const CheckboxFacet = ({
   const visibleOptions = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const matching = needle
-      ? options.filter((option) => option.value.toLowerCase().includes(needle))
+      ? options.filter((option) => getOptionLabel(option.value).toLowerCase().includes(needle))
       : options;
     // Selected values stay visible even when they fall outside the collapsed window.
     const selectedMissing = selected
       .filter((value) => !matching.some((option) => option.value === value))
       .map((value) => ({ value, count: 0 }));
     return [...selectedMissing, ...matching];
-  }, [options, query, selected]);
+  }, [options, query, selected, getOptionLabel]);
 
   const truncated = !showAll && !query && visibleOptions.length > COLLAPSED_COUNT;
   const shown = truncated ? visibleOptions.slice(0, COLLAPSED_COUNT) : visibleOptions;
@@ -124,8 +126,8 @@ export const CheckboxFacet = ({
             label={
               <Stack direction="row" sx={{ width: "100%", alignItems: "center", gap: 1 }}>
                 {renderOptionIcon?.(option.value)}
-                <Typography variant="body2" noWrap title={option.value} sx={{ flexGrow: 1 }}>
-                  {option.value}
+                <Typography variant="body2" title={option.value} sx={{ flexGrow: 1 }}>
+                  {getOptionLabel(option.value)}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {option.count}

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { E2E_API_BASE_URL, mockApi } from "./fixtures/api";
+import { E2E_API_BASE_URL, library, mockApi } from "./fixtures/api";
 
 // A phone-sized viewport: below the md breakpoint the results become a card list, because a
 // five-column table needs roughly twice this width.
@@ -101,8 +101,8 @@ test("stacks the Explore navigation within the phone viewport", async ({ page })
 
   await expect(page.getByRole("navigation", { name: "Explore Powercalc" })).toBeVisible();
   await expect(page.getByRole("menuitem", { name: "Browse profiles" })).toBeVisible();
-  await expect(page.getByRole("menuitem", { name: "View statistics" })).toBeVisible();
-  await expect(page.getByRole("menuitem", { name: "View analytics" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Library statistics" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Usage analytics" })).toBeVisible();
 
   const { scrollWidth, clientWidth } = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
@@ -189,28 +189,25 @@ test("keeps every profile tab reachable", async ({ page }) => {
   await expect(page.getByText("Brightness", { exact: true })).toBeVisible();
 });
 
-test("puts the pie chart legend below the chart", async ({ page }) => {
+test("shows readable sensor categories and counts below the chart", async ({ page }) => {
   await page.goto("/analytics/sensor-dimensions");
-
   const card = page.locator(".MuiPaper-root").filter({ hasText: "Source domain" }).first();
-  await expect(card).toBeVisible();
-
-  const pie = await card.locator("path").first().boundingBox();
-  const legend = await card
-    .locator(".MuiChartsLegend-label", { hasText: "media_player" })
-    .boundingBox();
-
-  expect(legend!.y).toBeGreaterThan(pie!.y + pie!.height);
+  const chart = card.locator("svg").filter({ has: page.locator(".MuiBarChart-element") });
+  const counts = card.getByRole("list");
+  await expect(counts.getByText(/^Media Player:/)).toBeVisible();
+  const chartBox = await chart.boundingBox();
+  const countsBox = await counts.boundingBox();
+  expect(countsBox!.y).toBeGreaterThanOrEqual(chartBox!.y + chartBox!.height);
 });
 
 test("gives the detail bar chart room for its category labels", async ({ page }) => {
   await page.goto("/analytics/sensor-dimensions/by_source_domain");
 
-  await expect(page.getByRole("heading", { name: "Source Domain", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Source domain", level: 1 })).toBeVisible();
 
-  // Truncated labels render as "media_pla…" when the y axis is too narrow for them.
-  await expect(page.locator("tspan", { hasText: /^media_player$/ })).toBeVisible();
-  await expect(page.locator("tspan", { hasText: /^binary_sensor$/ })).toBeVisible();
+  // Category names remain readable in the mobile chart.
+  await expect(page.locator("tspan", { hasText: /^Media Player$/ })).toBeVisible();
+  await expect(page.locator("tspan", { hasText: /^Binary Sensor$/ })).toBeVisible();
 });
 
 test("filters from the drawer and opens a profile", async ({ page }) => {
@@ -219,12 +216,15 @@ test("filters from the drawer and opens a profile", async ({ page }) => {
   await page.getByRole("button", { name: "Filters" }).click();
   await page
     .getByTestId("facet-deviceType")
-    .getByRole("checkbox", { name: /smart_switch/ })
+    .getByRole("checkbox", { name: /Smart Switch/ })
     .click();
 
   await expect(page).toHaveURL(/deviceType=smart_switch/);
 
-  await page.keyboard.press("Escape");
+  const drawer = page.getByRole("dialog", { name: "Filters", exact: true });
+  await expect(drawer).toBeVisible();
+  await drawer.getByRole("button", { name: "Show 1 result", exact: true }).click();
+  await expect(drawer).toBeHidden();
 
   await expect(page.getByText("S31")).toBeVisible();
   await expect(page.getByText("LCA001")).toBeHidden();
@@ -232,4 +232,66 @@ test("filters from the drawer and opens a profile", async ({ page }) => {
   await page.getByText("S31").click();
 
   await expect(page).toHaveURL("/profiles/sonoff/s31");
+});
+
+test("keeps mobile filter controls visible and restores focus when closing", async ({ page }) => {
+  await page.goto("/");
+  const trigger = page.getByRole("button", { name: "Filters", exact: true });
+  await trigger.click();
+  const drawer = page.getByRole("dialog", { name: "Filters", exact: true });
+  await drawer.getByRole("button", { name: "Advanced filters", exact: true }).click();
+  await drawer.getByTestId("facet-dates").scrollIntoViewIfNeeded();
+  await expect(drawer.getByRole("button", { name: "Show 4 results" })).toBeInViewport();
+  await expect(drawer.getByRole("button", { name: "Close filters" })).toBeInViewport();
+  await page.screenshot({ path: "test-results/mobile-filter-drawer.png" });
+  await drawer.getByRole("button", { name: "Close filters" }).click();
+  await expect(drawer).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await page.keyboard.press("Escape");
+  await expect(drawer).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
+test("shows the full device identity at 320px and with enlarged text", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  const manufacturerName = "3A Smart Home";
+  const modelId = "LONG-MODEL-IDENTIFIER-12345678901234567890";
+  await page.route("**/library/full", (route) =>
+    route.fulfill({
+      json: {
+        manufacturers: [
+          {
+            ...library.manufacturers[0],
+            full_name: manufacturerName,
+            models: [{ ...library.manufacturers[0].models[0], id: modelId, aliases: [] }],
+          },
+        ],
+      },
+    }),
+  );
+  await page.goto("/about");
+  await page.getByRole("link", { name: "Profile Library" }).click();
+  const list = page.getByTestId("library-card-list");
+  const model = list.getByRole("heading", { name: modelId });
+  await expect(model).toBeVisible();
+  for (const fontSize of ["16px", "32px"]) {
+    await page.evaluate((size) => {
+      document.documentElement.style.fontSize = size;
+    }, fontSize);
+    for (const element of [model, list.getByText(manufacturerName, { exact: true })]) {
+      const dimensions = await element.evaluate((node) => ({
+        width: node.clientWidth,
+        contentWidth: node.scrollWidth,
+        height: node.clientHeight,
+        contentHeight: node.scrollHeight,
+        overflow: getComputedStyle(node).textOverflow,
+      }));
+      expect(dimensions.contentWidth).toBeLessThanOrEqual(dimensions.width);
+      expect(dimensions.contentHeight).toBeLessThanOrEqual(dimensions.height);
+      expect(dimensions.overflow).not.toBe("ellipsis");
+    }
+    if (fontSize === "16px")
+      await page.screenshot({ path: "test-results/mobile-model-identity.png" });
+  }
 });

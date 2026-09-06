@@ -7,7 +7,6 @@ import { useLibrary } from "../../context/LibraryContext";
 import { DESKTOP_MEDIA_QUERY, useIsDesktop } from "../../hooks/useIsDesktop";
 import { useLibraryFilters } from "../../hooks/useLibraryFilters";
 import { countActiveFilters } from "../../types/LibraryFilters";
-import { visuallyHiddenSx } from "../../utils/accessibility";
 import { applyFilters } from "../../utils/libraryFiltering";
 import { Header } from "../header/Header";
 
@@ -19,6 +18,7 @@ import {
   DesktopFilterPanelSkeleton,
 } from "./grid/DesktopLibraryLoadingState";
 import { LibraryEmptyState } from "./search/LibraryEmptyState";
+import { LibraryIntroduction } from "./search/LibraryIntroduction";
 import { LibrarySearchField } from "./search/LibrarySearchField";
 
 const importDesktopGrid = () => import("./grid/DesktopLibraryDataGrid");
@@ -61,6 +61,7 @@ export const LibraryGrid = () => {
       profiles={powerProfiles}
       filters={filters}
       onCollapse={isDesktop ? () => setCollapsedPersisted(true) : undefined}
+      onClose={isDesktop ? undefined : () => setDrawerOpen(false)}
       {...actions}
     />
   );
@@ -73,129 +74,157 @@ export const LibraryGrid = () => {
         totalCount={powerProfiles.length}
       />
 
-      <Box id="main-content" component="main" sx={{ flex: 1, display: "flex", minHeight: 0 }}>
-        <Typography component="h1" sx={visuallyHiddenSx}>
-          Powercalc profile library
-        </Typography>
-        {isDesktop ? (
-          !collapsed && (
-            <Box
-              component="aside"
+      <Box
+        id="main-content"
+        component="main"
+        sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}
+      >
+        <LibraryIntroduction />
+        <Box sx={{ flex: 1, display: "flex", minHeight: 0 }}>
+          {isDesktop ? (
+            !collapsed && (
+              <Box
+                component="aside"
+                sx={{
+                  width: FILTER_PANEL_WIDTH,
+                  flexShrink: 0,
+                  overflowY: "auto",
+                  borderRight: 1,
+                  borderColor: "divider",
+                }}
+              >
+                {filterPanel}
+              </Box>
+            )
+          ) : (
+            <>
+              {/* CSS shows this only at desktop widths. The prerender therefore has the right
+                geometry before JavaScript can determine the viewport. */}
+              <DesktopFilterPanelSkeleton />
+              <Drawer
+                open={drawerOpen}
+                onClose={() => {
+                  setDrawerOpen(false);
+                }}
+                slotProps={{
+                  paper: {
+                    "aria-label": "Filters",
+                    sx: { width: 340, maxWidth: "100%", overflow: "hidden" },
+                  },
+                }}
+              >
+                <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto" }}>{filterPanel}</Box>
+                <Box
+                  sx={{
+                    p: 2,
+                    pb: "max(16px, env(safe-area-inset-bottom))",
+                    borderTop: 1,
+                    borderColor: "divider",
+                  }}
+                >
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    size="large"
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    <span aria-live="polite" aria-atomic="true">
+                      Show {rows.length} {rows.length === 1 ? "result" : "results"}
+                    </span>
+                  </Button>
+                </Box>
+              </Drawer>
+            </>
+          )}
+
+          <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+            {/* One bar directly above the table it describes, replacing the grid's own toolbar. */}
+            <Stack
+              direction="row"
               sx={{
-                width: FILTER_PANEL_WIDTH,
-                flexShrink: 0,
-                overflowY: "auto",
-                borderRight: 1,
+                alignItems: "center",
+                gap: 1,
+                px: 2,
+                py: 1,
+                minHeight: 52,
+                borderBottom: 1,
                 borderColor: "divider",
               }}
             >
-              {filterPanel}
-            </Box>
-          )
-        ) : (
-          <>
-            {/* CSS shows this only at desktop widths. The prerender therefore has the right
-                geometry before JavaScript can determine the viewport. */}
-            <DesktopFilterPanelSkeleton />
-            <Drawer
-              open={drawerOpen}
-              onClose={() => {
-                setDrawerOpen(false);
-              }}
-              slotProps={{ paper: { sx: { width: FILTER_PANEL_WIDTH } } }}
-            >
-              {filterPanel}
-            </Drawer>
-          </>
-        )}
-
-        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-          {/* One bar directly above the table it describes, replacing the grid's own toolbar. */}
-          <Stack
-            direction="row"
-            sx={{
-              alignItems: "center",
-              gap: 1,
-              px: 2,
-              py: 1,
-              minHeight: 52,
-              borderBottom: 1,
-              borderColor: "divider",
-            }}
-          >
-            <Badge
-              badgeContent={activeCount}
-              color="primary"
-              sx={{ display: { xs: "inline-flex", md: collapsed ? "inline-flex" : "none" } }}
-            >
-              <Button
-                size="small"
-                startIcon={<FilterListIcon />}
-                onClick={() => {
-                  if (isDesktop) {
-                    setCollapsedPersisted(false);
-                  } else {
-                    setDrawerOpen(true);
-                  }
-                }}
+              <Badge
+                badgeContent={activeCount}
+                color="primary"
+                sx={{ display: { xs: "inline-flex", md: collapsed ? "inline-flex" : "none" } }}
               >
-                Filters
-              </Button>
-            </Badge>
+                <Button
+                  size="small"
+                  startIcon={<FilterListIcon />}
+                  onClick={() => {
+                    if (isDesktop) {
+                      setCollapsedPersisted(false);
+                    } else {
+                      setDrawerOpen(true);
+                    }
+                  }}
+                >
+                  Filters
+                </Button>
+              </Badge>
 
-            {rows.length > 0 && <ActiveFilterChips filters={filters} {...actions} />}
+              {rows.length > 0 && <ActiveFilterChips filters={filters} {...actions} />}
 
-            <Box sx={{ flexGrow: 1 }} />
+              <Box sx={{ flexGrow: 1 }} />
 
-            {/* Only shown where the header count is hidden, and worded differently from it so the
+              {/* Only shown where the header count is hidden, and worded differently from it so the
                 two can never collide when locating either. */}
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              role="status"
-              aria-live="polite"
-              aria-atomic="true"
-              noWrap
-              sx={{ display: { xs: "block", md: "none" } }}
-            >
-              {rows.length === powerProfiles.length
-                ? `${rows.length} results`
-                : `${rows.length} of ${powerProfiles.length} results`}
-            </Typography>
-
-            <Tooltip title="Show/hide columns">
-              <IconButton
-                size="small"
-                aria-label="Show/hide columns"
-                onClick={() => showColumnsRef.current?.()}
-                sx={{ display: { xs: "none", md: "inline-flex" } }}
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                noWrap
+                sx={{ display: { xs: "block", md: "none" } }}
               >
-                <ViewColumnIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Stack>
+                {rows.length === powerProfiles.length
+                  ? `${rows.length} results`
+                  : `${rows.length} of ${powerProfiles.length} results`}
+              </Typography>
 
-          {rows.length === 0 ? (
-            <LibraryEmptyState filters={filters} {...actions} />
-          ) : (
-            <>
-              {/* Both viewport slots exist in the prerender and CSS selects the right one
+              <Tooltip title="Show/hide columns">
+                <IconButton
+                  size="small"
+                  aria-label="Show/hide columns"
+                  onClick={() => showColumnsRef.current?.()}
+                  sx={{ display: { xs: "none", md: "inline-flex" } }}
+                >
+                  <ViewColumnIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+
+            {rows.length === 0 ? (
+              <LibraryEmptyState filters={filters} {...actions} />
+            ) : (
+              <>
+                {/* Both viewport slots exist in the prerender and CSS selects the right one
                   immediately. JavaScript still mounts only the expensive result component for
                   the active width. */}
-              <Box sx={{ display: { xs: "none", md: "flex" }, flex: 1, minHeight: 0 }}>
-                {isDesktop ? (
-                  <Suspense fallback={<DesktopDataGridSkeleton />}>
-                    <DesktopLibraryDataGrid rows={rows} showColumnsRef={showColumnsRef} />
-                  </Suspense>
-                ) : (
-                  <DesktopDataGridSkeleton />
-                )}
-              </Box>
-              <Box sx={{ display: { xs: "block", md: "none" } }}>
-                {!isDesktop && <LibraryCardList rows={rows} />}
-              </Box>
-            </>
-          )}
+                <Box sx={{ display: { xs: "none", md: "flex" }, flex: 1, minHeight: 0 }}>
+                  {isDesktop ? (
+                    <Suspense fallback={<DesktopDataGridSkeleton />}>
+                      <DesktopLibraryDataGrid rows={rows} showColumnsRef={showColumnsRef} />
+                    </Suspense>
+                  ) : (
+                    <DesktopDataGridSkeleton />
+                  )}
+                </Box>
+                <Box sx={{ display: { xs: "block", md: "none" } }}>
+                  {!isDesktop && <LibraryCardList rows={rows} />}
+                </Box>
+              </>
+            )}
+          </Box>
         </Box>
       </Box>
     </Box>

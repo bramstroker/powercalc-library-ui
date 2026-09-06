@@ -116,7 +116,10 @@ test("uses a readable device type and a clear empty usage state", async ({ page 
   await expect(usage).toBeVisible();
   await expect(usage).not.toHaveRole("heading");
   await expect(page.getByRole("progressbar")).toBeHidden();
-  await page.getByTestId("profile-setup").getByRole("button", { name: "Use this profile" }).click();
+  await page
+    .getByTestId("profile-setup")
+    .getByRole("button", { name: "Use in Home Assistant" })
+    .click();
   await expect(
     page.getByText("Powercalc can discover this model automatically (by entity)."),
   ).toBeVisible();
@@ -127,13 +130,21 @@ test("shows the LUT quality with its per color mode breakdown", async ({ page })
 
   await expect(page.getByText("96.1 · Excellent")).toBeVisible();
   await expect(page.getByText("brightness 97.9 · color temp 96.1")).toBeVisible();
+  const quality = page.getByTestId("profile-attribute").filter({ hasText: "LUT curve quality" });
+  await expect(quality).toContainText(
+    "Curve smoothness on a 0–100 scale. This is not an accuracy percentage.",
+  );
+  await quality.getByRole("link", { name: "How this score works" }).click();
+  await expect(page).toHaveURL("/measurement-quality#quality-bands-heading");
+  await expect(page.getByRole("heading", { name: "LUT quality bands" })).toBeVisible();
 });
 
 test("omits the LUT quality for a profile without measured curves", async ({ page }) => {
   await page.goto("/profiles/sonoff/S31");
 
   await expect(page.getByText("Shelly Plug S").or(page.getByText("Zhurui PR10"))).toBeVisible();
-  await expect(page.getByText("LUT quality")).toBeHidden();
+  await expect(page.getByText("LUT curve quality")).toBeHidden();
+  await expect(page.getByRole("link", { name: "How this score works" })).toBeHidden();
 });
 
 test("does not show graphs for a fixed profile", async ({ page }) => {
@@ -166,6 +177,11 @@ test("navigates back to the library", async ({ page }) => {
 test("preserves the filtered library URL when navigating back to results", async ({ page }) => {
   await page.goto("/?q=LCA001&manufacturer=Signify");
   await page.getByRole("link", { name: "LCA001", exact: true }).click();
+
+  for (const name of ["JSON", "Graphs", "Attributes"]) {
+    await page.getByRole("tab", { name, exact: true }).click();
+    await expect(page.getByRole("button", { name: "Back to results" })).toBeVisible();
+  }
 
   await page.getByRole("button", { name: "Back to results" }).click();
 
@@ -263,7 +279,7 @@ test("offers manual setup for a profile discovered by entity", async ({ page }) 
   const setup = page.getByTestId("profile-setup");
 
   await expect(setup.getByText(/Look for a discovery prompt/)).toBeHidden();
-  await setup.getByRole("button", { name: "Use this profile" }).click();
+  await setup.getByRole("button", { name: "Use in Home Assistant" }).click();
   await expect(setup.getByText(/Look for a discovery prompt/)).toBeVisible();
   await setup.getByText("Set up manually instead").click();
 
@@ -285,7 +301,7 @@ test("offers setup for profiles discovered by device", async ({ page }) => {
 
   await expect(page.getByText("Automatic, by device")).toBeVisible();
   const setup = page.getByTestId("profile-setup");
-  await setup.getByRole("button", { name: "Use this profile" }).click();
+  await setup.getByRole("button", { name: "Use in Home Assistant" }).click();
   await expect(
     setup.getByText(/Powercalc can discover this model automatically \(by device\)/),
   ).toBeVisible();
@@ -298,7 +314,7 @@ test("offers setup for manual-only profiles", async ({ page }) => {
 
   await expect(page.getByText("Not available (manual setup only)")).toBeVisible();
   const setup = page.getByTestId("profile-setup");
-  await setup.getByRole("button", { name: "Use this profile" }).click();
+  await setup.getByRole("button", { name: "Use in Home Assistant" }).click();
   await expect(setup.getByText(/Automatic discovery is not available/)).toBeVisible();
   await expect(setup.getByRole("link", { name: "Open in Home Assistant" })).toBeVisible();
   await setup.getByText("Or configure with YAML").click();

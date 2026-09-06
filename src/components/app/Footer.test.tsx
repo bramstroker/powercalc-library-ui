@@ -22,8 +22,8 @@ describe("Footer", () => {
       ["Contributors", "/contributors"],
       ["Contribute", "/contribute"],
       ["What's new", "/whats-new"],
-      ["Statistics", "/statistics"],
-      ["Analytics", "/analytics"],
+      ["Library statistics", "/statistics"],
+      ["Usage analytics", "/analytics"],
       ["Measurement quality", "/measurement-quality"],
       ["About", "/about"],
     ]);

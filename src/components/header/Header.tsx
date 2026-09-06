@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 
 import { ColorModeToggle } from "./ColorModeToggle";
 import { ExploreMenu } from "./ExploreMenu";
+import { GlobalProfileSearch } from "./GlobalProfileSearch";
 import { HeaderBrand } from "./HeaderBrand";
 
 export type HeaderProps = {
@@ -40,22 +41,20 @@ export const Header = ({ searchSlot, resultCount, totalCount }: HeaderProps) => 
           gap: 1,
         }}
       >
-        <HeaderBrand compactOnMobile={Boolean(searchSlot)} />
+        <HeaderBrand compactOnMobile />
 
         {/* Search takes the space between the brand and the actions on the right. */}
-        {searchSlot ? (
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              minWidth: 0,
-              maxWidth: { sm: 280, md: 360 },
-              ml: { sm: 2 },
-            }}
-          >
-            {searchSlot}
-          </Box>
-        ) : null}
+        <Box
+          sx={{
+            flexGrow: 1,
+            display: "flex",
+            minWidth: 0,
+            maxWidth: { sm: 280, md: 360 },
+            ml: { sm: 2 },
+          }}
+        >
+          {searchSlot ?? <GlobalProfileSearch />}
+        </Box>
 
         <Box sx={{ flexGrow: 1 }} />
 

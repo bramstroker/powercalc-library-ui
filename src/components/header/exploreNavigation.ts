@@ -1,10 +1,13 @@
 import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import FactoryOutlinedIcon from "@mui/icons-material/FactoryOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
 import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import NewReleasesOutlinedIcon from "@mui/icons-material/NewReleasesOutlined";
+import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 import type { ElementType } from "react";
 
 export type ExploreNavigationItem = {
@@ -21,23 +24,28 @@ export type ExploreNavigationSection = {
 
 export const EXPLORE_NAVIGATION: ExploreNavigationSection[] = [
   {
-    label: "Library",
+    label: "Find a device",
     items: [
       { label: "Browse profiles", path: "/", icon: LibraryBooksOutlinedIcon },
       { label: "Manufacturers", path: "/manufacturers", icon: FactoryOutlinedIcon },
-      { label: "Contributors", path: "/contributors", icon: GroupOutlinedIcon },
-      { label: "Contribute", path: "/contribute", icon: LibraryAddOutlinedIcon },
-      { label: "What's new", path: "/whats-new", icon: NewReleasesOutlinedIcon },
+      { label: "Device types", path: "/device-types", icon: CategoryOutlinedIcon },
     ],
   },
   {
-    label: "Statistics",
-    description: "Library rankings and contribution trends.",
-    items: [{ label: "View statistics", path: "/statistics", icon: BarChartIcon }],
+    label: "Community & data",
+    items: [
+      { label: "Contributors", path: "/contributors", icon: GroupOutlinedIcon },
+      { label: "Contribute", path: "/contribute", icon: LibraryAddOutlinedIcon },
+      { label: "What's new", path: "/whats-new", icon: NewReleasesOutlinedIcon },
+      { label: "Library statistics", path: "/statistics", icon: BarChartIcon },
+      { label: "Usage analytics", path: "/analytics", icon: AnalyticsOutlinedIcon },
+    ],
   },
   {
-    label: "Usage analytics",
-    description: "Opt-in installation and profile usage data.",
-    items: [{ label: "View analytics", path: "/analytics", icon: AnalyticsOutlinedIcon }],
+    label: "Help",
+    items: [
+      { label: "Measurement quality", path: "/measurement-quality", icon: VerifiedOutlinedIcon },
+      { label: "About", path: "/about", icon: InfoOutlinedIcon },
+    ],
   },
 ];

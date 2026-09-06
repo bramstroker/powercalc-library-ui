@@ -9,6 +9,7 @@ import {
   RANGE_LABELS,
   countActiveFilters,
 } from "../../../types/LibraryFilters";
+import { facetValueLabel } from "../../../utils/facetValueLabel";
 
 export type ActiveFilterChipsProps = Pick<
   LibraryFilterActions,
@@ -50,7 +51,7 @@ export const ActiveFilterChips = ({
           <Chip
             key={`${key}:${value}`}
             size="small"
-            label={`${FACET_LABELS[key]}: ${value}`}
+            label={`${FACET_LABELS[key]}: ${facetValueLabel(key, value)}`}
             onDelete={() => {
               removeFacetValue(key, value);
             }}

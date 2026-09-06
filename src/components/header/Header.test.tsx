@@ -21,11 +21,14 @@ describe("Header", () => {
     expect(items.map((item) => item.textContent)).toEqual([
       "Browse profiles",
       "Manufacturers",
+      "Device types",
       "Contributors",
       "Contribute",
       "What's new",
-      "View statistics",
-      "View analytics",
+      "Library statistics",
+      "Usage analytics",
+      "Measurement quality",
+      "About",
     ]);
     expect(within(navigation).getByRole("menuitem", { name: "Manufacturers" })).toHaveAttribute(
       "aria-current",

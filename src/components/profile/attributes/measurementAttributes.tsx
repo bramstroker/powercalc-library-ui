@@ -5,7 +5,9 @@ import ElectricMeterIcon from "@mui/icons-material/ElectricMeter";
 import HistoryIcon from "@mui/icons-material/History";
 import { Stack } from "@mui/material";
 import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
+import { Link as RouterLink } from "react-router";
 
 import type { PowerProfile } from "../../../types/PowerProfile";
 import { formatTimestampUtc } from "../../../utils/dateFormat";
@@ -49,12 +51,12 @@ export const createMeasurementAttributes = (profile: PowerProfile): ProfileAttri
     render: (value) => <MeasureDescription description={String(value)} />,
   },
   {
-    label: "LUT quality",
+    label: "LUT curve quality",
     value: profile.lutQuality?.score,
     icon: AutoGraphIcon,
     group: "measurement",
     render: (value) => (
-      <Stack direction="row" sx={{ alignItems: "center", flexWrap: "wrap", gap: 1 }}>
+      <Stack spacing={1} sx={{ alignItems: "flex-start" }}>
         <QualityBadge score={value as number} showBand />
         {profile.lutQuality?.brightness != null &&
           profile.lutQuality.colorTemp != null &&
@@ -63,6 +65,16 @@ export const createMeasurementAttributes = (profile: PowerProfile): ProfileAttri
               brightness {profile.lutQuality.brightness} · color temp {profile.lutQuality.colorTemp}
             </Typography>
           )}
+        <Typography variant="body2" color="text.secondary">
+          Curve smoothness on a 0–100 scale. This is not an accuracy percentage.
+        </Typography>
+        <Link
+          component={RouterLink}
+          to="/measurement-quality#quality-bands-heading"
+          variant="body2"
+        >
+          How this score works
+        </Link>
       </Stack>
     ),
   },

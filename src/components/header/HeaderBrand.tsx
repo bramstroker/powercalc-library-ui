@@ -8,6 +8,7 @@ export const HeaderBrand = ({ compactOnMobile }: { compactOnMobile: boolean }) =
   <Box
     component={RouterLink}
     to="/"
+    aria-label="Powercalc Profile Library"
     sx={{
       my: { xs: 1, sm: 2 },
       display: "flex",

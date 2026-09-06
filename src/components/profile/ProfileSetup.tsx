@@ -218,7 +218,9 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
   return (
     <Box data-testid="profile-setup">
       <Button
-        variant="outlined"
+        variant="contained"
+        startIcon={<HomeIcon />}
+        sx={{ minHeight: 44 }}
         aria-expanded={setupExpanded}
         aria-controls="profile-setup-details"
         endIcon={
@@ -228,8 +230,11 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
         }
         onClick={() => setSetupExpanded((expanded) => !expanded)}
       >
-        Use this profile
+        Use in Home Assistant
       </Button>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        View discovery and setup instructions for this profile.
+      </Typography>
 
       <Collapse in={setupExpanded} timeout="auto">
         <Paper id="profile-setup-details" variant="outlined" sx={{ p: 2, mt: 1 }}>
