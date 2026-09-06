@@ -89,7 +89,7 @@ test("keeps the homepage within its runtime performance budgets", async ({
   });
 
   await page.goto("/", { waitUntil: "networkidle" });
-  await expect(page.getByRole("heading", { name: "Powercalc profile library" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Find a power profile" })).toBeVisible();
   await page.getByRole("button", { name: "Explore" }).click();
   await expect(page.getByRole("navigation", { name: "Explore Powercalc" })).toBeVisible();
   await page.waitForTimeout(250);
