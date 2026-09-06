@@ -5,6 +5,8 @@ import { renderToPipeableStream } from "react-dom/server";
 import type { EntryContext, RouterContextProvider } from "react-router";
 import { ServerRouter } from "react-router";
 
+import { provideEarlyStyles } from "./utils/prerenderStyles";
+
 export const streamTimeout = 10_000;
 
 /**
@@ -53,11 +55,17 @@ export default function handleRequest(
           responseHeaders.set("Content-Type", "text/html");
           pipe(body);
 
-          resolve(
-            new Response(createReadableStreamFromReadable(body), {
-              headers: responseHeaders,
-              status: responseStatusCode,
-            }),
+          // This is static generation, so finish collecting HTML before returning it. Shared
+          // Emotion rules emitted by later siblings must be available before their first use.
+          void new Response(createReadableStreamFromReadable(body)).text().then(
+            (html) =>
+              resolve(
+                new Response(provideEarlyStyles(html), {
+                  headers: responseHeaders,
+                  status: responseStatusCode,
+                }),
+              ),
+            reject,
           );
         },
         onShellError(error: unknown) {

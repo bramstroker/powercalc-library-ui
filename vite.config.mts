@@ -63,10 +63,12 @@ export default defineConfig({
         codeSplitting: {
           groups: [
             {
-              // All filter-section icons are needed together. Preserve that boundary so moving
-              // their consumers cannot turn tiny shared modules into separate initial requests.
-              name: "library-facet-icons",
-              test: /src[\\/]components[\\/]library[\\/]filters[\\/]facetSectionIcons\.ts$/,
+              // Keep React and MUI's shared primitives together without capturing optional
+              // DataGrid/chart features. Entry-aware merging reduces tiny network requests.
+              name: "shared-ui",
+              test: /node_modules[\\/](?:@mui[\\/](?:material|system|utils)|@emotion|react|react-dom|scheduler)[\\/]/,
+              entriesAware: true,
+              entriesAwareMergeThreshold: 16 * 1024,
             },
           ],
         },

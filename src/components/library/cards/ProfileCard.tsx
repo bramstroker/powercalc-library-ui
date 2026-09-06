@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink } from "react-router";
 
-import type { PowerProfile } from "../../../types/PowerProfile";
+import type { ProfileSummary } from "../../../types/PowerProfile";
 import { formatDateUtc } from "../../../utils/dateFormat";
 import { numberFormat } from "../../../utils/formatters";
 import { humanizeIdentifier } from "../../../utils/profilePresentation";
@@ -28,7 +28,7 @@ export const ProfileCard = ({
   profile,
   headingComponent = "h3",
 }: {
-  profile: PowerProfile;
+  profile: ProfileSummary;
   headingComponent?: "h3" | "h4";
 }) => {
   const DeviceIcon = getDeviceTypeIcon(profile.deviceType);
@@ -114,7 +114,11 @@ export const ProfileCard = ({
               <Chip
                 size="small"
                 icon={<HomeIcon />}
-                label={`${numberFormat.format(profile.usageStats.installationCount)} installs`}
+                label={
+                  profile.usageStats.available === false
+                    ? "Usage unavailable"
+                    : `${numberFormat.format(profile.usageStats.installationCount)} installs`
+                }
               />
             </Tooltip>
             <Typography variant="caption" color="text.secondary" sx={{ ml: "auto" }}>

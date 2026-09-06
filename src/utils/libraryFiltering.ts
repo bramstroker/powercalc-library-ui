@@ -72,7 +72,9 @@ const getRangeValue = (profile: PowerProfile, key: RangeKey): number | null | un
     case "lumens":
       return profile.deviceSpecs?.lumens;
     case "installationCount":
-      return profile.usageStats?.installationCount;
+      return profile.usageStats?.available === false
+        ? undefined
+        : profile.usageStats?.installationCount;
   }
 };
 
@@ -112,7 +114,10 @@ const normalizeSearchText = (value: string): string =>
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
 
-const getSearchDocument = (profile: PowerProfile): SearchDocument => {
+const getSearchDocument = (
+  profile: PowerProfile,
+  normalizedValues: Map<string, string>,
+): SearchDocument => {
   const cached = searchDocumentCache.get(profile);
   if (cached) {
     return cached;
@@ -139,7 +144,14 @@ const getSearchDocument = (profile: PowerProfile): SearchDocument => {
   ];
   const normalizedFields = values
     .filter((value): value is string => Boolean(value))
-    .map(normalizeSearchText)
+    .map((value) => {
+      let normalized = normalizedValues.get(value);
+      if (normalized === undefined) {
+        normalized = normalizeSearchText(value);
+        normalizedValues.set(value, normalized);
+      }
+      return normalized;
+    })
     .filter(Boolean);
   const document = {
     // Keep compact variants too: `tp-link`, `TP Link` and `tplink` should be interchangeable.
@@ -194,19 +206,24 @@ const isWithinEditDistance = (left: string, right: string, maximum: number): boo
   return previous[right.length] <= maximum;
 };
 
-const matchesSearchWord = (document: SearchDocument, word: string): boolean => {
-  if (document.fields.some((field) => field.includes(word))) {
-    return true;
-  }
-
+const createWordMatcher = (word: string) => {
   const maximumDistance = fuzzyDistanceFor(word);
-  return (
-    maximumDistance > 0 &&
-    document.words.some(
-      (candidate) =>
-        FUZZY_WORD.test(candidate) && isWithinEditDistance(word, candidate, maximumDistance),
-    )
-  );
+  // Manufacturer names and metadata words recur across many profiles. Compare each distinct
+  // candidate only once per query, including candidates that do not match.
+  const candidates = new Map<string, boolean>();
+  return (document: SearchDocument): boolean => {
+    if (document.fields.some((field) => field.includes(word))) return true;
+    if (maximumDistance === 0) return false;
+    return document.words.some((candidate) => {
+      let matches = candidates.get(candidate);
+      if (matches === undefined) {
+        matches =
+          FUZZY_WORD.test(candidate) && isWithinEditDistance(word, candidate, maximumDistance);
+        candidates.set(candidate, matches);
+      }
+      return matches;
+    });
+  };
 };
 
 /**
@@ -215,13 +232,32 @@ const matchesSearchWord = (document: SearchDocument, word: string): boolean => {
  * each hold one word. Text words tolerate small spelling mistakes; short terms, model identifiers
  * and barcodes remain exact to avoid silently suggesting a different device.
  */
-export const matchesSearch = (profile: PowerProfile, term: string): boolean => {
-  const words = normalizeSearchText(term).split(/\s+/).filter(Boolean);
-  if (words.length === 0) {
-    return true;
-  }
-  const document = getSearchDocument(profile);
-  return words.every((word) => matchesSearchWord(document, word));
+const createSearchMatcher = (term: string) => {
+  const matchers = normalizeSearchText(term).split(/\s+/).filter(Boolean).map(createWordMatcher);
+  // This cache lives only for the current filter pass, not across an unbounded history of input.
+  const normalizedValues = new Map<string, string>();
+  return (profile: PowerProfile): boolean => {
+    if (matchers.length === 0) return true;
+    const document = getSearchDocument(profile, normalizedValues);
+    return matchers.every((matches) => matches(document));
+  };
+};
+
+export const matchesSearch = (profile: PowerProfile, term: string): boolean =>
+  createSearchMatcher(term)(profile);
+
+// Grid and disjunctive facets share the expensive text search. Keep only the latest query per
+// immutable dataset, so typing cannot retain an unbounded cache of old result sets.
+const searchResultsCache = new WeakMap<PowerProfile[], { term: string; rows: PowerProfile[] }>();
+
+export const searchProfiles = (profiles: PowerProfile[], term: string): PowerProfile[] => {
+  const normalized = normalizeSearchText(term);
+  if (!normalized) return profiles;
+  const cached = searchResultsCache.get(profiles);
+  if (cached?.term === normalized) return cached.rows;
+  const rows = profiles.filter(createSearchMatcher(normalized));
+  searchResultsCache.set(profiles, { term: normalized, rows });
+  return rows;
 };
 
 const matchesDate = (value: Date | null | undefined, isoDate: string): boolean => {
@@ -245,10 +281,7 @@ export const applyFiltersExcept = (
   filters: LibraryFilters,
   ignore?: FacetKey,
 ): PowerProfile[] =>
-  profiles.filter((profile) => {
-    if (!matchesSearch(profile, filters.search)) {
-      return false;
-    }
+  searchProfiles(profiles, filters.search).filter((profile) => {
     for (const key of FACET_KEYS) {
       if (key === ignore) {
         continue;
@@ -258,6 +291,7 @@ export const applyFiltersExcept = (
       }
     }
     for (const key of RANGE_KEYS) {
+      if (key === "installationCount" && profile.usageStats?.available === false) continue;
       const range = filters.ranges[key];
       if (range && !matchesRange(profile, key, range)) {
         return false;

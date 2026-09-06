@@ -13,6 +13,7 @@ import {
   computeFacetCounts,
   computeRanges,
   matchesSearch,
+  searchProfiles,
 } from "./libraryFiltering";
 
 const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => ({
@@ -451,4 +452,39 @@ describe("search", () => {
 
     expect(matchesSearch(profile, "Tapo P110")).toBe(false);
   });
+});
+
+it("reuses normalized search results across facets and replaces them when the dataset changes", () => {
+  const profiles = [createProfile(), createProfile({ name: "TRÅDFRI" })];
+  const first = searchProfiles(profiles, "tradfri");
+  expect(first).toHaveLength(1);
+  expect(searchProfiles(profiles, " TRÅDFRI ")).toBe(first);
+  expect(searchProfiles([...profiles], "tradfri")).not.toBe(first);
+  expect(searchProfiles(profiles, "hue")).toEqual([profiles[0]]);
+  expect(searchProfiles(profiles, "")).toBe(profiles);
+});
+
+it("keeps other filters usable while installation counts are unavailable", () => {
+  const profile = createProfile({
+    usageStats: { available: false, installationCount: 0, deviceCount: 0, percentage: 0 },
+  });
+  const filters = createEmptyFilters();
+  filters.ranges.installationCount = [100, 500];
+  expect(applyFilters([profile], filters)).toEqual([profile]);
+  expect(computeRanges([profile]).installationCount).toBeUndefined();
+  filters.search = "nonexistent-model";
+  expect(applyFilters([profile], filters)).toEqual([]);
+});
+
+it("keeps cached fuzzy candidates independent for each word and query", () => {
+  const profiles = [
+    createProfile({ name: "Philips Tradfri", modelId: "one" }),
+    createProfile({ name: "Philips Hue", modelId: "two" }),
+    createProfile({ name: "Tradfri bulb", modelId: "three" }),
+    createProfile({ name: "Philips Tradfri", modelId: "four" }),
+  ];
+  expect(searchProfiles(profiles, "philps tradfry")).toEqual([profiles[0], profiles[3]]);
+  expect(searchProfiles(profiles, "tradfry philps")).toEqual([profiles[0], profiles[3]]);
+  expect(searchProfiles(profiles, "philps")).toEqual([profiles[0], profiles[1], profiles[3]]);
+  expect(searchProfiles(profiles, "tradfry")).toEqual([profiles[0], profiles[2], profiles[3]]);
 });

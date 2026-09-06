@@ -19,7 +19,7 @@ export const daysSince = (date: Date | null | undefined, now: Date = new Date())
 };
 
 export const isRecentlyAdded = (
-  profile: PowerProfile,
+  profile: Pick<PowerProfile, "createdAt">,
   now: Date = new Date(),
   withinDays: number = NEW_PROFILE_DAYS,
 ): boolean => {

@@ -41,7 +41,7 @@ import { FacetSection } from "./FacetSection";
 import { FACET_ICONS, RANGE_ICONS, SECTION_ICONS } from "./facetSectionIcons";
 import { RangeFacet } from "./RangeFacet";
 
-export const FILTER_PANEL_WIDTH = 288;
+export { FILTER_PANEL_WIDTH } from "./filterPanelLayout";
 
 /**
  * The panel's own surface, a tint away from the grid's. Applied to both the root and the sticky
@@ -286,6 +286,16 @@ export const FilterPanel = ({
 
       {visibleRangeKeys.map((key) => {
         const range = bounds[key];
+        if (
+          key === "installationCount" &&
+          profiles.some((profile) => profile.usageStats.available === false)
+        ) {
+          return (
+            <Typography key={key} variant="caption" color="text.secondary" sx={{ p: 2 }}>
+              Installation filters will be available when usage statistics load.
+            </Typography>
+          );
+        }
         if (!range || range[0] === range[1]) {
           return null;
         }

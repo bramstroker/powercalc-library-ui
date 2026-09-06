@@ -12,7 +12,7 @@ import { Header } from "../header/Header";
 
 import { LibraryCardList } from "./cards/LibraryCardList";
 import { ActiveFilterChips } from "./filters/ActiveFilterChips";
-import { FILTER_PANEL_WIDTH, FilterPanel } from "./filters/FilterPanel";
+import { FILTER_PANEL_WIDTH } from "./filters/filterPanelLayout";
 import {
   DesktopDataGridSkeleton,
   DesktopFilterPanelSkeleton,
@@ -20,6 +20,10 @@ import {
 import { LibraryEmptyState } from "./search/LibraryEmptyState";
 import { LibraryIntroduction } from "./search/LibraryIntroduction";
 import { LibrarySearchField } from "./search/LibrarySearchField";
+
+const FilterPanel = lazy(() =>
+  import("./filters/FilterPanel").then((module) => ({ default: module.FilterPanel })),
+);
 
 const importDesktopGrid = () => import("./grid/DesktopLibraryDataGrid");
 
@@ -57,13 +61,21 @@ export const LibraryGrid = () => {
   const activeCount = countActiveFilters(filters);
 
   const filterPanel = (
-    <FilterPanel
-      profiles={powerProfiles}
-      filters={filters}
-      onCollapse={isDesktop ? () => setCollapsedPersisted(true) : undefined}
-      onClose={isDesktop ? undefined : () => setDrawerOpen(false)}
-      {...actions}
-    />
+    <Suspense
+      fallback={
+        <Box role="status" sx={{ p: 2 }}>
+          Loading filters…
+        </Box>
+      }
+    >
+      <FilterPanel
+        profiles={powerProfiles}
+        filters={filters}
+        onCollapse={isDesktop ? () => setCollapsedPersisted(true) : undefined}
+        onClose={isDesktop ? undefined : () => setDrawerOpen(false)}
+        {...actions}
+      />
+    </Suspense>
   );
 
   return (
@@ -113,7 +125,9 @@ export const LibraryGrid = () => {
                   },
                 }}
               >
-                <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto" }}>{filterPanel}</Box>
+                <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
+                  {drawerOpen && filterPanel}
+                </Box>
                 <Box
                   sx={{
                     p: 2,

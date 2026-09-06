@@ -11,6 +11,7 @@ import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import { contributorAvatarUrl } from "../utils/avatarPaths";
 import { plural } from "../utils/plural";
 import { humanizeIdentifier } from "../utils/profilePresentation";
+import { profileSummary } from "../utils/profileSummary";
 import { authorPath, profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
 // Declared separately from the `loader` export: the React Router Vite plugin strips server-only
@@ -33,7 +34,7 @@ const loadAuthor = async ({ params, request }: Pick<LoaderFunctionArgs, "params"
 
   return {
     authorDetails: author,
-    authorProfiles: library.profilesByAuthorSlug.get(slug) ?? [],
+    authorProfiles: (library.profilesByAuthorSlug.get(slug) ?? []).map(profileSummary),
     authorRank: authorRank(library, author.githubUsername),
   };
 };

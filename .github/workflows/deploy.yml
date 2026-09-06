@@ -57,6 +57,9 @@ jobs:
         run: npm run test:e2e
 
   deploy:
+    concurrency:
+      group: library-production
+      cancel-in-progress: false
     needs: checks
     runs-on: ubuntu-latest
 

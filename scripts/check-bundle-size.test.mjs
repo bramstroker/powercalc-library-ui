@@ -1,3 +1,4 @@
+import { gzipSync } from "node:zlib";
 import assert from "node:assert/strict";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -62,7 +63,9 @@ test("measures aggregate homepage, route, HTML, data and request sizes", async (
   assert.equal(stats.routes[0].file, "profiles/example/index.html");
   assert.equal(stats.routes[0].routeJavaScriptRequests, 1);
   assert.equal(stats.htmlFiles[0].file, "index.html");
-  assert.deepEqual(stats.dataFiles, [{ file: "profiles/example.data", bytes: 11 }]);
+  assert.deepEqual(stats.dataFiles, [
+    { file: "profiles/example.data", bytes: 11, gzipBytes: gzipSync("loader data").byteLength },
+  ]);
 });
 
 test("reports every exceeded aggregate budget", () => {
@@ -89,4 +92,22 @@ test("reports every exceeded aggregate budget", () => {
   assert.match(failures.join("\n"), /prerendered HTML/u);
   assert.match(failures.join("\n"), /prerendered data/u);
   assert.match(failures.join("\n"), /initial requests/u);
+});
+
+test("collection allowances still enforce compressed size and preserve detail budgets", () => {
+  const stats = {
+    assets: [{ file: "assets/app.js", gzipBytes: 1 }],
+    homepage: { javascriptGzipBytes: 1, initialRequests: 1 },
+    routes: [{ file: "index.html", routeJavaScriptGzipBytes: 1 }],
+    htmlFiles: [
+      { file: "device-types/light/index.html", htmlBytes: 400 * 1024, htmlGzipBytes: 81 * 1024 },
+      { file: "profiles/example/index.html", htmlBytes: 221 * 1024, htmlGzipBytes: 10 * 1024 },
+    ],
+    dataFiles: [{ file: "device-types/light.data", bytes: 150 * 1024, gzipBytes: 46 * 1024 }],
+  };
+  const failures = budgetFailures(stats);
+  assert.equal(failures.length, 3);
+  assert.match(failures.join("\n"), /compressed collection HTML/);
+  assert.match(failures.join("\n"), /profiles\/example\/index.html/);
+  assert.match(failures.join("\n"), /compressed collection data/);
 });

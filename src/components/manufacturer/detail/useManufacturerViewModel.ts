@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { useUrlSearchParams } from "../../../hooks/useUrlSearchParams";
-import type { Manufacturer, PowerProfile } from "../../../types/PowerProfile";
+import type { Manufacturer, ProfileSummary } from "../../../types/PowerProfile";
 import { manufacturerLibraryIntroduction } from "../../../utils/manufacturerPresentation";
 import {
   DEFAULT_PROFILE_SORT,
@@ -22,7 +22,7 @@ export type DeviceTypeCount = {
 
 type UseManufacturerViewModelOptions = {
   manufacturer?: Manufacturer;
-  profiles: PowerProfile[];
+  profiles: ProfileSummary[];
 };
 
 export const useManufacturerViewModel = ({
@@ -66,7 +66,10 @@ export const useManufacturerViewModel = ({
   }, [profiles, deviceType, search, sort]);
 
   const knownProfileInstallations = useMemo(
-    () => profiles.reduce((total, profile) => total + profile.usageStats.installationCount, 0),
+    () =>
+      profiles.some((profile) => profile.usageStats.available === false)
+        ? null
+        : profiles.reduce((total, profile) => total + profile.usageStats.installationCount, 0),
     [profiles],
   );
 

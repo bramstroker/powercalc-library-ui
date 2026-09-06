@@ -37,11 +37,28 @@ on production data or network availability. CI runs the regular suite with four 
 set `E2E_WORKERS` to override that for a runner with different resources. The mobile performance
 test runs separately against the production build so it cannot affect regular E2E timing.
 
-`performance:build` creates a deterministic production build against that fixture API.
+`performance:build` creates a deterministic production build against a separate, representative
+749-profile snapshot (see `e2e/performance/fixtures`).
 `performance:check` then enforces the limits in `performance-budgets.json`: individual and
 aggregate homepage JavaScript, JavaScript added by any other route, prerendered HTML and loader
-data, initial homepage requests, plus mobile LCP, INP, and CLS. Route-specific JavaScript means the
+data, initial homepage requests, plus mobile and desktop LCP, observed interaction latency, and
+CLS. Tests use gzip delivery, 4× CPU slowdown, 150 ms latency and 1.6 Mbps download throughput.
+They also measure time until the catalogue is usable, actual transferred JavaScript including
+dynamic chunks, typo search, facets, pagination and profile navigation. Search latency runs from
+the browser input event through debounce and the first paint after pagination updates; functional
+assertions run separately so their polling and transport time do not inflate it. Separate cases cover
+unavailable/slow analytics and growth to 2,996 profiles. Each scenario runs twice with fresh browser
+contexts to catch intermittent loading shifts. Observed event latency in these scripted
+interactions is a lab regression check, not a field INP percentile. Route-specific JavaScript means the
 gzip size of modulepreloaded chunks that a route adds on top of the homepage's initial chunk set.
+Collection routes have separate raw and compressed payload limits because they contain hundreds
+of summaries and crawlable links; detail-page limits remain unchanged.
+
+Budget runs disable Playwright tracing because recording DOM snapshots and screenshots adds
+work inside the throttled browser and distorts interaction timings. Failed runs still retain
+screenshots, error context and layout-shift metrics. To diagnose a failure separately, run
+`npx playwright test --config playwright.performance.config.ts --trace on`; use that trace to
+inspect behavior, not to establish performance timings.
 
 ## Production build
 
@@ -77,6 +94,17 @@ In production this runs as the `renderer` image built from the same commit as th
 (`docker compose run --rm renderer`), so a content refresh needs no image build, no container
 recreate, and leaves every content-hashed asset URL — and the tabs holding them open — intact. The
 `Refresh content` workflow does this hourly.
+
+The catalogue uses the full library API response. The build writes a content hash manifest.
+Hourly refreshes render into `/documents/next`, compare
+against the serving manifest, and publish only changed files while removing obsolete files.
+Only affected canonical URLs, trailing-slash/index variants and loader payloads are purged;
+only changed canonical URLs are warmed. The manifest is acknowledged after publishing, purging
+and warming succeed, so a failed run can retry the same delta. Pages with query parameters bypass
+CDN document caching to avoid unbounded stale variants. Code deployments still invalidate the
+whole cache because their asset graph changes. Deploy the new serving and renderer images together
+before using this refresh workflow. Rendering itself still visits every route; this optimization
+reduces copying, cache invalidation and warm-up traffic.
 
 Brand icons and the social sharing card are generated from `public/favicon.svg`:
 

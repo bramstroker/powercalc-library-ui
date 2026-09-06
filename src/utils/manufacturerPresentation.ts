@@ -1,4 +1,4 @@
-import type { Manufacturer, PowerProfile } from "../types/PowerProfile";
+import type { Manufacturer, ProfileSummary } from "../types/PowerProfile";
 
 import { humanizeIdentifier } from "./profilePresentation";
 
@@ -17,7 +17,7 @@ const deviceTypeCoverageLabel = (deviceType: string) => {
 
 export const manufacturerLibraryIntroduction = (
   manufacturer: Manufacturer,
-  profiles: PowerProfile[],
+  profiles: ProfileSummary[],
 ) => {
   const deviceTypes = [
     ...new Set(profiles.map((profile) => deviceTypeCoverageLabel(profile.deviceType))),
@@ -31,7 +31,7 @@ export const manufacturerLibraryIntroduction = (
   return `${libraryContext} ${coverage}`;
 };
 
-export const manufacturerIntroduction = (manufacturer: Manufacturer, profiles: PowerProfile[]) =>
+export const manufacturerIntroduction = (manufacturer: Manufacturer, profiles: ProfileSummary[]) =>
   [manufacturer.description?.trim(), manufacturerLibraryIntroduction(manufacturer, profiles)]
     .filter(Boolean)
     .join(" ");

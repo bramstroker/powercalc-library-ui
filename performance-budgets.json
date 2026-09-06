@@ -2,14 +2,21 @@
   "javascript": {
     "individualGzipKiB": 130,
     "initialHomepageGzipKiB": 300,
-    "routeSpecificGzipKiB": 150
+    "routeSpecificGzipKiB": 150,
+    "runtimeMobileTransferKiB": 330,
+    "runtimeDesktopTransferKiB": 470
   },
   "prerender": {
     "htmlKiB": 220,
-    "dataKiB": 32
+    "dataKiB": 32,
+    "collectionHtmlKiB": 450,
+    "collectionDataKiB": 160,
+    "collectionHtmlGzipKiB": 80,
+    "collectionDataGzipKiB": 45
   },
   "requests": {
-    "initialHomepage": 95
+    "initialHomepage": 95,
+    "desktopHomepage": 115
   },
   "mobile": {
     "lcpMs": 2500,
@@ -18,5 +25,11 @@
   },
   "desktop": {
     "cls": 0.1
+  },
+  "runtime": {
+    "usableCatalogueMs": 10000,
+    "interactionCompletionMs": 1500,
+    "filterPanelMs": 3000,
+    "profileOpenMs": 4000
   }
 }

@@ -9,6 +9,7 @@ import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { createPageMeta, MAX_ITEM_LIST_ENTRIES, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import { manufacturerIntroduction } from "../utils/manufacturerPresentation";
+import { profileSummary } from "../utils/profileSummary";
 import { manufacturerPath, profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
 // Declared separately from the `loader` export: the React Router Vite plugin strips server-only
@@ -36,7 +37,7 @@ const loadManufacturer = async ({
 
   return {
     manufacturer,
-    profiles: library.profilesByManufacturerSlug.get(slug) ?? [],
+    profiles: (library.profilesByManufacturerSlug.get(slug) ?? []).map(profileSummary),
   };
 };
 

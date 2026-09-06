@@ -56,7 +56,7 @@ export const fetchSummary = async (): Promise<Summary> => {
 
 export const fetchProfile = async (manufacturer: string, model: string): Promise<ProfileStats> => {
   const url = `${API_ENDPOINTS.ANALYTICS_PROFILES}/${encodeURIComponent(manufacturer)}/${encodeURIComponent(model)}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
   if (!res.ok) throw new Error("Failed to fetch profile metrics");
   const data = await res.json();
   return {
@@ -68,7 +68,7 @@ export const fetchProfile = async (manufacturer: string, model: string): Promise
 
 export const fetchProfiles = async (): Promise<ProfileStats[]> => {
   const url = `${API_ENDPOINTS.ANALYTICS_PROFILES}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
   if (!res.ok) throw new Error("Failed to fetch profile metrics");
   return res.json();
 };

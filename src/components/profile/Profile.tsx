@@ -9,7 +9,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
-import type { ElementType, ReactNode, SyntheticEvent } from "react";
+import { lazy, Suspense, type ElementType, type ReactNode, type SyntheticEvent } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router";
 
 import type { Summary } from "../../api/analytics.api";
@@ -24,7 +24,15 @@ import { PageBreadcrumbs } from "../shared/PageBreadcrumbs";
 
 import { getDeviceTypeIcon } from "./DeviceTypeIcon";
 import { ProfileAttributesTab } from "./ProfileAttributesTab";
-import { ProfileJsonTab, ProfilePlotsTab, ProfileSubProfilesTab } from "./ProfileDetailTabs";
+const ProfileJsonTab = lazy(() =>
+  import("./ProfileDetailTabs").then((module) => ({ default: module.ProfileJsonTab })),
+);
+const ProfilePlotsTab = lazy(() =>
+  import("./ProfileDetailTabs").then((module) => ({ default: module.ProfilePlotsTab })),
+);
+const ProfileSubProfilesTab = lazy(() =>
+  import("./ProfileDetailTabs").then((module) => ({ default: module.ProfileSubProfilesTab })),
+);
 import { ProfileMetrics } from "./ProfileMetrics";
 import { ProfileSetup } from "./ProfileSetup";
 
@@ -264,7 +272,9 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
 
       {tabs.map((tab, index) => (
         <ProfileTabPanel key={tab.key} selectedIndex={selectedTabIndex} index={index}>
-          {tab.content}
+          <Suspense fallback={<Typography role="status">Loading profile details…</Typography>}>
+            {tab.content}
+          </Suspense>
         </ProfileTabPanel>
       ))}
     </>

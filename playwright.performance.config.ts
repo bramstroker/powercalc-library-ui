@@ -7,13 +7,20 @@ const API_PORT = 3101;
 export default defineConfig({
   testDir: "./e2e/performance",
   fullyParallel: false,
+  timeout: 120_000,
   forbidOnly: true,
   retries: 0,
+  // Slow parsing can expose intermittent style-order shifts; exercise two cold starts in CI.
+  repeatEach: 2,
   workers: 1,
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,
-    trace: "retain-on-failure",
+    // Recording DOM snapshots/screenshots on every action adds work to the throttled browser.
+    // Keep the measured runs untraced; use --trace on only for a separate diagnostic run.
+    trace: "off",
+    screenshot: "only-on-failure",
+    actionTimeout: 10_000,
   },
   projects: [
     {
@@ -28,13 +35,14 @@ export default defineConfig({
   webServer: [
     {
       command: "node --experimental-strip-types e2e/fixture-server.mjs",
+      env: { PERFORMANCE_FIXTURE: "1" },
       url: `http://127.0.0.1:${API_PORT}/health`,
       reuseExistingServer: !process.env.CI,
       stdout: "ignore",
       stderr: "pipe",
     },
     {
-      command: `npm run preview -- --host 127.0.0.1 --port ${PORT} --strictPort`,
+      command: "node e2e/performance/server.mjs",
       url: `http://127.0.0.1:${PORT}`,
       reuseExistingServer: !process.env.CI,
       stdout: "ignore",

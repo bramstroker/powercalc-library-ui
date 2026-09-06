@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 
-import type { PowerProfile } from "../../../types/PowerProfile";
+import type { ProfileSummary } from "../../../types/PowerProfile";
 
 const AuthorContributionsChart = lazy(() =>
   import("./AuthorContributionsChart").then((module) => ({
@@ -10,7 +10,7 @@ const AuthorContributionsChart = lazy(() =>
 );
 
 /** Loads the chart bundle shortly before the activity section reaches the viewport. */
-export const LazyAuthorContributionsChart = ({ profiles }: { profiles: PowerProfile[] }) => {
+export const LazyAuthorContributionsChart = ({ profiles }: { profiles: ProfileSummary[] }) => {
   const anchorRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 

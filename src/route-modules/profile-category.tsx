@@ -9,6 +9,7 @@ import { queryClient } from "../queryClient";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { createPageMeta, MAX_ITEM_LIST_ENTRIES, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
+import { profileSummary } from "../utils/profileSummary";
 import { profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
 const loadProfileCategory = async ({
@@ -44,7 +45,7 @@ const loadProfileCategory = async ({
     throw redirect(`${canonicalPath}${url.search}`, 301);
   }
 
-  return { value, profiles };
+  return { value, profiles: profiles.map(profileSummary) };
 };
 
 export const loader = loadProfileCategory;

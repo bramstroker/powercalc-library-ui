@@ -19,6 +19,8 @@ export type ContributorSummary = {
 };
 
 export type UsageStats = {
+  /** False while analytics is loading or unavailable; counts must not be presented as zero. */
+  available?: boolean;
   installationCount: number;
   deviceCount: number;
   percentage: number;
@@ -142,3 +144,18 @@ export interface PlotLink {
   url: string;
   label: string;
 }
+
+/** Data needed by collection cards, filters and contributor charts. Detail pages load PowerProfile. */
+export type ProfileSummary = Pick<
+  PowerProfile,
+  | "manufacturer"
+  | "modelId"
+  | "name"
+  | "aliases"
+  | "deviceType"
+  | "createdAt"
+  | "calculationStrategy"
+  | "standbyPower"
+  | "maxPower"
+  | "usageStats"
+>;

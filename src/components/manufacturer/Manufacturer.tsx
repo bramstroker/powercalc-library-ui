@@ -2,7 +2,7 @@ import { Button, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router";
 
 import type { BreadcrumbItem } from "../../seo/breadcrumbs";
-import type { Manufacturer as ManufacturerDetails, PowerProfile } from "../../types/PowerProfile";
+import type { Manufacturer as ManufacturerDetails, ProfileSummary } from "../../types/PowerProfile";
 import { PageBreadcrumbs } from "../shared/PageBreadcrumbs";
 
 import { ManufacturerHero } from "./detail/ManufacturerHero";
@@ -11,7 +11,7 @@ import { useManufacturerViewModel } from "./detail/useManufacturerViewModel";
 
 export type ManufacturerProps = {
   manufacturer?: ManufacturerDetails;
-  profiles?: PowerProfile[];
+  profiles?: ProfileSummary[];
 };
 
 export const Manufacturer = ({ manufacturer, profiles = [] }: ManufacturerProps) => {

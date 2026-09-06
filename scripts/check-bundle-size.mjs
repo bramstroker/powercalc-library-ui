@@ -108,6 +108,7 @@ export const measureBuild = async (clientDirectory = DEFAULT_CLIENT_DIRECTORY) =
       return {
         file: relativeDisplayPath(clientDirectory, file),
         htmlBytes: Buffer.byteLength(html),
+        htmlGzipBytes: gzipSync(html).byteLength,
         routeJavaScriptGzipBytes: sizeOfModules(routeModules),
         routeJavaScriptRequests: routeModules.size,
       };
@@ -119,6 +120,7 @@ export const measureBuild = async (clientDirectory = DEFAULT_CLIENT_DIRECTORY) =
       .map(async (file) => ({
         file: relativeDisplayPath(clientDirectory, file),
         bytes: (await readFile(file)).byteLength,
+        gzipBytes: gzipSync(await readFile(file)).byteLength,
       })),
   );
   const assets = [...gzipBytesByUrl].map(([url, gzipBytes]) => ({
@@ -145,8 +147,6 @@ export const budgetFailures = (stats, limits = budgets) => {
   const failures = [];
   const largestAsset = stats.assets[0];
   const largestRoute = stats.routes[0];
-  const largestHtml = stats.htmlFiles[0];
-  const largestData = stats.dataFiles[0];
 
   if (largestAsset.gzipBytes > toBytes(limits.javascript.individualGzipKiB)) {
     failures.push(
@@ -163,15 +163,29 @@ export const budgetFailures = (stats, limits = budgets) => {
       `${largestRoute.file} adds ${formatKiB(largestRoute.routeJavaScriptGzipBytes)} gzip; route-specific JavaScript budget is ${limits.javascript.routeSpecificGzipKiB} KiB`,
     );
   }
-  if (largestHtml.htmlBytes > toBytes(limits.prerender.htmlKiB)) {
-    failures.push(
-      `${largestHtml.file} is ${formatKiB(largestHtml.htmlBytes)}; prerendered HTML budget is ${limits.prerender.htmlKiB} KiB`,
-    );
+  // Collections serialize hundreds of summaries and retain crawlable links to every profile.
+  // Their budgets use the representative 749-profile fixture, with separate transfer limits.
+  const isCollection = (file) =>
+    /^(manufacturers|contributors|device-types)([/]|[.]data$)/u.test(file);
+  for (const html of stats.htmlFiles) {
+    const collection = isCollection(html.file) && limits.prerender.collectionHtmlKiB !== undefined;
+    const rawLimit = collection ? limits.prerender.collectionHtmlKiB : limits.prerender.htmlKiB;
+    if (html.htmlBytes > toBytes(rawLimit))
+      failures.push(
+        `${html.file} is ${formatKiB(html.htmlBytes)}; prerendered HTML budget is ${rawLimit} KiB`,
+      );
+    if (collection && html.htmlGzipBytes > toBytes(limits.prerender.collectionHtmlGzipKiB))
+      failures.push(`${html.file} exceeds compressed collection HTML budget`);
   }
-  if (largestData && largestData.bytes > toBytes(limits.prerender.dataKiB)) {
-    failures.push(
-      `${largestData.file} is ${formatKiB(largestData.bytes)}; prerendered data budget is ${limits.prerender.dataKiB} KiB`,
-    );
+  for (const data of stats.dataFiles) {
+    const collection = isCollection(data.file) && limits.prerender.collectionDataKiB !== undefined;
+    const rawLimit = collection ? limits.prerender.collectionDataKiB : limits.prerender.dataKiB;
+    if (data.bytes > toBytes(rawLimit))
+      failures.push(
+        `${data.file} is ${formatKiB(data.bytes)}; prerendered data budget is ${rawLimit} KiB`,
+      );
+    if (collection && data.gzipBytes > toBytes(limits.prerender.collectionDataGzipKiB))
+      failures.push(`${data.file} exceeds compressed collection data budget`);
   }
   if (stats.homepage.initialRequests > limits.requests.initialHomepage) {
     failures.push(
@@ -199,10 +213,10 @@ const printReport = (stats) => {
     `  Largest route addition: ${formatKiB(largestRoute.routeJavaScriptGzipBytes)} gzip across ${largestRoute.routeJavaScriptRequests} requests (${largestRoute.file}) / ${budgets.javascript.routeSpecificGzipKiB} KiB`,
   );
   console.log(
-    `  Largest prerendered HTML: ${formatKiB(largestHtml.htmlBytes)} (${largestHtml.file}) / ${budgets.prerender.htmlKiB} KiB`,
+    `  Largest prerendered HTML: ${formatKiB(largestHtml.htmlBytes)} (${largestHtml.file}) (detail budget ${budgets.prerender.htmlKiB} KiB; collections ${budgets.prerender.collectionHtmlKiB} KiB)`,
   );
   console.log(
-    `  Largest prerendered data: ${largestData ? `${formatKiB(largestData.bytes)} (${largestData.file})` : "none"} / ${budgets.prerender.dataKiB} KiB`,
+    `  Largest prerendered data: ${largestData ? `${formatKiB(largestData.bytes)} (${largestData.file})` : "none"} (detail budget ${budgets.prerender.dataKiB} KiB; collections ${budgets.prerender.collectionDataKiB} KiB)`,
   );
   console.log(
     `  Declared homepage requests: ${stats.homepage.initialRequests} / ${budgets.requests.initialHomepage}`,

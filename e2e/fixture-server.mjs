@@ -1,7 +1,9 @@
+import { readFileSync } from "node:fs";
+import { gzipSync } from "node:zlib";
 import { createServer } from "node:http";
 
 import {
-  library,
+  library as smallLibrary,
   libraryChanges,
   modelJson,
   profileStats,
@@ -10,6 +12,13 @@ import {
   timeseries,
 } from "./fixtures/api.ts";
 
+const library =
+  process.env.PERFORMANCE_FIXTURE === "1"
+    ? JSON.parse(
+        readFileSync(new URL("./performance/fixtures/library.json", import.meta.url), "utf8"),
+      )
+    : smallLibrary;
+
 const port = Number(process.env.E2E_API_PORT || 3101);
 
 const sendJson = (response, body, status = 200) => {
@@ -17,8 +26,9 @@ const sendJson = (response, body, status = 200) => {
     "access-control-allow-origin": "*",
     "cache-control": "no-store",
     "content-type": "application/json",
+    "content-encoding": "gzip",
   });
-  response.end(JSON.stringify(body));
+  response.end(gzipSync(JSON.stringify(body)));
 };
 
 const server = createServer((request, response) => {

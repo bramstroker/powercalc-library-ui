@@ -2,7 +2,7 @@ import { Button, Paper, Stack, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router";
 
 import type { BreadcrumbItem } from "../../../seo/breadcrumbs";
-import type { Author as AuthorDetails, PowerProfile } from "../../../types/PowerProfile";
+import type { Author as AuthorDetails, ProfileSummary } from "../../../types/PowerProfile";
 import { PageBreadcrumbs } from "../../shared/PageBreadcrumbs";
 
 import { AuthorBreakdowns } from "./AuthorBreakdowns";
@@ -14,7 +14,7 @@ import { useAuthorViewModel } from "./useAuthorViewModel";
 
 export type AuthorProps = {
   authorDetails?: AuthorDetails;
-  authorProfiles?: PowerProfile[];
+  authorProfiles?: ProfileSummary[];
   authorRank?: { rank: number; total: number } | null;
 };
 
@@ -60,6 +60,7 @@ export const Author = ({ authorDetails, authorProfiles = [], authorRank = null }
           manufacturerCount={author.manufacturers.length}
         />
         <AuthorImpact
+          usageAvailable={authorProfiles.every((profile) => profile.usageStats.available !== false)}
           authorName={authorName}
           knownDevices={author.knownDevices}
           knownProfileInstallations={author.knownProfileInstallations}

@@ -1,6 +1,6 @@
 import { Box, Skeleton, Stack, Typography } from "@mui/material";
 
-import { FILTER_PANEL_WIDTH } from "../filters/FilterPanel";
+import { FILTER_PANEL_WIDTH } from "../filters/filterPanelLayout";
 
 const TABLE_COLUMNS = [
   { label: "Device type", width: "110px" },

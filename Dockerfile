@@ -34,10 +34,10 @@ COPY src/config/sensorDimensions.mjs ./src/config/sensorDimensions.mjs
 # The redirect map is written to a throwaway path: Nginx loads it at startup from the image, so a
 # refresh cannot install a new one. The pattern redirects in `etc/nginx.conf` already cover the
 # entities added since the last deploy.
-ENV PRERENDER_OUT=/documents \
-    SITEMAP_OUTPUT=/documents/sitemap.xml \
+ENV PRERENDER_OUT=/documents/next \
+    SITEMAP_OUTPUT=/documents/next/sitemap.xml \
     NGINX_REDIRECTS_OUTPUT=/tmp/nginx-redirects.conf
-CMD ["sh", "-c", "node scripts/prerender.mjs --out \"$PRERENDER_OUT\" && node scripts/generate-sitemap.mjs"]
+CMD ["sh", "-c", "node scripts/prerender.mjs --out \"$PRERENDER_OUT\" && node scripts/generate-sitemap.mjs && node scripts/content-refresh.mjs prepare /documents"]
 
 # production environment
 FROM nginx:stable-perl
