@@ -109,7 +109,7 @@ test("pushes a filter chosen in the UI back into the URL", async ({ page }) => {
 
   await page
     .getByTestId("facet-deviceType")
-    .getByRole("checkbox", { name: /smart_switch/ })
+    .getByRole("checkbox", { name: /Smart Switch/ })
     .click();
 
   await expect(page).toHaveURL(/deviceType=smart_switch/);
@@ -121,8 +121,8 @@ test("combines multiple values within a single facet", async ({ page }) => {
   await page.goto("/");
 
   const deviceType = page.getByTestId("facet-deviceType");
-  await deviceType.getByRole("checkbox", { name: /^light/ }).click();
-  await deviceType.getByRole("checkbox", { name: /smart_switch/ }).click();
+  await deviceType.getByRole("checkbox", { name: /^Light/ }).click();
+  await deviceType.getByRole("checkbox", { name: /Smart Switch/ }).click();
 
   await expect(page).toHaveURL(/deviceType=light%2Csmart_switch/);
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
@@ -181,7 +181,7 @@ test("offers recovery actions when no profiles match", async ({ page }) => {
   await expect(page).toHaveURL("/?deviceType=light&q=not-a-real-device");
 
   await emptyState
-    .getByRole("button", { name: "Device type: light" })
+    .getByRole("button", { name: "Device type: Light" })
     .getByTestId("CancelIcon")
     .click();
   await expect(page).toHaveURL("/?q=not-a-real-device");
@@ -226,6 +226,7 @@ test("collapses a facet from the keyboard", async ({ page }) => {
 
 test("filters on the LUT quality band", async ({ page }) => {
   await page.goto("/");
+  await page.getByRole("button", { name: "Advanced filters", exact: true }).click();
 
   const qualityBand = page.getByTestId("facet-qualityBand");
   await qualityBand.getByRole("checkbox", { name: /Poor/ }).click();
@@ -283,7 +284,7 @@ test("keeps the filter panel header still when a filter is picked", async ({ pag
 
   await page
     .getByTestId("facet-deviceType")
-    .getByRole("checkbox", { name: /^light/ })
+    .getByRole("checkbox", { name: /^Light/ })
     .click();
   await expect(
     page.getByTestId("filter-panel").getByRole("button", { name: "Clear all" }),
@@ -296,6 +297,7 @@ test("keeps the filter panel header still when a filter is picked", async ({ pag
 
 test("collapses the author picker, a slider and the date field too", async ({ page }) => {
   await page.goto("/");
+  await page.getByRole("button", { name: "Advanced filters", exact: true }).click();
 
   for (const [testId, name] of [
     ["facet-author", /Author/],
@@ -316,6 +318,7 @@ test("collapses the author picker, a slider and the date field too", async ({ pa
 
 test("folds every section away and back with one control", async ({ page }) => {
   await page.goto("/");
+  await page.getByRole("button", { name: "Advanced filters", exact: true }).click();
 
   const headers = page.getByTestId("filter-panel").getByRole("button", { expanded: true });
   const openBefore = await headers.count();
@@ -339,7 +342,7 @@ test("keeps a collapsed section showing what it is doing", async ({ page }) => {
   await page.goto("/");
 
   const deviceType = page.getByTestId("facet-deviceType");
-  await deviceType.getByRole("checkbox", { name: /^light/ }).click();
+  await deviceType.getByRole("checkbox", { name: /^Light/ }).click();
   await deviceType.getByRole("button", { name: /Device type/ }).click();
 
   // The count lives in the header, so a collapsed panel still says a filter is on.
@@ -363,4 +366,31 @@ test("restores the result size and sorting after a profile visit", async ({ page
     "descending",
   );
   await expect(page.getByRole("combobox", { name: "Rows per page:" })).toHaveText("50");
+});
+
+test("prioritizes device filters and keeps technical filters in an advanced group", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const panel = page.getByTestId("filter-panel");
+  await expect(panel.getByRole("heading", { level: 3 }).first()).toHaveText("Manufacturer");
+  await expect(
+    panel.getByRole("button", { name: "Advanced filters", exact: true }),
+  ).toHaveAttribute("aria-expanded", "false");
+  await expect(panel.getByTestId("facet-measureDevice")).toBeHidden();
+  await expect(panel.getByRole("checkbox", { name: /Color temperature/ })).toBeVisible();
+  await panel.getByRole("checkbox", { name: /Smart Switch/ }).click();
+  await expect(page).toHaveURL(/deviceType=smart_switch/);
+  await expect(page.getByTestId("active-filter-chips")).toContainText("Device type: Smart Switch");
+  await expect(panel.getByTestId("facet-lumens")).toBeHidden();
+  await panel.getByRole("button", { name: "Advanced filters", exact: true }).click();
+  await expect(panel.getByRole("checkbox", { name: /Fixed power/ })).toBeVisible();
+});
+
+test("reveals active advanced filters in shared URLs", async ({ page }) => {
+  await page.goto("/?calculationStrategy=lut");
+  await expect(
+    page.getByRole("button", { name: "Advanced filters (1)", exact: true }),
+  ).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByRole("checkbox", { name: /Lookup table/ })).toBeChecked();
 });

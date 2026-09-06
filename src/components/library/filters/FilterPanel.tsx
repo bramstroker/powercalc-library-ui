@@ -2,9 +2,18 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
-import { Box, Button, IconButton, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Collapse,
+  IconButton,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import type { Theme } from "@mui/material/styles";
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 
 import type { LibraryFilterActions } from "../../../hooks/useLibraryFilters";
 import type { FacetKey, LibraryFilters } from "../../../types/LibraryFilters";
@@ -16,6 +25,7 @@ import {
   countActiveFilters,
 } from "../../../types/LibraryFilters";
 import type { PowerProfile } from "../../../types/PowerProfile";
+import { facetValueLabel } from "../../../utils/facetValueLabel";
 import {
   applyFiltersExcept,
   computeFacetCounts,
@@ -50,6 +60,7 @@ const panelSurface = (theme: Theme) => ({
  * what the device is, then how it was measured, then who by.
  */
 const CHECKBOX_FACET_CONFIG: Record<Exclude<FacetKey, "author">, { searchable: boolean }> = {
+  manufacturer: { searchable: true },
   deviceType: { searchable: false },
   colorMode: { searchable: false },
   socket: { searchable: false },
@@ -59,7 +70,6 @@ const CHECKBOX_FACET_CONFIG: Record<Exclude<FacetKey, "author">, { searchable: b
   calculationStrategy: { searchable: false },
   measureMethod: { searchable: false },
   mainsVoltage: { searchable: false },
-  manufacturer: { searchable: true },
   measureDevice: { searchable: true },
 };
 
@@ -67,6 +77,15 @@ const CHECKBOX_FACETS = Object.entries(CHECKBOX_FACET_CONFIG).map(([key, { searc
   key: key as Exclude<FacetKey, "author">,
   searchable,
 }));
+
+const ADVANCED_FACETS = new Set<FacetKey>([
+  "qualityBand",
+  "calculationStrategy",
+  "measureMethod",
+  "mainsVoltage",
+  "measureDevice",
+  "author",
+]);
 
 export type FilterPanelProps = LibraryFilterActions & {
   profiles: PowerProfile[];
@@ -111,6 +130,21 @@ export const FilterPanel = ({
   }, [facetCounts, profiles]);
 
   const bounds = useMemo(() => computeRanges(profiles), [profiles]);
+  const hasLightResults = useMemo(() => {
+    const ranges = { ...filters.ranges };
+    delete ranges.lumens;
+    return applyFiltersExcept(profiles, { ...filters, ranges }).some(
+      (profile) => profile.deviceType === "light",
+    );
+  }, [profiles, filters]);
+  const visibleRangeKeys = useMemo(
+    () => RANGE_KEYS.filter((key) => key !== "lumens" || hasLightResults || filters.ranges.lumens),
+    [hasLightResults, filters.ranges.lumens],
+  );
+  const advancedId = useId();
+  const advancedCount =
+    [...ADVANCED_FACETS].reduce((count, key) => count + filters.facets[key].length, 0) +
+    Number(Boolean(filters.createdAfter));
   const activeCount = countActiveFilters(filters);
 
   /**
@@ -123,17 +157,19 @@ export const FilterPanel = ({
       ({ key }) => facetCounts[key].length > 0 || filters.facets[key].length > 0,
     ).map(({ key }) => key as string);
     ids.push("author");
-    for (const key of RANGE_KEYS) {
+    for (const key of visibleRangeKeys) {
       const range = bounds[key];
       if (range && range[0] !== range[1]) {
         ids.push(key);
       }
     }
-    ids.push("dates");
+    ids.push("dates", "advanced");
     return ids;
-  }, [facetCounts, filters.facets, bounds]);
+  }, [facetCounts, filters.facets, bounds, visibleRangeKeys]);
 
-  const [collapsedSections, setCollapsedSections] = useState<ReadonlySet<string>>(new Set());
+  const [collapsedSections, setCollapsedSections] = useState<ReadonlySet<string>>(
+    () => new Set(advancedCount > 0 ? [] : ["advanced"]),
+  );
   const allCollapsed = sectionIds.length > 0 && sectionIds.every((id) => collapsedSections.has(id));
 
   const toggleSection = (id: string) => {
@@ -149,6 +185,33 @@ export const FilterPanel = ({
   const toggleAllSections = () => {
     setCollapsedSections(allCollapsed ? new Set() : new Set(sectionIds));
   };
+
+  const renderCheckboxFacets = (advanced: boolean) =>
+    CHECKBOX_FACETS.filter(({ key }) => ADVANCED_FACETS.has(key) === advanced).map(
+      ({ key, searchable }) => (
+        <CheckboxFacet
+          key={key}
+          testId={`facet-${key}`}
+          title={FACET_LABELS[key]}
+          icon={FACET_ICONS[key]}
+          options={facetCounts[key]}
+          selected={filters.facets[key]}
+          searchable={searchable}
+          expanded={!collapsedSections.has(key)}
+          onToggleExpanded={() => {
+            toggleSection(key);
+          }}
+          getOptionLabel={(value) => facetValueLabel(key, value)}
+          renderOptionIcon={(value) => renderFacetOptionIcon(key, value)}
+          onToggle={(value) => {
+            toggleFacetValue(key, value);
+          }}
+          onClear={() => {
+            setFacet(key, []);
+          }}
+        />
+      ),
+    );
 
   return (
     <Box
@@ -219,42 +282,9 @@ export const FilterPanel = ({
         )}
       </Stack>
 
-      {CHECKBOX_FACETS.map(({ key, searchable }) => (
-        <CheckboxFacet
-          key={key}
-          testId={`facet-${key}`}
-          title={FACET_LABELS[key]}
-          icon={FACET_ICONS[key]}
-          options={facetCounts[key]}
-          selected={filters.facets[key]}
-          searchable={searchable}
-          expanded={!collapsedSections.has(key)}
-          onToggleExpanded={() => {
-            toggleSection(key);
-          }}
-          renderOptionIcon={(value) => renderFacetOptionIcon(key, value)}
-          onToggle={(value) => {
-            toggleFacetValue(key, value);
-          }}
-          onClear={() => {
-            setFacet(key, []);
-          }}
-        />
-      ))}
+      {renderCheckboxFacets(false)}
 
-      <AuthorFacet
-        options={authorOptions}
-        selected={filters.facets.author}
-        expanded={!collapsedSections.has("author")}
-        onToggleExpanded={() => {
-          toggleSection("author");
-        }}
-        onChange={(values) => {
-          setFacet("author", values);
-        }}
-      />
-
-      {RANGE_KEYS.map((key) => {
+      {visibleRangeKeys.map((key) => {
         const range = bounds[key];
         if (!range || range[0] === range[1]) {
           return null;
@@ -279,35 +309,61 @@ export const FilterPanel = ({
         );
       })}
 
-      <FacetSection
-        title="Added"
-        icon={SECTION_ICONS.dates}
-        testId="facet-dates"
-        expanded={!collapsedSections.has("dates")}
-        onToggleExpanded={() => {
-          toggleSection("dates");
-        }}
-        summary={
-          filters.createdAfter ? (
-            <Typography variant="caption" color="text.secondary">
-              after {filters.createdAfter}
-            </Typography>
-          ) : undefined
-        }
+      <Button
+        fullWidth
+        endIcon={collapsedSections.has("advanced") ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
+        aria-expanded={!collapsedSections.has("advanced")}
+        aria-controls={advancedId}
+        onClick={() => toggleSection("advanced")}
+        sx={{ justifyContent: "space-between", my: 1 }}
       >
-        <Stack sx={{ gap: 1.5, mt: 1, pb: 1 }}>
-          <TextField
-            size="small"
-            type="date"
-            label="Created after"
-            value={filters.createdAfter ?? ""}
-            onChange={(event) => {
-              setDate("createdAfter", event.target.value);
-            }}
-            slotProps={{ inputLabel: { shrink: true } }}
-          />
-        </Stack>
-      </FacetSection>
+        Advanced filters{advancedCount > 0 ? ` (${advancedCount})` : ""}
+      </Button>
+      <Collapse id={advancedId} in={!collapsedSections.has("advanced")} unmountOnExit>
+        {renderCheckboxFacets(true)}
+
+        <AuthorFacet
+          options={authorOptions}
+          selected={filters.facets.author}
+          expanded={!collapsedSections.has("author")}
+          onToggleExpanded={() => {
+            toggleSection("author");
+          }}
+          onChange={(values) => {
+            setFacet("author", values);
+          }}
+        />
+
+        <FacetSection
+          title="Added"
+          icon={SECTION_ICONS.dates}
+          testId="facet-dates"
+          expanded={!collapsedSections.has("dates")}
+          onToggleExpanded={() => {
+            toggleSection("dates");
+          }}
+          summary={
+            filters.createdAfter ? (
+              <Typography variant="caption" color="text.secondary">
+                after {filters.createdAfter}
+              </Typography>
+            ) : undefined
+          }
+        >
+          <Stack sx={{ gap: 1.5, mt: 1, pb: 1 }}>
+            <TextField
+              size="small"
+              type="date"
+              label="Created after"
+              value={filters.createdAfter ?? ""}
+              onChange={(event) => {
+                setDate("createdAfter", event.target.value);
+              }}
+              slotProps={{ inputLabel: { shrink: true } }}
+            />
+          </Stack>
+        </FacetSection>
+      </Collapse>
     </Box>
   );
 };

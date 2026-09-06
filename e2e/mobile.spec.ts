@@ -219,7 +219,7 @@ test("filters from the drawer and opens a profile", async ({ page }) => {
   await page.getByRole("button", { name: "Filters" }).click();
   await page
     .getByTestId("facet-deviceType")
-    .getByRole("checkbox", { name: /smart_switch/ })
+    .getByRole("checkbox", { name: /Smart Switch/ })
     .click();
 
   await expect(page).toHaveURL(/deviceType=smart_switch/);
@@ -242,6 +242,7 @@ test("keeps mobile filter controls visible and restores focus when closing", asy
   const trigger = page.getByRole("button", { name: "Filters", exact: true });
   await trigger.click();
   const drawer = page.getByRole("dialog", { name: "Filters", exact: true });
+  await drawer.getByRole("button", { name: "Advanced filters", exact: true }).click();
   await drawer.getByTestId("facet-dates").scrollIntoViewIfNeeded();
   await expect(drawer.getByRole("button", { name: "Show 4 results" })).toBeInViewport();
   await expect(drawer.getByRole("button", { name: "Close filters" })).toBeInViewport();
