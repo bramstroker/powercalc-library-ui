@@ -138,6 +138,17 @@ export const Manufacturers = () => {
         </ToggleButtonGroup>
       </Stack>
 
+      <Typography
+        role="status"
+        variant="body2"
+        color="text.secondary"
+        sx={{ mb: searchTerm ? 2 : 0 }}
+      >
+        {searchTerm
+          ? `${visible.length} matching manufacturer${visible.length === 1 ? "" : "s"}`
+          : ""}
+      </Typography>
+
       {visible.length === 0 ? (
         <Typography color="text.secondary" sx={{ p: 3, textAlign: "center" }}>
           No manufacturers match &quot;{search}&quot;
