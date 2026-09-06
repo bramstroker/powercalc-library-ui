@@ -278,9 +278,15 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
 
       {tabs.map((tab, index) => (
         <ProfileTabPanel key={tab.key} selectedIndex={selectedTabIndex} index={index}>
-          <Suspense fallback={<Typography role="status">Loading profile details…</Typography>}>
-            {tab.content}
-          </Suspense>
+          {/* Keep the initial attributes inline in prerendered HTML. Only lazy detail tabs need
+              a Suspense boundary; wrapping attributes emits a streamed fallback and hidden HTML. */}
+          {tab.key === "attributes" ? (
+            tab.content
+          ) : (
+            <Suspense fallback={<Typography role="status">Loading profile details…</Typography>}>
+              {tab.content}
+            </Suspense>
+          )}
         </ProfileTabPanel>
       ))}
     </>
