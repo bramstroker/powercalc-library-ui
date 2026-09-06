@@ -42,7 +42,9 @@ test runs separately against the production build so it cannot affect regular E2
 `performance:check` then enforces the limits in `performance-budgets.json`: individual and
 aggregate homepage JavaScript, JavaScript added by any other route, prerendered HTML and loader
 data, initial homepage requests, plus mobile and desktop LCP, observed interaction latency, and
-CLS. Tests use gzip delivery, 4× CPU slowdown, 150 ms latency and 1.6 Mbps download throughput.
+CLS. Runtime checks cover the homepage, Tuya manufacturer page and Aeotec ZW117 profile; a
+JavaScript-disabled check verifies that initial profile attributes are visible in the generated HTML.
+Tests use gzip delivery, 4× CPU slowdown, 150 ms latency and 1.6 Mbps download throughput.
 They also measure time until the catalogue is usable, actual transferred JavaScript including
 dynamic chunks, typo search, facets, pagination and profile navigation. Search latency runs from
 the browser input event through debounce and the first paint after pagination updates; functional
@@ -59,6 +61,10 @@ work inside the throttled browser and distorts interaction timings. Failed runs 
 screenshots, error context and layout-shift metrics. To diagnose a failure separately, run
 `npx playwright test --config playwright.performance.config.ts --trace on`; use that trace to
 inspect behavior, not to establish performance timings.
+
+The [September 2026 performance investigation](docs/performance-investigation.md) documents the
+PageSpeed findings, rendering fixes and remaining sources of delay. Set `PERFORMANCE_DEBUG=1`
+when running `performance:check` to print all observed layout-shift sources.
 
 ## Production build
 

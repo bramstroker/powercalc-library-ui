@@ -1,0 +1,466 @@
+{
+  "baselineCommit": "7d23bd382a13719f4d3a67d5607a15d613d76c6e",
+  "renderingFixCommits": ["e87e456", "39cde4e"],
+  "notes": [
+    "Diagnostic Lighthouse runs are individual runs, not statistical estimates.",
+    "Runtime tests use HTTP/1.1 gzip, 4x CPU slowdown, 150 ms latency and 1.6 Mbps download.",
+    "Hydration marker and visible content are checked before a separate Explore interaction.",
+    "No production deployment or field measurements are included."
+  ],
+  "lighthouseAeotec": {
+    "baseline_simulated": {
+      "lighthouseVersion": "13.4.1",
+      "fetchTime": "2026-09-06T18:59:18.705Z",
+      "url": "http://127.0.0.1:3200/profiles/aeotec/zw117",
+      "config": {
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 3943.9512,
+          "unit": "millisecond"
+        },
+        "largest-contentful-paint": {
+          "value": 3943.9512,
+          "unit": "millisecond"
+        },
+        "total-blocking-time": {
+          "value": 27.277450000000044,
+          "unit": "millisecond"
+        },
+        "interactive": {
+          "value": 4021.228650000001,
+          "unit": "millisecond"
+        },
+        "cumulative-layout-shift": {
+          "value": 0,
+          "unit": "unitless"
+        }
+      },
+      "observed": {
+        "firstContentfulPaint": 3944,
+        "largestContentfulPaint": 3944,
+        "interactive": 4021,
+        "speedIndex": 3944,
+        "totalBlockingTime": 27,
+        "maxPotentialFID": 102,
+        "cumulativeLayoutShift": 0,
+        "cumulativeLayoutShiftMainFrame": 0,
+        "timeToFirstByte": 453,
+        "observedTimeOrigin": 0,
+        "observedTimeOriginTs": 2753372575262,
+        "observedNavigationStart": 0,
+        "observedNavigationStartTs": 2753372575262,
+        "observedFirstPaint": 67,
+        "observedFirstPaintTs": 2753372642287,
+        "observedFirstContentfulPaint": 67,
+        "observedFirstContentfulPaintTs": 2753372642287,
+        "observedFirstContentfulPaintAllFrames": 67,
+        "observedFirstContentfulPaintAllFramesTs": 2753372642287,
+        "observedLargestContentfulPaint": 67,
+        "observedLargestContentfulPaintTs": 2753372642287,
+        "observedLargestContentfulPaintAllFrames": 67,
+        "observedLargestContentfulPaintAllFramesTs": 2753372642287,
+        "observedTraceEnd": 2477,
+        "observedTraceEndTs": 2753375052053,
+        "observedLoad": 99,
+        "observedLoadTs": 2753372674653,
+        "observedDomContentLoaded": 44,
+        "observedDomContentLoadedTs": 2753372619565,
+        "observedCumulativeLayoutShift": 0,
+        "observedCumulativeLayoutShiftMainFrame": 0,
+        "observedFirstVisualChange": 70,
+        "observedFirstVisualChangeTs": 2753372645262,
+        "observedLastVisualChange": 657,
+        "observedLastVisualChangeTs": 2753373232262,
+        "observedSpeedIndex": 82,
+        "observedSpeedIndexTs": 2753372657328
+      }
+    },
+    "baseline_devtools": {
+      "lighthouseVersion": "13.4.1",
+      "fetchTime": "2026-09-06T19:02:18.911Z",
+      "url": "http://127.0.0.1:3200/profiles/aeotec/zw117",
+      "config": {
+        "formFactor": "mobile",
+        "throttlingMethod": "devtools",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 650.807,
+          "unit": "millisecond"
+        },
+        "largest-contentful-paint": {
+          "value": 674.691,
+          "unit": "millisecond"
+        },
+        "total-blocking-time": {
+          "value": 218.7519999999986,
+          "unit": "millisecond"
+        },
+        "interactive": {
+          "value": 9268.479,
+          "unit": "millisecond"
+        },
+        "cumulative-layout-shift": {
+          "value": 0,
+          "unit": "unitless"
+        }
+      },
+      "observed": {
+        "firstContentfulPaint": 651,
+        "firstContentfulPaintTs": 2753553731977,
+        "firstContentfulPaintAllFrames": 651,
+        "firstContentfulPaintAllFramesTs": 2753553731977,
+        "largestContentfulPaint": 675,
+        "largestContentfulPaintTs": 2753553755861,
+        "largestContentfulPaintAllFrames": 675,
+        "largestContentfulPaintAllFramesTs": 2753553755861,
+        "interactive": 9268,
+        "interactiveTs": 2753562349649,
+        "speedIndex": 861,
+        "speedIndexTs": 2753553942170,
+        "totalBlockingTime": 219,
+        "maxPotentialFID": 247,
+        "cumulativeLayoutShift": 0,
+        "cumulativeLayoutShiftMainFrame": 0,
+        "lcpRenderDelay": 673,
+        "timeToFirstByte": 1,
+        "timeToFirstByteTs": 2753553082525,
+        "observedTimeOrigin": 0,
+        "observedTimeOriginTs": 2753553081170,
+        "observedNavigationStart": 0,
+        "observedNavigationStartTs": 2753553081170,
+        "observedFirstPaint": 651,
+        "observedFirstPaintTs": 2753553731977,
+        "observedFirstContentfulPaint": 651,
+        "observedFirstContentfulPaintTs": 2753553731977,
+        "observedFirstContentfulPaintAllFrames": 651,
+        "observedFirstContentfulPaintAllFramesTs": 2753553731977,
+        "observedLargestContentfulPaint": 675,
+        "observedLargestContentfulPaintTs": 2753553755861,
+        "observedLargestContentfulPaintAllFrames": 675,
+        "observedLargestContentfulPaintAllFramesTs": 2753553755861,
+        "observedTraceEnd": 20662,
+        "observedTraceEndTs": 2753573742987,
+        "observedLoad": 8983,
+        "observedLoadTs": 2753562064459,
+        "observedDomContentLoaded": 725,
+        "observedDomContentLoadedTs": 2753553806533,
+        "observedCumulativeLayoutShift": 0,
+        "observedCumulativeLayoutShiftMainFrame": 0,
+        "observedFirstVisualChange": 652,
+        "observedFirstVisualChangeTs": 2753553733170,
+        "observedLastVisualChange": 9870,
+        "observedLastVisualChangeTs": 2753562951170,
+        "observedSpeedIndex": 861,
+        "observedSpeedIndexTs": 2753553942465
+      }
+    },
+    "final_simulated": {
+      "lighthouseVersion": "13.4.1",
+      "fetchTime": "2026-09-06T19:26:40.938Z",
+      "url": "http://127.0.0.1:3200/profiles/aeotec/zw117",
+      "config": {
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 4108.94335,
+          "unit": "millisecond"
+        },
+        "largest-contentful-paint": {
+          "value": 4108.94335,
+          "unit": "millisecond"
+        },
+        "total-blocking-time": {
+          "value": 0,
+          "unit": "millisecond"
+        },
+        "interactive": {
+          "value": 4108.94335,
+          "unit": "millisecond"
+        },
+        "cumulative-layout-shift": {
+          "value": 0,
+          "unit": "unitless"
+        }
+      },
+      "observed": {
+        "firstContentfulPaint": 4109,
+        "largestContentfulPaint": 4109,
+        "interactive": 4109,
+        "speedIndex": 4109,
+        "totalBlockingTime": 0,
+        "maxPotentialFID": 16,
+        "cumulativeLayoutShift": 0,
+        "cumulativeLayoutShiftMainFrame": 0,
+        "timeToFirstByte": 451,
+        "observedTimeOrigin": 0,
+        "observedTimeOriginTs": 2755014816703,
+        "observedNavigationStart": 0,
+        "observedNavigationStartTs": 2755014816703,
+        "observedFirstPaint": 80,
+        "observedFirstPaintTs": 2755014896234,
+        "observedFirstContentfulPaint": 80,
+        "observedFirstContentfulPaintTs": 2755014896234,
+        "observedFirstContentfulPaintAllFrames": 80,
+        "observedFirstContentfulPaintAllFramesTs": 2755014896234,
+        "observedLargestContentfulPaint": 80,
+        "observedLargestContentfulPaintTs": 2755014896234,
+        "observedLargestContentfulPaintAllFrames": 80,
+        "observedLargestContentfulPaintAllFramesTs": 2755014896234,
+        "observedTraceEnd": 2482,
+        "observedTraceEndTs": 2755017298600,
+        "observedLoad": 101,
+        "observedLoadTs": 2755014917300,
+        "observedDomContentLoaded": 58,
+        "observedDomContentLoadedTs": 2755014874653,
+        "observedCumulativeLayoutShift": 0,
+        "observedCumulativeLayoutShiftMainFrame": 0,
+        "observedFirstVisualChange": 82,
+        "observedFirstVisualChangeTs": 2755014898703,
+        "observedLastVisualChange": 662,
+        "observedLastVisualChangeTs": 2755015478703,
+        "observedSpeedIndex": 94,
+        "observedSpeedIndexTs": 2755014910845
+      }
+    },
+    "final_devtools": {
+      "lighthouseVersion": "13.4.1",
+      "fetchTime": "2026-09-06T19:27:18.354Z",
+      "url": "http://127.0.0.1:3200/profiles/aeotec/zw117",
+      "config": {
+        "formFactor": "mobile",
+        "throttlingMethod": "devtools",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 664.555,
+          "unit": "millisecond"
+        },
+        "largest-contentful-paint": {
+          "value": 711.951,
+          "unit": "millisecond"
+        },
+        "total-blocking-time": {
+          "value": 189.25700000000143,
+          "unit": "millisecond"
+        },
+        "interactive": {
+          "value": 9239.571,
+          "unit": "millisecond"
+        },
+        "cumulative-layout-shift": {
+          "value": 8.2563023430397e-6,
+          "unit": "unitless"
+        }
+      },
+      "observed": {
+        "firstContentfulPaint": 665,
+        "firstContentfulPaintTs": 2755052910871,
+        "firstContentfulPaintAllFrames": 665,
+        "firstContentfulPaintAllFramesTs": 2755052910871,
+        "largestContentfulPaint": 712,
+        "largestContentfulPaintTs": 2755052958267,
+        "largestContentfulPaintAllFrames": 712,
+        "largestContentfulPaintAllFramesTs": 2755052958267,
+        "interactive": 9240,
+        "interactiveTs": 2755061485887,
+        "speedIndex": 861,
+        "speedIndexTs": 2755053107316,
+        "totalBlockingTime": 189,
+        "maxPotentialFID": 218,
+        "cumulativeLayoutShift": 8.2563023430397e-6,
+        "cumulativeLayoutShiftMainFrame": 8.2563023430397e-6,
+        "lcpRenderDelay": 710,
+        "timeToFirstByte": 2,
+        "timeToFirstByteTs": 2755052247819,
+        "observedTimeOrigin": 0,
+        "observedTimeOriginTs": 2755052246316,
+        "observedNavigationStart": 0,
+        "observedNavigationStartTs": 2755052246316,
+        "observedFirstPaint": 647,
+        "observedFirstPaintTs": 2755052893294,
+        "observedFirstContentfulPaint": 665,
+        "observedFirstContentfulPaintTs": 2755052910871,
+        "observedFirstContentfulPaintAllFrames": 665,
+        "observedFirstContentfulPaintAllFramesTs": 2755052910871,
+        "observedLargestContentfulPaint": 712,
+        "observedLargestContentfulPaintTs": 2755052958267,
+        "observedLargestContentfulPaintAllFrames": 712,
+        "observedLargestContentfulPaintAllFramesTs": 2755052958267,
+        "observedTraceEnd": 20639,
+        "observedTraceEndTs": 2755072885455,
+        "observedLoad": 8982,
+        "observedLoadTs": 2755061227969,
+        "observedDomContentLoaded": 706,
+        "observedDomContentLoadedTs": 2755052952674,
+        "observedCumulativeLayoutShift": 8.2563023430397e-6,
+        "observedCumulativeLayoutShiftMainFrame": 8.2563023430397e-6,
+        "observedFirstVisualChange": 648,
+        "observedFirstVisualChangeTs": 2755052894316,
+        "observedLastVisualChange": 9847,
+        "observedLastVisualChangeTs": 2755062093316,
+        "observedSpeedIndex": 861,
+        "observedSpeedIndexTs": 2755053107697
+      }
+    }
+  },
+  "finalRuntimeBudgetRuns": [
+    {
+      "viewport": "mobile",
+      "route": "homepage",
+      "lcpMs": 332,
+      "observedInteractionMs": 128,
+      "cls": 0.0,
+      "requests": 73,
+      "scriptTransferKiB": 280.0,
+      "hydrationAndContentMs": 3602
+    },
+    {
+      "viewport": "mobile",
+      "route": "manufacturer",
+      "lcpMs": 240,
+      "observedInteractionMs": 104,
+      "cls": 0.0,
+      "requests": 72,
+      "scriptTransferKiB": 274.0,
+      "hydrationAndContentMs": 3326
+    },
+    {
+      "viewport": "mobile",
+      "route": "profile",
+      "lcpMs": 260,
+      "observedInteractionMs": 112,
+      "cls": 0.0,
+      "requests": 82,
+      "scriptTransferKiB": 310.8,
+      "hydrationAndContentMs": 3494
+    },
+    {
+      "viewport": "mobile",
+      "route": "homepage",
+      "lcpMs": 244,
+      "observedInteractionMs": 112,
+      "cls": 0.0,
+      "requests": 73,
+      "scriptTransferKiB": 280.0,
+      "hydrationAndContentMs": 3552
+    },
+    {
+      "viewport": "mobile",
+      "route": "manufacturer",
+      "lcpMs": 248,
+      "observedInteractionMs": 104,
+      "cls": 0.0,
+      "requests": 72,
+      "scriptTransferKiB": 274.0,
+      "hydrationAndContentMs": 3316
+    },
+    {
+      "viewport": "mobile",
+      "route": "profile",
+      "lcpMs": 256,
+      "observedInteractionMs": 104,
+      "cls": 0.0,
+      "requests": 82,
+      "scriptTransferKiB": 310.8,
+      "hydrationAndContentMs": 3425
+    },
+    {
+      "viewport": "desktop",
+      "route": "homepage",
+      "lcpMs": 264,
+      "observedInteractionMs": 120,
+      "cls": 0.003,
+      "requests": 96,
+      "scriptTransferKiB": 452.3,
+      "hydrationAndContentMs": 4910
+    },
+    {
+      "viewport": "desktop",
+      "route": "manufacturer",
+      "lcpMs": 252,
+      "observedInteractionMs": 104,
+      "cls": 0.009,
+      "requests": 72,
+      "scriptTransferKiB": 274.0,
+      "hydrationAndContentMs": 3326
+    },
+    {
+      "viewport": "desktop",
+      "route": "profile",
+      "lcpMs": 260,
+      "observedInteractionMs": 104,
+      "cls": 0.0,
+      "requests": 82,
+      "scriptTransferKiB": 310.8,
+      "hydrationAndContentMs": 3391
+    },
+    {
+      "viewport": "desktop",
+      "route": "homepage",
+      "lcpMs": 264,
+      "observedInteractionMs": 136,
+      "cls": 0.003,
+      "requests": 96,
+      "scriptTransferKiB": 452.3,
+      "hydrationAndContentMs": 4924
+    },
+    {
+      "viewport": "desktop",
+      "route": "manufacturer",
+      "lcpMs": 260,
+      "observedInteractionMs": 104,
+      "cls": 0.009,
+      "requests": 72,
+      "scriptTransferKiB": 274.0,
+      "hydrationAndContentMs": 3326
+    },
+    {
+      "viewport": "desktop",
+      "route": "profile",
+      "lcpMs": 252,
+      "observedInteractionMs": 112,
+      "cls": 0.0,
+      "requests": 82,
+      "scriptTransferKiB": 310.8,
+      "hydrationAndContentMs": 3410
+    }
+  ]
+}
