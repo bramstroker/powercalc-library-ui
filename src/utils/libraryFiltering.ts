@@ -215,13 +215,27 @@ const matchesSearchWord = (document: SearchDocument, word: string): boolean => {
  * each hold one word. Text words tolerate small spelling mistakes; short terms, model identifiers
  * and barcodes remain exact to avoid silently suggesting a different device.
  */
-export const matchesSearch = (profile: PowerProfile, term: string): boolean => {
+const createSearchMatcher = (term: string) => {
   const words = normalizeSearchText(term).split(/\s+/).filter(Boolean);
-  if (words.length === 0) {
-    return true;
-  }
-  const document = getSearchDocument(profile);
-  return words.every((word) => matchesSearchWord(document, word));
+  return (profile: PowerProfile): boolean =>
+    words.length === 0 || words.every((word) => matchesSearchWord(getSearchDocument(profile), word));
+};
+
+export const matchesSearch = (profile: PowerProfile, term: string): boolean =>
+  createSearchMatcher(term)(profile);
+
+// Grid and disjunctive facets share the expensive text search. Keep only the latest query per
+// immutable dataset, so typing cannot retain an unbounded cache of old result sets.
+const searchResultsCache = new WeakMap<PowerProfile[], { term: string; rows: PowerProfile[] }>();
+
+export const searchProfiles = (profiles: PowerProfile[], term: string): PowerProfile[] => {
+  const normalized = normalizeSearchText(term);
+  if (!normalized) return profiles;
+  const cached = searchResultsCache.get(profiles);
+  if (cached?.term === normalized) return cached.rows;
+  const rows = profiles.filter(createSearchMatcher(normalized));
+  searchResultsCache.set(profiles, { term: normalized, rows });
+  return rows;
 };
 
 const matchesDate = (value: Date | null | undefined, isoDate: string): boolean => {
@@ -245,10 +259,7 @@ export const applyFiltersExcept = (
   filters: LibraryFilters,
   ignore?: FacetKey,
 ): PowerProfile[] =>
-  profiles.filter((profile) => {
-    if (!matchesSearch(profile, filters.search)) {
-      return false;
-    }
+  searchProfiles(profiles, filters.search).filter((profile) => {
     for (const key of FACET_KEYS) {
       if (key === ignore) {
         continue;

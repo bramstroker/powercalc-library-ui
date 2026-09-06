@@ -13,6 +13,7 @@ import {
   computeFacetCounts,
   computeRanges,
   matchesSearch,
+  searchProfiles,
 } from "./libraryFiltering";
 
 const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => ({
@@ -451,4 +452,14 @@ describe("search", () => {
 
     expect(matchesSearch(profile, "Tapo P110")).toBe(false);
   });
+});
+
+it("reuses normalized search results across facets and replaces them when the dataset changes", () => {
+  const profiles = [createProfile(), createProfile({ name: "TRÅDFRI" })];
+  const first = searchProfiles(profiles, "tradfri");
+  expect(first).toHaveLength(1);
+  expect(searchProfiles(profiles, " TRÅDFRI ")).toBe(first);
+  expect(searchProfiles([...profiles], "tradfri")).not.toBe(first);
+  expect(searchProfiles(profiles, "hue")).toEqual([profiles[0]]);
+  expect(searchProfiles(profiles, "")).toBe(profiles);
 });

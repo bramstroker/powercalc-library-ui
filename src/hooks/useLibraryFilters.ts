@@ -104,7 +104,8 @@ const cloneFilters = (filters: LibraryFilters): LibraryFilters => ({
 export const useLibraryFilters = (): UseLibraryFilters => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const filters = useMemo(() => parseFilters(searchParams), [searchParams]);
+  const filterQuery = serializeFilters(parseFilters(searchParams)).toString();
+  const filters = useMemo(() => parseFilters(new URLSearchParams(filterQuery)), [filterQuery]);
 
   /*
    * Writing to the URL is asynchronous, and until the navigation commits both `searchParams` and
