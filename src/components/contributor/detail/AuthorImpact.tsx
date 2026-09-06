@@ -5,12 +5,14 @@ import { numberFormat } from "../../../utils/formatters";
 
 export type AuthorImpactProps = {
   authorName: string;
+  usageAvailable?: boolean;
   knownDevices: number;
   knownProfileInstallations: number;
 };
 
 export const AuthorImpact = ({
   authorName,
+  usageAvailable = true,
   knownDevices,
   knownProfileInstallations,
 }: AuthorImpactProps) => (
@@ -21,7 +23,9 @@ export const AuthorImpact = ({
           Community impact
         </Typography>
         <Typography variant="h4" component="h2" sx={{ fontWeight: 800 }}>
-          {numberFormat.format(knownDevices)} known devices
+          {usageAvailable
+            ? `${numberFormat.format(knownDevices)} known devices`
+            : "Usage statistics unavailable"}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
           Powered by profiles contributed by {authorName}.
@@ -44,7 +48,7 @@ export const AuthorImpact = ({
             <HomeIcon color="primary" />
             <Box>
               <Typography component="p" variant="h6" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
-                {numberFormat.format(knownProfileInstallations)}
+                {usageAvailable ? numberFormat.format(knownProfileInstallations) : "Unknown"}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 known profile installations

@@ -60,6 +60,7 @@ export const Author = ({ authorDetails, authorProfiles = [], authorRank = null }
           manufacturerCount={author.manufacturers.length}
         />
         <AuthorImpact
+          usageAvailable={authorProfiles.every((profile) => profile.usageStats.available !== false)}
           authorName={authorName}
           knownDevices={author.knownDevices}
           knownProfileInstallations={author.knownProfileInstallations}

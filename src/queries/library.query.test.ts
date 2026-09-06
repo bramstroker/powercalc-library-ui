@@ -249,7 +249,8 @@ describe("libraryQuery", () => {
     fetchProfilesMock.mockRejectedValue(new Error("Analytics unavailable"));
     const data = await runQuery();
     expect(data.total).toBe(3);
-    expect(data.powerProfiles.every((profile) => profile.usageStats.available === false)).toBe(true);
+    expect(data.powerProfiles.every((profile) => profile.usageStats.available === false)).toBe(
+      true,
+    );
   });
-
 });

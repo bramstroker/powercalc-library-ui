@@ -286,6 +286,16 @@ export const FilterPanel = ({
 
       {visibleRangeKeys.map((key) => {
         const range = bounds[key];
+        if (
+          key === "installationCount" &&
+          profiles.some((profile) => profile.usageStats.available === false)
+        ) {
+          return (
+            <Typography key={key} variant="caption" color="text.secondary" sx={{ p: 2 }}>
+              Installation filters will be available when usage statistics load.
+            </Typography>
+          );
+        }
         if (!range || range[0] === range[1]) {
           return null;
         }

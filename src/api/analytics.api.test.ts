@@ -38,7 +38,9 @@ describe("analytics api", () => {
 
     const stats = await fetchProfile("signify", "LCA001/x");
 
-    expect(fetch).toHaveBeenCalledWith(`${API_ENDPOINTS.ANALYTICS_PROFILES}/signify/LCA001%2Fx`);
+    expect(fetch).toHaveBeenCalledWith(`${API_ENDPOINTS.ANALYTICS_PROFILES}/signify/LCA001%2Fx`, {
+      signal: expect.any(AbortSignal),
+    });
     expect(stats).toEqual({
       manufacturer: "signify",
       model: "LCA001/x",

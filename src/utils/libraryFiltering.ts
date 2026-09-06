@@ -272,6 +272,7 @@ export const applyFiltersExcept = (
       }
     }
     for (const key of RANGE_KEYS) {
+      if (key === "installationCount" && profile.usageStats?.available === false) continue;
       const range = filters.ranges[key];
       if (range && !matchesRange(profile, key, range)) {
         return false;

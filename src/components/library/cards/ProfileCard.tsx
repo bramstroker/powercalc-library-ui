@@ -114,7 +114,11 @@ export const ProfileCard = ({
               <Chip
                 size="small"
                 icon={<HomeIcon />}
-                label={`${numberFormat.format(profile.usageStats.installationCount)} installs`}
+                label={
+                  profile.usageStats.available === false
+                    ? "Usage unavailable"
+                    : `${numberFormat.format(profile.usageStats.installationCount)} installs`
+                }
               />
             </Tooltip>
             <Typography variant="caption" color="text.secondary" sx={{ ml: "auto" }}>

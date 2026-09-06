@@ -1,7 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { LibraryChangesPage } from "../../../api/library.api";
 import { libraryQuery, type LibraryData } from "../../../queries/library.query";
@@ -9,6 +9,10 @@ import { queryClient } from "../../../queryClient";
 import type { PowerProfile } from "../../../types/PowerProfile";
 
 import { WhatsNew } from "./WhatsNew";
+
+vi.mock("../../../context/LibraryContext", () => ({
+  useLibrary: () => queryClient.getQueryData(libraryQuery().queryKey),
+}));
 
 const page: LibraryChangesPage = {
   items: [

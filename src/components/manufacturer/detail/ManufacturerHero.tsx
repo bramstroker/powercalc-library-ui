@@ -17,7 +17,7 @@ import { ManufacturerAliases } from "./ManufacturerAliases";
 export type ManufacturerHeroProps = {
   deviceTypeCount: number;
   introduction: string;
-  knownProfileInstallations: number;
+  knownProfileInstallations: number | null;
   manufacturer: Manufacturer;
   profileCount: number;
 };

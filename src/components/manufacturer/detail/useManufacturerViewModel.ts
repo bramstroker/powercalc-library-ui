@@ -66,7 +66,10 @@ export const useManufacturerViewModel = ({
   }, [profiles, deviceType, search, sort]);
 
   const knownProfileInstallations = useMemo(
-    () => profiles.reduce((total, profile) => total + profile.usageStats.installationCount, 0),
+    () =>
+      profiles.some((profile) => profile.usageStats.available === false)
+        ? null
+        : profiles.reduce((total, profile) => total + profile.usageStats.installationCount, 0),
     [profiles],
   );
 

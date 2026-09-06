@@ -463,3 +463,15 @@ it("reuses normalized search results across facets and replaces them when the da
   expect(searchProfiles(profiles, "hue")).toEqual([profiles[0]]);
   expect(searchProfiles(profiles, "")).toBe(profiles);
 });
+
+it("keeps other filters usable while installation counts are unavailable", () => {
+  const profile = createProfile({
+    usageStats: { available: false, installationCount: 0, deviceCount: 0, percentage: 0 },
+  });
+  const filters = createEmptyFilters();
+  filters.ranges.installationCount = [100, 500];
+  expect(applyFilters([profile], filters)).toEqual([profile]);
+  expect(computeRanges([profile]).installationCount).toBeUndefined();
+  filters.search = "nonexistent-model";
+  expect(applyFilters([profile], filters)).toEqual([]);
+});
