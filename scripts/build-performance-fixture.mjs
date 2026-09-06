@@ -7,7 +7,7 @@ const fixtureServer = spawn(
   process.execPath,
   ["--experimental-strip-types", resolve("e2e/fixture-server.mjs")],
   {
-    env: { ...process.env, E2E_API_PORT: `${API_PORT}` },
+    env: { ...process.env, E2E_API_PORT: `${API_PORT}`, PERFORMANCE_FIXTURE: "1" },
     stdio: ["ignore", "inherit", "inherit"],
   },
 );

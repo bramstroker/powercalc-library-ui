@@ -1,4 +1,3 @@
-import { profileSummary } from "../utils/profileSummary";
 import { redirect, type LoaderFunctionArgs, type MetaFunction, useLoaderData } from "react-router";
 
 import { Author } from "../components/contributor/detail/Author";
@@ -12,6 +11,7 @@ import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import { contributorAvatarUrl } from "../utils/avatarPaths";
 import { plural } from "../utils/plural";
 import { humanizeIdentifier } from "../utils/profilePresentation";
+import { profileSummary } from "../utils/profileSummary";
 import { authorPath, profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
 // Declared separately from the `loader` export: the React Router Vite plugin strips server-only

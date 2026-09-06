@@ -1,4 +1,3 @@
-import { profileSummary } from "../utils/profileSummary";
 import { redirect, type LoaderFunctionArgs, type MetaFunction, useLoaderData } from "react-router";
 
 import { ProfileCategory } from "../components/profile/ProfileCategory";
@@ -10,6 +9,7 @@ import { queryClient } from "../queryClient";
 import { breadcrumbStructuredData } from "../seo/breadcrumbs";
 import { createPageMeta, MAX_ITEM_LIST_ENTRIES, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
+import { profileSummary } from "../utils/profileSummary";
 import { profilePath, slugifyPathSegment } from "../utils/urlSlugs.mjs";
 
 const loadProfileCategory = async ({
