@@ -347,3 +347,20 @@ test("keeps a collapsed section showing what it is doing", async ({ page }) => {
   await expect(header).toHaveAttribute("aria-expanded", "false");
   await expect(header.getByText("1", { exact: true })).toBeVisible();
 });
+
+test("restores the result size and sorting after a profile visit", async ({ page }) => {
+  await page.goto("/?pageSize=50&sort=modelId&direction=desc");
+  await expect(page.getByRole("columnheader", { name: /Model/ })).toHaveAttribute(
+    "aria-sort",
+    "descending",
+  );
+  await expect(page.getByRole("combobox", { name: "Rows per page:" })).toHaveText("50");
+  await page.getByRole("link", { name: "LCA001", exact: true }).click();
+  await page.getByRole("button", { name: "Back to results" }).click();
+  await expect(page).toHaveURL("/?pageSize=50&sort=modelId&direction=desc");
+  await expect(page.getByRole("columnheader", { name: /Model/ })).toHaveAttribute(
+    "aria-sort",
+    "descending",
+  );
+  await expect(page.getByRole("combobox", { name: "Rows per page:" })).toHaveText("50");
+});

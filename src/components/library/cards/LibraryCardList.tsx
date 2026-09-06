@@ -8,9 +8,9 @@ import {
   TablePagination,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
 import { Link as RouterLink, useLocation } from "react-router";
 
+import { useLibraryPagination } from "../../../hooks/useLibraryPagination";
 import type { PowerProfile } from "../../../types/PowerProfile";
 import { isRecentlyAdded } from "../../../utils/recency";
 import { profilePath } from "../../../utils/urlSlugs.mjs";
@@ -18,8 +18,6 @@ import { AliasChips } from "../../profile/AliasChips";
 import { DeviceTypeIcon } from "../../profile/DeviceTypeIcon";
 import { profileRowId } from "../grid/profileRowId";
 import { NewBadge } from "../presentation/NewBadge";
-
-const PAGE_SIZE = 25;
 
 export type LibraryCardListProps = {
   rows: PowerProfile[];
@@ -31,15 +29,9 @@ export type LibraryCardListProps = {
  */
 export const LibraryCardList = ({ rows }: LibraryCardListProps) => {
   const location = useLocation();
-  const [page, setPage] = useState(0);
-
-  // Filtering can shrink the list under the current page.
-  useEffect(() => {
-    setPage(0);
-  }, [rows]);
-
-  const start = page * PAGE_SIZE;
-  const visible = rows.slice(start, start + PAGE_SIZE);
+  const { page, pageSize, setPagination } = useLibraryPagination(rows.length);
+  const start = page * pageSize;
+  const visible = rows.slice(start, start + pageSize);
 
   if (rows.length === 0) {
     return (
@@ -102,11 +94,11 @@ export const LibraryCardList = ({ rows }: LibraryCardListProps) => {
         count={rows.length}
         page={page}
         onPageChange={(_event, next) => {
-          setPage(next);
+          setPagination({ page: next, pageSize });
           window.scrollTo({ top: 0 });
         }}
-        rowsPerPage={PAGE_SIZE}
-        rowsPerPageOptions={[PAGE_SIZE]}
+        rowsPerPage={pageSize}
+        rowsPerPageOptions={[pageSize]}
         labelRowsPerPage=""
       />
     </Box>
