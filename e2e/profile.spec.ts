@@ -116,7 +116,10 @@ test("uses a readable device type and a clear empty usage state", async ({ page 
   await expect(usage).toBeVisible();
   await expect(usage).not.toHaveRole("heading");
   await expect(page.getByRole("progressbar")).toBeHidden();
-  await page.getByTestId("profile-setup").getByRole("button", { name: "Use this profile" }).click();
+  await page
+    .getByTestId("profile-setup")
+    .getByRole("button", { name: "Use in Home Assistant" })
+    .click();
   await expect(
     page.getByText("Powercalc can discover this model automatically (by entity)."),
   ).toBeVisible();
@@ -268,7 +271,7 @@ test("offers manual setup for a profile discovered by entity", async ({ page }) 
   const setup = page.getByTestId("profile-setup");
 
   await expect(setup.getByText(/Look for a discovery prompt/)).toBeHidden();
-  await setup.getByRole("button", { name: "Use this profile" }).click();
+  await setup.getByRole("button", { name: "Use in Home Assistant" }).click();
   await expect(setup.getByText(/Look for a discovery prompt/)).toBeVisible();
   await setup.getByText("Set up manually instead").click();
 
@@ -290,7 +293,7 @@ test("offers setup for profiles discovered by device", async ({ page }) => {
 
   await expect(page.getByText("Automatic, by device")).toBeVisible();
   const setup = page.getByTestId("profile-setup");
-  await setup.getByRole("button", { name: "Use this profile" }).click();
+  await setup.getByRole("button", { name: "Use in Home Assistant" }).click();
   await expect(
     setup.getByText(/Powercalc can discover this model automatically \(by device\)/),
   ).toBeVisible();
@@ -303,7 +306,7 @@ test("offers setup for manual-only profiles", async ({ page }) => {
 
   await expect(page.getByText("Not available (manual setup only)")).toBeVisible();
   const setup = page.getByTestId("profile-setup");
-  await setup.getByRole("button", { name: "Use this profile" }).click();
+  await setup.getByRole("button", { name: "Use in Home Assistant" }).click();
   await expect(setup.getByText(/Automatic discovery is not available/)).toBeVisible();
   await expect(setup.getByRole("link", { name: "Open in Home Assistant" })).toBeVisible();
   await setup.getByText("Or configure with YAML").click();
