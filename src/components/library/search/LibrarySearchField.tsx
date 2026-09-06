@@ -18,10 +18,12 @@ const isTypingTarget = (target: EventTarget | null): boolean => {
 export type LibrarySearchFieldProps = {
   value: string;
   onChange: (value: string) => void;
+  /** Outside the library, submit explicitly before navigating to global results. */
+  onSubmit?: (value: string) => void;
 };
 
 /** Keeps typing snappy by holding a local draft and pushing to the URL on a short debounce. */
-export const LibrarySearchField = ({ value, onChange }: LibrarySearchFieldProps) => {
+export const LibrarySearchField = ({ value, onChange, onSubmit }: LibrarySearchFieldProps) => {
   const [draft, setDraft] = useState(value);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -76,7 +78,7 @@ export const LibrarySearchField = ({ value, onChange }: LibrarySearchFieldProps)
     };
   }, [draft]);
 
-  return (
+  const field = (
     <TextField
       size="small"
       fullWidth
@@ -94,13 +96,20 @@ export const LibrarySearchField = ({ value, onChange }: LibrarySearchFieldProps)
         setFocused(false);
       }}
       slotProps={{
+        htmlInput: { "aria-label": "Search all profiles" },
         input: {
-          startAdornment: (
+          startAdornment: !onSubmit && (
             <InputAdornment position="start">
               <SearchIcon fontSize="small" sx={{ color: "inherit" }} />
             </InputAdornment>
           ),
-          endAdornment: draft ? (
+          endAdornment: onSubmit ? (
+            <InputAdornment position="end">
+              <IconButton type="submit" size="small" aria-label="Search library" color="inherit">
+                <SearchIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ) : draft ? (
             <InputAdornment position="end">
               <IconButton
                 size="small"
@@ -158,5 +167,22 @@ export const LibrarySearchField = ({ value, onChange }: LibrarySearchFieldProps)
         "& .MuiInputBase-input::placeholder": { opacity: 0.8 },
       }}
     />
+  );
+
+  return onSubmit ? (
+    <Box
+      component="form"
+      role="search"
+      aria-label="Search all profiles"
+      sx={{ width: "100%" }}
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit(draft.trim());
+      }}
+    >
+      {field}
+    </Box>
+  ) : (
+    field
   );
 };

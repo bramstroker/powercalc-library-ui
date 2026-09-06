@@ -13,6 +13,7 @@ import { ProfileSortControl } from "../../profile/ProfileSortControl";
 import type { DeviceTypeCount } from "./useManufacturerViewModel";
 
 export type ManufacturerProfilesProps = {
+  manufacturerName: string;
   deviceType: string | null;
   deviceTypeCounts: DeviceTypeCount[];
   isFiltered: boolean;
@@ -28,6 +29,7 @@ export type ManufacturerProfilesProps = {
 };
 
 export const ManufacturerProfiles = ({
+  manufacturerName,
   deviceType,
   deviceTypeCounts,
   isFiltered,
@@ -70,11 +72,11 @@ export const ManufacturerProfiles = ({
       <TextField
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
-        placeholder="Search model or name"
+        placeholder={`Search within ${manufacturerName}`}
         size="small"
         fullWidth
         slotProps={{
-          htmlInput: { "aria-label": "Search profiles" },
+          htmlInput: { "aria-label": `Search within ${manufacturerName}` },
           input: {
             startAdornment: (
               <InputAdornment position="start">

@@ -146,7 +146,7 @@ describe("Manufacturer", () => {
     );
     renderPage("linkind", manyProfiles);
 
-    fireEvent.change(screen.getByRole("textbox", { name: "Search profiles" }), {
+    fireEvent.change(screen.getByRole("textbox", { name: "Search within Linkind" }), {
       target: { value: "MODEL-12" },
     });
 
