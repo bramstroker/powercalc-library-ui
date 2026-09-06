@@ -98,6 +98,17 @@ describe("Manufacturers", () => {
     search("leedarson");
 
     expect(cardNames()).toEqual([expect.stringContaining("Linkind")]);
+    expect(screen.getByText("Also known as Leedarson")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Linkind/ })).toHaveAttribute(
+      "href",
+      "/manufacturers/linkind",
+    );
+
+    search("linkind");
+    expect(screen.queryByText("Also known as Leedarson")).not.toBeInTheDocument();
+
+    search("");
+    expect(screen.queryByText("Also known as Leedarson")).not.toBeInTheDocument();
   });
 
   it("reports when nothing matches", () => {

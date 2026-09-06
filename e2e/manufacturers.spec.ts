@@ -44,7 +44,13 @@ test("filters the manufacturer index and sorts it by name", async ({ page }) => 
   await expect(cards).toHaveCount(1);
   await expect(cards.first()).toContainText("IKEA");
 
+  await page.getByPlaceholder("Search manufacturers").fill("Philips");
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toContainText("Signify");
+  await expect(cards.first().getByText("Also known as Philips")).toBeVisible();
+
   await page.getByPlaceholder("Search manufacturers").fill("");
+  await expect(page.getByText("Also known as Philips")).toBeHidden();
   await page.getByRole("button", { name: "Name" }).click();
 
   await expect(cards.first()).toContainText("IKEA");
