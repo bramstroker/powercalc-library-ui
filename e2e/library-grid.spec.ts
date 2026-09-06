@@ -172,7 +172,7 @@ test("offers recovery actions when no profiles match", async ({ page }) => {
     emptyState.getByText(/another owner having the exact same physical model/),
   ).toBeVisible();
 
-  await emptyState.getByRole("button", { name: "Clear all", exact: true }).click();
+  await emptyState.getByRole("button", { name: "Show all profiles", exact: true }).click();
   await expect(page).toHaveURL("/");
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
 
@@ -403,3 +403,29 @@ test("explains profile search and provides model identification help", async ({ 
   await expect(page.getByText(/Check the label on your device/)).toBeVisible();
   await page.screenshot({ path: "test-results/library-introduction.png" });
 });
+
+for (const width of [1280, 320]) {
+  test(`recovers from an empty search while preserving filters at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/?q=not-a-real-device&manufacturer=Signify");
+    const emptyState = page.getByTestId("library-empty-state");
+    const showAll = emptyState.getByRole("button", { name: "Show all profiles", exact: true });
+    const clearSearch = emptyState.getByRole("button", { name: "Clear search", exact: true });
+    await expect(showAll).toBeVisible();
+    await expect(clearSearch).toBeVisible();
+    const recoveryBox = await showAll.boundingBox();
+    const contributionBox = await emptyState
+      .getByRole("heading", { name: "Add this device to the library" })
+      .boundingBox();
+    expect(recoveryBox!.y).toBeLessThan(contributionBox!.y);
+    await clearSearch.click();
+    await expect(page).toHaveURL("/?manufacturer=Signify");
+    await expect(emptyState).toBeHidden();
+
+    await page.goto("/?manufacturer=Signify&deviceType=smart_switch");
+    await expect(clearSearch).toHaveCount(0);
+    await showAll.click();
+    await expect(page).toHaveURL("/");
+    await expect(emptyState).toBeHidden();
+  });
+}
