@@ -41,7 +41,7 @@ import { FacetSection } from "./FacetSection";
 import { FACET_ICONS, RANGE_ICONS, SECTION_ICONS } from "./facetSectionIcons";
 import { RangeFacet } from "./RangeFacet";
 
-export const FILTER_PANEL_WIDTH = 288;
+export { FILTER_PANEL_WIDTH } from "./filterPanelLayout";
 
 /**
  * The panel's own surface, a tint away from the grid's. Applied to both the root and the sticky
