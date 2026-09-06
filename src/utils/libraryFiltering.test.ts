@@ -475,3 +475,16 @@ it("keeps other filters usable while installation counts are unavailable", () =>
   filters.search = "nonexistent-model";
   expect(applyFilters([profile], filters)).toEqual([]);
 });
+
+it("keeps cached fuzzy candidates independent for each word and query", () => {
+  const profiles = [
+    createProfile({ name: "Philips Tradfri", modelId: "one" }),
+    createProfile({ name: "Philips Hue", modelId: "two" }),
+    createProfile({ name: "Tradfri bulb", modelId: "three" }),
+    createProfile({ name: "Philips Tradfri", modelId: "four" }),
+  ];
+  expect(searchProfiles(profiles, "philps tradfry")).toEqual([profiles[0], profiles[3]]);
+  expect(searchProfiles(profiles, "tradfry philps")).toEqual([profiles[0], profiles[3]]);
+  expect(searchProfiles(profiles, "philps")).toEqual([profiles[0], profiles[1], profiles[3]]);
+  expect(searchProfiles(profiles, "tradfry")).toEqual([profiles[0], profiles[2], profiles[3]]);
+});

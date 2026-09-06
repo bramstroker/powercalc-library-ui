@@ -114,7 +114,10 @@ const normalizeSearchText = (value: string): string =>
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
 
-const getSearchDocument = (profile: PowerProfile): SearchDocument => {
+const getSearchDocument = (
+  profile: PowerProfile,
+  normalizedValues: Map<string, string>,
+): SearchDocument => {
   const cached = searchDocumentCache.get(profile);
   if (cached) {
     return cached;
@@ -141,7 +144,14 @@ const getSearchDocument = (profile: PowerProfile): SearchDocument => {
   ];
   const normalizedFields = values
     .filter((value): value is string => Boolean(value))
-    .map(normalizeSearchText)
+    .map((value) => {
+      let normalized = normalizedValues.get(value);
+      if (normalized === undefined) {
+        normalized = normalizeSearchText(value);
+        normalizedValues.set(value, normalized);
+      }
+      return normalized;
+    })
     .filter(Boolean);
   const document = {
     // Keep compact variants too: `tp-link`, `TP Link` and `tplink` should be interchangeable.
@@ -196,19 +206,24 @@ const isWithinEditDistance = (left: string, right: string, maximum: number): boo
   return previous[right.length] <= maximum;
 };
 
-const matchesSearchWord = (document: SearchDocument, word: string): boolean => {
-  if (document.fields.some((field) => field.includes(word))) {
-    return true;
-  }
-
+const createWordMatcher = (word: string) => {
   const maximumDistance = fuzzyDistanceFor(word);
-  return (
-    maximumDistance > 0 &&
-    document.words.some(
-      (candidate) =>
-        FUZZY_WORD.test(candidate) && isWithinEditDistance(word, candidate, maximumDistance),
-    )
-  );
+  // Manufacturer names and metadata words recur across many profiles. Compare each distinct
+  // candidate only once per query, including candidates that do not match.
+  const candidates = new Map<string, boolean>();
+  return (document: SearchDocument): boolean => {
+    if (document.fields.some((field) => field.includes(word))) return true;
+    if (maximumDistance === 0) return false;
+    return document.words.some((candidate) => {
+      let matches = candidates.get(candidate);
+      if (matches === undefined) {
+        matches =
+          FUZZY_WORD.test(candidate) && isWithinEditDistance(word, candidate, maximumDistance);
+        candidates.set(candidate, matches);
+      }
+      return matches;
+    });
+  };
 };
 
 /**
@@ -218,10 +233,14 @@ const matchesSearchWord = (document: SearchDocument, word: string): boolean => {
  * and barcodes remain exact to avoid silently suggesting a different device.
  */
 const createSearchMatcher = (term: string) => {
-  const words = normalizeSearchText(term).split(/\s+/).filter(Boolean);
-  return (profile: PowerProfile): boolean =>
-    words.length === 0 ||
-    words.every((word) => matchesSearchWord(getSearchDocument(profile), word));
+  const matchers = normalizeSearchText(term).split(/\s+/).filter(Boolean).map(createWordMatcher);
+  // This cache lives only for the current filter pass, not across an unbounded history of input.
+  const normalizedValues = new Map<string, string>();
+  return (profile: PowerProfile): boolean => {
+    if (matchers.length === 0) return true;
+    const document = getSearchDocument(profile, normalizedValues);
+    return matchers.every((matches) => matches(document));
+  };
 };
 
 export const matchesSearch = (profile: PowerProfile, term: string): boolean =>
