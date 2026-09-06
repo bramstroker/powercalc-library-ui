@@ -27,9 +27,8 @@ export const AnalyticsOverview = () => {
                 </Typography>
               </Box>
               <Typography variant="body1" color="text.secondary">
-                Explore sensor usage statistics across different dimensions with interactive pie
-                charts. See how Powercalc sensors are distributed by device_type, strategies, and
-                other categories.
+                Compare sensor usage by device type, calculation strategy, and other categories
+                using bar charts and detailed counts.
               </Typography>
             </CardContent>
             <CardActions>
@@ -39,7 +38,7 @@ export const AnalyticsOverview = () => {
                 to="/analytics/sensor-dimensions"
                 variant="contained"
               >
-                View Dashboard
+                View sensor usage
               </Button>
             </CardActions>
           </Card>
@@ -66,7 +65,7 @@ export const AnalyticsOverview = () => {
                 to="/analytics/installations"
                 variant="contained"
               >
-                View Dashboard
+                View installation statistics
               </Button>
             </CardActions>
           </Card>
@@ -94,7 +93,7 @@ export const AnalyticsOverview = () => {
                 to="/analytics/profiles"
                 variant="contained"
               >
-                View Dashboard
+                View profile usage
               </Button>
             </CardActions>
           </Card>
@@ -120,7 +119,7 @@ export const AnalyticsOverview = () => {
                 to="/analytics/time-series"
                 variant="contained"
               >
-                View Dashboard
+                View usage over time
               </Button>
             </CardActions>
           </Card>
