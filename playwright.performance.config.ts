@@ -16,7 +16,10 @@ export default defineConfig({
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,
-    trace: "retain-on-failure",
+    // Recording DOM snapshots/screenshots on every action adds work to the throttled browser.
+    // Keep the measured runs untraced; use --trace on only for a separate diagnostic run.
+    trace: "off",
+    screenshot: "only-on-failure",
     actionTimeout: 10_000,
   },
   projects: [

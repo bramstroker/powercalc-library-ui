@@ -52,6 +52,12 @@ gzip size of modulepreloaded chunks that a route adds on top of the homepage's i
 Collection routes have separate raw and compressed payload limits because they contain hundreds
 of summaries and crawlable links; detail-page limits remain unchanged.
 
+Budget runs disable Playwright tracing because recording DOM snapshots and screenshots adds
+work inside the throttled browser and distorts interaction timings. Failed runs still retain
+screenshots, error context and layout-shift metrics. To diagnose a failure separately, run
+`npx playwright test --config playwright.performance.config.ts --trace on`; use that trace to
+inspect behavior, not to establish performance timings.
+
 ## Production build
 
 ```sh
