@@ -2,8 +2,10 @@
 import { reactRouter } from "@react-router/dev/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import react from "@vitejs/plugin-react";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { defineConfig } from "vite";
+
+import { svgAspect } from "./src/utils/svgAspect.mjs";
 
 // Skip the Sentry release/telemetry work when running unit (vitest) or e2e (playwright) tests
 const isUnitTest = Boolean(process.env.VITEST);
@@ -31,10 +33,26 @@ const loadAvatarManifest = (): Record<string, string> => {
   }
 };
 
+// Only dimensions are eager. The SVG artwork still loads on demand, while prerendering can
+// reserve its final slot. Derive this from the source assets so new logos need no manual index.
+const loadLogoAspects = (): Record<string, number> => {
+  const directory = new URL("./src/assets/manufacturer-logos/", import.meta.url);
+  return Object.fromEntries(
+    readdirSync(directory)
+      .filter((file) => file.endsWith(".svg"))
+      .map((file) => {
+        const aspect = svgAspect(readFileSync(new URL(file, directory), "utf8"));
+        if (!aspect) throw new Error(`Manufacturer logo ${file} needs a valid viewBox`);
+        return [file, aspect];
+      }),
+  );
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
     __AVATAR_PATHS__: JSON.stringify(loadAvatarManifest()),
+    __MANUFACTURER_LOGO_ASPECTS__: JSON.stringify(loadLogoAspects()),
   },
   plugins: [
     isUnitTest ? react() : reactRouter(),
