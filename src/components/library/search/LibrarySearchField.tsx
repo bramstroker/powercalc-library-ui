@@ -81,7 +81,7 @@ export const LibrarySearchField = ({ value, onChange }: LibrarySearchFieldProps)
       size="small"
       fullWidth
       aria-label="Search all profiles"
-      placeholder="Search all profiles"
+      placeholder="Search brand or model"
       value={draft}
       inputRef={inputRef}
       onChange={(event) => {

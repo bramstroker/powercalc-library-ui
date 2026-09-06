@@ -61,7 +61,7 @@ test("uses a sequential heading hierarchy for the library and filters", async ({
   await page.goto("/");
 
   await expect(
-    page.getByRole("heading", { name: "Powercalc profile library", level: 1 }),
+    page.getByRole("heading", { name: "Find a power profile", level: 1 }),
   ).toBeAttached();
   await expect(page.getByRole("heading", { name: "Filters", level: 2 })).toBeVisible();
   await expect(
@@ -393,4 +393,13 @@ test("reveals active advanced filters in shared URLs", async ({ page }) => {
     page.getByRole("button", { name: "Advanced filters (1)", exact: true }),
   ).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByRole("checkbox", { name: /Lookup table/ })).toBeChecked();
+});
+
+test("explains profile search and provides model identification help", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Find a power profile", level: 1 })).toBeVisible();
+  await expect(page.getByText(/Search by brand, model, product name or barcode/)).toBeVisible();
+  await page.getByText("Where can I find the model number?", { exact: true }).click();
+  await expect(page.getByText(/Check the label on your device/)).toBeVisible();
+  await page.screenshot({ path: "test-results/library-introduction.png" });
 });
