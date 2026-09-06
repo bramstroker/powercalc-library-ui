@@ -29,7 +29,7 @@ export const libraryPreloadLinks: LinkDescriptor[] = [
   {
     rel: "preload",
     as: "fetch",
-    href: import.meta.env.PROD ? "/library-index.json" : API_ENDPOINTS.LIBRARY,
+    href: API_ENDPOINTS.LIBRARY,
     crossOrigin: "anonymous",
   },
 ];

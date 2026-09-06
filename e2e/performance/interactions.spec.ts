@@ -97,8 +97,7 @@ test("searches, filters, paginates and opens a profile with a representative cat
     },
     budgets.runtime.profileOpenMs,
   );
-  expect(requests.filter((url) => url.endsWith("/library-index.json"))).toHaveLength(1);
-  expect(requests.filter((url) => url.endsWith("/library/full"))).toHaveLength(0);
+  expect(requests.filter((url) => url.endsWith("/library/full"))).toHaveLength(1);
   expect(requests.filter((url) => url.endsWith("/analytics/profiles"))).toHaveLength(1);
 });
 
@@ -148,8 +147,8 @@ test("keeps typo search responsive when the catalogue grows fourfold", async ({ 
     })),
   };
   // This scenario tests CPU/render growth, not download size: cold network transfer uses the
-  // real compressed static index in homepage.spec.ts.
-  await page.route("**/library-index.json", (route) => route.fulfill({ json: grown }));
+  // real compressed library API response in homepage.spec.ts.
+  await page.route("**/library/full", (route) => route.fulfill({ json: grown }));
   await ready(page);
   await expect(
     page.getByText(`1–25 of ${(count * 4).toLocaleString("en-US")}`, { exact: true }),

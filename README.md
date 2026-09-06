@@ -87,8 +87,8 @@ In production this runs as the `renderer` image built from the same commit as th
 recreate, and leaves every content-hashed asset URL — and the tabs holding them open — intact. The
 `Refresh content` workflow does this hourly.
 
-The build also writes `library-index.json` for browsing and a content hash manifest. Full profile
-data remains available to detail routes. Hourly refreshes render into `/documents/next`, compare
+The catalogue uses the full library API response. The build writes a content hash manifest.
+Hourly refreshes render into `/documents/next`, compare
 against the serving manifest, and publish only changed files while removing obsolete files.
 Only affected canonical URLs, trailing-slash/index variants and loader payloads are purged;
 only changed canonical URLs are warmed. The manifest is acknowledged after publishing, purging

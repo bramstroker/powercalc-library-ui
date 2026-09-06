@@ -28,9 +28,9 @@ test("copies only changed content and leaves the acknowledged manifest intact un
     const previous = await snapshot(join(root, "next"));
     assert.deepEqual(Object.keys(previous), ["index.html"]);
     await writeFile(join(root, "previous-manifest.json"), JSON.stringify(previous));
-    await writeFile(join(root, "next/library-index.json"), "{}");
+    await writeFile(join(root, "next/sitemap.xml"), "<urlset/>");
     await prepareRefresh(root);
-    assert.equal(await readFile(join(root, "delta/library-index.json"), "utf8"), "{}");
+    assert.equal(await readFile(join(root, "delta/sitemap.xml"), "utf8"), "<urlset/>");
     await assert.rejects(readFile(join(root, "delta/index.html")));
     assert.deepEqual(JSON.parse(await readFile(join(root, "previous-manifest.json"))), previous);
   } finally {
