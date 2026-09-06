@@ -1,5 +1,5 @@
+import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import MenuIcon from "@mui/icons-material/Menu";
 import { Tooltip } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -34,7 +34,7 @@ export const ExploreMenu = () => {
         <Button
           color="inherit"
           onClick={(event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget)}
-          startIcon={<MenuIcon />}
+          startIcon={<ExploreOutlinedIcon />}
           id="explore-button"
           aria-controls={open ? "explore-menu" : undefined}
           aria-haspopup="true"
