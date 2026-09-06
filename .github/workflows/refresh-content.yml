@@ -15,6 +15,9 @@ permissions:
 
 jobs:
   refresh:
+    concurrency:
+      group: library-production
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -44,38 +47,44 @@ jobs:
             ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }} << 'ENDSSH'
           set -e
           cd ${{ secrets.REMOTE_SERVER_PATH }}
-          # Start from empty: a page for an entity that has since left the library would otherwise
-          # survive every later render and keep being copied into the container.
+          # Keep the last acknowledged manifest until publish, purge and warm all succeed. A
+          # failed run is therefore retried on the next refresh instead of silently losing purges.
           rm -rf documents
           mkdir -p documents
-          # As the calling user, so the next run can clear the directory again. Left to Docker, the
-          # rendered files are owned by root and the `rm` above fails from then on.
-          docker compose -f docker-compose.yml run --rm --user "$(id -u):$(id -g)" renderer
-          docker compose -f docker-compose.yml cp documents/. library_ui:/usr/share/nginx/html/
+          docker compose cp library_ui:/usr/share/nginx/html/.content-manifest.json documents/previous-manifest.json
+          docker compose run --rm --user "$(id -u):$(id -g)" renderer
+          docker compose cp documents/delta/. library_ui:/usr/share/nginx/html/
+          docker compose exec -T library_ui sh -c 'while IFS= read -r file; do rm -f "/usr/share/nginx/html/$file"; done' < documents/removed.txt
           ENDSSH
 
-      - name: Purge Cloudflare cache
-        env:
-          # Deliberately omit PURGE_URLS: every SPA deep link is a separate Cloudflare cache key.
-          # Use a scoped API token with only Zone.Cache Purge access for this zone.
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+      - name: Retrieve changed URL manifest
         run: |
-          curl --fail-with-body --silent --show-error \
-            --request POST \
-            --url "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE}/purge_cache" \
-            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-            --header "Content-Type: application/json" \
-            --data '{"purge_everything":true}' \
-            | jq --exit-status '.success == true'
+          scp -i "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts" \
+            ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }}:${{ secrets.REMOTE_SERVER_PATH }}/documents/cache-plan.json \
+            "$RUNNER_TEMP/library-cache-plan.json"
 
-      - name: Setup Node.js for cache warm-up
+      - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: "24"
 
-      - name: Warm prerendered pages in Cloudflare
+      - name: Purge and warm changed content
         env:
-          WARM_SITE_URL: https://library.powercalc.nl
-          WARM_CONCURRENCY: "12"
-        run: npm run cache:warm
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+        run: node scripts/purge-content-cache.mjs "$RUNNER_TEMP/library-cache-plan.json"
+
+      - name: Acknowledge completed refresh
+        run: |
+          ssh -i "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts" \
+            ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }} << 'ENDSSH'
+          set -e
+          cd ${{ secrets.REMOTE_SERVER_PATH }}
+          docker compose cp documents/next-manifest.json library_ui:/usr/share/nginx/html/.content-manifest.json
+          ENDSSH

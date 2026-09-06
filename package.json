@@ -24,7 +24,7 @@
     "dev": "react-router dev",
     "assets:generate": "node scripts/generate-brand-assets.mjs",
     "avatars:download": "node scripts/download-avatars.mjs",
-    "build": "npm run avatars:download && react-router build && node scripts/generate-sitemap.mjs && node scripts/generate-profile-social-images.mjs && node scripts/library-index.mjs",
+    "build": "npm run avatars:download && react-router build && node scripts/generate-sitemap.mjs && node scripts/generate-profile-social-images.mjs && node scripts/library-index.mjs && node scripts/content-refresh.mjs snapshot build/client",
     "prerender": "node scripts/prerender.mjs",
     "bundle:check": "node scripts/check-bundle-size.mjs",
     "performance:build": "node scripts/build-performance-fixture.mjs",
