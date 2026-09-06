@@ -73,7 +73,7 @@ test("filters the grid with the global search", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
 
-  await page.getByPlaceholder("Search all profiles").fill("TRADFRI");
+  await page.getByRole("textbox", { name: "Search all profiles", exact: true }).fill("TRADFRI");
 
   await expect(page.getByRole("gridcell", { name: "LED1836G9" })).toBeVisible();
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeHidden();
@@ -83,7 +83,7 @@ test("filters the grid with the global search", async ({ page }) => {
 test("searches profile metadata and tolerates a typo", async ({ page }) => {
   await page.goto("/");
 
-  const search = page.getByPlaceholder("Search all profiles");
+  const search = page.getByRole("textbox", { name: "Search all profiles", exact: true });
   await search.fill("signfy zigbee");
 
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
@@ -199,7 +199,9 @@ test("focuses the search box with the / shortcut", async ({ page }) => {
   await expect(page.getByRole("gridcell", { name: "LCA001" })).toBeVisible();
 
   await page.keyboard.press("/");
-  await expect(page.getByPlaceholder("Search all profiles")).toBeFocused();
+  await expect(
+    page.getByRole("textbox", { name: "Search all profiles", exact: true }),
+  ).toBeFocused();
 
   // The shortcut must not fire while another field is being typed into.
   const facetSearch = page
