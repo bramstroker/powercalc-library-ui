@@ -179,3 +179,13 @@ export const fetchLibrary = async (): Promise<LibraryJson> => {
   if (!res.ok) throw new Error("Failed to fetch library");
   return res.json();
 };
+
+/** The compact same-origin catalogue is regenerated with the prerendered documents. */
+export const fetchLibraryIndex = async (): Promise<LibraryJson> => {
+  if (!import.meta.env.PROD || typeof window === "undefined") return fetchLibrary();
+  const response = await fetch("/library-index.json");
+  // Allows a rolling deployment and development servers without the generated asset.
+  if (response.status === 404) return fetchLibrary();
+  if (!response.ok) throw new Error("Failed to fetch library index");
+  return response.json();
+};

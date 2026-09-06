@@ -1,7 +1,7 @@
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
-import { fetchLibrary } from "../api/library.api";
+import { fetchLibraryIndex } from "../api/library.api";
 import { analyticsProfilesQuery } from "../queries/analytics.query";
 import { buildLibraryData } from "../queries/library.query";
 
@@ -11,7 +11,7 @@ export const useLibrary = () => {
   const analytics = useQuery(analyticsProfilesQuery());
   const { data: library } = useSuspenseQuery({
     queryKey: ["library", "browse"],
-    queryFn: fetchLibrary,
+    queryFn: fetchLibraryIndex,
     staleTime: Infinity,
     gcTime: Infinity,
   });
