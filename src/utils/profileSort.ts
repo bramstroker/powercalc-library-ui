@@ -1,4 +1,4 @@
-import type { PowerProfile } from "../types/PowerProfile";
+import type { ProfileSummary } from "../types/PowerProfile";
 
 export const PROFILE_SORT_OPTIONS = [
   { value: "popular", label: "Popular" },
@@ -17,10 +17,10 @@ export const parseProfileSort = (value: string | null): ProfileSort =>
     ? (value as ProfileSort)
     : DEFAULT_PROFILE_SORT;
 
-export const sortProfiles = (
-  profiles: readonly PowerProfile[],
+export const sortProfiles = <T extends ProfileSummary>(
+  profiles: readonly T[],
   sort: ProfileSort,
-): PowerProfile[] =>
+): T[] =>
   [...profiles].sort((a, b) => {
     if (sort === "popular") {
       return (

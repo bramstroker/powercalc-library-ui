@@ -1,3 +1,4 @@
+import { profileSummary } from "../utils/profileSummary";
 import { redirect, type LoaderFunctionArgs, type MetaFunction, useLoaderData } from "react-router";
 
 import { Author } from "../components/contributor/detail/Author";
@@ -33,7 +34,7 @@ const loadAuthor = async ({ params, request }: Pick<LoaderFunctionArgs, "params"
 
   return {
     authorDetails: author,
-    authorProfiles: library.profilesByAuthorSlug.get(slug) ?? [],
+    authorProfiles: (library.profilesByAuthorSlug.get(slug) ?? []).map(profileSummary),
     authorRank: authorRank(library, author.githubUsername),
   };
 };

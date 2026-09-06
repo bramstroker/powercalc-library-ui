@@ -1,7 +1,7 @@
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, Chip, InputAdornment, Stack, TextField, Typography } from "@mui/material";
 
-import type { PowerProfile } from "../../../types/PowerProfile";
+import type { ProfileSummary } from "../../../types/PowerProfile";
 import { numberFormat } from "../../../utils/formatters";
 import { plural } from "../../../utils/plural";
 import { humanizeIdentifier } from "../../../utils/profilePresentation";
@@ -21,7 +21,7 @@ export type ManufacturerProfilesProps = {
   onSearchChange: (search: string) => void;
   onSortChange: (sort: ProfileSort) => void;
   profileCount: number;
-  profiles: PowerProfile[];
+  profiles: ProfileSummary[];
   search: string;
   showDeviceTypeFilter: boolean;
   showProfileSearch: boolean;

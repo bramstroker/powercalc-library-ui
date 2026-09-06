@@ -1,3 +1,4 @@
+import { profileSummary } from "../utils/profileSummary";
 import { redirect, type LoaderFunctionArgs, type MetaFunction, useLoaderData } from "react-router";
 
 import { ProfileCategory } from "../components/profile/ProfileCategory";
@@ -44,7 +45,7 @@ const loadProfileCategory = async ({
     throw redirect(`${canonicalPath}${url.search}`, 301);
   }
 
-  return { value, profiles };
+  return { value, profiles: profiles.map(profileSummary) };
 };
 
 export const loader = loadProfileCategory;

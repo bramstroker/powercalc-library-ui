@@ -4,11 +4,11 @@ import { Box, Paper, Stack, Typography, useMediaQuery, useTheme } from "@mui/mat
 import { BarChart } from "@mui/x-charts/BarChart";
 import { useMemo } from "react";
 
-import type { PowerProfile } from "../../../types/PowerProfile";
+import type { ProfileSummary } from "../../../types/PowerProfile";
 import { formatDateUtc } from "../../../utils/dateFormat";
 
 type Props = {
-  profiles: PowerProfile[];
+  profiles: ProfileSummary[];
 };
 
 type Bucket = { start: Date; count: number };
@@ -26,7 +26,7 @@ const monthLabel = (date: Date) =>
   `${formatDateUtc(date, { month: "short" })} '${String(date.getUTCFullYear()).slice(-2)}`;
 
 /** Buckets the profiles per month, including the months without any contribution. */
-const buildBuckets = (profiles: PowerProfile[]): Bucket[] => {
+const buildBuckets = (profiles: ProfileSummary[]): Bucket[] => {
   if (profiles.length === 0) return [];
 
   const counts = new Map<number, number>();

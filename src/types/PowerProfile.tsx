@@ -144,3 +144,18 @@ export interface PlotLink {
   url: string;
   label: string;
 }
+
+/** Data needed by collection cards, filters and contributor charts. Detail pages load PowerProfile. */
+export type ProfileSummary = Pick<
+  PowerProfile,
+  | "manufacturer"
+  | "modelId"
+  | "name"
+  | "aliases"
+  | "deviceType"
+  | "createdAt"
+  | "calculationStrategy"
+  | "standbyPower"
+  | "maxPower"
+  | "usageStats"
+>;

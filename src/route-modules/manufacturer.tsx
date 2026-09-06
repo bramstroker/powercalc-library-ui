@@ -1,3 +1,4 @@
+import { profileSummary } from "../utils/profileSummary";
 import { redirect, type LoaderFunctionArgs, type MetaFunction, useLoaderData } from "react-router";
 
 import { Manufacturer } from "../components/manufacturer/Manufacturer";
@@ -36,7 +37,7 @@ const loadManufacturer = async ({
 
   return {
     manufacturer,
-    profiles: library.profilesByManufacturerSlug.get(slug) ?? [],
+    profiles: (library.profilesByManufacturerSlug.get(slug) ?? []).map(profileSummary),
   };
 };
 

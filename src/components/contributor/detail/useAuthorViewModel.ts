@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import { useUrlSearchParams } from "../../../hooks/useUrlSearchParams";
 import { CalculationStrategy } from "../../../types/CalculationStrategy";
-import type { Author, Manufacturer, PowerProfile } from "../../../types/PowerProfile";
+import type { Author, Manufacturer, ProfileSummary } from "../../../types/PowerProfile";
 import { getContributorTier } from "../../../utils/contributorTier";
 import { humanizeIdentifier } from "../../../utils/profilePresentation";
 import {
@@ -34,7 +34,7 @@ const countBy = <T>(items: readonly T[], keyOf: (item: T) => string): DeviceType
 
 type UseAuthorViewModelOptions = {
   authorDetails?: Author;
-  authorProfiles: PowerProfile[];
+  authorProfiles: ProfileSummary[];
 };
 
 export const useAuthorViewModel = ({

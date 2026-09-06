@@ -26,5 +26,10 @@ export const apiPreconnectLinks: LinkDescriptor[] = [
  */
 export const libraryPreloadLinks: LinkDescriptor[] = [
   ...apiPreconnectLinks,
-  { rel: "preload", as: "fetch", href: import.meta.env.PROD ? "/library-index.json" : API_ENDPOINTS.LIBRARY, crossOrigin: "anonymous" },
+  {
+    rel: "preload",
+    as: "fetch",
+    href: import.meta.env.PROD ? "/library-index.json" : API_ENDPOINTS.LIBRARY,
+    crossOrigin: "anonymous",
+  },
 ];

@@ -88,6 +88,9 @@ describe("profile category loader", () => {
         params: { categoryName: "light" },
         request: new Request("http://localhost/device-types/light.data"),
       } as never),
-    ).resolves.toMatchObject({ value: "light", profiles: [profile] });
+    ).resolves.toMatchObject({
+      value: "light",
+      profiles: [{ modelId: profile.modelId, deviceType: profile.deviceType }],
+    });
   });
 });

@@ -6,8 +6,15 @@ import { DEFAULT_LIBRARY_API_URL } from "./generate-sitemap.mjs";
 // Keep search/filter metadata and all canonical and legacy identities. Detail loaders continue
 // using the full API; this projection is exclusively for catalogue browsing.
 const DETAIL_FIELDS = new Set([
-  "measure_description", "measure_settings", "hash", "manufacturer", "description",
-  "product_url", "measure_device_firmware", "fields", "multi_switch_config",
+  "measure_description",
+  "measure_settings",
+  "hash",
+  "manufacturer",
+  "description",
+  "product_url",
+  "measure_device_firmware",
+  "fields",
+  "multi_switch_config",
 ]);
 export const createLibraryIndex = (library) => ({
   manufacturers: library.manufacturers.map((manufacturer) => ({

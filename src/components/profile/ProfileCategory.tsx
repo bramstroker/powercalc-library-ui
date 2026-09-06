@@ -5,7 +5,7 @@ import {
   type ProfileCategoryConfig,
 } from "../../config/profileCategories";
 import type { BreadcrumbItem } from "../../seo/breadcrumbs";
-import type { PowerProfile } from "../../types/PowerProfile";
+import type { ProfileSummary } from "../../types/PowerProfile";
 import { numberFormat } from "../../utils/formatters";
 import { ProfileCardGrid } from "../library/cards/ProfileCardGrid";
 import { PageBreadcrumbs } from "../shared/PageBreadcrumbs";
@@ -17,7 +17,7 @@ export const ProfileCategory = ({
 }: {
   config: ProfileCategoryConfig;
   value: string;
-  profiles: PowerProfile[];
+  profiles: ProfileSummary[];
 }) => {
   const label = config.label(value);
   const breadcrumbs: BreadcrumbItem[] = [

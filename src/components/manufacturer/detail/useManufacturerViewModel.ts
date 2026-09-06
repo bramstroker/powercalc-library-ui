@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { useUrlSearchParams } from "../../../hooks/useUrlSearchParams";
-import type { Manufacturer, PowerProfile } from "../../../types/PowerProfile";
+import type { Manufacturer, ProfileSummary } from "../../../types/PowerProfile";
 import { manufacturerLibraryIntroduction } from "../../../utils/manufacturerPresentation";
 import {
   DEFAULT_PROFILE_SORT,
@@ -22,7 +22,7 @@ export type DeviceTypeCount = {
 
 type UseManufacturerViewModelOptions = {
   manufacturer?: Manufacturer;
-  profiles: PowerProfile[];
+  profiles: ProfileSummary[];
 };
 
 export const useManufacturerViewModel = ({

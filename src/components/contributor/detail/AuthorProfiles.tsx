@@ -1,6 +1,6 @@
 import { Box, Stack, Typography } from "@mui/material";
 
-import type { PowerProfile } from "../../../types/PowerProfile";
+import type { ProfileSummary } from "../../../types/PowerProfile";
 import { plural } from "../../../utils/plural";
 import type { ProfileSort } from "../../../utils/profileSort";
 import { ProfileCardGrid } from "../../library/cards/ProfileCardGrid";
@@ -11,7 +11,7 @@ export type AuthorProfilesProps = {
   manufacturerCount: number;
   onSortChange: (sort: ProfileSort) => void;
   profileSort: ProfileSort;
-  profiles: PowerProfile[];
+  profiles: ProfileSummary[];
 };
 
 export const AuthorProfiles = ({

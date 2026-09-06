@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router";
 
-import type { PowerProfile } from "../../../types/PowerProfile";
+import type { ProfileSummary } from "../../../types/PowerProfile";
 import { profilePath } from "../../../utils/urlSlugs.mjs";
 import { profileRowId } from "../grid/profileRowId";
 
@@ -17,7 +17,7 @@ import { ProfileCard } from "./ProfileCard";
 const MAX_CARDS = 24;
 
 export type ProfileCardGridProps = {
-  profiles: PowerProfile[];
+  profiles: ProfileSummary[];
   headingComponent?: "h3" | "h4";
   "data-testid"?: string;
 };
