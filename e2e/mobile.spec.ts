@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { E2E_API_BASE_URL, mockApi } from "./fixtures/api";
+import { E2E_API_BASE_URL, library, mockApi } from "./fixtures/api";
 
 // A phone-sized viewport: below the md breakpoint the results become a card list, because a
 // five-column table needs roughly twice this width.
@@ -254,4 +254,47 @@ test("keeps mobile filter controls visible and restores focus when closing", asy
   await page.keyboard.press("Escape");
   await expect(drawer).toBeHidden();
   await expect(trigger).toBeFocused();
+});
+
+test("shows the full device identity at 320px and with enlarged text", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  const manufacturerName = "3A Smart Home";
+  const modelId = "LONG-MODEL-IDENTIFIER-12345678901234567890";
+  await page.route("**/library/full", (route) =>
+    route.fulfill({
+      json: {
+        manufacturers: [
+          {
+            ...library.manufacturers[0],
+            full_name: manufacturerName,
+            models: [{ ...library.manufacturers[0].models[0], id: modelId, aliases: [] }],
+          },
+        ],
+      },
+    }),
+  );
+  await page.goto("/about");
+  await page.getByRole("link", { name: "Profile Library" }).click();
+  const list = page.getByTestId("library-card-list");
+  const model = list.getByRole("heading", { name: modelId });
+  await expect(model).toBeVisible();
+  for (const fontSize of ["16px", "32px"]) {
+    await page.evaluate((size) => {
+      document.documentElement.style.fontSize = size;
+    }, fontSize);
+    for (const element of [model, list.getByText(manufacturerName, { exact: true })]) {
+      const dimensions = await element.evaluate((node) => ({
+        width: node.clientWidth,
+        contentWidth: node.scrollWidth,
+        height: node.clientHeight,
+        contentHeight: node.scrollHeight,
+        overflow: getComputedStyle(node).textOverflow,
+      }));
+      expect(dimensions.contentWidth).toBeLessThanOrEqual(dimensions.width);
+      expect(dimensions.contentHeight).toBeLessThanOrEqual(dimensions.height);
+      expect(dimensions.overflow).not.toBe("ellipsis");
+    }
+    if (fontSize === "16px")
+      await page.screenshot({ path: "test-results/mobile-model-identity.png" });
+  }
 });

@@ -58,14 +58,22 @@ export const LibraryCardList = ({ rows }: LibraryCardListProps) => {
               </Box>
 
               <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                <Stack direction="row" sx={{ alignItems: "baseline", gap: 0.75, minWidth: 0 }}>
-                  <Typography variant="body2" color="text.secondary" noWrap>
-                    {profile.manufacturer.fullName}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    ·
-                  </Typography>
-                  <Typography component="h2" variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ overflowWrap: "anywhere" }}
+                >
+                  {profile.manufacturer.fullName}
+                </Typography>
+                <Stack
+                  direction="row"
+                  sx={{ alignItems: "baseline", flexWrap: "wrap", gap: 0.75, minWidth: 0 }}
+                >
+                  <Typography
+                    component="h2"
+                    variant="subtitle2"
+                    sx={{ fontWeight: 700, overflowWrap: "anywhere", minWidth: 0 }}
+                  >
                     {profile.modelId}
                   </Typography>
                   {isRecentlyAdded(profile) && <NewBadge />}
