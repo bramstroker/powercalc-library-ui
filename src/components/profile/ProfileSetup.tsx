@@ -236,7 +236,7 @@ export const ProfileSetup = ({ profile }: ProfileSetupProps) => {
         View discovery and setup instructions for this profile.
       </Typography>
 
-      <Collapse in={setupExpanded} timeout="auto">
+      <Collapse in={setupExpanded} timeout="auto" mountOnEnter>
         <Paper id="profile-setup-details" variant="outlined" sx={{ p: 2, mt: 1 }}>
           {isManualOnly ? (
             <>
