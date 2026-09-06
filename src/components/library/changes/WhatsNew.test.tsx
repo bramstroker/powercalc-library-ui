@@ -165,6 +165,47 @@ describe("WhatsNew", () => {
     );
   });
 
+  it("summarizes mixed batches using only supported changes and respects the filter", () => {
+    queryClient.setQueryData(libraryQuery().queryKey, {
+      powerProfilesBySlugKey: new Map(),
+    } as LibraryData);
+    const mixedBatch: LibraryChangesPage = {
+      ...page,
+      items: [
+        {
+          ...page.items[0],
+          changes: [
+            ...page.items[0].changes,
+            ...Array.from({ length: 5 }, (_, index) => ({
+              ...page.items[0].changes[1],
+              profile: { ...page.items[0].changes[1].profile, id: `BATCH${index}` },
+            })),
+          ],
+        },
+      ],
+    };
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <WhatsNew initialPage={mixedBatch} />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+
+    expect(
+      screen.getByText("2 new profiles · Measurements updated for 6 profiles"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Sonoff S31")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Updated measurements" }));
+    expect(screen.getByText("Measurements updated for 6 profiles")).toBeInTheDocument();
+    expect(screen.queryByText(/2 new profiles/)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Added profiles" }));
+    expect(document.querySelector("details")).toBeNull();
+    expect(screen.getByRole("link", { name: "Signify LCA001" })).toBeVisible();
+  });
+
   it("renders an untrusted pull request URL as plain text", () => {
     queryClient.setQueryData(libraryQuery().queryKey, {
       powerProfilesBySlugKey: new Map(),

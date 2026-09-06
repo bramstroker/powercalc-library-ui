@@ -185,18 +185,62 @@ const PullRequestChange = ({
   currentProfiles: Map<string, PowerProfile>;
 }) => {
   const pullRequestUrl = safeGithubPullRequestUrl(change.source.pull_request_url);
+  const isBatch = change.changes.length > 5;
+  const addedCount = change.changes.filter((item) => item.type === "profile_added").length;
+  const updatedCount = change.changes.length - addedCount;
+  const batchSummary = [
+    addedCount > 0 && `${addedCount} new ${addedCount === 1 ? "profile" : "profiles"}`,
+    updatedCount > 0 &&
+      `Measurements updated for ${updatedCount} ${updatedCount === 1 ? "profile" : "profiles"}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const profileChanges = (
+    <Stack divider={<Divider flexItem />}>
+      {change.changes.map((profileChange, index) => (
+        <Box
+          key={`${profileChange.type}-${profileChange.profile.manufacturer.dir_name}-${profileChange.profile.id}-${index}`}
+        >
+          <ProfileChange change={profileChange} currentProfiles={currentProfiles} />
+        </Box>
+      ))}
+    </Stack>
+  );
 
   return (
     <Box component="article" sx={{ px: 2, py: 1.75 }} data-testid="whats-new-pull-request">
-      <Stack divider={<Divider flexItem />}>
-        {change.changes.map((profileChange, index) => (
+      {isBatch ? (
+        <Box component="details" sx={{ mb: 1 }}>
           <Box
-            key={`${profileChange.type}-${profileChange.profile.manufacturer.dir_name}-${profileChange.profile.id}-${index}`}
+            component="summary"
+            sx={{
+              cursor: "pointer",
+              py: 1.25,
+              minHeight: 44,
+              fontWeight: 700,
+              overflowWrap: "anywhere",
+              "&:focus-visible": {
+                outline: "2px solid",
+                outlineColor: "primary.main",
+                outlineOffset: 2,
+              },
+            }}
           >
-            <ProfileChange change={profileChange} currentProfiles={currentProfiles} />
+            {batchSummary}
+            <Typography
+              component="span"
+              variant="body2"
+              color="text.secondary"
+              sx={{ display: "block", mt: 0.5 }}
+            >
+              Expand or collapse the profile list
+            </Typography>
           </Box>
-        ))}
-      </Stack>
+          {profileChanges}
+        </Box>
+      ) : (
+        profileChanges
+      )}
       <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
         Contributed by <ContributorLinks change={change} /> ·{" "}
         {pullRequestUrl ? (
@@ -293,7 +337,7 @@ export const WhatsNew = ({ initialPage }: WhatsNewProps) => {
           <Stack divider={<Divider flexItem />}>
             {dayChanges.map((change) => (
               <PullRequestChange
-                key={change.id}
+                key={`${change.id}-${changeTypeFilter}`}
                 change={change}
                 currentProfiles={powerProfilesBySlugKey}
               />
