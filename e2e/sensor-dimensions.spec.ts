@@ -15,9 +15,12 @@ for (const width of [1280, 320]) {
       page.getByText("Top 8 of 10 categories. Open Details for the full list."),
     ).toBeVisible();
     await expect(
-      page.getByText("light: 900 installations · 22.5% of reporting installations"),
+      page.getByText("Light: 900 installations · 22.5% of reporting installations"),
     ).toBeVisible();
-    await expect(page.getByText(/humidifier:/)).toHaveCount(0);
+    await expect(page.getByText(/Humidifier:/)).toHaveCount(0);
+    await expect(page.getByText(/^Media Player:/)).toBeVisible();
+    await expect(page.getByText(/^User interface:/)).toBeVisible();
+    await expect(page.getByText(/^YAML:/)).toBeVisible();
     await expect(page.locator(".MuiBarChart-element").first()).toBeVisible();
 
     const sourceCard = page.locator(".MuiPaper-root").filter({
@@ -28,8 +31,8 @@ for (const width of [1280, 320]) {
     const table = page.getByRole("table", { name: "Source domain sensor statistics" });
     await expect(table).toBeVisible();
     await expect(table.getByRole("row")).toHaveCount(11);
-    await expect(table.getByRole("rowheader", { name: "humidifier" })).toBeVisible();
-    await expect(table.getByRole("row").filter({ hasText: "light" })).toContainText("22.5%");
+    await expect(table.getByRole("rowheader", { name: "Humidifier" })).toBeVisible();
+    await expect(table.getByRole("row").filter({ hasText: "Light" })).toContainText("22.5%");
 
     await page.getByRole("combobox", { name: "Metric" }).click();
     await page.getByRole("option", { name: "Total Count", exact: true }).click();
@@ -38,7 +41,7 @@ for (const width of [1280, 320]) {
     ).toBeVisible();
     await page.getByRole("button", { name: "Back to overview" }).click();
     await expect(page).toHaveURL(/sensor-dimensions\?metric=count$/);
-    await expect(page.getByText("light: 2,700 sensors")).toBeVisible();
+    await expect(page.getByText("Light: 2,700 sensors")).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     ).toBe(true);

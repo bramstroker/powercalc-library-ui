@@ -23,6 +23,7 @@ import { sensorDimensionsQuery } from "../../../queries/analytics.query";
 import { AnalyticsHeader } from "../AnalyticsHeader";
 
 import { MetricsSelect } from "./MetricsSelect";
+import { sensorCategoryLabel } from "./sensorCategoryLabel";
 import { SensorDimensionDetailView } from "./SensorDimensionDetailView";
 import type { MetricKey } from "./sensorMetric";
 import { parseMetricKey } from "./sensorMetric";
@@ -131,7 +132,7 @@ export const SensorDimensions = () => {
             .map((item) => ({
               id: `${dimension}:${item.key_name}`, // ensure unique
               value: item[selectedMetric] ?? 0,
-              label: item.key_name,
+              label: sensorCategoryLabel(item.key_name),
               installations: item.installation_count,
               percentage: item.percentage,
             }))

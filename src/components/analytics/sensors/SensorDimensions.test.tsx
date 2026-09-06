@@ -115,8 +115,8 @@ describe("SensorDimensions", () => {
     renderPage("/analytics/sensor-dimensions?metric=percentage");
 
     expect(screen.getByTestId("bar-chart")).toHaveTextContent("80,70");
-    expect(screen.getByText(/light: 8 installations · 80%/)).toBeVisible();
-    expect(screen.getByText(/switch: 7 installations · 70%/)).toBeVisible();
+    expect(screen.getByText(/Light: 8 installations · 80%/)).toBeVisible();
+    expect(screen.getByText(/Switch: 7 installations · 70%/)).toBeVisible();
     expect(screen.getByText(/can add up to more than 100%/)).toBeVisible();
   });
 

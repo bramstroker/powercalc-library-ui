@@ -189,28 +189,25 @@ test("keeps every profile tab reachable", async ({ page }) => {
   await expect(page.getByText("Brightness", { exact: true })).toBeVisible();
 });
 
-test("puts the pie chart legend below the chart", async ({ page }) => {
+test("shows readable sensor categories and counts below the chart", async ({ page }) => {
   await page.goto("/analytics/sensor-dimensions");
-
   const card = page.locator(".MuiPaper-root").filter({ hasText: "Source domain" }).first();
-  await expect(card).toBeVisible();
-
-  const pie = await card.locator("path").first().boundingBox();
-  const legend = await card
-    .locator(".MuiChartsLegend-label", { hasText: "media_player" })
-    .boundingBox();
-
-  expect(legend!.y).toBeGreaterThan(pie!.y + pie!.height);
+  const chart = card.locator("svg").filter({ has: page.locator(".MuiBarChart-element") });
+  const counts = card.getByRole("list");
+  await expect(counts.getByText(/^Media Player:/)).toBeVisible();
+  const chartBox = await chart.boundingBox();
+  const countsBox = await counts.boundingBox();
+  expect(countsBox!.y).toBeGreaterThanOrEqual(chartBox!.y + chartBox!.height);
 });
 
 test("gives the detail bar chart room for its category labels", async ({ page }) => {
   await page.goto("/analytics/sensor-dimensions/by_source_domain");
 
-  await expect(page.getByRole("heading", { name: "Source Domain", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Source domain", level: 1 })).toBeVisible();
 
-  // Truncated labels render as "media_pla…" when the y axis is too narrow for them.
-  await expect(page.locator("tspan", { hasText: /^media_player$/ })).toBeVisible();
-  await expect(page.locator("tspan", { hasText: /^binary_sensor$/ })).toBeVisible();
+  // Category names remain readable in the mobile chart.
+  await expect(page.locator("tspan", { hasText: /^Media Player$/ })).toBeVisible();
+  await expect(page.locator("tspan", { hasText: /^Binary Sensor$/ })).toBeVisible();
 });
 
 test("filters from the drawer and opens a profile", async ({ page }) => {

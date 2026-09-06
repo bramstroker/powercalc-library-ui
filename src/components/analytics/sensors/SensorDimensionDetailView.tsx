@@ -18,6 +18,7 @@ import { sensorDimensionTitle } from "../../../config/sensorDimensions.mjs";
 import { PageBreadcrumbs } from "../../shared/PageBreadcrumbs";
 
 import { MetricsSelect } from "./MetricsSelect";
+import { sensorCategoryLabel } from "./sensorCategoryLabel";
 import type { MetricKey } from "./sensorMetric";
 import { SensorMetricContext } from "./SensorMetricContext";
 
@@ -54,7 +55,7 @@ export const SensorDimensionDetailView = ({
   const chartData = React.useMemo(
     () =>
       sortedData.map((item) => ({
-        key: item.key_name,
+        key: sensorCategoryLabel(item.key_name),
         value: (item[metric] as number | undefined) ?? 0,
       })),
     [sortedData, metric],
@@ -187,7 +188,7 @@ export const SensorDimensionDetailView = ({
                   <tbody>
                     {sortedData.map((item) => (
                       <tr key={item.key_name}>
-                        <th scope="row">{item.key_name}</th>
+                        <th scope="row">{sensorCategoryLabel(item.key_name)}</th>
                         <td>{item.installation_count.toLocaleString()}</td>
                         <td>{item.percentage}%</td>
                         <td>{item.count.toLocaleString()}</td>
