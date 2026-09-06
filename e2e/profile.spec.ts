@@ -167,6 +167,11 @@ test("preserves the filtered library URL when navigating back to results", async
   await page.goto("/?q=LCA001&manufacturer=Signify");
   await page.getByRole("link", { name: "LCA001", exact: true }).click();
 
+  for (const name of ["JSON", "Graphs", "Attributes"]) {
+    await page.getByRole("tab", { name, exact: true }).click();
+    await expect(page.getByRole("button", { name: "Back to results" })).toBeVisible();
+  }
+
   await page.getByRole("button", { name: "Back to results" }).click();
 
   await expect(page).toHaveURL("/?q=LCA001&manufacturer=Signify");
