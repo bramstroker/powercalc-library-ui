@@ -3,8 +3,6 @@
 Every file in this directory, where it came from and under what terms. Update this by hand
 when adding a logo.
 
-128 of the 131 manufacturers have a logo; the rest fall back to a monogram.
-
 `Rendering` is `monochrome` when the file is flattened to `currentColor` and tinted by the
 theme, `full colour` when it keeps its own fills, and `two-tone` when only its near-black,
 near-neutral ink is themed so a coloured mark survives.
@@ -12,10 +10,10 @@ near-neutral ink is themed so a coloured mark survives.
 Traced entries were vectorised from a bitmap. Those marked `single ink` carry one colour, so
 any second colour in the original is lost; the rest were traced once per ink and keep both.
 
-27 ship a `<slug>.wide.svg` with the full lockup, because their square file is either
-cropped to the mark or a different file entirely: `antela`, `apc`, `bang-olufsen`, `belkin`, `everspring`, `ewelink`, `fibaro`, `forever-light`, `gledopto`, `hornbach`, `kobi`, `ledvance`, `lumiman`, `mercator-ikuu`, `mueller-licht`, `nanoleaf`, `netatmo`, `philips`, `reolink`, `roborock`, `sagemcom`, `signify`, `switchbot`, `sylvania`, `third-reality`, `tp-link`, `zengge`.
+The following manufacturers ship a `<slug>.wide.svg` with the full lockup, because their square file is either
+cropped to the mark or a different file entirely: `antela`, `apc`, `bang-olufsen`, `belkin`, `everspring`, `ewelink`, `fibaro`, `forever-light`, `gledopto`, `hornbach`, `kobi`, `laundrify`, `ledvance`, `lumiman`, `mercator-ikuu`, `mueller-licht`, `nanoleaf`, `netatmo`, `philips`, `reolink`, `roborock`, `sagemcom`, `signify`, `switchbot`, `sylvania`, `third-reality`, `tp-link`, `zengge`.
 
-## Traced from a raster (48)
+## Traced from a raster
 
 trademark of each manufacturer; vectorised with potrace
 
@@ -74,7 +72,7 @@ Source artwork for the 2026-08 batch: [Antela manufacturer site](https://www.ant
 
 SwitchBot square artwork: [WebCatalog](https://cdn-1.webcatalog.io/catalog/switchbot/switchbot-social-preview.png?v=1785717142747), vectorised once per ink. Wide lockup: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:SwitchBoot_logo.svg), Public domain (`PD-textlogo`).
 
-## Wikimedia Commons (24)
+## Wikimedia Commons
 
 Source: <https://commons.wikimedia.org> — per file, below
 
@@ -105,7 +103,7 @@ Source: <https://commons.wikimedia.org> — per file, below
 | `trust.svg`         | trust         | two-tone                                | square                                     | Public domain |
 | `velux.svg`         | velux         | full colour                             | square                                     | Public domain |
 
-## Supplied by the maintainer (20)
+## Supplied by the maintainer
 
 trademark of each manufacturer
 
@@ -132,12 +130,12 @@ trademark of each manufacturer
 | `sylvania.svg`      | sylvania      | two-tone    | square + wide                                    | trademark of the manufacturer |
 | `zipato.svg`        | zipato        | monochrome  | square                                           | trademark of the manufacturer |
 
-## Simple Icons (19) — no longer a source
+## Simple Icons — no longer a source
 
 Source: <https://simpleicons.org> — CC0-1.0 (collection)
 
 **Do not add logos from here.** Simple Icons ships one-colour silhouettes, and this directory wants
-full-colour artwork. The 19 files below predate that decision and are listed only to keep their
+full-colour artwork. The files below predate that decision and are listed only to keep their
 attribution and licence on record; replace them with the brand's own artwork when it turns up.
 Several are genuinely single-ink brands (Apple, Bose, Sonos, Sony, Denon, LIFX, Netgear), so for
 those a silhouette is the real logo and a replacement would change nothing.
@@ -164,33 +162,34 @@ those a silhouette is the real logo and a replacement would change nothing.
 | `wyze.svg`    | wyze         | monochrome | square | CC0-1.0 (collection) |
 | `xiaomi.svg`  | xiaomi       | monochrome | square | CC0-1.0 (collection) |
 
-## Manufacturer websites (17)
+## Manufacturer websites
 
 trademark of each manufacturer; taken from the brand's own site
 
 ELRO source: <https://www.elro.eu/static/version1787833378/frontend/Elro/b2c/en_US/images/logo.svg>
 
-| File            | Manufacturer | Rendering   | Shapes                                     | Licence                       |
-| --------------- | ------------ | ----------- | ------------------------------------------ | ----------------------------- |
-| `aqara.svg`     | aqara        | monochrome  | square                                     | trademark of the manufacturer |
-| `elgin.svg`     | elgin        | monochrome  | square                                     | trademark of the manufacturer |
-| `elro.svg`      | elro         | monochrome  | square                                     | trademark of the manufacturer |
-| `eufy.svg`      | eufy         | monochrome  | square                                     | trademark of the manufacturer |
-| `free.svg`      | free         | monochrome  | square                                     | trademark of the manufacturer |
-| `govee.svg`     | govee        | monochrome  | square                                     | trademark of the manufacturer |
-| `inovelli.svg`  | inovelli     | monochrome  | square                                     | trademark of the manufacturer |
-| `linkind.svg`   | linkind      | monochrome  | square                                     | trademark of the manufacturer |
-| `malmbergs.svg` | malmbergs    | monochrome  | square                                     | trademark of the manufacturer |
-| `nanoleaf.svg`  | nanoleaf     | two-tone    | square + wide                              | trademark of the manufacturer |
-| `netatmo.svg`   | netatmo      | two-tone    | square + wide                              | trademark of the manufacturer |
-| `nodon.svg`     | nodon        | two-tone    | square                                     | trademark of the manufacturer |
-| `nous.svg`      | nous         | monochrome  | square                                     | trademark of the manufacturer |
-| `nuki.svg`      | nuki         | two-tone    | square                                     | trademark of the manufacturer |
-| `reolink.svg`   | reolink      | monochrome  | square + wide (square from `reolink-mark`) | trademark of the manufacturer |
-| `tuya.svg`      | tuya         | full colour | square                                     | trademark of the manufacturer |
-| `wiz.svg`       | wiz          | monochrome  | square                                     | trademark of the manufacturer |
+| File            | Manufacturer | Rendering                             | Shapes                                     | Licence                       |
+| --------------- | ------------ | ------------------------------------- | ------------------------------------------ | ----------------------------- |
+| `aqara.svg`     | aqara        | monochrome                            | square                                     | trademark of the manufacturer |
+| `elgin.svg`     | elgin        | monochrome                            | square                                     | trademark of the manufacturer |
+| `elro.svg`      | elro         | monochrome                            | square                                     | trademark of the manufacturer |
+| `eufy.svg`      | eufy         | monochrome                            | square                                     | trademark of the manufacturer |
+| `free.svg`      | free         | monochrome                            | square                                     | trademark of the manufacturer |
+| `govee.svg`     | govee        | monochrome                            | square                                     | trademark of the manufacturer |
+| `inovelli.svg`  | inovelli     | monochrome                            | square                                     | trademark of the manufacturer |
+| `laundrify.svg` | laundrify    | full colour (square), two-tone (wide) | square + wide                              | trademark of the manufacturer |
+| `linkind.svg`   | linkind      | monochrome                            | square                                     | trademark of the manufacturer |
+| `malmbergs.svg` | malmbergs    | monochrome                            | square                                     | trademark of the manufacturer |
+| `nanoleaf.svg`  | nanoleaf     | two-tone                              | square + wide                              | trademark of the manufacturer |
+| `netatmo.svg`   | netatmo      | two-tone                              | square + wide                              | trademark of the manufacturer |
+| `nodon.svg`     | nodon        | two-tone                              | square                                     | trademark of the manufacturer |
+| `nous.svg`      | nous         | monochrome                            | square                                     | trademark of the manufacturer |
+| `nuki.svg`      | nuki         | two-tone                              | square                                     | trademark of the manufacturer |
+| `reolink.svg`   | reolink      | monochrome                            | square + wide (square from `reolink-mark`) | trademark of the manufacturer |
+| `tuya.svg`      | tuya         | full colour                           | square                                     | trademark of the manufacturer |
+| `wiz.svg`       | wiz          | monochrome                            | square                                     | trademark of the manufacturer |
 
-## Manufacturer press kit (2)
+## Manufacturer press kit
 
 per file, below
 
@@ -199,7 +198,7 @@ per file, below
 | `paulmann-licht.svg` | paulmann licht | full colour | square | trademark of Paulmann Licht GmbH |
 | `yeelight.svg`       | yeelight       | full colour | square | trademark of Yeelight            |
 
-## VectorLogoZone (1)
+## VectorLogoZone
 
 Source: <https://www.vectorlogo.zone> — per file, below
 
