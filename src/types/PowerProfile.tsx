@@ -120,7 +120,7 @@ export type PowerProfile = {
   deviceSpecs?: DeviceSpecs | null;
   productUrl?: string | null;
   /** Barcodes on the packaging. A model often ships under several, one per region. */
-  ean: string[];
+  gtin: string[];
   usageStats: UsageStats;
 };
 

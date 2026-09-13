@@ -91,7 +91,7 @@ export const createDeviceAttributes = (profile: PowerProfile): ProfileAttribute[
   },
   {
     label: "Barcode",
-    value: profile.ean,
+    value: profile.gtin,
     icon: MoreIcon,
     group: "device",
     render: (value) => (
