@@ -100,7 +100,7 @@ export const mapToBasePowerProfile = (
     standbyPowerEstimated: model.standby_power_estimated ?? false,
     deviceSpecs: mapDeviceSpecs(model.device_specs),
     productUrl: safeHttpsUrl(model.product_url),
-    ean: model.ean ?? [],
+    gtin: model.gtin ?? [],
     usageStats: usageStats,
   };
 };

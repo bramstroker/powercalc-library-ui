@@ -67,6 +67,16 @@ describe("mapToBasePowerProfile", () => {
     expect(profile.aliases).toEqual(["LWB010", "LWB014"]);
   });
 
+  it("maps the model GTINs", () => {
+    const profile = mapToBasePowerProfile(
+      createModel({ gtin: ["8719514291218", "8719514291225"] }),
+      manufacturer,
+      usageStats,
+    );
+
+    expect(profile.gtin).toEqual(["8719514291218", "8719514291225"]);
+  });
+
   it("keeps legacy directory IDs separate from product aliases", () => {
     const profile = mapToBasePowerProfile(
       createModel({ legacy_ids: ["Hue LCA 001"] }),
@@ -279,7 +289,7 @@ describe("mapToBasePowerProfile", () => {
     expect(profile.deviceSpecs).toBeNull();
     expect(profile.measurementUpdatedAt).toBeNull();
     expect(profile.standbyPowerEstimated).toBe(false);
-    expect(profile.ean).toEqual([]);
+    expect(profile.gtin).toEqual([]);
     expect(profile.productUrl).toBeNull();
   });
 

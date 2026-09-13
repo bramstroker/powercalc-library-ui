@@ -90,8 +90,8 @@ export const createDeviceAttributes = (profile: PowerProfile): ProfileAttribute[
     display: connectivityLabel,
   },
   {
-    label: "Barcode",
-    value: profile.ean,
+    label: "GTIN",
+    value: profile.gtin,
     icon: MoreIcon,
     group: "device",
     render: (value) => (
@@ -99,7 +99,7 @@ export const createDeviceAttributes = (profile: PowerProfile): ProfileAttribute[
         values={value as string[]}
         singularLabel="barcode"
         pluralLabel="barcodes"
-        description="Product barcodes found on this device's packaging."
+        description="Global Trade Item Numbers found on this device's packaging."
       />
     ),
   },

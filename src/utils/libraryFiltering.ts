@@ -140,7 +140,7 @@ const getSearchDocument = (
     profile.deviceSpecs?.formFactor,
     ...(profile.deviceSpecs?.connectivity ?? []),
     ...profile.authors.flatMap((author) => [author.name, author.githubUsername]),
-    ...(profile.ean ?? []),
+    ...(profile.gtin ?? []),
   ];
   const normalizedFields = values
     .filter((value): value is string => Boolean(value))

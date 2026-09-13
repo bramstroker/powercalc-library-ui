@@ -75,7 +75,7 @@ export interface LibraryModel {
     power_monitoring?: boolean;
   };
   product_url?: string;
-  ean?: string[];
+  gtin?: string[];
 }
 
 export type LibraryJson = {

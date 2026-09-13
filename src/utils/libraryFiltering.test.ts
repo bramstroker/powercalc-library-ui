@@ -37,7 +37,7 @@ const createProfile = (overrides: Partial<PowerProfile> = {}): PowerProfile => (
   subProfileCount: 0,
   minVersion: null,
   compatibleIntegrations: [],
-  ean: [],
+  gtin: [],
   lutQuality: { score: 98.3, brightness: 98.3, colorTemp: 96.1 },
   usageStats: { installationCount: 12, deviceCount: 34, percentage: 1.5 },
   ...overrides,
@@ -442,7 +442,7 @@ describe("device metadata facets", () => {
 
 describe("search", () => {
   it("finds a profile by the barcode on its box", () => {
-    const profile = createProfile({ ean: ["8719514291218"] });
+    const profile = createProfile({ gtin: ["8719514291218"] });
 
     expect(matchesSearch(profile, "8719514291218")).toBe(true);
   });

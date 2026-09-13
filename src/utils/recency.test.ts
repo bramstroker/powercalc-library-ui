@@ -29,7 +29,7 @@ const createProfile = (createdAt: string, modelId = "M1"): PowerProfile => ({
   subProfileCount: 0,
   minVersion: null,
   compatibleIntegrations: [],
-  ean: [],
+  gtin: [],
   usageStats: { installationCount: 1, deviceCount: 1, percentage: 0.1 },
 });
 

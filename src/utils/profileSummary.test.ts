@@ -21,7 +21,7 @@ it("keeps collection identity and dates without serializing measurement details"
     authors: [],
     subProfileCount: 0,
     compatibleIntegrations: [],
-    ean: [],
+    gtin: [],
     standbyPower: 0.2,
     maxPower: 9,
     usageStats: { installationCount: 20, deviceCount: 40, percentage: 1 },
