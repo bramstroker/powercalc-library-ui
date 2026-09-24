@@ -11,7 +11,7 @@ Traced entries were vectorised from a bitmap. Those marked `single ink` carry on
 any second colour in the original is lost; the rest were traced once per ink and keep both.
 
 The following manufacturers ship a `<slug>.wide.svg` with the full lockup, because their square file is either
-cropped to the mark or a different file entirely: `antela`, `apc`, `bang-olufsen`, `belkin`, `everspring`, `ewelink`, `fibaro`, `forever-light`, `gledopto`, `hornbach`, `kobi`, `laundrify`, `ledvance`, `lumiman`, `mercator-ikuu`, `mueller-licht`, `nanoleaf`, `netatmo`, `philips`, `reolink`, `roborock`, `sagemcom`, `signify`, `switchbot`, `sylvania`, `third-reality`, `tp-link`, `zengge`.
+cropped to the mark or a different file entirely: `antela`, `apc`, `apollo-automation`, `bang-olufsen`, `belkin`, `everspring`, `ewelink`, `fibaro`, `forever-light`, `gledopto`, `hornbach`, `kobi`, `laundrify`, `ledvance`, `lumiman`, `mercator-ikuu`, `mueller-licht`, `nanoleaf`, `netatmo`, `philips`, `reolink`, `roborock`, `sagemcom`, `signify`, `switchbot`, `sylvania`, `third-reality`, `tp-link`, `zengge`.
 
 ## Traced from a raster
 
@@ -107,11 +107,18 @@ Source: <https://commons.wikimedia.org> — per file, below
 
 trademark of each manufacturer
 
+Apollo Automation: supplied `apollo-logo.png` (8000 × 3064), vectorised with potrace once per ink.
+The square retains the A and dot; the wide variant retains the full lockup. The supplied
+`public.avif` provides the blue lettering and green AUTOMATION colour layout; the flat inks
+(`#447aab` and `#9abc31`) are sampled from the PNG. `apollo_automation_logo.jpeg` confirms the
+standalone mark. The blue export background is omitted.
+
 | File                | Manufacturer  | Rendering   | Shapes                                           | Licence                       |
 | ------------------- | ------------- | ----------- | ------------------------------------------------ | ----------------------------- |
 | `aeotec.svg`        | aeotec        | two-tone    | square                                           | trademark of the manufacturer |
 | `ajax-online.svg`   | ajax-online   | monochrome  | square                                           | trademark of the manufacturer |
 | `anko.svg`          | anko          | monochrome  | square                                           | trademark of the manufacturer |
+| `apollo-automation.svg` | apollo automation | full colour | square + wide | trademark of the manufacturer |
 | `belkin.svg`        | belkin        | monochrome  | square + wide                                    | trademark of the manufacturer |
 | `calex.svg`         | calex         | two-tone    | square                                           | trademark of the manufacturer |
 | `dreo.svg`          | dreo          | monochrome  | square                                           | trademark of the manufacturer |

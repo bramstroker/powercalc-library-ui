@@ -159,10 +159,11 @@ Finally: `npm run lint`, `npx tsc --noEmit`, `npm test -- --run` — from the re
 
 ## 8. Record it
 
-Update **`PROVENANCE.md`**: add a row under the right source section (file, manufacturer,
-rendering mode, shapes, licence verbatim), bump that section's count, bump the coverage line, and
-add the slug to the wide-variant list if it ships one. Update the coverage count in
-**`README.md`** too. Both counts are per manufacturer, so re-derive them rather than assuming +1.
+Update **`PROVENANCE.md`** only for the affected manufacturer: add or update its row under the
+right source section (file, manufacturer, rendering mode, shapes, licence verbatim), include a
+concise source note when needed, and add its slug to the wide-variant list if it ships one.
+Do not add or update section counts, overall coverage statistics, unrelated entries, or
+**`README.md`** unless the user requests those changes.
 
 Do not add a logo to the repo without its provenance row — the licence is the reason the file can
 be there at all.
