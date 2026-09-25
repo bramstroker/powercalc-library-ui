@@ -7,17 +7,23 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
-import { useState, type MouseEvent } from "react";
+import { memo, useCallback, useState, type MouseEvent } from "react";
 import { Link as RouterLink, useLocation } from "react-router";
 
 import { EXPLORE_NAVIGATION } from "./exploreNavigation";
 
-export const ExploreMenu = () => {
-  const location = useLocation();
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const open = Boolean(anchorEl);
-  const close = () => setAnchorEl(null);
-  const isCurrent = (path: string) => location.pathname === path;
+type ExploreNavigationProps = {
+  pathname: string;
+  onClose: () => void;
+};
+
+// Keep the navigation ready while hidden. Opening the popover should only position and reveal
+// it, rather than mounting and styling all its links during the click on a slower phone.
+const ExploreNavigation = memo(function ExploreNavigation({
+  pathname,
+  onClose,
+}: ExploreNavigationProps) {
+  const isCurrent = (path: string) => pathname === path;
 
   const menuItemSx = (path: string) => ({
     borderRadius: 1,
@@ -27,6 +33,72 @@ export const ExploreMenu = () => {
     fontWeight: isCurrent(path) ? 700 : 400,
     bgcolor: isCurrent(path) ? "action.selected" : undefined,
   });
+
+  return (
+    <Box
+      component="nav"
+      aria-label="Explore Powercalc"
+      sx={{
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1.15fr" },
+        gap: { xs: 1, sm: 2 },
+        p: 2,
+      }}
+    >
+      {EXPLORE_NAVIGATION.map((section, sectionIndex) => (
+        <Box
+          key={section.label}
+          sx={
+            sectionIndex === 0
+              ? undefined
+              : {
+                  borderTop: { xs: 1, sm: 0 },
+                  borderLeft: { xs: 0, sm: 1 },
+                  borderColor: "divider",
+                  pt: { xs: 2, sm: 0 },
+                  pl: { xs: 0, sm: 2 },
+                }
+          }
+        >
+          <Typography
+            id={`explore-section-${sectionIndex}`}
+            variant="overline"
+            color="text.secondary"
+            sx={{ px: 1 }}
+          >
+            {section.label}
+          </Typography>
+          {section.description ? (
+            <Typography variant="body2" color="text.secondary" sx={{ px: 1, mb: 1 }}>
+              {section.description}
+            </Typography>
+          ) : null}
+          <MenuList disablePadding aria-labelledby={`explore-section-${sectionIndex}`}>
+            {section.items.map((item) => (
+              <MenuItem
+                key={item.path}
+                component={RouterLink}
+                to={item.path}
+                onClick={onClose}
+                aria-current={isCurrent(item.path) ? "page" : undefined}
+                sx={menuItemSx(item.path)}
+              >
+                <item.icon fontSize="small" sx={{ mr: 1.25, flexShrink: 0 }} />
+                {item.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Box>
+      ))}
+    </Box>
+  );
+});
+
+export const ExploreMenu = () => {
+  const location = useLocation();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const open = Boolean(anchorEl);
+  const close = useCallback(() => setAnchorEl(null), []);
 
   return (
     <>
@@ -57,6 +129,7 @@ export const ExploreMenu = () => {
 
       <Popover
         id="explore-menu"
+        keepMounted
         anchorEl={anchorEl}
         open={open}
         onClose={close}
@@ -73,62 +146,7 @@ export const ExploreMenu = () => {
           },
         }}
       >
-        <Box
-          component="nav"
-          aria-label="Explore Powercalc"
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1.15fr" },
-            gap: { xs: 1, sm: 2 },
-            p: 2,
-          }}
-        >
-          {EXPLORE_NAVIGATION.map((section, sectionIndex) => (
-            <Box
-              key={section.label}
-              sx={
-                sectionIndex === 0
-                  ? undefined
-                  : {
-                      borderTop: { xs: 1, sm: 0 },
-                      borderLeft: { xs: 0, sm: 1 },
-                      borderColor: "divider",
-                      pt: { xs: 2, sm: 0 },
-                      pl: { xs: 0, sm: 2 },
-                    }
-              }
-            >
-              <Typography
-                id={`explore-section-${sectionIndex}`}
-                variant="overline"
-                color="text.secondary"
-                sx={{ px: 1 }}
-              >
-                {section.label}
-              </Typography>
-              {section.description ? (
-                <Typography variant="body2" color="text.secondary" sx={{ px: 1, mb: 1 }}>
-                  {section.description}
-                </Typography>
-              ) : null}
-              <MenuList disablePadding aria-labelledby={`explore-section-${sectionIndex}`}>
-                {section.items.map((item) => (
-                  <MenuItem
-                    key={item.path}
-                    component={RouterLink}
-                    to={item.path}
-                    onClick={close}
-                    aria-current={isCurrent(item.path) ? "page" : undefined}
-                    sx={menuItemSx(item.path)}
-                  >
-                    <item.icon fontSize="small" sx={{ mr: 1.25, flexShrink: 0 }} />
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Box>
-          ))}
-        </Box>
+        <ExploreNavigation pathname={location.pathname} onClose={close} />
       </Popover>
     </>
   );

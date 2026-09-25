@@ -7,6 +7,7 @@ for (const width of [320, 1280]) {
     await page.setViewportSize({ width, height: 740 });
     await mockApi(page);
     await page.goto("/");
+    await expect(page.getByRole("navigation", { name: "Explore Powercalc" })).toBeHidden();
     for (const [name, path] of [
       ["Device types", "/device-types"],
       ["Measurement quality", "/measurement-quality"],
@@ -30,6 +31,7 @@ for (const width of [320, 1280]) {
       );
       await page.keyboard.press("Escape");
       await expect(nav).toBeHidden();
+      await expect(page.getByRole("button", { name: "Explore", exact: true })).toBeFocused();
     }
   });
 }
