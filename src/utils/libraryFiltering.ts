@@ -99,6 +99,12 @@ type SearchDocument = {
   words: string[];
 };
 
+type SearchField = {
+  normalized: string;
+  compact: string;
+  words: string[];
+};
+
 const searchDocumentCache = new WeakMap<PowerProfile, SearchDocument>();
 
 /**
@@ -110,13 +116,13 @@ const normalizeSearchText = (value: string): string =>
   value
     .normalize("NFKD")
     .replace(/\p{M}/gu, "")
-    .toLocaleLowerCase("en-US")
+    .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
 
 const getSearchDocument = (
   profile: PowerProfile,
-  normalizedValues: Map<string, string>,
+  preparedFields: Map<string, SearchField>,
 ): SearchDocument => {
   const cached = searchDocumentCache.get(profile);
   if (cached) {
@@ -142,22 +148,29 @@ const getSearchDocument = (
     ...profile.authors.flatMap((author) => [author.name, author.githubUsername]),
     ...(profile.gtin ?? []),
   ];
-  const normalizedFields = values
-    .filter((value): value is string => Boolean(value))
-    .map((value) => {
-      let normalized = normalizedValues.get(value);
-      if (normalized === undefined) {
-        normalized = normalizeSearchText(value);
-        normalizedValues.set(value, normalized);
-      }
-      return normalized;
-    })
-    .filter(Boolean);
-  const document = {
+  const fields = new Set<string>();
+  const words = new Set<string>();
+  for (const value of values) {
+    if (!value) continue;
+    // Brands, aliases and metadata recur across the catalogue. Split and compact each distinct
+    // field once per search pass, rather than repeating that work for every profile using it.
+    let field = preparedFields.get(value);
+    if (!field) {
+      const normalized = normalizeSearchText(value);
+      field = {
+        normalized,
+        compact: normalized.replaceAll(" ", ""),
+        words: normalized ? normalized.split(" ") : [],
+      };
+      preparedFields.set(value, field);
+    }
+    if (!field.normalized) continue;
+    fields.add(field.normalized);
     // Keep compact variants too: `tp-link`, `TP Link` and `tplink` should be interchangeable.
-    fields: [...normalizedFields, ...normalizedFields.map((field) => field.replaceAll(" ", ""))],
-    words: [...new Set(normalizedFields.flatMap((field) => field.split(" ")))],
-  };
+    fields.add(field.compact);
+    for (const word of field.words) words.add(word);
+  }
+  const document = { fields: [...fields], words: [...words] };
   searchDocumentCache.set(profile, document);
   return document;
 };
@@ -235,10 +248,10 @@ const createWordMatcher = (word: string) => {
 const createSearchMatcher = (term: string) => {
   const matchers = normalizeSearchText(term).split(/\s+/).filter(Boolean).map(createWordMatcher);
   // This cache lives only for the current filter pass, not across an unbounded history of input.
-  const normalizedValues = new Map<string, string>();
+  const preparedFields = new Map<string, SearchField>();
   return (profile: PowerProfile): boolean => {
     if (matchers.length === 0) return true;
-    const document = getSearchDocument(profile, normalizedValues);
+    const document = getSearchDocument(profile, preparedFields);
     return matchers.every((matches) => matches(document));
   };
 };
