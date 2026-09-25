@@ -41,6 +41,26 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        shard: [1, 2, 3]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Get Playwright version
         id: playwright-version
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
@@ -57,14 +77,12 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run e2e tests
-        run: npm run test:e2e
+        run: npm run test:e2e -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
 
-  deploy:
-    concurrency:
-      group: library-production
-      cancel-in-progress: false
-    needs: checks
+  # Builds while the tests run; `deploy` only ships the result once they have all passed.
+  build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -82,6 +100,31 @@ jobs:
       # which roughly triples what this step used to transfer. `docker load` unpacks gzip itself.
       - name: Save Docker images as tar file
         run: docker save powercalc-library-ui:latest powercalc-library-renderer:latest | gzip -1 > powercalc-library-ui.tar.gz
+
+      - name: Upload Docker images
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: docker-images
+          path: powercalc-library-ui.tar.gz
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
+
+  deploy:
+    concurrency:
+      group: library-production
+      cancel-in-progress: false
+    needs: [checks, e2e, build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Download Docker images
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: docker-images
 
       - name: Configure SSH host verification
         # Provision this from a trusted source; never populate it with ssh-keyscan during the job.

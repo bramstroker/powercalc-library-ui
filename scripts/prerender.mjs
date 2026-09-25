@@ -171,19 +171,27 @@ export const prerender = async ({
     const handler = createRequestHandler(serverBuild, "production");
     const routeTree = buildRouteTree(serverBuild.routes);
 
-    // Serial by design. The application query client is process-wide during static rendering, so
-    // concurrent renders would observe and mutate each other's Suspense state — the same reason
-    // `react-router.config.ts` pins the build's own prerender concurrency to 1.
-    for (const path of paths) {
-      const matches = matchRoutes(routeTree, `${path}/`.replace(/\/\/+/gu, "/"));
-      if (!matches) throw new Error(`Prerender: no route matches ${path}`);
+    const renderDocuments = async () => {
+      // Serial by design. The application query client is process-wide during static rendering, so
+      // concurrent renders would observe and mutate each other's Suspense state — the same reason
+      // `react-router.config.ts` pins the build's own prerender concurrency to 1.
+      for (const path of paths) {
+        const matches = matchRoutes(routeTree, `${path}/`.replace(/\/\/+/gu, "/"));
+        if (!matches) throw new Error(`Prerender: no route matches ${path}`);
 
-      const withData = matches.some((match) => serverBuild.routes[match.route.id]?.module?.loader);
-      await writeFiles(outDir, await renderPath(handler, path, { withData }), onFile);
-    }
+        const withData = matches.some(
+          (match) => serverBuild.routes[match.route.id]?.module?.loader,
+        );
+        await writeFiles(outDir, await renderPath(handler, path, { withData }), onFile);
+      }
 
-    await writeFiles(outDir, await renderSpaFallback(handler), onFile);
-    await generateProfileSocialImages({ library, outDir, onFile });
+      await writeFiles(outDir, await renderSpaFallback(handler), onFile);
+    };
+
+    await Promise.all([
+      renderDocuments(),
+      generateProfileSocialImages({ library, outDir, onFile }),
+    ]);
 
     return paths.length;
   });
