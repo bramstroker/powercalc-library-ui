@@ -45,7 +45,7 @@ type ProfileTab = {
 const profileTabs = (profile: PowerProfile): ProfileTab[] => [
   {
     key: "attributes",
-    label: "Attributes",
+    label: "Info",
     content: <ProfileAttributesTab profile={profile} />,
   },
   { key: "json", label: "JSON", content: <ProfileJsonTab profile={profile} /> },
@@ -161,7 +161,7 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
     { label: profile.modelId },
   ];
 
-  /** Unknown or inapplicable tab keys fall back to Attributes. */
+  /** Unknown or inapplicable tab keys fall back to Info. */
   const selectedTabIndex = Math.max(
     0,
     tabs.findIndex((tab) => tab.key === searchParams.get("tab")),
@@ -245,6 +245,12 @@ export const Profile = ({ profile, summary }: { profile: PowerProfile; summary: 
               />
             )}
           </Stack>
+
+          {profile.onlySelfUsage && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
+              Device's own consumption only; excludes connected appliances.
+            </Typography>
+          )}
 
           <Box sx={{ mt: 3 }}>
             <ProfileSetup profile={profile} />

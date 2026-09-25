@@ -52,9 +52,13 @@ jobs:
           rm -rf documents
           mkdir -p documents
           docker compose cp library_ui:/usr/share/nginx/html/.content-manifest.json documents/previous-manifest.json
+          docker compose cp library_ui:/usr/share/nginx/html/.redirects.json documents/previous-redirects.json
           docker compose run --rm --user "$(id -u):$(id -g)" renderer
           docker compose cp documents/delta/. library_ui:/usr/share/nginx/html/
           docker compose exec -T library_ui sh -c 'while IFS= read -r file; do rm -f "/usr/share/nginx/html/$file"; done' < documents/removed.txt
+          docker compose cp documents/nginx-redirects.conf library_ui:/etc/nginx/conf.d/00-legacy-redirects-map.conf
+          docker compose exec -T library_ui nginx -t
+          docker compose exec -T library_ui nginx -s reload
           ENDSSH
 
       - name: Retrieve changed URL manifest
@@ -87,4 +91,5 @@ jobs:
           set -e
           cd ${{ secrets.REMOTE_SERVER_PATH }}
           docker compose cp documents/next-manifest.json library_ui:/usr/share/nginx/html/.content-manifest.json
+          docker compose cp documents/next/.redirects.json library_ui:/usr/share/nginx/html/.redirects.json
           ENDSSH

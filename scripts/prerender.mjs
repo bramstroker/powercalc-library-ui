@@ -12,8 +12,8 @@
  *   - a route with a loader is asked for `<path>.data` first, and the payload is handed to the
  *     document render through `X-React-Router-Prerender-Data` so the loaders run exactly once;
  *   - the document request carries a trailing slash and is written to `<path>/index.html`;
- *   - `X-React-Router-SPA-Mode` produces `__spa-fallback.html`, the shell Nginx serves for routes
- *     that were never prerendered.
+ *   - `X-React-Router-SPA-Mode` produces `__spa-fallback.html` for parity with the build output;
+ *     production Nginx does not serve it, so missing routes return HTTP 404.
  */
 
 import { mkdir, writeFile } from "node:fs/promises";
@@ -109,7 +109,7 @@ export const renderPath = async (handler, path, { withData }) => {
   return files;
 };
 
-/** The shell for routes that were never prerendered. Nginx serves it as the SPA fallback. */
+/** Retain the build's SPA shell for parity; production Nginx returns 404 for missing routes. */
 export const renderSpaFallback = async (handler) => {
   const response = await handler(
     new Request("http://localhost/", { headers: { "X-React-Router-SPA-Mode": "yes" } }),

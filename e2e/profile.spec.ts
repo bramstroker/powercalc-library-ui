@@ -34,7 +34,14 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
     "content",
     "https://library.powercalc.nl/social-cards/profiles/signify/lca001.png",
   );
-  await expect(page.getByText("Shelly Plug S")).toBeVisible();
+  await expect(page.getByText("Shelly Plug S", { exact: true })).toBeVisible();
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /0\.4 W in standby.*a maximum of 9 W/,
+  );
+  await expect(page.getByRole("region", { name: "Measurement", exact: true })).toContainText(
+    "Measured with the powercalc measure tool",
+  );
   const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
   await expect(breadcrumb.getByText("LCA001", { exact: true })).toHaveAttribute(
     "aria-current",
@@ -142,7 +149,11 @@ test("shows the LUT quality with its per color mode breakdown", async ({ page })
 test("omits the LUT quality for a profile without measured curves", async ({ page }) => {
   await page.goto("/profiles/sonoff/S31");
 
-  await expect(page.getByText("Shelly Plug S").or(page.getByText("Zhurui PR10"))).toBeVisible();
+  await expect(
+    page
+      .getByText("Shelly Plug S", { exact: true })
+      .or(page.getByText("Zhurui PR10", { exact: true })),
+  ).toBeVisible();
   await expect(page.getByText("LUT curve quality")).toBeHidden();
   await expect(page.getByRole("link", { name: "How this score works" })).toBeHidden();
 });
@@ -178,7 +189,7 @@ test("preserves the filtered library URL when navigating back to results", async
   await page.goto("/?q=LCA001&manufacturer=Signify");
   await page.getByRole("link", { name: "LCA001", exact: true }).click();
 
-  for (const name of ["JSON", "Graphs", "Attributes"]) {
+  for (const name of ["JSON", "Graphs", "Info"]) {
     await page.getByRole("tab", { name, exact: true }).click();
     await expect(page.getByRole("button", { name: "Back to results" })).toBeVisible();
   }
@@ -400,11 +411,11 @@ test("marks a standby figure nobody could measure", async ({ page }) => {
   await page.goto("/profiles/signify/LCA001");
 
   // Standby power is a headline fact rather than one of the listed attributes.
-  await expect(page.getByText("estimated, not measured")).toBeVisible();
+  await expect(page.getByText("estimated, not measured", { exact: true })).toBeVisible();
 
   // The other profile measured its standby draw, so it carries no caveat.
   await page.goto("/profiles/signify/LCT010");
-  await expect(page.getByText("0.3 W")).toBeVisible();
+  await expect(page.getByText("0.3 W", { exact: true })).toBeVisible();
   await expect(page.getByText("estimated, not measured")).toBeHidden();
 });
 

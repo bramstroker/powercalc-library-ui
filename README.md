@@ -95,6 +95,13 @@ In production this runs as the `renderer` image built from the same commit as th
 recreate, and leaves every content-hashed asset URL — and the tabs holding them open — intact. The
 `Refresh content` workflow does this hourly.
 
+Direct page requests only serve published HTML; unknown and removed entities return HTTP 404.
+New profiles become directly accessible after the next successful content refresh. Previous model
+IDs supplied as `legacy_ids` redirect permanently to the current profile, preserving query strings.
+Each refresh installs and validates the generated redirect map and gracefully reloads Nginx.
+Changed or removed redirects are included in the CDN purge; their acknowledgement is retained
+alongside the content manifest so failed purges can be retried.
+
 The catalogue uses the full library API response. The build writes a content hash manifest.
 Hourly refreshes render into `/documents/next`, compare
 against the serving manifest, and publish only changed files while removing obsolete files.

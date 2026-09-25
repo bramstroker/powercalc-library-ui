@@ -184,7 +184,7 @@ describe("renderPath", () => {
 });
 
 describe("renderSpaFallback", () => {
-  it("writes the shell Nginx serves for routes that were never prerendered", async () => {
+  it("retains the SPA shell for parity with React Router build output", async () => {
     const { handler, requests } = recordingHandler(() =>
       html("<html>window.__reactRouterContext = {}</html>"),
     );

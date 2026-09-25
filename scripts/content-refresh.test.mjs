@@ -3,7 +3,13 @@ import test from "node:test";
 import { mkdtemp, mkdir, writeFile, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { cachePlan, contentDelta, prepareRefresh, snapshot } from "./content-refresh.mjs";
+import {
+  cachePlan,
+  contentDelta,
+  prepareRefresh,
+  snapshot,
+  redirectPurgeUrls,
+} from "./content-refresh.mjs";
 import { purgeUrls } from "./purge-content-cache.mjs";
 
 test("invalidates all document forms and removed data, never warms deleted routes", () => {
@@ -65,4 +71,48 @@ test("batches URL purges, retries throttling, and rejects API-level failures", a
       fetchImpl: async () => Response.json({ success: false }),
     }),
   );
+});
+
+test("purges added, changed and removed redirects, including encoded and slash variants", () => {
+  const urls = redirectPurgeUrls(
+    [
+      { from: "/old", to: "/a" },
+      { from: "/removed", to: "/a" },
+      { from: "/same", to: "/a" },
+    ],
+    [
+      { from: "/old", to: "/b" },
+      { from: "/same", to: "/a" },
+      { from: "/New Model", to: "/b" },
+    ],
+    "https://example.com",
+  );
+  for (const path of ["/old", "/removed", "/New%20Model"]) {
+    for (const suffix of ["", "/", "/index.html"])
+      assert.ok(urls.includes(`https://example.com${path}${suffix}`));
+  }
+  assert.ok(!urls.includes("https://example.com/same"));
+});
+
+test("retries redirect purges until acknowledgement and keeps redirect metadata private", async () => {
+  const root = await mkdtemp(join(tmpdir(), "redirect-refresh-"));
+  try {
+    await mkdir(join(root, "next"));
+    const redirects = JSON.stringify([{ from: "/old", to: "/new" }]);
+    await writeFile(join(root, "next/.redirects.json"), redirects);
+    await writeFile(join(root, "previous-redirects.json"), "[]");
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await prepareRefresh(root);
+      const plan = JSON.parse(await readFile(join(root, "cache-plan.json")));
+      assert.ok(plan.purge.includes("https://library.powercalc.nl/old"));
+      assert.deepEqual(plan.warm, []);
+      assert.deepEqual(await snapshot(join(root, "next")), {});
+      assert.equal(await readFile(join(root, "previous-redirects.json"), "utf8"), "[]");
+    }
+    await writeFile(join(root, "previous-redirects.json"), redirects);
+    await prepareRefresh(root);
+    assert.deepEqual(JSON.parse(await readFile(join(root, "cache-plan.json"))).purge, []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });

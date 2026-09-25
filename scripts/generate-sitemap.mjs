@@ -34,6 +34,13 @@ const escapeNginxString = (value) =>
 
 export const collectLegacyRedirects = (library) => {
   const redirects = new Map();
+  const canonicalProfiles = new Set(
+    (library.manufacturers ?? []).flatMap((manufacturer) =>
+      (manufacturer.models ?? []).map((model) =>
+        decodeURI(profilePath(manufacturer.dir_name, model.id)).toLowerCase(),
+      ),
+    ),
+  );
 
   const add = (legacyPath, canonicalPath) => {
     if (legacyPath !== decodeURI(canonicalPath)) redirects.set(legacyPath, canonicalPath);
@@ -50,6 +57,17 @@ export const collectLegacyRedirects = (library) => {
         profilePath(manufacturer.dir_name, model.id),
       );
 
+      for (const legacyId of model.legacy_ids ?? []) {
+        const target = profilePath(manufacturer.dir_name, model.id);
+        for (const source of [
+          `/profiles/${manufacturer.dir_name}/${legacyId}`,
+          decodeURI(profilePath(manufacturer.dir_name, legacyId)),
+        ]) {
+          // An old ID must never steal another profile's current URL.
+          if (!canonicalProfiles.has(source.toLowerCase())) add(source, target);
+        }
+      }
+
       for (const author of model.authors ?? []) {
         if (!author.github) continue;
         const canonicalPath = authorPath(author.github);
@@ -65,10 +83,19 @@ export const collectLegacyRedirects = (library) => {
 };
 
 export const renderNginxRedirectMap = (redirects) => {
-  const mappings = redirects.flatMap(({ from, to }) => [
-    `    "${escapeNginxString(from)}" "${escapeNginxString(to)}";`,
-    `    "${escapeNginxString(`${from}/`)}" "${escapeNginxString(to)}";`,
-  ]);
+  // Nginx string keys are case-insensitive, including raw IDs and their slug variants.
+  const keys = new Map();
+  for (const { from, to } of redirects) {
+    for (const variant of [from, `${from}/`, `${from}/index.html`]) {
+      const key = variant.toLowerCase();
+      if (keys.has(key) && keys.get(key).to !== to)
+        throw new Error(`Conflicting legacy redirects for ${variant}`);
+      keys.set(key, { from: variant, to });
+    }
+  }
+  const mappings = [...keys.values()].map(
+    ({ from, to }) => `    "${escapeNginxString(from)}" "${escapeNginxString(to)}";`,
+  );
 
   return [
     "# Generated from the library API. Do not edit by hand.",
@@ -196,17 +223,15 @@ export const generateSitemap = async ({
 
   const library = await response.json();
   const entries = collectSitemapEntries(library);
+  const redirects = collectLegacyRedirects(library);
   if (entries.length === 0) throw new Error("Unable to generate sitemap: library is empty");
 
   await mkdir(dirname(outputPath), { recursive: true });
   await Promise.all([
     writeFile(outputPath, renderSitemap(entries, siteUrl), "utf8"),
+    writeFile(resolve(dirname(outputPath), ".redirects.json"), JSON.stringify(redirects), "utf8"),
     mkdir(dirname(redirectsOutputPath), { recursive: true }).then(() =>
-      writeFile(
-        redirectsOutputPath,
-        renderNginxRedirectMap(collectLegacyRedirects(library)),
-        "utf8",
-      ),
+      writeFile(redirectsOutputPath, renderNginxRedirectMap(redirects), "utf8"),
     ),
   ]);
   return entries.length;

@@ -69,6 +69,16 @@ export const prepareRefresh = async (directory) => {
   }
   const next = await snapshot(join(directory, "next"));
   const delta = contentDelta(previous, next);
+  const plan = cachePlan(delta);
+  plan.purge = [
+    ...new Set([
+      ...plan.purge,
+      ...redirectPurgeUrls(
+        await readRedirects(join(directory, "previous-redirects.json")),
+        await readRedirects(join(directory, "next/.redirects.json")),
+      ),
+    ]),
+  ];
   await mkdir(join(directory, "delta"), { recursive: true });
   for (const path of delta.changed) {
     const target = join(directory, "delta", path);
@@ -80,8 +90,25 @@ export const prepareRefresh = async (directory) => {
     join(directory, "removed.txt"),
     delta.removed.map((path) => `${path}\n`).join(""),
   );
-  await writeFile(join(directory, "cache-plan.json"), JSON.stringify(cachePlan(delta)));
+  await writeFile(join(directory, "cache-plan.json"), JSON.stringify(plan));
   console.log(`Content refresh: ${delta.changed.length} changed, ${delta.removed.length} removed`);
+};
+
+export const redirectPurgeUrls = (previous, next, siteUrl = "https://library.powercalc.nl") => {
+  const before = new Map(previous.map(({ from, to }) => [from, to]));
+  const after = new Map(next.map(({ from, to }) => [from, to]));
+  return [...new Set([...before.keys(), ...after.keys()])]
+    .filter((from) => before.get(from) !== after.get(from))
+    .flatMap((from) => urlsForFile(`${from.replace(/^\//, "")}/index.html`, siteUrl));
+};
+
+const readRedirects = async (path) => {
+  try {
+    return JSON.parse(await readFile(path, "utf8"));
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    return [];
+  }
 };
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

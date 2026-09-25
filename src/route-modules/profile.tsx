@@ -18,6 +18,7 @@ import {
 import { createPageMeta, type StructuredData } from "../seo/meta";
 import { StructuredData as StructuredDataScript } from "../seo/StructuredData";
 import type { PowerProfile } from "../types/PowerProfile";
+import { profilePowerSummary } from "../utils/profilePowerSummary";
 import { humanizeIdentifier } from "../utils/profilePresentation";
 import {
   authorPath,
@@ -51,16 +52,7 @@ const isoDate = (value: unknown) => {
   return Number.isNaN(date.valueOf()) ? undefined : date.toISOString();
 };
 
-const pageDescription = (profile: PowerProfile) =>
-  [
-    profile.name,
-    `${profile.deviceType} power profile measured with ${profile.measureDevice || "an unknown device"}.`,
-    "This dataset documents device power consumption and calculation metadata for Powercalc.",
-    profile.maxPower != null ? `Max power ${profile.maxPower} W.` : null,
-    profile.standbyPower != null ? `Standby power ${profile.standbyPower} W.` : null,
-  ]
-    .filter(Boolean)
-    .join(" ");
+const pageDescription = profilePowerSummary;
 
 const pageTitle = (profile: PowerProfile) =>
   `${profile.manufacturer.fullName} ${profile.name} (${profile.modelId})`;
