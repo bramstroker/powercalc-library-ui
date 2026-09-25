@@ -101,3 +101,56 @@ test("generates permanent redirect mappings for legacy entity URLs", () => {
   );
   assert.match(config, /"~\^\(\.\+\)\\\|\\1\$" "";/);
 });
+
+test("redirects previous model IDs and slugs without treating search aliases as old URLs", () => {
+  const redirects = collectLegacyRedirects({
+    manufacturers: [
+      {
+        dir_name: "shelly",
+        models: [{ id: "SNPL-00112EU", legacy_ids: ["Shelly Plus Plug S"], aliases: ["Plug V2"] }],
+      },
+    ],
+  });
+  for (const from of [
+    "/profiles/shelly/Shelly Plus Plug S",
+    "/profiles/shelly/shelly-plus-plug-s",
+  ]) {
+    assert.deepEqual(
+      redirects.find((entry) => entry.from === from),
+      {
+        from,
+        to: "/profiles/shelly/snpl-00112eu",
+      },
+    );
+  }
+  assert.ok(!redirects.some(({ from }) => from.includes("Plug V2")));
+  assert.match(
+    renderNginxRedirectMap(redirects),
+    /"\/profiles\/shelly\/shelly-plus-plug-s\/index.html" "\/profiles\/shelly\/snpl-00112eu"/,
+  );
+});
+
+test("preserves current profile URLs when a legacy ID collides", () => {
+  const redirects = collectLegacyRedirects({
+    manufacturers: [
+      {
+        dir_name: "brand",
+        models: [{ id: "old" }, { id: "new", legacy_ids: ["old"] }],
+      },
+    ],
+  });
+  assert.ok(!redirects.some(({ from }) => from === "/profiles/brand/old"));
+});
+
+test("deduplicates case-insensitive Nginx keys and rejects ambiguous redirects", () => {
+  const entries = [
+    { from: "/OLD", to: "/new" },
+    { from: "/old", to: "/new" },
+  ];
+  const config = renderNginxRedirectMap(entries);
+  assert.equal((config.match(/"\/old" "\/new";/gi) ?? []).length, 1);
+  assert.throws(
+    () => renderNginxRedirectMap([...entries, { from: "/old", to: "/other" }]),
+    /Conflicting/,
+  );
+});
