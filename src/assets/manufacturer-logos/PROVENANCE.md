@@ -113,29 +113,29 @@ The square retains the A and dot; the wide variant retains the full lockup. The 
 (`#447aab` and `#9abc31`) are sampled from the PNG. `apollo_automation_logo.jpeg` confirms the
 standalone mark. The blue export background is omitted.
 
-| File                | Manufacturer  | Rendering   | Shapes                                           | Licence                       |
-| ------------------- | ------------- | ----------- | ------------------------------------------------ | ----------------------------- |
-| `aeotec.svg`        | aeotec        | two-tone    | square                                           | trademark of the manufacturer |
-| `ajax-online.svg`   | ajax-online   | monochrome  | square                                           | trademark of the manufacturer |
-| `anko.svg`          | anko          | monochrome  | square                                           | trademark of the manufacturer |
-| `apollo-automation.svg` | apollo automation | full colour | square + wide | trademark of the manufacturer |
-| `belkin.svg`        | belkin        | monochrome  | square + wide                                    | trademark of the manufacturer |
-| `calex.svg`         | calex         | two-tone    | square                                           | trademark of the manufacturer |
-| `dreo.svg`          | dreo          | monochrome  | square                                           | trademark of the manufacturer |
-| `emos.svg`          | emos          | full colour | square                                           | trademark of the manufacturer |
-| `hampton-bay.svg`   | hampton-bay   | full colour | square                                           | trademark of the manufacturer |
-| `kogan.svg`         | kogan         | two-tone    | square                                           | trademark of the manufacturer |
-| `lutron.svg`        | lutron        | monochrome  | square                                           | trademark of the manufacturer |
-| `mammotion.svg`     | mammotion     | monochrome  | square                                           | trademark of the manufacturer |
-| `mercator-ikuu.svg` | mercator-ikuu | two-tone    | square + wide                                    | trademark of the manufacturer |
-| `meross.svg`        | meross        | monochrome  | square                                           | trademark of the manufacturer |
-| `mueller-licht.svg` | mueller-licht | monochrome  | square + wide (square from `mueller-licht-mark`) | trademark of the manufacturer |
-| `rituals.svg`       | rituals       | full colour | square                                           | trademark of the manufacturer |
-| `sengled.svg`       | sengled       | monochrome  | square                                           | trademark of the manufacturer |
-| `smarthomeshop.svg` | smarthomeshop | monochrome  | square                                           | trademark of the manufacturer |
-| `sonoff.svg`        | sonoff        | monochrome  | square                                           | trademark of the manufacturer |
-| `sylvania.svg`      | sylvania      | two-tone    | square + wide                                    | trademark of the manufacturer |
-| `zipato.svg`        | zipato        | monochrome  | square                                           | trademark of the manufacturer |
+| File                    | Manufacturer      | Rendering   | Shapes                                           | Licence                       |
+| ----------------------- | ----------------- | ----------- | ------------------------------------------------ | ----------------------------- |
+| `aeotec.svg`            | aeotec            | two-tone    | square                                           | trademark of the manufacturer |
+| `ajax-online.svg`       | ajax-online       | monochrome  | square                                           | trademark of the manufacturer |
+| `anko.svg`              | anko              | monochrome  | square                                           | trademark of the manufacturer |
+| `apollo-automation.svg` | apollo-automation | full colour | square + wide                                    | trademark of the manufacturer |
+| `belkin.svg`            | belkin            | monochrome  | square + wide                                    | trademark of the manufacturer |
+| `calex.svg`             | calex             | two-tone    | square                                           | trademark of the manufacturer |
+| `dreo.svg`              | dreo              | monochrome  | square                                           | trademark of the manufacturer |
+| `emos.svg`              | emos              | full colour | square                                           | trademark of the manufacturer |
+| `hampton-bay.svg`       | hampton-bay       | full colour | square                                           | trademark of the manufacturer |
+| `kogan.svg`             | kogan             | two-tone    | square                                           | trademark of the manufacturer |
+| `lutron.svg`            | lutron            | monochrome  | square                                           | trademark of the manufacturer |
+| `mammotion.svg`         | mammotion         | monochrome  | square                                           | trademark of the manufacturer |
+| `mercator-ikuu.svg`     | mercator-ikuu     | two-tone    | square + wide                                    | trademark of the manufacturer |
+| `meross.svg`            | meross            | monochrome  | square                                           | trademark of the manufacturer |
+| `mueller-licht.svg`     | mueller-licht     | monochrome  | square + wide (square from `mueller-licht-mark`) | trademark of the manufacturer |
+| `rituals.svg`           | rituals           | full colour | square                                           | trademark of the manufacturer |
+| `sengled.svg`           | sengled           | monochrome  | square                                           | trademark of the manufacturer |
+| `smarthomeshop.svg`     | smarthomeshop     | monochrome  | square                                           | trademark of the manufacturer |
+| `sonoff.svg`            | sonoff            | monochrome  | square                                           | trademark of the manufacturer |
+| `sylvania.svg`          | sylvania          | two-tone    | square + wide                                    | trademark of the manufacturer |
+| `zipato.svg`            | zipato            | monochrome  | square                                           | trademark of the manufacturer |
 
 ## Simple Icons — no longer a source
 
