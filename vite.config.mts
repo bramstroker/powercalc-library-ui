@@ -3,8 +3,9 @@ import { reactRouter } from "@react-router/dev/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import react from "@vitejs/plugin-react";
 import { readFileSync, readdirSync } from "node:fs";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 
+import { FLAG_URL } from "./src/config/site";
 import { svgAspect } from "./src/utils/svgAspect.mjs";
 
 // Skip the Sentry release/telemetry work when running unit (vitest) or e2e (playwright) tests
@@ -48,6 +49,35 @@ const loadLogoAspects = (): Record<string, number> => {
   );
 };
 
+// Serve country flags from this origin instead of react-country-flag's default third-party CDN.
+const FLAG_DIRECTORY = new URL("./node_modules/flag-icons/flags/4x3/", import.meta.url);
+const selfHostedFlags = (): Plugin => ({
+  name: "self-hosted-flags",
+  configureServer(server) {
+    server.middlewares.use(FLAG_URL, (req, res, next) => {
+      const file = req.url?.slice(1).split("?")[0] ?? "";
+      if (!/^[a-z]{2}(?:-[a-z]+)?\.svg$/u.test(file)) return next();
+      try {
+        const svg = readFileSync(new URL(file, FLAG_DIRECTORY));
+        res.setHeader("Content-Type", "image/svg+xml");
+        res.end(svg);
+      } catch {
+        next();
+      }
+    });
+  },
+  generateBundle() {
+    if (this.environment.name !== "client") return;
+    for (const file of readdirSync(FLAG_DIRECTORY).filter((name) => name.endsWith(".svg"))) {
+      this.emitFile({
+        type: "asset",
+        fileName: `${FLAG_URL.slice(1)}${file}`,
+        source: readFileSync(new URL(file, FLAG_DIRECTORY)),
+      });
+    }
+  },
+});
+
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
@@ -56,6 +86,7 @@ export default defineConfig({
   },
   plugins: [
     isUnitTest ? react() : reactRouter(),
+    selfHostedFlags(),
     ...(isTestRun || !isBuild
       ? []
       : [

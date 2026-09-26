@@ -7,6 +7,7 @@ import { Box, Button, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import { ReactCountryFlag } from "react-country-flag";
 import { Link as RouterLink } from "react-router";
 
+import { FLAG_URL } from "../../../config/site";
 import type { Manufacturer } from "../../../types/PowerProfile";
 import { formatCountryName } from "../../../utils/formatters";
 import { InlineHeroStat } from "../../shared/InlineHeroStat";
@@ -76,6 +77,7 @@ export const ManufacturerHero = ({
             sx={{ mt: 0.5, alignItems: "center", gap: 0.75, color: "text.secondary" }}
           >
             <ReactCountryFlag
+              cdnUrl={FLAG_URL}
               countryCode={manufacturer.country}
               svg
               aria-hidden="true"

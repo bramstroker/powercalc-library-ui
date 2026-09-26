@@ -7,6 +7,7 @@ import * as React from "react";
 import { ReactCountryFlag } from "react-country-flag";
 
 import type { CountryStats } from "../../../api/analytics.api";
+import { FLAG_URL } from "../../../config/site";
 import { formatCountryName } from "../../../utils/formatters";
 
 import { CountryListPopup } from "./CountryListPopup";
@@ -70,6 +71,7 @@ export const TopCountriesList = ({ data, limit }: Props) => {
                 }}
               >
                 <ReactCountryFlag
+                  cdnUrl={FLAG_URL}
                   svg
                   countryCode={country.country_code.toUpperCase()}
                   loading="lazy"

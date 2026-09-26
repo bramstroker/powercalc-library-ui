@@ -20,6 +20,7 @@ import * as React from "react";
 import { ReactCountryFlag } from "react-country-flag";
 
 import type { CountryStats } from "../../../api/analytics.api";
+import { FLAG_URL } from "../../../config/site";
 import { formatCountryName, numberFormat } from "../../../utils/formatters";
 
 interface CountryListPopupProps {
@@ -85,6 +86,7 @@ export const CountryListPopup = ({ open, onClose, data }: CountryListPopupProps)
                       }}
                     >
                       <ReactCountryFlag
+                        cdnUrl={FLAG_URL}
                         svg
                         countryCode={country.country_code.toUpperCase()}
                         loading="lazy"
