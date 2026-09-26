@@ -41,6 +41,33 @@ describe("hasManufacturerLogo", () => {
 describe("ManufacturerLogo", () => {
   afterEach(cleanup);
 
+  it.each(["wide", "square"] as const)(
+    "reserves the final %s slot before the artwork arrives",
+    async (variant) => {
+      const { container } = render(
+        <ManufacturerLogo
+          manufacturer={manufacturer({ dirName: "tuya", fullName: "Tuya" })}
+          variant={variant}
+          size={48}
+          plate
+        />,
+      );
+      const slot = container.querySelector(".MuiBox-root")!;
+      const initial = {
+        width: getComputedStyle(slot).width,
+        height: getComputedStyle(slot).height,
+      };
+      expect(parseFloat(initial.width)).toBeGreaterThan(0);
+      expect(parseFloat(initial.height)).toBeGreaterThan(0);
+      await screen.findByRole("img", { name: "Tuya logo" });
+      const loaded = container.querySelector(".MuiBox-root")!;
+      expect({
+        width: getComputedStyle(loaded).width,
+        height: getComputedStyle(loaded).height,
+      }).toEqual(initial);
+    },
+  );
+
   it("renders full-colour artwork as an image", async () => {
     render(
       <ManufacturerLogo manufacturer={manufacturer({ dirName: "velux", fullName: "Velux" })} />,

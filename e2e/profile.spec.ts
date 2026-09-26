@@ -289,7 +289,7 @@ test("offers manual setup for a profile discovered by entity", async ({ page }) 
 
   const setup = page.getByTestId("profile-setup");
 
-  await expect(setup.getByText(/Look for a discovery prompt/)).toBeHidden();
+  await expect(setup.getByText(/Look for a discovery prompt/)).toHaveCount(0);
   await setup.getByRole("button", { name: "Use in Home Assistant" }).click();
   await expect(setup.getByText(/Look for a discovery prompt/)).toBeVisible();
   await setup.getByText("Set up manually instead").click();
@@ -304,6 +304,11 @@ test("offers manual setup for a profile discovered by entity", async ({ page }) 
   await setup.getByText("Or configure with YAML").click();
 
   await expect(setup.getByText("manufacturer: sonoff")).toBeVisible();
+  await expect(setup.getByText("model: S31")).toBeVisible();
+
+  await setup.getByRole("button", { name: "Use in Home Assistant" }).click();
+  await expect(setup.getByText("model: S31")).toBeHidden();
+  await setup.getByRole("button", { name: "Use in Home Assistant" }).click();
   await expect(setup.getByText("model: S31")).toBeVisible();
 });
 

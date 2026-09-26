@@ -1,3 +1,7 @@
+import { svgAspect } from "../../../utils/svgAspect.mjs";
+
+const logoAspects = __MANUFACTURER_LOGO_ASPECTS__;
+
 /**
  * Filename a manufacturer's logo is expected under in `src/assets/manufacturer-logos`. Directory
  * names carry spaces and punctuation ("paulmann licht", "bang olufsen"), none of which belong in a
@@ -102,25 +106,8 @@ export type ManufacturerLogoAsset = {
   aspect?: number;
 };
 
-/**
- * The artwork's true proportions, so its box can be sized to it exactly.
- *
- * Leaving this to the browser does not work: constraining a mark by `height` and `max-width` at
- * once pins the box to the full height and lets `preserveAspectRatio` centre a much shorter drawing
- * inside it, which is the empty space a wordmark appeared to float in.
- */
-const aspectOf = (svg: string): number | undefined => {
-  const viewBox = /viewBox="([^"]+)"/.exec(svg)?.[1];
-  const [, , width, height] =
-    viewBox
-      ?.trim()
-      .split(/[\s,]+/)
-      .map(Number) ?? [];
-  return width && height ? width / height : undefined;
-};
-
 const buildAsset = (svg: string): ManufacturerLogoAsset => {
-  const aspect = aspectOf(svg);
+  const aspect = svgAspect(svg);
 
   // The build step flattens single-ink artwork to `currentColor` and records the brand ink, so a
   // mark that would disappear against one of the themes can fall back to the text colour.
@@ -177,6 +164,7 @@ export type ManufacturerLogoVariant = "square" | "wide";
 export type ManufacturerLogoSource = {
   cacheKey: string;
   load: LogoLoader;
+  aspect?: number;
 };
 
 export const getManufacturerLogoSource = (
@@ -189,7 +177,13 @@ export const getManufacturerLogoSource = (
   const useWide = variant === "wide" && entry?.wide != null;
   const load = useWide ? entry.wide : entry?.square;
 
-  return load ? { cacheKey: `${slug}:${useWide ? "wide" : "square"}`, load } : undefined;
+  return load
+    ? {
+        cacheKey: `${slug}:${useWide ? "wide" : "square"}`,
+        load,
+        aspect: logoAspects[`${slug}${useWide ? ".wide" : ""}.svg`],
+      }
+    : undefined;
 };
 
 /** Parsed assets and in-flight fetches, so a logo is only ever fetched and parsed once. */

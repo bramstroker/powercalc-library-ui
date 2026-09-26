@@ -75,8 +75,9 @@ export const ManufacturerLogo = ({
    * still fits the width cap. Computed here rather than left to `max-width` so the box is exactly
    * the drawing, with no slack for the mark to sit adrift in.
    */
-  const drawnHeight = asset?.aspect ? Math.min(size, maxWidth / asset.aspect) : size;
-  const drawnWidth = asset?.aspect ? drawnHeight * asset.aspect : size;
+  const aspect = source?.aspect ?? asset?.aspect;
+  const drawnHeight = aspect ? Math.min(size, maxWidth / aspect) : size;
+  const drawnWidth = aspect ? drawnHeight * aspect : size;
 
   const slot = {
     boxSizing: "border-box",
@@ -103,9 +104,7 @@ export const ManufacturerLogo = ({
     // A logo that exists but has not arrived yet holds its slot empty; swapping a monogram in and
     // straight back out again would flicker.
     if (source) {
-      // A shrink-wrapping slot would collapse to its own padding while empty, so it holds the
-      // artwork's height for the moment the fetch takes rather than popping open around it.
-      return <Box sx={[slot, { height: size + inset * 2, width: size + inset * 2 }]} aria-hidden />;
+      return <Box sx={slot} aria-hidden />;
     }
     return (
       <Box sx={[slot, { height: size + inset * 2, width: size + inset * 2 }]}>
