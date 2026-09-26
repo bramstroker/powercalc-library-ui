@@ -126,3 +126,9 @@ docker build --platform=linux/amd64 -t powercalc-library-ui .
 docker image tag powercalc-library-ui bramgerritsen/powercalc-library-ui:latest
 docker push bramgerritsen/powercalc-library-ui:latest
 ```
+
+The `Deploy` workflow pushes both images to GHCR tagged with the commit SHA, and the server pulls
+only the layers it does not have yet. The deployed tag is recorded as `IMAGE_TAG` in the server's
+`.env`, which is what keeps the hourly `renderer` in lockstep with the serving container. The five
+newest builds stay on the server; to roll back, point `IMAGE_TAG` at an earlier SHA and run
+`docker compose up -d`.

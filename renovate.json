@@ -6,6 +6,7 @@
   "automergeType": "pr",
   "automergeStrategy": "squash",
   "platformAutomerge": false,
+  "rebaseWhen": "conflicted",
   "packageRules": [
     {
       "matchPackageNames": ["typescript"],

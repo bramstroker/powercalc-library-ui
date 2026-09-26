@@ -1,6 +1,6 @@
 services:
   library_ui:
-    image: powercalc-library-ui:latest
+    image: ghcr.io/bramstroker/powercalc-library-ui:${IMAGE_TAG:?IMAGE_TAG must name the deployed build}
     restart: unless-stopped
     ports:
       - "3001:80"
@@ -9,7 +9,7 @@ services:
   # `docker compose run --rm renderer`, which writes the regenerated documents into ./documents for
   # the workflow to copy into the running container.
   renderer:
-    image: powercalc-library-renderer:latest
+    image: ghcr.io/bramstroker/powercalc-library-renderer:${IMAGE_TAG:?IMAGE_TAG must name the deployed build}
     profiles: ["render"]
     volumes:
       - ./documents:/documents
