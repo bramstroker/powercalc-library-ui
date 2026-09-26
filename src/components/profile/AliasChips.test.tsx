@@ -27,7 +27,9 @@ describe("AliasChips", () => {
     expect(screen.getByText("+2 more")).toBeInTheDocument();
     expect(screen.queryByText("LWB014")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "View all 3 aliases" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "+2 more", description: "View all 3 aliases" }),
+    );
 
     expect(screen.getByText("Aliases (3)")).toBeInTheDocument();
     expect(screen.getByText("LWB014")).toBeInTheDocument();

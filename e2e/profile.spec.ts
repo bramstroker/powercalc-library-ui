@@ -244,7 +244,9 @@ test("keeps long alias lists compact and reveals the full list on demand", async
   await expect(aliases.getByText("+1 more")).toBeVisible();
   await expect(page.getByText("LWB014")).toBeHidden();
 
-  await aliases.getByRole("button", { name: "View all 2 aliases" }).click();
+  const moreAliases = aliases.getByRole("button", { name: "+1 more" });
+  await expect(moreAliases).toHaveAccessibleDescription("View all 2 aliases");
+  await moreAliases.click();
 
   await expect(page.getByText("Aliases (2)")).toBeVisible();
   await expect(page.getByText("LWB014")).toBeVisible();
@@ -258,7 +260,9 @@ test("keeps barcode lists compact and reveals the full list on demand", async ({
   await expect(barcodes.getByText("+1 more")).toBeVisible();
   await expect(page.getByText("8719514291225")).toBeHidden();
 
-  await barcodes.getByRole("button", { name: "View all 2 barcodes" }).click();
+  const moreBarcodes = barcodes.getByRole("button", { name: "+1 more" });
+  await expect(moreBarcodes).toHaveAccessibleDescription("View all 2 barcodes");
+  await moreBarcodes.click();
 
   await expect(page.getByText("Barcodes (2)")).toBeVisible();
   await expect(page.getByText("8719514291225")).toBeVisible();

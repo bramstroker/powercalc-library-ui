@@ -44,7 +44,7 @@ export const HeaderBrand = ({ compactOnMobile }: { compactOnMobile: boolean }) =
         }}
       >
         Powercalc
-      </Typography>
+      </Typography>{" "}
       <Typography
         variant="caption"
         component="span"

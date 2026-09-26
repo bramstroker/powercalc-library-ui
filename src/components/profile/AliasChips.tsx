@@ -89,14 +89,18 @@ export const ValueChips = ({
           />
         ))}
         {remainingCount > 0 && (
-          <Tooltip title={`View all ${valueArray.length} ${itemLabel}`} arrow placement="top">
+          <Tooltip
+            title={`View all ${valueArray.length} ${itemLabel}`}
+            describeChild
+            arrow
+            placement="top"
+          >
             <Chip
               label={`+${remainingCount} more`}
               size="small"
               variant="outlined"
               color="primary"
               onClick={handleClick}
-              aria-label={`View all ${valueArray.length} ${itemLabel}`}
               aria-haspopup="dialog"
               aria-expanded={open}
               aria-controls={open ? popoverId : undefined}
