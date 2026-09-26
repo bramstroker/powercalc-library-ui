@@ -118,7 +118,7 @@ standalone mark. The blue export background is omitted.
 | `aeotec.svg`            | aeotec            | two-tone    | square                                           | trademark of the manufacturer |
 | `ajax-online.svg`       | ajax-online       | monochrome  | square                                           | trademark of the manufacturer |
 | `anko.svg`              | anko              | monochrome  | square                                           | trademark of the manufacturer |
-| `apollo-automation.svg` | apollo automation | full colour | square + wide                                    | trademark of the manufacturer |
+| `apollo-automation.svg` | apollo-automation | full colour | square + wide                                    | trademark of the manufacturer |
 | `belkin.svg`            | belkin            | monochrome  | square + wide                                    | trademark of the manufacturer |
 | `calex.svg`             | calex             | two-tone    | square                                           | trademark of the manufacturer |
 | `dreo.svg`              | dreo              | monochrome  | square                                           | trademark of the manufacturer |
