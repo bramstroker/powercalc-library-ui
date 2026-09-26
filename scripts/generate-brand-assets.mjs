@@ -3,11 +3,11 @@ import { resolve } from "node:path";
 
 import sharp from "sharp";
 
-const output = (name) => resolve("public", name);
+const brand = (name) => resolve("public/assets/brand", name);
 const favicon = await readFile(resolve("public/favicon.svg"), "utf8");
 const whiteGlyph = favicon.replace(".glyph { fill: #5488e8; }", ".glyph { fill: #ffffff; }");
 
-const squareIcon = async (size, name, padding = Math.round(size * 0.18)) => {
+const squareIcon = async (size, path, padding = Math.round(size * 0.18)) => {
   const glyphSize = size - padding * 2;
   const glyph = await sharp(Buffer.from(whiteGlyph)).resize(glyphSize, glyphSize).png().toBuffer();
   await sharp({
@@ -15,14 +15,14 @@ const squareIcon = async (size, name, padding = Math.round(size * 0.18)) => {
   })
     .composite([{ input: glyph, left: padding, top: padding }])
     .png()
-    .toFile(output(name));
+    .toFile(path);
 };
 
 await Promise.all([
-  squareIcon(180, "apple-touch-icon.png", 28),
-  squareIcon(192, "icon-192.png"),
-  squareIcon(512, "icon-512.png"),
-  squareIcon(512, "icon-maskable-512.png", 102),
+  squareIcon(180, resolve("public/apple-touch-icon.png"), 28),
+  squareIcon(192, brand("icon-192.png")),
+  squareIcon(512, brand("icon-512.png")),
+  squareIcon(512, brand("icon-maskable-512.png"), 102),
 ]);
 
 const socialCard = `
@@ -37,6 +37,6 @@ const socialCard = `
   <text x="362" y="426" fill="#ffffff" fill-opacity="0.72" font-family="Arial, Helvetica, sans-serif" font-size="26">Community-measured power profiles for Home Assistant</text>
 </svg>`;
 
-await sharp(Buffer.from(socialCard)).png().toFile(output("social-card.png"));
+await sharp(Buffer.from(socialCard)).png().toFile(brand("social-card.png"));
 
 console.log("Generated Powercalc social and application icons");
