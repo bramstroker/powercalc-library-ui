@@ -10,6 +10,11 @@ on:
 permissions:
   contents: read
 
+env:
+  UI_IMAGE: ghcr.io/${{ github.repository_owner }}/powercalc-library-ui
+  RENDERER_IMAGE: ghcr.io/${{ github.repository_owner }}/powercalc-library-renderer
+  IMAGE_TAG: ${{ github.sha }}
+
 jobs:
   # Gate the deploy on the same checks that run for pull requests, so a red suite cannot ship.
   checks:
@@ -79,36 +84,38 @@ jobs:
       - name: Run e2e tests
         run: npm run test:e2e -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
 
-  # Builds while the tests run; `deploy` only ships the result once they have all passed.
+  # Builds and pushes while the tests run. Images are tagged by commit, so pushing an untested build
+  # is harmless: nothing runs it until `deploy` selects that tag, after every test job has passed.
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Build Docker image
-        run: docker build -t powercalc-library-ui:latest .
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Same build, kept as a separate image: it renders the documents again for the nightly
+      - name: Build Docker image
+        run: docker build --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" -t "$UI_IMAGE:$IMAGE_TAG" .
+
+      # Same build, kept as a separate image: it renders the documents again for the hourly
       # content refresh, so it has to stay in lockstep with the assets this deploy ships.
       - name: Build renderer image
-        run: docker build --target renderer -t powercalc-library-renderer:latest .
+        run: docker build --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" --target renderer -t "$RENDERER_IMAGE:$IMAGE_TAG" .
 
-      # Compressed because the renderer carries a Node runtime and the production dependencies,
-      # which roughly triples what this step used to transfer. `docker load` unpacks gzip itself.
-      - name: Save Docker images as tar file
-        run: docker save powercalc-library-ui:latest powercalc-library-renderer:latest | gzip -1 > powercalc-library-ui.tar.gz
-
-      - name: Upload Docker images
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: docker-images
-          path: powercalc-library-ui.tar.gz
-          compression-level: 0
-          retention-days: 1
-          if-no-files-found: error
+      - name: Push Docker images
+        run: |
+          docker push "$UI_IMAGE:$IMAGE_TAG"
+          docker push "$RENDERER_IMAGE:$IMAGE_TAG"
 
   deploy:
     concurrency:
@@ -120,11 +127,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Download Docker images
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: docker-images
 
       - name: Configure SSH host verification
         # Provision this from a trusted source; never populate it with ssh-keyscan during the job.
@@ -139,25 +141,8 @@ jobs:
           test -s "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa"
           test -s "$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts"
 
-      - name: Transfer Docker image to remote server
-        run: |
-          scp -i "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa" \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=yes \
-            -o UserKnownHostsFile="$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts" \
-            powercalc-library-ui.tar.gz \
-            ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }}:${{ secrets.REMOTE_SERVER_PATH }}
-
-      - name: Load Docker images on remote server
-        run: |
-          ssh -i "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa" \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=yes \
-            -o UserKnownHostsFile="$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts" \
-            ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }} << 'ENDSSH'
-          docker load -i ${{ secrets.REMOTE_SERVER_PATH }}/powercalc-library-ui.tar.gz
-          ENDSSH
-
+      # Staged under another name: the hourly refresh reads the live compose file, so it only moves
+      # into place once the images it names are on the server and running.
       - name: Transfer Docker Compose file to remote server
         run: |
           scp -i "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa" \
@@ -165,8 +150,11 @@ jobs:
             -o StrictHostKeyChecking=yes \
             -o UserKnownHostsFile="$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts" \
             docker-compose.yml \
-            ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }}:${{ secrets.REMOTE_SERVER_PATH }}
+            ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }}:${{ secrets.REMOTE_SERVER_PATH }}/docker-compose.next.yml
 
+      # `IMAGE_TAG` is persisted in `.env` only after the containers are up, so the renderer the
+      # hourly refresh runs always matches the build the site is serving. Only the newest five
+      # builds of each image are kept on the server, as rollback targets.
       - name: Deploy Docker containers using Docker Compose on remote server
         run: |
           ssh -i "$RUNNER_TEMP/powercalc-deploy-ssh/id_rsa" \
@@ -174,7 +162,18 @@ jobs:
             -o StrictHostKeyChecking=yes \
             -o UserKnownHostsFile="$RUNNER_TEMP/powercalc-deploy-ssh/known_hosts" \
             ${{ secrets.SSH_USER }}@${{ secrets.REMOTE_SERVER_ADDRESS }} << 'ENDSSH'
-          docker compose -f ${{ secrets.REMOTE_SERVER_PATH }}/docker-compose.yml up -d
+          set -e
+          cd ${{ secrets.REMOTE_SERVER_PATH }}
+          export IMAGE_TAG=${{ env.IMAGE_TAG }}
+          docker compose -f docker-compose.next.yml --profile render pull
+          docker compose -f docker-compose.next.yml up -d
+          mv docker-compose.next.yml docker-compose.yml
+          touch .env
+          { grep -v '^IMAGE_TAG=' .env || true; echo "IMAGE_TAG=$IMAGE_TAG"; } > .env.next
+          mv .env.next .env
+          for image in ${{ env.UI_IMAGE }} ${{ env.RENDERER_IMAGE }}; do
+            docker image ls "$image" --format '{{.Repository}}:{{.Tag}}' | tail -n +6 | xargs -r docker image rm || true
+          done
           ENDSSH
 
       - name: Purge Cloudflare cache
