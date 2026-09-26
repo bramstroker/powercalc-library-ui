@@ -31,4 +31,4 @@ export const profilePath = (manufacturer, model) =>
 
 /** @param {string} manufacturer @param {string} model */
 export const profileSocialImagePath = (manufacturer, model) =>
-  `/social-cards/profiles/${encodeSlug(manufacturer)}/${encodeSlug(model)}.png`;
+  `/assets/social-cards/profiles/${encodeSlug(manufacturer)}/${encodeSlug(model)}.png`;

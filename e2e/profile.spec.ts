@@ -24,7 +24,7 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
   );
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
     "content",
-    "https://library.powercalc.nl/social-cards/profiles/signify/lca001.png",
+    "https://library.powercalc.nl/assets/social-cards/profiles/signify/lca001.png",
   );
   await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
     "content",
@@ -32,7 +32,7 @@ test("shows the profile details for a deep linked profile", async ({ page }) => 
   );
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
     "content",
-    "https://library.powercalc.nl/social-cards/profiles/signify/lca001.png",
+    "https://library.powercalc.nl/assets/social-cards/profiles/signify/lca001.png",
   );
   await expect(page.getByText("Shelly Plug S", { exact: true })).toBeVisible();
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(

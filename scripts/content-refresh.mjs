@@ -4,7 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const eligible = (path) =>
-  /(?:\.html|\.data)$/.test(path) || path.startsWith("social-cards/") || path === "sitemap.xml";
+  /(?:\.html|\.data)$/.test(path) || path.startsWith("assets/social-cards/") || path === "sitemap.xml";
 const safePath = (path) => {
   if (path.startsWith("/") || path.split("/").includes("..") || /[\r\n\\]/.test(path))
     throw new Error(`Unsafe content path: ${path}`);

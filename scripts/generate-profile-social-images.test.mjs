@@ -68,7 +68,7 @@ describe("profile social images", () => {
       assert.equal(count, 1);
       assert.deepEqual(
         outputPath,
-        join(outDir, "social-cards", "profiles", "brand-co", "model-one.png"),
+        join(outDir, "assets", "social-cards", "profiles", "brand-co", "model-one.png"),
       );
       assert.equal(metadata.format, "png");
       assert.equal(metadata.width, 1200);
