@@ -16,7 +16,7 @@
 /build
 /dist
 /.react-router
-/public/avatars
+/public/assets/avatars
 
 # misc
 .DS_Store

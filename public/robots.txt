@@ -1,7 +1,7 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 # Contributor avatars do not contain library profile information.
-Disallow: /avatars/
+Disallow: /assets/avatars/
 
 # Profile content is included in the HTML; these crawlers do not need app bundles.
 # Repeat the avatar rule because specific groups do not inherit the wildcard group.
@@ -9,7 +9,7 @@ User-agent: ClaudeBot
 User-agent: Claude-SearchBot
 User-agent: GPTBot
 User-agent: OAI-SearchBot
-Disallow: /avatars/
+Disallow: /assets/avatars/
 Disallow: /assets/
 
 Sitemap: https://library.powercalc.nl/sitemap.xml

@@ -17,7 +17,7 @@ describe("URL slugs", () => {
     expect(deviceTypePath("smart_switch")).toBe("/device-types/smart-switch");
     expect(profilePath("Brand & Co", "Model / One")).toBe("/profiles/brand-co/model-one");
     expect(profileSocialImagePath("Brand & Co", "Model / One")).toBe(
-      "/social-cards/profiles/brand-co/model-one.png",
+      "/assets/social-cards/profiles/brand-co/model-one.png",
     );
   });
 });

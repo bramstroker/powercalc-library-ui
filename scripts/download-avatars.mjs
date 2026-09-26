@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const DEFAULT_API_URL = "https://api.powercalc.nl/library/full";
-const DEFAULT_OUTPUT_DIR = resolve("public/avatars");
+const AVATAR_PATH = "/assets/avatars/";
+const DEFAULT_OUTPUT_DIR = resolve("public/assets/avatars");
 const DEFAULT_SIZE = 192;
 const OUTPUT_SIZES = [96, 192];
 const DEFAULT_CONCURRENCY = 8;
@@ -16,8 +17,8 @@ const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 // as a predictable file name and is skipped rather than escaped.
 const isValidUsername = (username) => /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/iu.test(username);
 const generatedAvatarFiles = (avatarPath) => {
-  if (typeof avatarPath !== "string" || !avatarPath.startsWith("/avatars/")) return [];
-  const fileName = avatarPath.slice("/avatars/".length);
+  if (typeof avatarPath !== "string" || !avatarPath.startsWith(AVATAR_PATH)) return [];
+  const fileName = avatarPath.slice(AVATAR_PATH.length);
   if (/^[a-z\d](?:[a-z\d-]{0,38})\.(?:gif|jpe?g|png|webp)$/u.test(fileName)) {
     return [fileName];
   }
@@ -129,7 +130,7 @@ export const downloadAvatars = async ({
           outputDir,
           size,
         });
-        manifest[username] = `/avatars/${baseName}`;
+        manifest[username] = `${AVATAR_PATH}${baseName}`;
         downloaded += 1;
       } catch (error) {
         failures.push({
