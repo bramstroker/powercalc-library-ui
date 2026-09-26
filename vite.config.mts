@@ -18,14 +18,14 @@ const isBuild = process.argv.includes("build");
 const loadAvatarManifest = (): Record<string, string> => {
   try {
     const manifest = JSON.parse(
-      readFileSync(new URL("./public/avatars/manifest.json", import.meta.url), "utf8"),
+      readFileSync(new URL("./public/assets/avatars/manifest.json", import.meta.url), "utf8"),
     ) as unknown;
     if (!manifest || typeof manifest !== "object" || Array.isArray(manifest)) return {};
 
     return Object.fromEntries(
       Object.entries(manifest).filter(
         (entry): entry is [string, string] =>
-          typeof entry[1] === "string" && entry[1].startsWith("/avatars/"),
+          typeof entry[1] === "string" && entry[1].startsWith("/assets/avatars/"),
       ),
     );
   } catch {

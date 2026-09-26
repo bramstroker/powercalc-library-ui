@@ -2,5 +2,5 @@ build/
 coverage/
 node_modules/
 playwright-report/
-public/avatars/
+public/assets/avatars/
 test-results/
