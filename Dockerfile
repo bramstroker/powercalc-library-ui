@@ -1,5 +1,5 @@
 # Dockerfile
-FROM node:25-alpine AS node-with-fonts
+FROM node:26-alpine AS node-with-fonts
 
 # Sharp delegates SVG text rendering to librsvg/Pango. Alpine does not include a font by default,
 # which makes every social-card glyph render as a missing-character box.
