@@ -21,6 +21,8 @@ import type { captureException as captureExceptionType } from "@sentry/react";
 const DSN =
   "https://0d99b37d629842e88ae62be9ecddd530@o4510889348890624.ingest.de.sentry.io/4510889353936976";
 
+const visitorFields = { deny: ["forwarded", "-ip", "remote-", "via", "-user"] };
+
 /**
  * Only the function this app calls is pulled out of the module. Destructuring at the `import()`
  * call site is what lets the bundler tree-shake the SDK: holding on to the whole namespace object
@@ -34,8 +36,14 @@ const load = (): Promise<Capture> => {
   loading ??= import("@sentry/react").then(({ init, captureException }) => {
     init({
       dsn: DSN,
-      // Leave visitor PII (IP addresses among others) out of reports for this public EU-facing site.
-      sendDefaultPii: false,
+      // Keep the browser SDK's collection restricted when upgrading from sendDefaultPii: false.
+      dataCollection: {
+        userInfo: false,
+        cookies: false,
+        httpHeaders: visitorFields,
+        httpBodies: [],
+        urlQueryParams: visitorFields,
+      },
     });
     return captureException;
   });
