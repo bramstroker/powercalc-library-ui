@@ -6,10 +6,12 @@ X charts. Library and usage data come from the [Powercalc API](https://api.power
 
 ## Requirements
 
-- Node.js 22.22 or newer
+- Node.js 26 LTS
 - npm
 
 ## Local development
+
+If you use nvm, run `nvm install` to select the Node.js version from `.nvmrc`.
 
 ```sh
 npm install
