@@ -7,14 +7,17 @@ for (const width of [320, 1280]) {
     await page.setViewportSize({ width, height: 740 });
     await mockApi(page);
     await page.goto("/");
-    await expect(page.getByRole("navigation", { name: "Explore Powercalc" })).toBeHidden();
-    for (const [name, path] of [
-      ["Device types", "/device-types"],
-      ["Measurement quality", "/measurement-quality"],
-      ["About", "/about"],
+    const exploreButton = page.getByRole("button", { name: "Explore", exact: true });
+    const nav = page.getByRole("navigation", { name: "Explore Powercalc" });
+    const popover = page.locator("#explore-menu");
+    await expect(popover).toBeHidden();
+
+    for (const [name, path, heading] of [
+      ["Device types", "/device-types", "Device types"],
+      ["Measurement quality", "/measurement-quality", "Measurement quality"],
+      ["About", "/about", "About the profile data"],
     ]) {
-      await page.getByRole("button", { name: "Explore", exact: true }).click();
-      const nav = page.getByRole("navigation", { name: "Explore Powercalc" });
+      await exploreButton.click();
       await expect(nav.getByRole("menu", { name: "Find a device" })).toBeVisible();
       await expect(nav.getByRole("menu", { name: "Help", exact: true })).toBeVisible();
       await expect(nav.getByRole("menu", { name: "Community & data" })).toBeVisible();
@@ -23,15 +26,19 @@ for (const width of [320, 1280]) {
       );
       await nav.getByRole("menuitem", { name, exact: true }).click();
       await expect(page).toHaveURL(path);
-      await expect(nav).toBeHidden();
-      await page.getByRole("button", { name: "Explore", exact: true }).click();
+      await expect(
+        page.getByRole("heading", { name: heading, level: 1, exact: true }),
+      ).toBeVisible();
+      // The navigation leaves the accessibility tree before the popover backdrop stops blocking clicks.
+      await expect(popover).toBeHidden();
+      await exploreButton.click();
       await expect(nav.getByRole("menuitem", { name, exact: true })).toHaveAttribute(
         "aria-current",
         "page",
       );
       await page.keyboard.press("Escape");
-      await expect(nav).toBeHidden();
-      await expect(page.getByRole("button", { name: "Explore", exact: true })).toBeFocused();
+      await expect(popover).toBeHidden();
+      await expect(exploreButton).toBeFocused();
     }
   });
 }
