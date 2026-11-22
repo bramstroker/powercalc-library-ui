@@ -23,9 +23,7 @@ import { subProfileLinks } from "../../api/profileDetails.api";
 import { profileFilesQuery } from "../../queries/profileDetails.query";
 import type { PowerProfile } from "../../types/PowerProfile";
 
-import { buildSensorYaml, MY_HA_CONFIG_FLOW_URL } from "./profileSetupYaml";
-
-const ENTITY_PLACEHOLDER = "light.my_light";
+import { buildSensorYaml, getExampleEntityId, MY_HA_CONFIG_FLOW_URL } from "./profileSetupYaml";
 
 export const ProfileSetupDetails = ({
   profile,
@@ -49,11 +47,12 @@ export const ProfileSetupDetails = ({
   });
   const subProfileNames = subProfileLinks(profileFiles).map((link) => link.path.split("/")[0]);
 
+  const exampleEntityId = getExampleEntityId(profile.deviceType);
   const yaml = buildSensorYaml({
     manufacturerDir: profile.manufacturer.dirName,
     modelId: profile.modelId,
     subProfile: subProfile || undefined,
-    entityId: ENTITY_PLACEHOLDER,
+    entityId: exampleEntityId,
   });
 
   const handleCopy = async () => {
@@ -114,7 +113,7 @@ export const ProfileSetupDetails = ({
           >
             <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
               Add this to your <code>configuration.yaml</code>, replacing{" "}
-              <code>{ENTITY_PLACEHOLDER}</code> with your own entity.
+              <code>{exampleEntityId}</code> with an entity ID from your device.
             </Typography>
 
             {profile.subProfileCount > 0 && (
