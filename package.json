@@ -58,7 +58,7 @@
     "@playwright/test": "^1.62.1",
     "@react-router/dev": "^8.3.0",
     "@sentry/vite-plugin": "^5.0.0",
-    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^26.0.1",
     "@types/react": "^19.0",
