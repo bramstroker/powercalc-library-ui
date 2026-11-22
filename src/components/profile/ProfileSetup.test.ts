@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { buildSensorYaml } from "./ProfileSetup";
+import { DeviceType } from "../../types/DeviceType";
+
+import { buildSensorYaml, getExampleEntityId } from "./profileSetupYaml";
 
 describe("buildSensorYaml", () => {
   it("builds the library sensor snippet", () => {
@@ -30,6 +32,16 @@ describe("buildSensorYaml", () => {
     });
 
     expect(yaml).toContain("model: LIFX Z/length_9");
+  });
+
+  it("uses a sensor entity for the IKEA ALPSTUGA profile", () => {
+    const yaml = buildSensorYaml({
+      manufacturerDir: "ikea",
+      modelId: "E2495",
+      entityId: getExampleEntityId(DeviceType.GENERIC_IOT),
+    });
+
+    expect(yaml).toContain("entity_id: sensor.my_sensor");
   });
 
   it("uses the manufacturer directory name, not its display name", () => {

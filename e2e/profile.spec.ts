@@ -307,6 +307,8 @@ test("offers manual setup for a profile discovered by entity", async ({ page }) 
 
   await setup.getByText("Or configure with YAML").click();
 
+  await expect(setup.getByText("switch.my_switch", { exact: true })).toBeVisible();
+  await expect(setup.locator("pre")).toContainText("entity_id: switch.my_switch");
   await expect(setup.getByText("manufacturer: sonoff")).toBeVisible();
   await expect(setup.getByText("model: S31")).toBeVisible();
 
@@ -338,6 +340,8 @@ test("offers setup for manual-only profiles", async ({ page }) => {
   await expect(setup.getByText(/Automatic discovery is not available/)).toBeVisible();
   await expect(setup.getByRole("link", { name: "Open in Home Assistant" })).toBeVisible();
   await setup.getByText("Or configure with YAML").click();
+  await expect(setup.getByText("light.my_light", { exact: true })).toBeVisible();
+  await expect(setup.locator("pre")).toContainText("entity_id: light.my_light");
   await expect(setup.getByText("manufacturer: signify")).toBeVisible();
   await expect(setup.getByText("model: LCT010")).toBeVisible();
 });
